@@ -1,0 +1,590 @@
+{
+ "cursor": "",
+ "limit": 100,
+ "facets": {
+  "industries": [
+   {
+    "value": "Automotive & Manufacturing",
+    "count": 81
+   },
+   {
+    "value": "Consumer Packaged Goods",
+    "count": 32
+   },
+   {
+    "value": "Defense & Security",
+    "count": 60
+   },
+   {
+    "value": "eGovernment",
+    "count": 77
+   },
+   {
+    "value": "Financial Services & Insurance",
+    "count": 98
+   },
+   {
+    "value": "Healthcare & Lifescience",
+    "count": 75
+   },
+   {
+    "value": "Retail",
+    "count": 51
+   },
+   {
+    "value": "Service & IT Provider",
+    "count": 56
+   },
+   {
+    "value": "Utilities & Logistics Ecosystem",
+    "count": 49
+   }
+  ],
+  "categories": [
+   {
+    "value": "Business Applications",
+    "count": 76
+   },
+   {
+    "value": "Data & AI",
+    "count": 22
+   },
+   {
+    "value": "DevOps",
+    "count": 54
+   },
+   {
+    "value": "Infrastructure Software",
+    "count": 75
+   },
+   {
+    "value": "Internet of Things",
+    "count": 34
+   },
+   {
+    "value": "Machine Learning",
+    "count": 46
+   },
+   {
+    "value": "Professional Services",
+    "count": 86
+   },
+   {
+    "value": "Security & Observability",
+    "count": 1
+   }
+  ],
+  "deliveryMethod": [
+   {
+    "value": "CLOUD_IMAGE",
+    "count": 1
+   },
+   {
+    "value": "CONTAINER_IMAGE",
+    "count": 11
+   },
+   {
+    "value": "PROFESSIONAL_SERVICE",
+    "count": 34
+   },
+   {
+    "value": "SAAS",
+    "count": 82
+   }
+  ],
+  "priceType": [
+   {
+    "value": "CONTRACT",
+    "count": 1
+   },
+   {
+    "value": "FREE_TRIAL",
+    "count": 1
+   }
+  ],
+  "vendor": [
+   {
+    "value": "2150 Datavault Builder AG",
+    "count": 1
+   },
+   {
+    "value": "Ab Initio Software Germany GmbH",
+    "count": 1
+   },
+   {
+    "value": "Akamai Technologies",
+    "count": 1
+   },
+   {
+    "value": "Akarion AG",
+    "count": 1
+   },
+   {
+    "value": "Akkodis Germany GmbH",
+    "count": 1
+   },
+   {
+    "value": "akquinet GmbH",
+    "count": 1
+   },
+   {
+    "value": "AltaSigma GmbH",
+    "count": 1
+   },
+   {
+    "value": "amber Tech GmbH",
+    "count": 1
+   },
+   {
+    "value": "anny GmbH",
+    "count": 1
+   },
+   {
+    "value": "AOE Solutions GmbH",
+    "count": 2
+   },
+   {
+    "value": "ARES Consulting GmbH",
+    "count": 1
+   },
+   {
+    "value": "Argos Security GmbH",
+    "count": 2
+   },
+   {
+    "value": "ATVANTAGE GmbH",
+    "count": 1
+   },
+   {
+    "value": "avato consulting AG",
+    "count": 1
+   },
+   {
+    "value": "axxessio GmbH",
+    "count": 2
+   },
+   {
+    "value": "BLIKS IO GmbH",
+    "count": 1
+   },
+   {
+    "value": "Blockbrain GmbH",
+    "count": 1
+   },
+   {
+    "value": "BTC Business Technology Consulting AG",
+    "count": 2
+   },
+   {
+    "value": "BT (Germany) GmbH & Co. oHG",
+    "count": 1
+   },
+   {
+    "value": "Bull GmbH",
+    "count": 1
+   },
+   {
+    "value": "Capgemini Deutschland GmbH",
+    "count": 1
+   },
+   {
+    "value": "Ceyoniq Technology GmbH",
+    "count": 1
+   },
+   {
+    "value": "CGI Deutschland B.V. & Co. KG",
+    "count": 1
+   },
+   {
+    "value": "Cloud Incubator GmbH",
+    "count": 5
+   },
+   {
+    "value": "Collaboration Betters The World GmbH",
+    "count": 2
+   },
+   {
+    "value": "Conceptboard Cloud Service GmbH",
+    "count": 1
+   },
+   {
+    "value": "Consid GmbH",
+    "count": 1
+   },
+   {
+    "value": "Consist Software Solutions GmbH",
+    "count": 1
+   },
+   {
+    "value": "CONTACT Software GmbH",
+    "count": 1
+   },
+   {
+    "value": "con terra GmbH",
+    "count": 1
+   },
+   {
+    "value": "Controlware GmbH",
+    "count": 2
+   },
+   {
+    "value": "CONVENTIC Gesellschaft für IT-Beratung und Applikationsentwicklung GmbH",
+    "count": 1
+   },
+   {
+    "value": "credativ GmbH",
+    "count": 2
+   },
+   {
+    "value": "CrowdStrike Inc",
+    "count": 1
+   },
+   {
+    "value": "CS Company Shield GmbH",
+    "count": 1
+   },
+   {
+    "value": "Cybus GmbH",
+    "count": 1
+   },
+   {
+    "value": "DeepMask GmbH",
+    "count": 1
+   },
+   {
+    "value": "Deepshore GmbH",
+    "count": 1
+   },
+   {
+    "value": "DriveLock SE",
+    "count": 1
+   },
+   {
+    "value": "EBCONT operations GmbH",
+    "count": 2
+   },
+   {
+    "value": "efs Techhub GmbH",
+    "count": 1
+   },
+   {
+    "value": "empiriecom GmbH & Co. KG",
+    "count": 1
+   },
+   {
+    "value": "enclaive GmbH",
+    "count": 1
+   },
+   {
+    "value": "Eperi GmbH",
+    "count": 3
+   },
+   {
+    "value": "Exasol AG",
+    "count": 1
+   },
+   {
+    "value": "Exxeta AG",
+    "count": 3
+   },
+   {
+    "value": "filehub GmbH",
+    "count": 1
+   },
+   {
+    "value": "Formcentric GmbH",
+    "count": 1
+   },
+   {
+    "value": "futureLAB AG",
+    "count": 1
+   },
+   {
+    "value": "Genow GmbH",
+    "count": 1
+   },
+   {
+    "value": "GFT Deutschland GmbH",
+    "count": 4
+   },
+   {
+    "value": "Hilscher Gesellschaft für Systemautomation mbH",
+    "count": 1
+   },
+   {
+    "value": "hiqs GmbH",
+    "count": 1
+   },
+   {
+    "value": "HMS Analytical Software GmbH",
+    "count": 1
+   },
+   {
+    "value": "Hyground GmbH",
+    "count": 1
+   },
+   {
+    "value": "]init[ AG",
+    "count": 1
+   },
+   {
+    "value": "innFactory GmbH",
+    "count": 1
+   },
+   {
+    "value": "inovex GmbH",
+    "count": 2
+   },
+   {
+    "value": "intive GmbH",
+    "count": 1
+   },
+   {
+    "value": "INTREXX GmbH",
+    "count": 1
+   },
+   {
+    "value": "KNIME AG",
+    "count": 1
+   },
+   {
+    "value": "Liquid Reply GmbH",
+    "count": 1
+   },
+   {
+    "value": "Logabit GmbH",
+    "count": 1
+   },
+   {
+    "value": "M2. technology & project consulting GmbH",
+    "count": 1
+   },
+   {
+    "value": "MaibornWolff GmbH",
+    "count": 1
+   },
+   {
+    "value": "MAMA TELMA AI sro",
+    "count": 1
+   },
+   {
+    "value": "Materna Information & Communications SE",
+    "count": 1
+   },
+   {
+    "value": "meshcloud GmbH",
+    "count": 4
+   },
+   {
+    "value": "MHP Management- und IT-Beratung GmbH",
+    "count": 4
+   },
+   {
+    "value": "MicroStrategy Deutschland GmbH",
+    "count": 1
+   },
+   {
+    "value": "mogenius GmbH",
+    "count": 1
+   },
+   {
+    "value": "NetBird GmbH",
+    "count": 1
+   },
+   {
+    "value": "neuland.ai AG",
+    "count": 1
+   },
+   {
+    "value": "Nubotech Solutions GmbH & Co. KG",
+    "count": 1
+   },
+   {
+    "value": "obART GRAF d.o.o.",
+    "count": 1
+   },
+   {
+    "value": "oneclick AG",
+    "count": 1
+   },
+   {
+    "value": "OPITZ CONSULTING Deutschland GmbH",
+    "count": 1
+   },
+   {
+    "value": "pirobase imperia GmbH",
+    "count": 3
+   },
+   {
+    "value": "Praetorian Consulting GmbH",
+    "count": 1
+   },
+   {
+    "value": "PRODYNA SE",
+    "count": 3
+   },
+   {
+    "value": "proseco software GmbH",
+    "count": 1
+   },
+   {
+    "value": "RealCore Group GmbH",
+    "count": 2
+   },
+   {
+    "value": "Robert Bosch GmbH",
+    "count": 1
+   },
+   {
+    "value": "rocon Rohrbach EDV-Consulting GmbH",
+    "count": 1
+   },
+   {
+    "value": "Schwarz Digits Cloud GmbH & Co. KG",
+    "count": 2
+   },
+   {
+    "value": "Scoby GmbH",
+    "count": 1
+   },
+   {
+    "value": "Softwarehelden GmbH",
+    "count": 1
+   },
+   {
+    "value": "Sopra Steria SE",
+    "count": 1
+   },
+   {
+    "value": "Starfish GmbH & Co. KG",
+    "count": 3
+   },
+   {
+    "value": "Sulzer GmbH",
+    "count": 1
+   },
+   {
+    "value": "Veridium UK Limited",
+    "count": 1
+   },
+   {
+    "value": "VORNAC GmbH",
+    "count": 1
+   },
+   {
+    "value": "XIBIX Solutions GmbH",
+    "count": 1
+   },
+   {
+    "value": "ZEPCAM B.V.",
+    "count": 1
+   }
+  ],
+  "sovereignty": [],
+  "planType": [
+   {
+    "value": "PUBLIC",
+    "count": 1
+   }
+  ]
+ },
+ "items": [
+  {
+   "productId": "sap-license-strategy-2be50908",
+   "name": "SAP License Strategy and Optimization",
+   "deliveryMethod": "PROFESSIONAL_SERVICE",
+   "logo": "data:image/png;base64,",
+   "summary": "Holistic consulting for SAP license strategy: We analyze usage, contracts, and target architecture to develop a future-proof, cost-optimized licensing strategy - enabling well-informed decisions around the entire SAP Business Suite and beyond.",
+   "vendor": {
+    "vendorId": "akquinet-gmbh-058b4f4f",
+    "name": "akquinet GmbH",
+    "websiteUrl": "https://akquinet.com/"
+   },
+   "lifecycleState": "PRODUCT_LIVE",
+   "hasPrivatePlanOption": false,
+   "hasAuthenticatedPlanOption": false,
+   "sovereignty": {
+    "maturityLevel": "",
+    "dataLocation": "",
+    "serviceLocation": "",
+    "dataAccess": "",
+    "securityStandard": ""
+   },
+   "activeFeatures": [],
+   "labels": {}
+  },
+  {
+   "productId": "sap-rise-validation-e88ed8ad",
+   "name": "SAP Rise Validation - Readiness Check",
+   "deliveryMethod": "PROFESSIONAL_SERVICE",
+   "logo": "data:image/png;base64,",
+   "summary": "RealCore supports you in evaluating your SAP RISE Assessment. With our experience, we consider various aspects to optimally prepare your individual SAP architecture for a smooth cloud migration. We offer the analysis of your SAP Assessment at a fixed price.",
+   "vendor": {
+    "vendorId": "realcore-group-gmbh-d7234d53",
+    "name": "RealCore Group GmbH",
+    "websiteUrl": "https://www.realcore.de"
+   },
+   "lifecycleState": "PRODUCT_LIVE",
+   "hasPrivatePlanOption": false,
+   "hasAuthenticatedPlanOption": false,
+   "sovereignty": {
+    "maturityLevel": "",
+    "dataLocation": "",
+    "serviceLocation": "",
+    "dataAccess": "",
+    "securityStandard": ""
+   },
+   "activeFeatures": [],
+   "labels": {}
+  },
+  {
+   "productId": "sap-s-4hana-35ea5ce1",
+   "name": "SAP S/4HANA Transformation Assessment",
+   "deliveryMethod": "PROFESSIONAL_SERVICE",
+   "logo": "data:image/png;base64,",
+   "summary": "Do you need certainty in your planning for an SAP S/4HANA transformation? Thanks to our experienced team of process and technology consultants, the RealCore S/4HANA Transformation Assessment will provide clear recommendations for a cost-efficient and low-risk changeover within 4 weeks.",
+   "vendor": {
+    "vendorId": "realcore-group-gmbh-d7234d53",
+    "name": "RealCore Group GmbH",
+    "websiteUrl": "https://www.realcore.de"
+   },
+   "lifecycleState": "PRODUCT_LIVE",
+   "hasPrivatePlanOption": false,
+   "hasAuthenticatedPlanOption": false,
+   "sovereignty": {
+    "maturityLevel": "",
+    "dataLocation": "",
+    "serviceLocation": "",
+    "dataAccess": "",
+    "securityStandard": ""
+   },
+   "activeFeatures": [],
+   "labels": {}
+  },
+  {
+   "productId": "scoby-analytics-9107400b",
+   "name": "Scoby Analytics",
+   "deliveryMethod": "SAAS",
+   "logo": "data:image/png;base64,",
+   "summary": "Turn data privacy into a competitive advantage - Scoby Analytics offers comprehensive and anonymous website analysis without consent-requiring technologies. Our server-side solution enables complete evaluation of traffic and marketing impacts, delivering 100% of relevant usage data without consent, fully compliant with German data protection laws.",
+   "vendor": {
+    "vendorId": "scoby-gmbh-a9af1b46",
+    "name": "Scoby GmbH",
+    "websiteUrl": "https://www.scoby.io"
+   },
+   "lifecycleState": "PRODUCT_LIVE",
+   "hasPrivatePlanOption": false,
+   "hasAuthenticatedPlanOption": false,
+   "sovereignty": {
+    "maturityLevel": "",
+    "dataLocation": "",
+    "serviceLocation": "",
+    "dataAccess": "",
+    "securityStandard": ""
+   },
+   "activeFeatures": [],
+   "labels": {}
+  }
+ ],
+ "totalCount": 128
+}

@@ -1,0 +1,73 @@
+{
+ "result": {
+  "errCode": "",
+  "product": {
+   "crumbInfo": [
+    {
+     "cid": 130,
+     "name": "API服务"
+    },
+    {
+     "cid": 130009,
+     "name": "人工智能"
+    }
+   ],
+   "productInfo": {
+    "assurance": [
+     "FREE_REFUND_IN7DAYS",
+     "VERIFIED_VENDOR",
+     "CASH_GUARANTEE",
+     "TRADE_GUARANTEE"
+    ],
+    "chargeType": "COUNT",
+    "cnDeliveryMethod": "API交付",
+    "deliveryMethod": "API",
+    "digest": "情绪识别API，实时分析对话中的情绪波动，精准识别喜、怒、哀、惧等复杂情绪。适用于客服质检、营销互动、产品优化等场景，赋能企业读懂用户未说出口的话，用数据驱动决策，提升服务体验与转化效率。",
+    "parameters": [
+     {
+      "name": "使用场景",
+      "type": "text",
+      "value": "智能客服与客户体验管理：\n实时座席辅助： 在客服对话中实时分析客户情绪，当识别到愤怒或不满时，即时提醒座席，并可推荐安抚话术或建议升级处理。\n服务质量质检： 自动化地对海量客服录音/聊天记录进行情绪分析，筛选出负面情绪集中的对话进行重点复核，提升质检效率。\n客户心声分析： 聚合分析社交媒体、调查问卷、应用商店评论中的用户情绪，量化品牌口碑，发现产品改进的关键点。"
+     },
+     {
+      "name": "适用行业",
+      "type": "text",
+      "value": "科技/IT"
+     },
+     {
+      "name": "demo链接",
+      "type": "text",
+      "value": ""
+     },
+     {
+      "name": "SLA",
+      "type": "text",
+      "value": ""
+     },
+     {
+      "name": "使用文档",
+      "type": "text",
+      "value": ""
+     }
+    ],
+    "pid": "02c40594-ad03-432f-b2dc-a43c60456862",
+    "productSale": "",
+    "productType": "MKT",
+    "sceneKeywords": [
+     "情绪",
+     "情绪分析"
+    ],
+    "tag": "",
+    "title": "情绪api 对话情绪识别 情绪识别 情绪分析",
+    "tutorialFileName": "使用指南.pdf"
+   },
+   "vendorInfo": {
+    "vendorId": "20be542e-1963-4c11-914f-35e5cbc585ab",
+    "vendorName": "杭州本如网络科技有限公司",
+    "intro": "大数据应用公司，强大的数据分析能力，知识图谱构建。"
+   }
+  }
+ },
+ "status": 200,
+ "success": true
+}

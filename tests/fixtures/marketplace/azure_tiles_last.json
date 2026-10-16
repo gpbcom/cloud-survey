@@ -1,0 +1,51 @@
+{
+ "apps": {
+  "galleryTiles": [
+   {
+    "entityId": "1632473491946.navisia_translator",
+    "entityIdLoweredCased": "1632473491946.navisia_translator",
+    "publisherId": "1632473491946",
+    "title": "NavisiaTranslator for DeskTop",
+    "publisher": "株式会社ナブアシスト",
+    "shortDescription": "ノンプログラミングでテキストデータを変換するためのツールです",
+    "categoriesDetails": [
+     {
+      "longTitle": "Productivity",
+      "locKey": "onetaxonomylockey_productivity",
+      "urlKey": "productivity"
+     }
+    ],
+    "productType": 64,
+    "catalogOfferType": "SaaS",
+    "builtFor": "SaaS",
+    "entityType": 1
+   },
+   {
+    "entityId": "PUBID.terna|AID.be-shipping-labels|PAPPID.8b77d0e0-3090-4f5b-82e6-38f958f9074e",
+    "entityIdLoweredCased": "pubid.terna|aid.be-shipping-labels|pappid.8b77d0e0-3090-4f5b-82e6-38f958f9074e",
+    "publisherId": "terna",
+    "title": "BE-terna Shipping Labels",
+    "publisher": "BE-terna",
+    "shortDescription": "Enables end users to generate shipping labels at the Business Central front end.",
+    "categoriesDetails": [
+     {
+      "longTitle": "Operations & Supply Chain",
+      "locKey": "onetaxonomylockey_operations-and-supply-chain",
+      "urlKey": "operations-and-supply-chain"
+     },
+     {
+      "longTitle": "Productivity",
+      "locKey": "onetaxonomylockey_productivity",
+      "urlKey": "productivity"
+     }
+    ],
+    "productType": 16384,
+    "catalogOfferType": "DynamicsBC",
+    "builtFor": "Dynamics 365 Business Central",
+    "entityType": 1
+   }
+  ],
+  "count": 80718
+ },
+ "origin": null
+}

@@ -1,0 +1,441 @@
+{
+ "data": [
+  {
+   "code": "EI",
+   "name": "AI",
+   "appId": null,
+   "products": [
+    {
+     "code": "ai",
+     "title": "AI Decisions",
+     "uri": "https://support.huaweicloud.com/intl/en-us/how-to-choose-ai/ai_0001.html",
+     "mainSeriesProductCode": "",
+     "description": "Discover AI services tailored to your needs"
+    },
+    {
+     "code": "codeartsagent",
+     "title": "CodeArts Agent",
+     "uri": "https://support.huaweicloud.com/intl/en-us/wtsnew-codeartsagent/index.html",
+     "mainSeriesProductCode": "",
+     "description": "AI coding platform with deep understanding of project context"
+    },
+    {
+     "code": "modelarts",
+     "title": "ModelArts",
+     "uri": "https://support.huaweicloud.com/intl/en-us/modelarts/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Build, train, and deploy machine learning models quickly and easily"
+    },
+    {
+     "code": "pangulm",
+     "title": "PanguLargeModels",
+     "uri": "https://support.huaweicloud.com/intl/en-us/pangulm/index.html",
+     "mainSeriesProductCode": "",
+     "description": "Reshape your industry with large AI models"
+    },
+    {
+     "code": "face",
+     "title": "Face Recognition Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/face/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Can be used for Identity verification, e-Attendance and customer attribute analysis"
+    },
+    {
+     "code": "ges",
+     "title": "Graph Engine Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/ges/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Query and analyze graph-structure data based on relationships"
+    },
+    {
+     "code": "moderation",
+     "title": "Content Moderation",
+     "uri": "https://support.huaweicloud.com/intl/en-us/moderation/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Detect inappropriate content in images, text, and videos"
+    },
+    {
+     "code": "image",
+     "title": "Image Recognition",
+     "uri": "https://support.huaweicloud.com/intl/en-us/image/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Identify visual content in images"
+    },
+    {
+     "code": "ocr",
+     "title": "Optical Character Recognition",
+     "uri": "https://support.huaweicloud.com/intl/en-us/ocr/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Detect and extract text in images"
+    },
+    {
+     "code": "cbs",
+     "title": "Conversational Bot Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/cbs/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Build and manage intelligent conversational bots and digital humans "
+    },
+    {
+     "code": "sis",
+     "title": "Speech Interaction Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/sis/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Automatic Speech Recognition (ASR) and Text To Speech (TTS) for smooth speech interaction"
+    },
+    {
+     "code": "hilens",
+     "title": "Huawei HiLens",
+     "uri": "https://support.huaweicloud.com/intl/en-us/hilens/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Use this platform for multimodal AI development"
+    },
+    {
+     "code": "vias",
+     "title": "Video Intelligent Analysis Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/productdesc-vias/vias_01_0001.html",
+     "mainSeriesProductCode": null,
+     "description": "VIAS is a comprehensive solution for AI-driven video analytics, event detection"
+    },
+    {
+     "code": "maas",
+     "title": "MaaS",
+     "uri": "https://support.huaweicloud.com/intl/en-us/maas/index.html",
+     "mainSeriesProductCode": "",
+     "description": "Leading LLMs in one place, simple token pricing, and no infrastructure required"
+    },
+    {
+     "code": "pangubot",
+     "title": "PanguBot",
+     "uri": "https://support.huaweicloud.com/intl/en-us/pangubot/index.html",
+     "mainSeriesProductCode": "",
+     "description": "Rapidly build out-of-the-box, enterprise-grade chatbots powered by leading large language models"
+    }
+   ],
+   "cnName": "人工智能",
+   "enName": "AI"
+  },
+  {
+   "code": "storage",
+   "name": "Storage",
+   "appId": null,
+   "products": [
+    {
+     "code": "storage",
+     "title": "Storage Decisions",
+     "uri": "https://support.huaweicloud.com/intl/en-us/how-to-choose-storage/storage_0001.html",
+     "mainSeriesProductCode": "",
+     "description": "Find cloud storage services to reliably persist and manage your business data"
+    },
+    {
+     "code": "obs",
+     "title": "Object Storage Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/obs/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Take advantage of infinitely scalable, durable, and secure object storage"
+    },
+    {
+     "code": "evs",
+     "title": "Elastic Volume Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/evs/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Give your servers persistent block storage"
+    },
+    {
+     "code": "cbr",
+     "title": "Cloud Backup and Recovery",
+     "uri": "https://support.huaweicloud.com/intl/en-us/cbr/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Centrally manage backups of your cloud and on-premises resources"
+    },
+    {
+     "code": "sdrs",
+     "title": "Business Recovery Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/sdrs/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Enjoy cross-region and cross-AZ DR for your ECSs with an RPO of just seconds"
+    },
+    {
+     "code": "sfsturbo",
+     "title": "Scalable File Service Turbo",
+     "uri": "https://support.huaweicloud.com/intl/en-us/sfsturbo/index.html",
+     "mainSeriesProductCode": "",
+     "description": "Enjoy fully-hosted high-performance file systems"
+    },
+    {
+     "code": "sfs",
+     "title": "Scalable File Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/sfs/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Enjoy fully hosted NAS file systems"
+    },
+    {
+     "code": "vbs",
+     "title": "Volume Backup Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/vbs/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Back up cloud disks on running servers"
+    },
+    {
+     "code": "csbs",
+     "title": "Cloud Server Backup Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/csbs/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Consistently back up disks on your cloud servers"
+    },
+    {
+     "code": "des",
+     "title": "Data Express Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/des/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Transmit massive volumes of data safely and quickly to Huawei Cloud"
+    },
+    {
+     "code": "dss",
+     "title": "Dedicated Distributed Storage Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/dss/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Get dedicated, physical block storage"
+    }
+   ],
+   "cnName": "存储",
+   "enName": "Storage"
+  },
+  {
+   "code": "develptools",
+   "name": "Developer Services",
+   "appId": null,
+   "products": [
+    {
+     "code": "codeartsrepo",
+     "title": "CodeArts Repo",
+     "uri": "https://support.huaweicloud.com/intl/en-us/codeartsrepo/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Host your code in private Git repositories"
+    },
+    {
+     "code": "astrocanvas",
+     "title": "Huawei Cloud Astro Canvas",
+     "uri": "https://support.huaweicloud.com/intl/en-us/productdesc-astrocanvas/astrocanvas_03_0001.html",
+     "mainSeriesProductCode": null,
+     "description": "Drag, drop, and turn data into real-time insights"
+    },
+    {
+     "code": "hcli",
+     "title": "Koo Command Line Interface",
+     "uri": "https://support.huaweicloud.com/intl/en-us/hcli/index.html",
+     "mainSeriesProductCode": null,
+     "description": "A command line tool for your Huawei Cloud service APIs"
+    },
+    {
+     "code": "sdk",
+     "title": "SDK Developer Guide",
+     "uri": "https://support.huaweicloud.com/intl/en-us/devg-sdk/en-us_topic_0070637169.html",
+     "mainSeriesProductCode": null,
+     "description": "Obtain and use cloud service SDKs"
+    },
+    {
+     "code": "apisign",
+     "title": "API Request Signing Guide",
+     "uri": "https://support.huaweicloud.com/intl/en-us/devg-apisign/api-sign-provide.html",
+     "mainSeriesProductCode": null,
+     "description": "Call open APIs through AK/SK authentication"
+    }
+   ],
+   "cnName": "开发工具",
+   "enName": "Developer Services"
+  },
+  {
+   "code": "operation-migration",
+   "name": "Migration & O&M Management",
+   "appId": null,
+   "products": [
+    {
+     "code": "management",
+     "title": "O&M Management & Migration Decisions",
+     "uri": "https://support.huaweicloud.com/intl/en-us/how-to-choose-management/management_0001.html",
+     "mainSeriesProductCode": "",
+     "description": "Discover identity and governance services tailored to your needs"
+    },
+    {
+     "code": "oneaccess",
+     "title": "OneAccess",
+     "uri": "https://support.huaweicloud.com/intl/en-us/productdesc-oneaccess/oneaccess_01_0001.html",
+     "mainSeriesProductCode": null,
+     "description": null
+    },
+    {
+     "code": "iam",
+     "title": "Identity and Access Management",
+     "uri": "https://support.huaweicloud.com/intl/en-us/iam/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Securely manage access to your services and resources"
+    },
+    {
+     "code": "tms",
+     "title": "Tag Management Service",
+     "uri": "https://support.huaweicloud.com/intl/en-us/tms/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Centralized tag management and resource classification"
+    }
+   ],
+   "cnName": "运维管理与迁移",
+   "enName": "Migration & O&M Management"
+  },
+  {
+   "code": "solutions",
+   "name": "Solutions",
+   "appId": null,
+   "products": [
+    {
+     "code": "SAP",
+     "title": "SAP Cloud",
+     "uri": "https://support.huaweicloud.com/intl/en-us/dg-sap/sap_05_0002.html",
+     "mainSeriesProductCode": null,
+     "description": "Move your SAP applications to Huawei Cloud for enterprise-grade security, performance, and availability"
+    },
+    {
+     "code": "hpc",
+     "title": "High Performance Computing",
+     "uri": "https://support.huaweicloud.com/intl/en-us/usermanual-hpc/hpc_01_0002.html",
+     "mainSeriesProductCode": null,
+     "description": "Process complex computing tasks at high speeds in HPC clusters"
+    }
+   ],
+   "cnName": "解决方案",
+   "enName": "Solutions"
+  },
+  {
+   "code": "UserSupport",
+   "name": "User Support",
+   "appId": null,
+   "products": [
+    {
+     "code": "account",
+     "title": "My Account",
+     "uri": "https://support.huaweicloud.com/intl/en-us/account/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Creation, real-name authentication, maintenance, and deletion of Huawei Cloud accounts"
+    },
+    {
+     "code": "billing",
+     "title": "Billing Center",
+     "uri": "https://support.huaweicloud.com/intl/en-us/billing/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Manage your accounting, orders, renewals, bills, and invoices"
+    },
+    {
+     "code": "cost",
+     "title": "Cost Center",
+     "uri": "https://support.huaweicloud.com/intl/en-us/cost/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Gain insights into, monitor, and optimize your Huawei Cloud costs"
+    },
+    {
+     "code": "support",
+     "title": "Resource Center",
+     "uri": "https://support.huaweicloud.com/intl/en-us/usermanual-support/en-us_topic_0069229860.html",
+     "mainSeriesProductCode": null,
+     "description": "View and export resources details from every region"
+    },
+    {
+     "code": "ticket",
+     "title": "Service Tickets",
+     "uri": "https://support.huaweicloud.com/intl/en-us/api-ticket/ticket_api_00001.html",
+     "mainSeriesProductCode": null,
+     "description": "24/7 customer support"
+    },
+    {
+     "code": "oce",
+     "title": "Customer Operation Capabilities",
+     "uri": "https://support.huaweicloud.com/intl/en-us/api-oce/en-us_topic_0075195195.html",
+     "mainSeriesProductCode": null,
+     "description": "Various capabilities for transactions and operations"
+    },
+    {
+     "code": "international",
+     "title": "HUAWEI CLOUD (International) FAQs",
+     "uri": "https://support.huaweicloud.com/intl/en-us/intl_faq/en-us_topic_0115884691.html",
+     "mainSeriesProductCode": null,
+     "description": "A sub-website of Huawei Cloud, open to global users"
+    },
+    {
+     "code": "supportplans",
+     "title": "Support Plans",
+     "uri": "https://support.huaweicloud.com/intl/en-us/productdesc-supportplans/support-plans_01_0001.html",
+     "mainSeriesProductCode": null,
+     "description": "Provide flexible technical support for all products"
+    },
+    {
+     "code": "professionalservices",
+     "title": "Professional Services",
+     "uri": "https://support.huaweicloud.com/intl/en-us/productdesc-professionalservices/migrationservices.html",
+     "mainSeriesProductCode": null,
+     "description": "Make the most of the cloud"
+    },
+    {
+     "code": "ca",
+     "title": "My Credentials",
+     "uri": "https://support.huaweicloud.com/intl/en-us/usermanual-ca/ca_01_0001.html",
+     "mainSeriesProductCode": null,
+     "description": "Centrally display and manage user credentials"
+    }
+   ],
+   "cnName": "用户服务",
+   "enName": "User Support"
+  },
+  {
+   "code": "others",
+   "name": "Others",
+   "appId": null,
+   "products": [
+    {
+     "code": "consolehome",
+     "title": "Console Quick Start",
+     "uri": "https://support.huaweicloud.com/intl/en-us/qs-consolehome/consolehome_qs_0002.html",
+     "mainSeriesProductCode": null,
+     "description": "A comprehensive overview of your cloud service resources"
+    },
+    {
+     "code": "mc",
+     "title": "Message Center",
+     "uri": "https://support.huaweicloud.com/intl/en-us/productdesc-mc/en-us_topic_0065366616.html",
+     "mainSeriesProductCode": null,
+     "description": "Receive and manage messages sorted into useful categories"
+    },
+    {
+     "code": "pro_price",
+     "title": "Product Pricing Details",
+     "uri": "https://www.huaweicloud.com/intl/en-us/price_detail.html",
+     "mainSeriesProductCode": null,
+     "description": "Huawei Cloud pricing details and price calculator"
+    },
+    {
+     "code": "permissions",
+     "title": "System Permissions",
+     "uri": "https://support.huaweicloud.com/intl/en-us/usermanual-permissions/iam_01_0001.html",
+     "mainSeriesProductCode": null,
+     "description": "A collection of cloud service system-defined permissions"
+    },
+    {
+     "code": "bp_usernotice",
+     "title": "Instructions for Associating with a HUAWEI CLOUD Partner",
+     "uri": "https://support.huaweicloud.com/intl/en-us/bp_usernotice/index.html",
+     "mainSeriesProductCode": null,
+     "description": "Read and agree to the Instructions before associating with a partner"
+    },
+    {
+     "code": "iaas",
+     "title": "Common FAQs",
+     "uri": "https://support.huaweicloud.com/intl/en-us/usermanual-iaas/en-us_topic_0041752254.html",
+     "mainSeriesProductCode": null,
+     "description": "Learn about quotas, regions, and AZs"
+    }
+   ],
+   "cnName": "其他",
+   "enName": "Others"
+  }
+ ],
+ "total": 0,
+ "message": "success",
+ "status": true
+}

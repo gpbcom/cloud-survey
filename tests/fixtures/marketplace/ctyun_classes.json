@@ -1,0 +1,304 @@
+{
+ "duration": "14496524",
+ "reason": "服务调用成功",
+ "code": "core.ok",
+ "data": {
+  "list": [
+   {
+    "note": "服务于企业上云及信息化管理的应用软件。",
+    "classId": "application",
+    "placeOrder": "1",
+    "name": "企业应用",
+    "subclass": [
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "1",
+      "name": "办公协同",
+      "subclassId": "3000",
+      "createDate": "1522374110000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "2",
+      "name": "财务管理",
+      "subclassId": "3020",
+      "createDate": "1680057574000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "3",
+      "name": "人力资源",
+      "subclassId": "3060",
+      "createDate": "1680057727000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "4",
+      "name": "营销拓客",
+      "subclassId": "3070",
+      "createDate": "1680057746000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "5",
+      "name": "企业管理",
+      "subclassId": "3050",
+      "createDate": "1680057696000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "6",
+      "name": "企业服务",
+      "subclassId": "3040",
+      "createDate": "1680057677000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "7",
+      "name": "配套硬件服务",
+      "subclassId": "3030",
+      "createDate": "1680057649000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "8",
+      "name": "云桌面专区",
+      "subclassId": "3080",
+      "createDate": "1680057766000"
+     }
+    ],
+    "createDate": "1521451863000"
+   },
+   {
+    "note": "企业通用办公应用",
+    "classId": "industry",
+    "placeOrder": "2",
+    "name": "行业应用",
+    "subclass": [
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "1",
+      "name": "商业客户",
+      "subclassId": "8050",
+      "createDate": "1680060305000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "2",
+      "name": "公共管理与服务",
+      "subclassId": "8010",
+      "createDate": "1680060211000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "3",
+      "name": "教育",
+      "subclassId": "8030",
+      "createDate": "1680060271000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "4",
+      "name": "医疗健康",
+      "subclassId": "8070",
+      "createDate": "1680060357000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "5",
+      "name": "工业能源",
+      "subclassId": "8000",
+      "createDate": "1680060187000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "6",
+      "name": "文宣",
+      "subclassId": "8060",
+      "createDate": "1680060329000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "7",
+      "name": "交通物流",
+      "subclassId": "8020",
+      "createDate": "1680060236000"
+     },
+     {
+      "note": "企业通用办公应用",
+      "placeOrder": "8",
+      "name": "金融",
+      "subclassId": "8040",
+      "createDate": "1680060290000"
+     }
+    ],
+    "createDate": "1680060079000"
+   },
+   {
+    "note": "提供镜像及相关工具，为企业上云提供基础软件。",
+    "classId": "basic",
+    "placeOrder": "3",
+    "name": "基础软件",
+    "subclass": [
+     {
+      "note": "云上高性能数据存储",
+      "placeOrder": "1",
+      "name": "数据库",
+      "subclassId": "1000",
+      "createDate": "1522373816000"
+     },
+     {
+      "note": "安全、稳定、易用",
+      "placeOrder": "2",
+      "name": "操作系统",
+      "subclassId": "1040",
+      "createDate": "1522373816000"
+     },
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "3",
+      "name": "运行环境",
+      "subclassId": "1050",
+      "createDate": "1522373816000"
+     }
+    ],
+    "createDate": "1521451865000"
+   },
+   {
+    "note": "全面满足各种部署场景",
+    "classId": "site_build",
+    "placeOrder": "4",
+    "name": "建站工具",
+    "subclass": [
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "1",
+      "name": "企业官网",
+      "subclassId": "9010",
+      "createDate": "1680071929000"
+     },
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "2",
+      "name": "电商网站",
+      "subclassId": "9020",
+      "createDate": "1680072095000"
+     },
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "3",
+      "name": "定制建站",
+      "subclassId": "9030",
+      "createDate": "1680072114000"
+     },
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "4",
+      "name": "网站服务",
+      "subclassId": "9000",
+      "createDate": "1680071907000"
+     }
+    ],
+    "createDate": "1680071841000"
+   },
+   {
+    "note": "全面满足各种部署场景",
+    "classId": "devops",
+    "placeOrder": "5",
+    "name": "开发运维",
+    "subclass": [
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "1",
+      "name": "资源管理",
+      "subclassId": "10070",
+      "createDate": "1680073054000"
+     },
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "2",
+      "name": "运维监测",
+      "subclassId": "10040",
+      "createDate": "1680073005000"
+     },
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "3",
+      "name": "灾备迁移",
+      "subclassId": "10050",
+      "createDate": "1680073024000"
+     },
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "4",
+      "name": "开发工具",
+      "subclassId": "10010",
+      "createDate": "1680072949000"
+     },
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "5",
+      "name": "网络工具",
+      "subclassId": "10030",
+      "createDate": "1680072987000"
+     },
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "6",
+      "name": "安全加固",
+      "subclassId": "10000",
+      "createDate": "1680072926000"
+     },
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "7",
+      "name": "评测备案",
+      "subclassId": "10020",
+      "createDate": "1680072967000"
+     },
+     {
+      "note": "全面满足各种部署场景",
+      "placeOrder": "8",
+      "name": "专业服务",
+      "subclassId": "10060",
+      "createDate": "1680073038000"
+     }
+    ],
+    "createDate": "1680072870000"
+   },
+   {
+    "note": "电信学院精品课程",
+    "classId": "course",
+    "placeOrder": "6",
+    "name": "精品课程",
+    "subclass": [
+     {
+      "note": "5G、云计算、大数据等技术",
+      "placeOrder": "1",
+      "name": "前沿技术",
+      "subclassId": "7000",
+      "createDate": "1640273524000"
+     },
+     {
+      "note": "课程、案例、研究报告等",
+      "placeOrder": "2",
+      "name": "领导干部",
+      "subclassId": "7010",
+      "createDate": "1640273524000"
+     },
+     {
+      "note": "战略合作伙伴资源共享",
+      "placeOrder": "3",
+      "name": "生态伙伴",
+      "subclassId": "7020",
+      "createDate": "1640273524000"
+     }
+    ],
+    "createDate": "1521302400000"
+   }
+  ]
+ },
+ "serial": "8ecb3149d8e6ed9eacf7bd7527636aab",
+ "advise": "OK",
+ "host": "*.*.*.127:8080"
+}

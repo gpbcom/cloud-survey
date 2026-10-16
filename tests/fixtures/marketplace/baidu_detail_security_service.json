@@ -1,0 +1,62 @@
+{
+ "result": {
+  "errCode": "",
+  "product": {
+   "crumbInfo": [
+    {
+     "cid": 120,
+     "name": "安全服务"
+    },
+    {
+     "cid": 120001,
+     "name": "网络安全"
+    }
+   ],
+   "productInfo": {
+    "assurance": [
+     "FREE_REFUND_IN7DAYS",
+     "VERIFIED_VENDOR",
+     "CASH_GUARANTEE",
+     "TRADE_GUARANTEE"
+    ],
+    "chargeType": "COUNT",
+    "cnDeliveryMethod": "人工交付",
+    "deliveryMethod": "MAN_MADE",
+    "digest": "病毒清除，向外DDOS攻击，清除木马，比特币挖矿病毒，系统加固，网站论坛漏洞修复，webshell攻击，discuz漏洞修复，wordpress漏洞修复，病毒清理，清理木马，木马清，病毒木马查杀",
+    "parameters": [
+     {
+      "name": "交付形式",
+      "type": "text",
+      "value": "人工交付"
+     },
+     {
+      "name": "交付时间",
+      "type": "text",
+      "value": "2天"
+     },
+     {
+      "name": "适用云产品",
+      "type": "text",
+      "value": "不限"
+     }
+    ],
+    "pid": "7fbb08c7-62c5-4d47-b08c-dbc7848debf5",
+    "productSale": "",
+    "productType": "MKT",
+    "sceneKeywords": [
+     "安全加固 病毒木马"
+    ],
+    "tag": "",
+    "title": "系统安全优化  木马病毒清除",
+    "tutorialFileName": "使用指南.docx"
+   },
+   "vendorInfo": {
+    "vendorId": "723693bc-f9d3-4a6a-a41d-d1715485d9fc",
+    "vendorName": "北京君云时代科技有限公司",
+    "intro": "北京君云时代科技有限公司成立于2015年，是国内领先的云技术解决方案提供商，致力于帮助企业完成数字化转型\n"
+   }
+  }
+ },
+ "status": 200,
+ "success": true
+}

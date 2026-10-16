@@ -1,0 +1,30 @@
+[
+ {
+  "successfulResult": {
+   "resultData": {
+    "marketplaceBrowseProducts": {
+     "facetValueLinkLists": [],
+     "totalCount": 1,
+     "nextPageToken": "",
+     "searchResult": {
+      "cards": [
+       {
+        "productId": "87d1869e-4c1b-4118-921e-eb91de4a7fb3",
+        "productDisplayName": "fit-parity-502508-j3/cloud-marketplace-ef93db92-20d5-4c6e-8228-6508d59ef7a3.cloudpartnerservices.goog",
+        "title": "9 Million Multilingual Question and Answer Dataset",
+        "description": "The 9.2M+ Multilingual Q&A Dataset is a comprehensive collection of over 9.2 million high-quality question-answer pairs with detailed explanations contains approximately 210 words per question, designed to support the development of advanced Artificial Intelligence (AI), Large Language Models (LLMs), Natural Language Processing (NLP), and educational technologies. The dataset covers a broad spectrum of domains, including STEM (Science, Technology, Engineering, and Mathematics), Non-STEM subjects, Finance, General Knowledge, Aptitude, Logical Reasoning, Competitive Examination preparation, and Advanced Placement (AP) education, the dataset supports mathematical content through LaTeX and MathML equations, alongside interwoven images for clearer understanding. It is intended for organizations, researchers, and AI developers seeking high-quality multilingual instructional and reasoning data for model training, fine-tuning, benchmarking, and evaluation. Available in both PDF and JSON formats, the dataset preserves the original educational content while providing structured machine-readable data for seamless integration into AI workflows.",
+        "productType": "Data",
+        "familyType": "AnalyticsHubListing"
+       }
+      ],
+      "totalCount": "1",
+      "showPagination": true
+     }
+    }
+   }
+  },
+  "responseContext": {
+   "eti": "AcsagCiUz6c7pPMP8MNMMtIT7OVQrlAmWL7Ey9X+79wFCp6af/xjkhBgYycblheXn1GsT4iulm+wdJHqlAMqoRnCn4gKrzqHmSq4lOBymU1CCSNJTpitNGSTziIkSOn40UY6H5i4rhjPuPDiSp+Zcpb0trDX8eixd9I+dzSCy6bp4VkiKaSQqg=="
+  }
+ }
+]

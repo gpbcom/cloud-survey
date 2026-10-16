@@ -1,0 +1,200 @@
+{
+ "apps": {
+  "galleryTiles": [
+   {
+    "entityId": "WA200000056",
+    "entityIdLoweredCased": "wa200000056",
+    "publisherId": "PN200000038",
+    "title": "Jira Cloud for Outlook (Official)",
+    "publisher": "Atlassian.com",
+    "shortDescription": "Organize your team’s work without leaving your inbox",
+    "categoriesDetails": [],
+    "productType": 1048576,
+    "catalogOfferType": "Office365",
+    "builtFor": "Microsoft 365",
+    "entityType": 1
+   },
+   {
+    "entityId": "WA104381257",
+    "entityIdLoweredCased": "wa104381257",
+    "publisherId": "PN104379622",
+    "title": "HubSpot Sales",
+    "publisher": "HubSpot",
+    "shortDescription": "Organize leads, track email opens and clicks, and send email templates all in one place.",
+    "categoriesDetails": [
+     {
+      "longTitle": "Productivity",
+      "locKey": "onetaxonomylockey_productivity",
+      "urlKey": "productivity"
+     }
+    ],
+    "productType": 1048576,
+    "catalogOfferType": "Office365",
+    "builtFor": "Microsoft 365",
+    "entityType": 1
+   },
+   {
+    "entityId": "coacervolimited1596856650797.deneb",
+    "entityIdLoweredCased": "coacervolimited1596856650797.deneb",
+    "publisherId": "coacervolimited1596856650797",
+    "title": "Deneb: Declarative Visualization in Power BI",
+    "publisher": "Daniel Marsh-Patrick",
+    "shortDescription": "Create bespoke, interactive visuals in Power BI using the declarative Vega and Vega-Lite languages",
+    "categoriesDetails": [],
+    "productType": 524288,
+    "catalogOfferType": "PowerBIVisuals",
+    "builtFor": "Power BI apps visuals",
+    "entityType": 1
+   },
+   {
+    "entityId": "canonical.ubuntu-24_04-lts",
+    "entityIdLoweredCased": "canonical.ubuntu-24_04-lts",
+    "publisherId": "canonical",
+    "title": "Ubuntu 24.04 LTS - all plans including Ubuntu Pro",
+    "publisher": "Canonical",
+    "shortDescription": "The world's favorite enterprise-grade Linux. User-friendly, secure and regularly updated. Your trusted source for open source.",
+    "categoriesDetails": [
+     {
+      "longTitle": "Infrastructure Services",
+      "locKey": "onetaxonomylockey_compute",
+      "urlKey": "compute"
+     },
+     {
+      "longTitle": "IT & Management Tools",
+      "locKey": "onetaxonomylockey_it-and-management-tools",
+      "urlKey": "it-and-management-tools"
+     }
+    ],
+    "productType": 8,
+    "catalogOfferType": "VirtualMachine",
+    "builtFor": "Virtual Machines",
+    "entityType": 1
+   },
+   {
+    "entityId": "anthropic.microsoft-365-connector-for-claude",
+    "entityIdLoweredCased": "anthropic.microsoft-365-connector-for-claude",
+    "publisherId": "anthropic",
+    "title": "M365 Connector for Claude by Anthropic",
+    "publisher": "Anthropic",
+    "shortDescription": "Access SharePoint, OneDrive, Outlook, and Teams directly in Claude",
+    "categoriesDetails": [
+     {
+      "longTitle": "AI Apps and Agents",
+      "locKey": "onetaxonomylockey_ai-apps-and-agents",
+      "urlKey": "ai-apps-and-agents"
+     }
+    ],
+    "productType": 64,
+    "catalogOfferType": "SaaS",
+    "builtFor": "SaaS",
+    "entityType": 1
+   },
+   {
+    "entityId": "PUBID.thetasystemslimited|AID.advanced_landed_cost|PAPPID.8ebdc541-0ea9-415e-9532-b25b8ebdc541",
+    "entityIdLoweredCased": "pubid.thetasystemslimited|aid.advanced_landed_cost|pappid.8ebdc541-0ea9-415e-9532-b25b8ebdc541",
+    "publisherId": "thetasystemslimited",
+    "title": "Advanced Landed Cost",
+    "publisher": "Theta Systems Limited",
+    "shortDescription": "Improve profitability by accurately accounting for landed costs ",
+    "categoriesDetails": [
+     {
+      "longTitle": "Finance",
+      "locKey": "onetaxonomylockey_finance",
+      "urlKey": "finance"
+     },
+     {
+      "longTitle": "Operations & Supply Chain",
+      "locKey": "onetaxonomylockey_operations-and-supply-chain",
+      "urlKey": "operations-and-supply-chain"
+     }
+    ],
+    "productType": 16384,
+    "catalogOfferType": "DynamicsBC",
+    "builtFor": "Dynamics 365 Business Central",
+    "entityType": 1
+   },
+   {
+    "entityId": "aad.altana",
+    "entityIdLoweredCased": "aad.altana",
+    "publisherId": "Altana",
+    "title": "Altana",
+    "publisher": "Altana",
+    "shortDescription": "Altana applies AI to a vast network of public and private data the largest, organized body of supply chain data in the world to help customers see global value chains, focus on critical business needs.",
+    "categoriesDetails": [
+     {
+      "longTitle": "Microsoft Entra ID",
+      "locKey": "Filter_entra-id",
+      "urlKey": "microsoft-entra-id"
+     }
+    ],
+    "productType": 2097152,
+    "catalogOfferType": "AADApps",
+    "builtFor": "Entra ID Apps",
+    "entityType": 1
+   },
+   {
+    "entityId": "fortinet.fortinet-fortigate",
+    "entityIdLoweredCased": "fortinet.fortinet-fortigate",
+    "publisherId": "fortinet",
+    "title": "Fortinet FortiGate Next-Generation Firewall",
+    "publisher": "Fortinet",
+    "shortDescription": "FortiGate NGFW improves on the Azure firewall with complete data, application and network security",
+    "categoriesDetails": [
+     {
+      "longTitle": "Infrastructure Services",
+      "locKey": "onetaxonomylockey_compute",
+      "urlKey": "compute"
+     },
+     {
+      "longTitle": "Security",
+      "locKey": "onetaxonomylockey_security",
+      "urlKey": "security"
+     }
+    ],
+    "productType": 16,
+    "catalogOfferType": "AzureApplication",
+    "builtFor": "Azure Applications",
+    "entityType": 1
+   },
+   {
+    "entityId": "acpitsolutionsgmbh1592564363717.acp_at_pal",
+    "entityIdLoweredCased": "acpitsolutionsgmbh1592564363717.acp_at_pal",
+    "publisherId": "acpitsolutionsgmbh1592564363717",
+    "title": "ACP Azure Lighthouse Onboarding - PAL",
+    "publisher": "ACP IT Solutions GmbH",
+    "shortDescription": "This Managed Service offer from ACP onboard the Customer into the ACP LIghthouse environment to enable Partner Admin Link (PAL).",
+    "categoriesDetails": [
+     {
+      "longTitle": "Infrastructure Services",
+      "locKey": "onetaxonomylockey_compute",
+      "urlKey": "compute"
+     },
+     {
+      "longTitle": "Databases",
+      "locKey": "onetaxonomylockey_databases",
+      "urlKey": "databases"
+     },
+     {
+      "longTitle": "Web",
+      "locKey": "onetaxonomylockey_web",
+      "urlKey": "web"
+     }
+    ],
+    "productType": 512,
+    "catalogOfferType": "ManagedServices",
+    "builtFor": "Managed Services",
+    "entityType": 1
+   }
+  ],
+  "count": 80700
+ },
+ "cloudsIndustry": {
+  "galleryTiles": [],
+  "count": 1090
+ },
+ "services": {
+  "galleryTiles": [],
+  "count": 17104
+ },
+ "origin": "SearchApi"
+}

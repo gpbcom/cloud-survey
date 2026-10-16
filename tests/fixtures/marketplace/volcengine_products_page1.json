@@ -1,0 +1,298 @@
+{
+ "Result": {
+  "List": [
+   {
+    "ProductInfo": {
+     "Product": "wysf9000307",
+     "ZhName": "CentOS 7.9 64位",
+     "StandardProductName": "云市场生态产品",
+     "ChildProductName": "云市场生态镜像产品",
+     "Status": 1,
+     "CreatedTime": 1790174431,
+     "Shop": {
+      "Shop": "早耕鸟科技",
+      "SrvAccountVerifyName": "四川早耕鸟科技有限公司",
+      "ISVAccountVerifyName": "四川早耕鸟科技有限公司",
+      "ShopID": "Shop2377896719516000768"
+     }
+    },
+    "ProductBasic": {
+     "Product": "wysf9000307",
+     "ProductTitle": "CentOS_7.9_64位",
+     "ZhName": "CentOS 7.9 64位",
+     "ProductDesc": "镜像系统是CentOS 7.9 64位，预装了火山云平台密码重置插件，云助手插件和云监控插件，可以免费使用，免费镜像不提供技术支持。客服QQ 2848896073",
+     "ProductType": 3,
+     "DeliverType": 5,
+     "BizMode": 3,
+     "Status": 1,
+     "CreatedTime": 1790174410,
+     "FrontendCategoryL1": 10006,
+     "FrontendCategoryL1Name": "镜像专区",
+     "FrontendCategoryL2": 20030,
+     "FrontendCategoryL2Name": "操作系统",
+     "BackendCategoryL1Name": "镜像专区",
+     "BackendCategoryL2Name": "操作系统"
+    }
+   },
+   {
+    "ProductInfo": {
+     "Product": "wysf9000107",
+     "ZhName": "掌乐爆款游戏创作平台 SAAS版",
+     "StandardProductName": "游戏创作平台-掌乐",
+     "ChildProductName": "掌乐爆款游戏创作平台",
+     "Status": 1,
+     "Shop": {
+      "Shop": "掌乐科技_火山精选店",
+      "SrvAccountVerifyName": "厦门掌乐世纪科技有限公司",
+      "ISVAccountVerifyName": "北京火山万有在线科技有限公司",
+      "ShopID": "Shop2071740419733000522"
+     }
+    },
+    "ProductBasic": {
+     "Product": "wysf9000107",
+     "ProductTitle": "掌乐爆款游戏创作平台-SAAS",
+     "ZhName": "掌乐爆款游戏创作平台 SAAS版",
+     "ProductDesc": "“掌乐爆款游戏创作平台” 是一款专为现代游戏开发团队与独立开发者打造的 “AI-Native 全链路游戏创作平台”。",
+     "ProductType": 1,
+     "DeliverType": 1,
+     "BizMode": 1,
+     "Status": 1,
+     "FrontendCategoryL1": 10008,
+     "FrontendCategoryL1Name": "AI+抖音小游戏",
+     "FrontendCategoryL2": 20049,
+     "FrontendCategoryL2Name": "开发测试",
+     "BackendCategoryL1Name": "AI+抖音小游戏",
+     "BackendCategoryL2Name": "开发测试"
+    }
+   },
+   {
+    "ProductInfo": {
+     "Product": "wysf9000100",
+     "ZhName": "OceanBase 软件订阅产品",
+     "StandardProductName": "奥星贝斯OB",
+     "ChildProductName": "OB软件订阅产品",
+     "Status": 1,
+     "Shop": {
+      "Shop": "北京奥星贝斯科技有限公司",
+      "SrvAccountVerifyName": "北京奥星贝斯科技有限公司",
+      "ISVAccountVerifyName": "北京火山万有在线科技有限公司",
+      "ShopID": "Shop3075500311703000909"
+     }
+    },
+    "ProductBasic": {
+     "Product": "wysf9000100",
+     "ProductTitle": "OceanBase 软件订阅产品",
+     "ZhName": "OceanBase 软件订阅产品",
+     "ProductDesc": "OceanBase数据库始创于2010年，是完全自主研发的企业级原生分布式数据库，经过连续10余年双11大促和金融场景的实践，为2000多家客户的核心业务系统提供稳定可靠数据库服务",
+     "ProductType": 2,
+     "DeliverType": 4,
+     "BizMode": 1,
+     "Status": 1,
+     "FrontendCategoryL1": 10007,
+     "FrontendCategoryL1Name": "AI生态市场",
+     "FrontendCategoryL2": 20046,
+     "FrontendCategoryL2Name": "数据决策",
+     "BackendCategoryL1Name": "AI生态市场",
+     "BackendCategoryL2Name": "数据决策"
+    }
+   },
+   {
+    "ProductInfo": {
+     "Product": "wysf9000004",
+     "ZhName": "WordPress V6.9 宝塔面板LNMP环境 Ubuntu 24.04",
+     "StandardProductName": "云市场生态产品",
+     "ChildProductName": "云市场生态镜像产品",
+     "Status": 1,
+     "Shop": {
+      "Shop": "早耕鸟科技",
+      "SrvAccountVerifyName": "四川早耕鸟科技有限公司",
+      "ISVAccountVerifyName": "四川早耕鸟科技有限公司",
+      "ShopID": "Shop2377896719516000768"
+     }
+    },
+    "ProductBasic": {
+     "Product": "wysf9000004",
+     "ProductTitle": "WordPress_V6.9_企业建站博客系统_宝塔_v10.0.2_LTS_Ubuntu_24.04_LTS",
+     "ZhName": "WordPress V6.9 宝塔面板LNMP环境 Ubuntu 24.04",
+     "ProductDesc": "预装WordPress V6.9 企业建站博客系统 多语言版本，PHP 8.3 MySQL 5.7 , 开通ECS可一键安装，WordPress程序可自己安装主题模板创建企业网站。",
+     "ProductType": 3,
+     "DeliverType": 5,
+     "BizMode": 3,
+     "Status": 1,
+     "FrontendCategoryL1": 10006,
+     "FrontendCategoryL1Name": "镜像专区",
+     "FrontendCategoryL2": 20033,
+     "FrontendCategoryL2Name": "建站系统",
+     "BackendCategoryL1Name": "镜像专区",
+     "BackendCategoryL2Name": "建站系统"
+    }
+   },
+   {
+    "ProductInfo": {
+     "Product": "wysf1000341",
+     "ZhName": "快递100物流轨迹实时查询与订阅推送接口API",
+     "StandardProductName": "云市场生态产品",
+     "ChildProductName": "云市场生态产品",
+     "Status": 1,
+     "Shop": {
+      "Shop": "快递100_万有商城店",
+      "SrvAccountVerifyName": "深圳前海百递网络有限公司",
+      "ISVAccountVerifyName": "深圳前海百递网络有限公司",
+      "ShopID": "Shop1773880814519000923"
+     }
+    },
+    "ProductBasic": {
+     "Product": "wysf1000341",
+     "ProductTitle": "物流轨迹实时查询与订阅推送API",
+     "ZhName": "快递100物流轨迹实时查询与订阅推送接口API",
+     "ProductDesc": "快递100物流查询接口支持实时查询及订阅推送两种查询方式。支持全球3000+快递公司的物流轨迹查询服务，提供从揽收到签收状态的物流轨迹信息全流程查询，并提供预计到达时间。",
+     "ProductType": 1,
+     "DeliverType": 2,
+     "BizMode": 3,
+     "Status": 1,
+     "FrontendCategoryL1": 10001,
+     "FrontendCategoryL1Name": "电商提效",
+     "FrontendCategoryL2": 20002,
+     "FrontendCategoryL2Name": "订单管理",
+     "BackendCategoryL1Name": "电商提效",
+     "BackendCategoryL2Name": "订单管理"
+    }
+   },
+   {
+    "ProductInfo": {
+     "Product": "wysf1000340",
+     "ZhName": "快递100MCP",
+     "StandardProductName": "云市场生态产品",
+     "ChildProductName": "云市场MCP产品",
+     "Status": 1,
+     "Shop": {
+      "Shop": "快递100_万有商城店",
+      "SrvAccountVerifyName": "深圳前海百递网络有限公司",
+      "ISVAccountVerifyName": "深圳前海百递网络有限公司",
+      "ShopID": "Shop1773880814519000923"
+     }
+    },
+    "ProductBasic": {
+     "Product": "wysf1000340",
+     "ProductTitle": "【快递100MCP】",
+     "ZhName": "快递100MCP",
+     "ProductDesc": " 快递100 MCP Server提供快递信息查询、快递运费预估比价、快递时效查询（含发货前时效查询与在途动态时效查询）等功能。 ",
+     "ProductType": 1,
+     "DeliverType": 2,
+     "BizMode": 3,
+     "Status": 1,
+     "FrontendCategoryL1": 10007,
+     "FrontendCategoryL1Name": "AI生态市场",
+     "FrontendCategoryL2": 20045,
+     "FrontendCategoryL2Name": "行业应用",
+     "BackendCategoryL1Name": "AI生态市场",
+     "BackendCategoryL2Name": "行业应用"
+    }
+   },
+   {
+    "ProductInfo": {
+     "Product": "wysf1000154",
+     "ZhName": "墨迹天气气象API服务",
+     "StandardProductName": "云市场生态产品",
+     "ChildProductName": "云市场生态产品",
+     "Status": 1,
+     "Shop": {
+      "Shop": "墨迹风云_万有商城店",
+      "SrvAccountVerifyName": "北京墨迹风云科技股份有限公司",
+      "ISVAccountVerifyName": "北京墨迹风云科技股份有限公司",
+      "ShopID": "Shop3675480819562000511"
+     }
+    },
+    "ProductBasic": {
+     "Product": "wysf1000154",
+     "ProductTitle": "【墨迹天气气象】插件",
+     "ZhName": "墨迹天气气象API服务",
+     "ProductDesc": " 提供精准天气实况，天气预报15天，天气预报24小时，AQI，天气预警，生活指数。 全国7000+城市天气信息，最专业的气象服务提供",
+     "ProductType": 1,
+     "DeliverType": 2,
+     "BizMode": 3,
+     "Status": 1,
+     "FrontendCategoryL1": 10007,
+     "FrontendCategoryL1Name": "AI生态市场",
+     "FrontendCategoryL2": 20045,
+     "FrontendCategoryL2Name": "行业应用",
+     "BackendCategoryL1Name": "AI生态市场",
+     "BackendCategoryL2Name": "行业应用"
+    }
+   },
+   {
+    "ProductInfo": {
+     "Product": "wysf1000024",
+     "ZhName": "Websoft9 开源软件部署与配置服务",
+     "StandardProductName": "云市场生态产品",
+     "ChildProductName": "云市场生态产品",
+     "Status": 1,
+     "Shop": {
+      "Shop": "网久软件_万有商城店",
+      "SrvAccountVerifyName": "长沙网久软件有限公司",
+      "ISVAccountVerifyName": "长沙网久软件有限公司",
+      "ShopID": "Shop7504697058578661385"
+     }
+    },
+    "ProductBasic": {
+     "Product": "wysf1000024",
+     "ProductTitle": "开源软件部署与配置服务",
+     "ZhName": "Websoft9 开源软件部署与配置服务",
+     "ProductDesc": "基于 Websoft9 多应用管理平台（社区版）为基础，为用户提供 300 + 个开源软件个性部署服务。",
+     "ProductType": 2,
+     "DeliverType": 4,
+     "BizMode": 3,
+     "Status": 1,
+     "FrontendCategoryL1": 10003,
+     "FrontendCategoryL1Name": "企业管理",
+     "FrontendCategoryL2": 20018,
+     "FrontendCategoryL2Name": "建站&零售商城",
+     "BackendCategoryL1Name": "企业管理",
+     "BackendCategoryL2Name": "建站&零售商城"
+    }
+   },
+   {
+    "ProductInfo": {
+     "Product": "wysf1000016",
+     "ZhName": "领星ERP",
+     "StandardProductName": "云市场生态产品",
+     "ChildProductName": "云市场生态产品",
+     "Status": 1,
+     "Shop": {
+      "Shop": "领星网络_万有商城店",
+      "SrvAccountVerifyName": "深圳市领星网络科技有限公司",
+      "ISVAccountVerifyName": "深圳市领星网络科技有限公司",
+      "ShopID": "Shop7472389981815046181"
+     }
+    },
+    "ProductBasic": {
+     "Product": "wysf1000016",
+     "ProductTitle": "【领星ERP】",
+     "ZhName": "领星ERP",
+     "ProductDesc": "跨境电商系统领星ERP，市场占有率第一，服务超过60万家跨境企业。领星ERP接入亚马逊、沃尔玛、TikTok等30+跨境电商平台，涵盖利润核算、智能补货、广告投放、客服管理、AI工",
+     "ProductType": 1,
+     "DeliverType": 2,
+     "BizMode": 3,
+     "Status": 1,
+     "FrontendCategoryL1": 10003,
+     "FrontendCategoryL1Name": "企业管理",
+     "FrontendCategoryL2": 20009,
+     "FrontendCategoryL2Name": "电商ERP",
+     "BackendCategoryL1Name": "企业管理",
+     "BackendCategoryL2Name": "电商ERP"
+    }
+   }
+  ],
+  "Total": 228,
+  "Limit": 100,
+  "Offset": 0
+ },
+ "ResponseMetadata": {
+  "LogId": "20261016213135E853CB70555DAFA6CD81",
+  "RequestId": "",
+  "Action": "ListProduct",
+  "Version": "2025-01-01",
+  "Service": "",
+  "Region": ""
+ }
+}

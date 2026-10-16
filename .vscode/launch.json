@@ -1,0 +1,144 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Crawler: run target",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/main.py",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "CRAWLER_TARGET": "${input:crawlerTarget}",
+                "CRAWLER_SOURCE": "${input:crawlerSource}"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Crawler: run target (step into libraries)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/main.py",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "CRAWLER_TARGET": "${input:crawlerTarget}",
+                "CRAWLER_SOURCE": "${input:crawlerSource}"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "GUI: catalogue explorer",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "gui.app",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Tests: all",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Tests: current file",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${file}"
+            ],
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Tests: coverage report",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "--cov=src",
+                "--cov-branch",
+                "--cov-report=term-missing"
+            ],
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Tests: debug from Test Explorer",
+            "type": "debugpy",
+            "request": "launch",
+            "purpose": [
+                "debug-test"
+            ],
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ],
+    "inputs": [
+        {
+            "id": "crawlerTarget",
+            "type": "pickString",
+            "description": "Cloud provider to crawl (`CRAWLER_TARGET`, see `models.cloud.enums.CloudProvider`), or `all` of them.",
+            "options": [
+                "amazon-web-services",
+                "microsoft-azure",
+                "google-cloud-platform",
+                "ibm-cloud",
+                "oracle-cloud",
+                "ovh-cloud",
+                "scaleway",
+                "combell",
+                "proximus-nxt",
+                "stackit",
+                "t-cloud-public",
+                "aruba-cloud",
+                "seeweb",
+                "gcore",
+                "deep-post-luxembourg",
+                "arsys",
+                "gigas",
+                "exoscale",
+                "infomaniak",
+                "civo",
+                "krystal",
+                "alibaba-cloud",
+                "huawei-cloud",
+                "tencent-cloud",
+                "baidu-ai-cloud",
+                "volcano-engine",
+                "china-telecom-cloud",
+                "china-mobile-cloud",
+                "all"
+            ],
+            "default": "scaleway"
+        },
+        {
+            "id": "crawlerSource",
+            "type": "pickString",
+            "description": "What to crawl (`CRAWLER_SOURCE`): the product catalogue, the marketplace software, both, reclassify the stored marketplace software without crawling, or the cloud market statistics (Synergy Research Group).",
+            "options": [
+                "catalogue",
+                "marketplace",
+                "both",
+                "reclassify",
+                "statistics"
+            ],
+            "default": "catalogue"
+        }
+    ]
+}

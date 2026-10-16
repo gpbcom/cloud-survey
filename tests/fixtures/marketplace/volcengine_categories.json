@@ -1,0 +1,518 @@
+{
+ "Result": {
+  "List": [
+   {
+    "ID": 10007,
+    "CategoryNameCN": "AI生态市场",
+    "CategoryName": "AI生态市场",
+    "CategoryDesc": "AI生态市场",
+    "ParentID": 0,
+    "Sort": 11,
+    "Children": [
+     {
+      "ID": 20039,
+      "CategoryNameCN": "虚拟数字人",
+      "CategoryName": "xnszr",
+      "CategoryDesc": "虚拟数字人",
+      "ParentID": 10007,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20040,
+      "CategoryNameCN": "商品图设计",
+      "CategoryName": "sptsj",
+      "CategoryDesc": "商品图设计",
+      "ParentID": 10007,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20041,
+      "CategoryNameCN": "营销文案/AI写作",
+      "CategoryName": "jywa",
+      "CategoryDesc": "营销文案/AI写作",
+      "ParentID": 10007,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20042,
+      "CategoryNameCN": "视频生成",
+      "CategoryName": "spsc",
+      "CategoryDesc": "视频生成",
+      "ParentID": 10007,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20043,
+      "CategoryNameCN": "智能办公",
+      "CategoryName": "znbg",
+      "CategoryDesc": "智能办公",
+      "ParentID": 10007,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20044,
+      "CategoryNameCN": "营销互动",
+      "CategoryName": "yxhd",
+      "CategoryDesc": "营销互动",
+      "ParentID": 10007,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20045,
+      "CategoryNameCN": "行业应用",
+      "CategoryName": "yyyy",
+      "CategoryDesc": "行业应用",
+      "ParentID": 10007,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20046,
+      "CategoryNameCN": "数据决策",
+      "CategoryName": "sjjc",
+      "CategoryDesc": "数据决策",
+      "ParentID": 10007,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20066,
+      "CategoryNameCN": "专家Agent",
+      "CategoryName": "zjagent",
+      "CategoryDesc": "专家Agent",
+      "ParentID": 10007,
+      "Sort": 11,
+      "Children": []
+     }
+    ]
+   },
+   {
+    "ID": 10001,
+    "CategoryNameCN": "电商提效",
+    "CategoryName": "dstx",
+    "CategoryDesc": "抖音直播起号加速，“人货场”全链提效",
+    "ParentID": 0,
+    "Sort": 10,
+    "Children": [
+     {
+      "ID": 20001,
+      "CategoryNameCN": "商品管理",
+      "CategoryName": "spgl",
+      "CategoryDesc": "一键铺货，多店铺一站式管理",
+      "ParentID": 10001,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20002,
+      "CategoryNameCN": "订单管理",
+      "CategoryName": "ddgl",
+      "CategoryDesc": "多平台店铺订单管理，打单发货",
+      "ParentID": 10001,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20004,
+      "CategoryNameCN": "直播工具",
+      "CategoryName": "zbgj",
+      "CategoryDesc": "话术生成，违禁词检测，流程管理",
+      "ParentID": 10001,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20005,
+      "CategoryNameCN": "数据分析",
+      "CategoryName": "sjfx",
+      "CategoryDesc": "直播间数据追踪，爆品检测",
+      "ParentID": 10001,
+      "Sort": 11,
+      "Children": []
+     }
+    ]
+   },
+   {
+    "ID": 10002,
+    "CategoryNameCN": "流量营销",
+    "CategoryName": "llyx",
+    "CategoryDesc": "实现公域广告获客与私域用户经营",
+    "ParentID": 0,
+    "Sort": 11,
+    "Children": [
+     {
+      "ID": 20019,
+      "CategoryNameCN": "会员营销",
+      "CategoryName": "hyyx",
+      "CategoryDesc": "深度私域用户经营",
+      "ParentID": 10002,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20020,
+      "CategoryNameCN": "短视频创意",
+      "CategoryName": "dspcy",
+      "CategoryDesc": "短视频AI剪辑，创意管理与协同",
+      "ParentID": 10002,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20008,
+      "CategoryNameCN": "广告投放",
+      "CategoryName": "ggtf",
+      "CategoryDesc": "跨媒体广告AI智能投放",
+      "ParentID": 10002,
+      "Sort": 11,
+      "Children": []
+     }
+    ]
+   },
+   {
+    "ID": 10003,
+    "CategoryNameCN": "企业管理",
+    "CategoryName": "qygl",
+    "CategoryDesc": "企业经营管理工具，数字化运营提效",
+    "ParentID": 0,
+    "Sort": 11,
+    "Children": [
+     {
+      "ID": 20009,
+      "CategoryNameCN": "电商ERP",
+      "CategoryName": "dserp",
+      "CategoryDesc": "抖音店铺、多平台店铺一站式管理",
+      "ParentID": 10003,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20017,
+      "CategoryNameCN": "财税票管理",
+      "CategoryName": "cspgl",
+      "CategoryDesc": "极速开票、智慧财税",
+      "ParentID": 10003,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20018,
+      "CategoryNameCN": "建站&零售商城",
+      "CategoryName": "jzlssc",
+      "CategoryDesc": "快速搭建网站、构建品牌商城自营阵地",
+      "ParentID": 10003,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20021,
+      "CategoryNameCN": "企业办公",
+      "CategoryName": "qybg",
+      "CategoryDesc": "有效提升企业运营效率及团队协作效率",
+      "ParentID": 10003,
+      "Sort": 11,
+      "Children": []
+     }
+    ]
+   },
+   {
+    "ID": 10008,
+    "CategoryNameCN": "AI+抖音小游戏",
+    "CategoryName": "抖音游戏玩法AI解决方案",
+    "CategoryDesc": "豆包大模型赋能小游戏全环节，助力游戏设计与开发，优化玩法体验",
+    "ParentID": 0,
+    "Sort": 11,
+    "Children": [
+     {
+      "ID": 20048,
+      "CategoryNameCN": "策划设计",
+      "CategoryName": "chsj",
+      "CategoryDesc": "策划设计",
+      "ParentID": 10008,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20049,
+      "CategoryNameCN": "开发测试",
+      "CategoryName": "kfcs",
+      "CategoryDesc": "开发测试",
+      "ParentID": 10008,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20050,
+      "CategoryNameCN": "部署运维",
+      "CategoryName": "bsyw",
+      "CategoryDesc": "部署运维",
+      "ParentID": 10008,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20051,
+      "CategoryNameCN": "运营推广",
+      "CategoryName": "yytg",
+      "CategoryDesc": "运营推广",
+      "ParentID": 10008,
+      "Sort": 11,
+      "Children": []
+     }
+    ]
+   },
+   {
+    "ID": 10009,
+    "CategoryNameCN": "AI+红果短剧",
+    "CategoryName": "短剧行业AI解决方案",
+    "CategoryDesc": "创作者之家，精选一站式AI创作工具，提供动漫短剧全链路支持",
+    "ParentID": 0,
+    "Sort": 11,
+    "Children": [
+     {
+      "ID": 20053,
+      "CategoryNameCN": "剧本创作",
+      "CategoryName": "jbcz",
+      "CategoryDesc": "剧本创作",
+      "ParentID": 10009,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20054,
+      "CategoryNameCN": "短剧制作",
+      "CategoryName": "djzz",
+      "CategoryDesc": "短剧制作",
+      "ParentID": 10009,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20055,
+      "CategoryNameCN": "运营投流",
+      "CategoryName": "yytl",
+      "CategoryDesc": "运营投流",
+      "ParentID": 10009,
+      "Sort": 11,
+      "Children": []
+     }
+    ]
+   },
+   {
+    "ID": 10010,
+    "CategoryNameCN": "AI+抖音电商",
+    "CategoryName": "抖音电商AI解决方案",
+    "CategoryDesc": "新一代抖音电商AI应用解决方案，为商家带来GMV与ROI的稳定提升",
+    "ParentID": 0,
+    "Sort": 11,
+    "Children": [
+     {
+      "ID": 20057,
+      "CategoryNameCN": "选品上架",
+      "CategoryName": "xpsj",
+      "CategoryDesc": "选品上架",
+      "ParentID": 10010,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20058,
+      "CategoryNameCN": "短视频制作",
+      "CategoryName": "dspzz",
+      "CategoryDesc": "短视频制作",
+      "ParentID": 10010,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20059,
+      "CategoryNameCN": "直播带货",
+      "CategoryName": "zbdh",
+      "CategoryDesc": "直播带货",
+      "ParentID": 10010,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20060,
+      "CategoryNameCN": "客服营销",
+      "CategoryName": "kfyx",
+      "CategoryDesc": "客服营销",
+      "ParentID": 10010,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20061,
+      "CategoryNameCN": "经营分析",
+      "CategoryName": "jyfx",
+      "CategoryDesc": "经营分析",
+      "ParentID": 10010,
+      "Sort": 11,
+      "Children": []
+     }
+    ]
+   },
+   {
+    "ID": 10011,
+    "CategoryNameCN": "AI+抖音生活服务",
+    "CategoryName": "抖音生活服务AI解决方案",
+    "CategoryDesc": "整合生服ISV产品与火山AI+DataAgent能力，实现商家经营持续优化",
+    "ParentID": 0,
+    "Sort": 11,
+    "Children": [
+     {
+      "ID": 20062,
+      "CategoryNameCN": "开团上品",
+      "CategoryName": "ktsp",
+      "CategoryDesc": "开团上品",
+      "ParentID": 10011,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20063,
+      "CategoryNameCN": "内容运营",
+      "CategoryName": "nryy",
+      "CategoryDesc": "内容运营",
+      "ParentID": 10011,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20064,
+      "CategoryNameCN": "营销推广",
+      "CategoryName": "yxtg",
+      "CategoryDesc": "营销推广",
+      "ParentID": 10011,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20065,
+      "CategoryNameCN": "策略优化",
+      "CategoryName": "clyh",
+      "CategoryDesc": "策略优化",
+      "ParentID": 10011,
+      "Sort": 11,
+      "Children": []
+     }
+    ]
+   },
+   {
+    "ID": 10006,
+    "CategoryNameCN": "镜像专区",
+    "CategoryName": "镜像",
+    "CategoryDesc": "镜像专区",
+    "ParentID": 0,
+    "Sort": 11,
+    "Children": [
+     {
+      "ID": 20047,
+      "CategoryNameCN": "AI应用",
+      "CategoryName": "aiyy",
+      "CategoryDesc": "AI应用",
+      "ParentID": 10006,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20032,
+      "CategoryNameCN": "管理与监控",
+      "CategoryName": "glyjk",
+      "CategoryDesc": "管理与监控",
+      "ParentID": 10006,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20030,
+      "CategoryNameCN": "操作系统",
+      "CategoryName": "czxt",
+      "CategoryDesc": "操作系统",
+      "ParentID": 10006,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20035,
+      "CategoryNameCN": "服务器软件",
+      "CategoryName": "fwqrj",
+      "CategoryDesc": "服务器软件",
+      "ParentID": 10006,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20031,
+      "CategoryNameCN": "运行环境",
+      "CategoryName": "yxhj",
+      "CategoryDesc": "运行环境",
+      "ParentID": 10006,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20038,
+      "CategoryNameCN": "安全",
+      "CategoryName": "aq",
+      "CategoryDesc": "安全",
+      "ParentID": 10006,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20033,
+      "CategoryNameCN": "建站系统",
+      "CategoryName": "jzxt",
+      "CategoryDesc": "建站系统",
+      "ParentID": 10006,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20036,
+      "CategoryNameCN": "大模型",
+      "CategoryName": "dmx",
+      "CategoryDesc": "大模型",
+      "ParentID": 10006,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20037,
+      "CategoryNameCN": "企业应用",
+      "CategoryName": "qyyy",
+      "CategoryDesc": "企业应用",
+      "ParentID": 10006,
+      "Sort": 11,
+      "Children": []
+     },
+     {
+      "ID": 20034,
+      "CategoryNameCN": "应用开发",
+      "CategoryName": "yykf",
+      "CategoryDesc": "应用开发",
+      "ParentID": 10006,
+      "Sort": 11,
+      "Children": []
+     }
+    ]
+   }
+  ]
+ },
+ "ResponseMetadata": {
+  "LogId": "202610162132045A8CB0D294CE19C28C6A",
+  "RequestId": "",
+  "Action": "QueryFrontCategory",
+  "Version": "2025-01-01",
+  "Service": "",
+  "Region": ""
+ }
+}

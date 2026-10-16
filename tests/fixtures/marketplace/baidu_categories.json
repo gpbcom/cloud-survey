@@ -1,0 +1,716 @@
+{
+ "result": [
+  {
+   "children": [
+    {
+     "cid": 110001,
+     "keywordsInList": [],
+     "name": "基础环境",
+     "parentId": 110
+    },
+    {
+     "cid": 110003,
+     "keywordsInList": [],
+     "name": "服务框架",
+     "parentId": 110
+    },
+    {
+     "cid": 110020,
+     "keywordsInList": [],
+     "name": "集成应用",
+     "parentId": 110
+    },
+    {
+     "cid": 110007,
+     "keywordsInList": [],
+     "name": "业务管理",
+     "parentId": 110
+    },
+    {
+     "cid": 110012,
+     "keywordsInList": [],
+     "name": "数据库",
+     "parentId": 110
+    },
+    {
+     "cid": 110022,
+     "keywordsInList": [],
+     "name": "容器专区",
+     "parentId": 110
+    }
+   ],
+   "cid": 110,
+   "name": "镜像环境",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 101001,
+     "keywordsInList": [],
+     "name": "速成建站",
+     "parentId": 101
+    },
+    {
+     "cid": 101002,
+     "keywordsInList": [],
+     "name": "定制建站",
+     "parentId": 101
+    },
+    {
+     "cid": 101012,
+     "keywordsInList": [],
+     "name": "系统源码",
+     "parentId": 101
+    },
+    {
+     "cid": 101010,
+     "keywordsInList": [],
+     "name": "移动应用",
+     "parentId": 101
+    },
+    {
+     "cid": 101006,
+     "keywordsInList": [],
+     "name": "风格模板",
+     "parentId": 101
+    },
+    {
+     "cid": 101011,
+     "keywordsInList": [],
+     "name": "行业门户",
+     "parentId": 101
+    },
+    {
+     "cid": 101003,
+     "keywordsInList": [],
+     "name": "建站主机",
+     "parentId": 101
+    },
+    {
+     "cid": 101004,
+     "keywordsInList": [],
+     "name": "店铺运营",
+     "parentId": 101
+    },
+    {
+     "cid": 101013,
+     "keywordsInList": [],
+     "name": "内容维护",
+     "parentId": 101
+    },
+    {
+     "cid": 101015,
+     "keywordsInList": [],
+     "name": "营销推广",
+     "parentId": 101
+    },
+    {
+     "cid": 101016,
+     "keywordsInList": [],
+     "name": "电商网站",
+     "parentId": 101
+    },
+    {
+     "cid": 101018,
+     "keywordsInList": [],
+     "name": "小程序专区",
+     "parentId": 101
+    }
+   ],
+   "cid": 101,
+   "name": "建站推广",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 102002,
+     "keywordsInList": [],
+     "name": "环境部署",
+     "parentId": 102
+    },
+    {
+     "cid": 102001,
+     "keywordsInList": [],
+     "name": "数据迁移",
+     "parentId": 102
+    },
+    {
+     "cid": 102003,
+     "keywordsInList": [],
+     "name": "代维服务",
+     "parentId": 102
+    },
+    {
+     "cid": 102004,
+     "keywordsInList": [],
+     "name": "故障排查",
+     "parentId": 102
+    },
+    {
+     "cid": 102005,
+     "keywordsInList": [],
+     "name": "上云咨询",
+     "parentId": 102
+    },
+    {
+     "cid": 102006,
+     "keywordsInList": [],
+     "name": "认证培训",
+     "parentId": 102
+    },
+    {
+     "cid": 102007,
+     "keywordsInList": [],
+     "name": "系统优化",
+     "parentId": 102
+    },
+    {
+     "cid": 102008,
+     "keywordsInList": [],
+     "name": "专线接入",
+     "parentId": 102
+    }
+   ],
+   "cid": 102,
+   "name": "上云服务",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 120002,
+     "keywordsInList": [],
+     "name": "主机安全",
+     "parentId": 120
+    },
+    {
+     "cid": 120011,
+     "keywordsInList": [],
+     "name": "安全测试",
+     "parentId": 120
+    },
+    {
+     "cid": 120013,
+     "keywordsInList": [],
+     "name": "认证准入",
+     "parentId": 120
+    },
+    {
+     "cid": 120001,
+     "keywordsInList": [],
+     "name": "网络安全",
+     "parentId": 120
+    },
+    {
+     "cid": 120004,
+     "keywordsInList": [],
+     "name": "数据安全",
+     "parentId": 120
+    },
+    {
+     "cid": 120006,
+     "keywordsInList": [],
+     "name": "应用安全",
+     "parentId": 120
+    },
+    {
+     "cid": 120008,
+     "keywordsInList": [],
+     "name": "业务安全",
+     "parentId": 120
+    },
+    {
+     "cid": 120012,
+     "keywordsInList": [],
+     "name": "安全管理",
+     "parentId": 120
+    },
+    {
+     "cid": 120015,
+     "keywordsInList": [],
+     "name": "安全咨询",
+     "parentId": 120
+    },
+    {
+     "cid": 120018,
+     "keywordsInList": [],
+     "name": "安全处理",
+     "parentId": 120
+    }
+   ],
+   "cid": 120,
+   "name": "安全服务",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 115033,
+     "keywordsInList": [],
+     "name": "行业系统",
+     "parentId": 115
+    },
+    {
+     "cid": 115011,
+     "keywordsInList": [],
+     "name": "客户服务",
+     "parentId": 115
+    },
+    {
+     "cid": 115001,
+     "keywordsInList": [],
+     "name": "协同办公",
+     "parentId": 115
+    },
+    {
+     "cid": 115004,
+     "keywordsInList": [],
+     "name": "销售管理",
+     "parentId": 115
+    },
+    {
+     "cid": 115021,
+     "keywordsInList": [],
+     "name": "企业通信",
+     "parentId": 115
+    },
+    {
+     "cid": 115040,
+     "keywordsInList": [],
+     "name": "企业邮箱",
+     "parentId": 115
+    },
+    {
+     "cid": 115030,
+     "keywordsInList": [],
+     "name": "财务管理",
+     "parentId": 115
+    },
+    {
+     "cid": 115009,
+     "keywordsInList": [],
+     "name": "人事管理",
+     "parentId": 115
+    },
+    {
+     "cid": 115028,
+     "keywordsInList": [],
+     "name": "文档管理",
+     "parentId": 115
+    },
+    {
+     "cid": 115035,
+     "keywordsInList": [],
+     "name": "应用定制",
+     "parentId": 115
+    }
+   ],
+   "cid": 115,
+   "name": "企业应用",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 130001,
+     "keywordsInList": [
+      "签证识别",
+      "火车票识别"
+     ],
+     "name": "生活服务",
+     "parentId": 130
+    },
+    {
+     "cid": 130002,
+     "keywordsInList": [
+      "图像识别",
+      "银行卡实名"
+     ],
+     "name": "电子商务",
+     "parentId": 130
+    },
+    {
+     "cid": 130003,
+     "keywordsInList": [
+      "天气预报",
+      "空气质量"
+     ],
+     "name": "天文气象",
+     "parentId": 130
+    },
+    {
+     "cid": 130005,
+     "keywordsInList": [
+      "发票识别",
+      "银行卡识别"
+     ],
+     "name": "金融理财",
+     "parentId": 130
+    },
+    {
+     "cid": 130006,
+     "keywordsInList": [
+      "车牌识别",
+      "驾驶证识别"
+     ],
+     "name": "交通地理",
+     "parentId": 130
+    },
+    {
+     "cid": 130007,
+     "keywordsInList": [
+      "名片识别",
+      "三证识别"
+     ],
+     "name": "企业管理",
+     "parentId": 130
+    },
+    {
+     "cid": 130008,
+     "keywordsInList": [
+      "IP地址查询",
+      "万年历"
+     ],
+     "name": "公共文娱",
+     "parentId": 130
+    },
+    {
+     "cid": 130009,
+     "keywordsInList": [
+      "声音识别",
+      "人脸识别"
+     ],
+     "name": "人工智能",
+     "parentId": 130
+    }
+   ],
+   "cid": 130,
+   "name": "API服务",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 150001,
+     "keywordsInList": [],
+     "name": "工商服务",
+     "parentId": 150
+    },
+    {
+     "cid": 150002,
+     "keywordsInList": [],
+     "name": "记账服务",
+     "parentId": 150
+    },
+    {
+     "cid": 150003,
+     "keywordsInList": [],
+     "name": "税务服务",
+     "parentId": 150
+    },
+    {
+     "cid": 150004,
+     "keywordsInList": [],
+     "name": "法律服务",
+     "parentId": 150
+    },
+    {
+     "cid": 150005,
+     "keywordsInList": [],
+     "name": "商标服务",
+     "parentId": 150
+    },
+    {
+     "cid": 150006,
+     "keywordsInList": [],
+     "name": "专利服务",
+     "parentId": 150
+    },
+    {
+     "cid": 150010,
+     "keywordsInList": [],
+     "name": "宣传设计",
+     "parentId": 150
+    },
+    {
+     "cid": 150007,
+     "keywordsInList": [],
+     "name": "其它服务",
+     "parentId": 150
+    }
+   ],
+   "cid": 150,
+   "name": "公司服务",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 135001,
+     "keywordsInList": [],
+     "name": "软件服务",
+     "parentId": 135
+    },
+    {
+     "cid": 135002,
+     "keywordsInList": [],
+     "name": "硬件产品",
+     "parentId": 135
+    },
+    {
+     "cid": 135003,
+     "keywordsInList": [],
+     "name": "解决方案",
+     "parentId": 135
+    },
+    {
+     "cid": 135004,
+     "keywordsInList": [],
+     "name": "安防监控",
+     "parentId": 135
+    },
+    {
+     "cid": 135005,
+     "keywordsInList": [],
+     "name": "零售商超",
+     "parentId": 135
+    },
+    {
+     "cid": 135006,
+     "keywordsInList": [],
+     "name": "人脸识别",
+     "parentId": 135
+    }
+   ],
+   "cid": 135,
+   "name": "人工智能",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 137001,
+     "keywordsInList": [],
+     "name": "安全生产",
+     "parentId": 137
+    },
+    {
+     "cid": 137002,
+     "keywordsInList": [],
+     "name": "节能减排",
+     "parentId": 137
+    },
+    {
+     "cid": 137003,
+     "keywordsInList": [],
+     "name": "质量管控",
+     "parentId": 137
+    },
+    {
+     "cid": 137004,
+     "keywordsInList": [],
+     "name": "供应链管理",
+     "parentId": 137
+    },
+    {
+     "cid": 137005,
+     "keywordsInList": [],
+     "name": "研发设计",
+     "parentId": 137
+    },
+    {
+     "cid": 137006,
+     "keywordsInList": [],
+     "name": "生产制造",
+     "parentId": 137
+    },
+    {
+     "cid": 137007,
+     "keywordsInList": [],
+     "name": "运营管理",
+     "parentId": 137
+    },
+    {
+     "cid": 137008,
+     "keywordsInList": [],
+     "name": "仓储物流",
+     "parentId": 137
+    },
+    {
+     "cid": 137009,
+     "keywordsInList": [],
+     "name": "运维服务",
+     "parentId": 137
+    }
+   ],
+   "cid": 137,
+   "name": "工业应用",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 125001,
+     "keywordsInList": [],
+     "name": "数据采集",
+     "parentId": 125
+    },
+    {
+     "cid": 125002,
+     "keywordsInList": [],
+     "name": "数据统计",
+     "parentId": 125
+    },
+    {
+     "cid": 125003,
+     "keywordsInList": [],
+     "name": "数据分析",
+     "parentId": 125
+    },
+    {
+     "cid": 125004,
+     "keywordsInList": [],
+     "name": "数据展示",
+     "parentId": 125
+    },
+    {
+     "cid": 125005,
+     "keywordsInList": [],
+     "name": "数据挖掘",
+     "parentId": 125
+    }
+   ],
+   "cid": 125,
+   "name": "数据应用",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 140001,
+     "keywordsInList": [],
+     "name": "Dapp应用",
+     "parentId": 140
+    },
+    {
+     "cid": 140002,
+     "keywordsInList": [],
+     "name": "智能合约",
+     "parentId": 140
+    },
+    {
+     "cid": 140003,
+     "keywordsInList": [],
+     "name": "开发工具",
+     "parentId": 140
+    },
+    {
+     "cid": 140004,
+     "keywordsInList": [],
+     "name": "安全服务",
+     "parentId": 140
+    },
+    {
+     "cid": 140005,
+     "keywordsInList": [],
+     "name": "其它",
+     "parentId": 140
+    }
+   ],
+   "cid": 140,
+   "name": "区块链",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 145001,
+     "keywordsInList": [],
+     "name": "人形本体",
+     "parentId": 145
+    },
+    {
+     "cid": 145002,
+     "keywordsInList": [],
+     "name": "桌面助理",
+     "parentId": 145
+    },
+    {
+     "cid": 145003,
+     "keywordsInList": [],
+     "name": "智能屏幕",
+     "parentId": 145
+    },
+    {
+     "cid": 145004,
+     "keywordsInList": [],
+     "name": "其他智能终端",
+     "parentId": 145
+    }
+   ],
+   "cid": 145,
+   "name": "泛机器人",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 118001,
+     "keywordsInList": [],
+     "name": "服务组件",
+     "parentId": 118
+    },
+    {
+     "cid": 118003,
+     "keywordsInList": [],
+     "name": "开发中间件",
+     "parentId": 118
+    },
+    {
+     "cid": 118007,
+     "keywordsInList": [],
+     "name": "辅助测试",
+     "parentId": 118
+    },
+    {
+     "cid": 118011,
+     "keywordsInList": [],
+     "name": "性能管理",
+     "parentId": 118
+    },
+    {
+     "cid": 118015,
+     "keywordsInList": [],
+     "name": "运维监控",
+     "parentId": 118
+    },
+    {
+     "cid": 118018,
+     "keywordsInList": [],
+     "name": "资源管理",
+     "parentId": 118
+    }
+   ],
+   "cid": 118,
+   "name": "软件工具",
+   "parentId": 0
+  },
+  {
+   "children": [
+    {
+     "cid": 160001,
+     "keywordsInList": [],
+     "name": "应用模板",
+     "parentId": 160
+    }
+   ],
+   "cid": 160,
+   "name": "爱速搭平台",
+   "parentId": 0
+  }
+ ],
+ "status": 200,
+ "success": true
+}

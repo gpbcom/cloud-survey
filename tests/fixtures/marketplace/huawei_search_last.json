@@ -1,0 +1,58 @@
+{
+ "error_code": "00000000",
+ "error_msg": "success",
+ "total": 1065,
+ "em_total": 1065,
+ "rewrite_word": "",
+ "pagination": {
+  "items": [
+   {
+    "id": "8abab403-7abb-4c34-aaca-bbcaf4c921ec",
+    "title": "Yonyou YonSuite",
+    "content_abstract": "YonSuite is a cloud service platform based on a cloud-native architecture that provides growing enterprises with marketing, manufacturing, purchasing, finance, human resources, office automation and platform integration to support global operations and social businesses. By enabling the digital and intelligent development of enterprises, we can help them realize customer-centric, data-driven, real-time operation and easy management.We not only help Chinese enterprises in the entire development process from startup to global operation, but also provide digital cloud services for growing global businesses.",
+    "corporation_name": "Yonyou (Hong Kong) Company Limited",
+    "type_name_en": "Business Software",
+    "type_name_cn": "Business Software",
+    "content_type_desc_en": "Enterprise Applications",
+    "delivery_code": "license",
+    "delivery_code_en": "License",
+    "delivery_code_cn": "License",
+    "url": "/intl/contents/8abab403-7abb-4c34-aaca-bbcaf4c921ec",
+    "content_status": 1,
+    "price_model": "NULL"
+   },
+   {
+    "id": "58ccf482-5a6b-4779-8d5c-7b225bef5430",
+    "title": "Cloudwise APM",
+    "content_abstract": "Performance observability ensures flawless user experience and accelerates business growth Cloudwise Application Performance Management (APM) provides deep insight into your application, and helps deliver perfect service by continuously monitoring and optimizing your application.",
+    "corporation_name": "CLOUDWISE PTE. LTD.",
+    "type_name_en": "Business Software",
+    "type_name_cn": "Business Software",
+    "content_type_desc_en": "Enterprise Applications",
+    "delivery_code": "license",
+    "delivery_code_en": "License",
+    "delivery_code_cn": "License",
+    "url": "/intl/contents/58ccf482-5a6b-4779-8d5c-7b225bef5430",
+    "content_status": 1,
+    "price_model": "NULL"
+   },
+   {
+    "id": "6d2652d8-af29-4b9b-9ac5-3607ac92cb5e",
+    "title": "HK CN2 Anti-DDoS Server (800G China+10T Global)",
+    "content_abstract": "ThinkDream cloud security is based on the Anycast DDoS self-cleaning network with 800G in the Chinese direction and 10T in the international direction. It has super defense capabilities in the Chinese direction + extremely low network access delay. It is very suitable for games, Internet, video, finance, government and other industries. , To ensure the safe and stable operation of user businesses.",
+    "corporation_name": "THINKDREAM TECHNOLOGY LIMITED",
+    "type_name_en": "Infrastructure Software",
+    "type_name_cn": "Infrastructure Software",
+    "content_type_desc_en": "Security",
+    "delivery_code": "license",
+    "delivery_code_en": "License",
+    "delivery_code_cn": "License",
+    "url": "/intl/contents/6d2652d8-af29-4b9b-9ac5-3607ac92cb5e",
+    "content_status": 1,
+    "price_model": "NULL"
+   }
+  ]
+ },
+ "aggregation": {},
+ "debug_detail": null
+}

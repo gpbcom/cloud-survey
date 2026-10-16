@@ -1,0 +1,74 @@
+{
+ "productId": "gft-enterprisegpt-3025dfb8",
+ "name": "EnterpriseGPT",
+ "pricingOptions": [],
+ "deliveryMethod": "CLOUD_IMAGE",
+ "logo": "data:image/png;base64,",
+ "videoUrl": "https://www.youtube.com/watch?v=jYz-wDQiNTQ",
+ "summary": "EnterpriseGPT from GFT is an advanced generative AI platform. It enables organisations to take advantage of generative AI in a secure, compliant and cost-effective way.",
+ "description": "GFT EnterpriseGPT: Your solution for secure, efficient and compliant AI\n\nWith GFT EnterpriseGPT, you can revolutionise your business processes through the secure and cost-efficient use of state-of-the-art GPT technology. The platform can be seamlessly integrated into your existing infrastructure within a very short time and supports all common language models. Thanks to advanced security measures ",
+ "documentationUrl": "",
+ "vendorTerms": [],
+ "categories": [
+  "Business Applications",
+  "Machine Learning"
+ ],
+ "industries": [
+  "Automotive & Manufacturing",
+  "Financial Services & Insurance",
+  "Healthcare & Lifescience",
+  "Utilities & Logistics Ecosystem"
+ ],
+ "highlights": [
+  {
+   "highlightIcon": "replace",
+   "highlightTitle": "Versatile",
+   "highlightContent": "EnterpriseGPT can be used for a variety of standard use cases such as chat, document chat or search assistance. New use cases can be integrated as plugins."
+  },
+  {
+   "highlightIcon": "check",
+   "highlightTitle": "Trustworthy",
+   "highlightContent": "EnterpriseGPT is trustworthy because it generates verifiable, fact-based answers. Users also have the option of easily verifying all parts of the generated response."
+  },
+  {
+   "highlightIcon": "computer-lock",
+   "highlightTitle": "Secure and Compliant",
+   "highlightContent": "EnterpriseGPT is secure and compliant as it fulfils strict data protection guidelines and effectively protects sensitive data. Companies can use the platform in data-sensitive environments."
+  },
+  {
+   "highlightIcon": "chart-up",
+   "highlightTitle": "Expandable",
+   "highlightContent": "EnterpriseGPT can be easily extended by connecting external data sources. This provides users with information from your confluence, sharepoint or web searches."
+  }
+ ],
+ "supportEmail": "",
+ "supportPhone": "",
+ "supportFaqURL": "",
+ "supportResources": [],
+ "vendor": {
+  "vendorId": "gft-deutschland-gmbh-51d25b49",
+  "name": "GFT Deutschland GmbH",
+  "description": "GFT Deutschland GmbH, part of GFT Technologies SE, offers AI-centric IT solutions, guiding banks, insurance companies, and industrial enterprises in modernizing their core systems.",
+  "logo": "data:image/svg+xml;base64,",
+  "websiteUrl": "https://www.gft.com",
+  "videoUrl": "https://www.youtube.com/watch?v=jYz-wDQiNTQ",
+  "labels": {}
+ },
+ "offerType": "OFFER_LISTING",
+ "lifecycleState": "PRODUCT_LIVE",
+ "assets": {},
+ "demoUrl": "",
+ "hasDemo": false,
+ "hasPrivatePlanOption": false,
+ "hasAuthenticatedPlanOption": false,
+ "sovereignty": {
+  "maturityLevel": "",
+  "dataLocation": "",
+  "serviceLocation": "",
+  "dataAccess": "",
+  "securityStandard": ""
+ },
+ "approvalTimeout": "PT1H",
+ "activeFeatures": [],
+ "labels": {}
+}

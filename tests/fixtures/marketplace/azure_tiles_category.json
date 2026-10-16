@@ -1,0 +1,89 @@
+{
+ "apps": {
+  "galleryTiles": [
+   {
+    "entityId": "dynamics-ats.04c4b07e-6e91-45a0-9ef7-bcb2a3ecf997",
+    "entityIdLoweredCased": "dynamics-ats.04c4b07e-6e91-45a0-9ef7-bcb2a3ecf997",
+    "publisherId": "dynamics-ats",
+    "title": "Dynamics ATS Recruiting",
+    "publisher": "Dynamics ATS ",
+    "shortDescription": "Staffing & Recruitment CRM ATS for Microsoft Dynamics 365",
+    "categoriesDetails": [
+     {
+      "longTitle": "Human Resources",
+      "locKey": "onetaxonomylockey_human-resources",
+      "urlKey": "human-resources"
+     },
+     {
+      "longTitle": "Sales",
+      "locKey": "onetaxonomylockey_Sales",
+      "urlKey": "Sales"
+     }
+    ],
+    "productType": 64,
+    "catalogOfferType": "SaaS",
+    "builtFor": "SaaS",
+    "entityType": 1
+   },
+   {
+    "entityId": "msnfp.msftnonprofitvolunteerengagement",
+    "entityIdLoweredCased": "msnfp.msftnonprofitvolunteerengagement",
+    "publisherId": "msnfp",
+    "title": "Volunteer Engagement",
+    "publisher": "Microsoft",
+    "shortDescription": "Make it easier for volunteers to find opportunities that match their skills, interests, and schedule",
+    "categoriesDetails": [
+     {
+      "longTitle": "Human Resources",
+      "locKey": "onetaxonomylockey_human-resources",
+      "urlKey": "human-resources"
+     }
+    ],
+    "productType": 8192,
+    "catalogOfferType": "DynamicsCE",
+    "builtFor": "Dynamics 365",
+    "entityType": 1
+   },
+   {
+    "entityId": "x0paai.x0pa_room_2022",
+    "entityIdLoweredCased": "x0paai.x0pa_room_2022",
+    "publisherId": "x0paai",
+    "title": "X0PA ROOM",
+    "publisher": "X0PA AI",
+    "shortDescription": "Intelligent, Automated & Objective Interview Platform to select best Candidates saving Time & Cost",
+    "categoriesDetails": [
+     {
+      "longTitle": "Human Resources",
+      "locKey": "onetaxonomylockey_human-resources",
+      "urlKey": "human-resources"
+     }
+    ],
+    "productType": 64,
+    "catalogOfferType": "SaaS",
+    "builtFor": "SaaS",
+    "entityType": 1
+   },
+   {
+    "entityId": "autopilotworkflowsolutions.employeeonboarding",
+    "entityIdLoweredCased": "autopilotworkflowsolutions.employeeonboarding",
+    "publisherId": "autopilotworkflowsolutions",
+    "title": "Employee onboarding Autopilot",
+    "publisher": "Autopilot Workflow Solutions",
+    "shortDescription": "Employee Onboarding",
+    "categoriesDetails": [
+     {
+      "longTitle": "Human Resources",
+      "locKey": "onetaxonomylockey_human-resources",
+      "urlKey": "human-resources"
+     }
+    ],
+    "productType": 64,
+    "catalogOfferType": "SaaS",
+    "builtFor": "SaaS",
+    "entityType": 1
+   }
+  ],
+  "count": 263
+ },
+ "origin": "SearchApi"
+}

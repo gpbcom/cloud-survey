@@ -1,0 +1,75 @@
+{
+ "result": {
+  "errCode": "",
+  "product": {
+   "crumbInfo": [
+    {
+     "cid": 130,
+     "name": "API服务"
+    },
+    {
+     "cid": 130001,
+     "name": "生活服务"
+    }
+   ],
+   "productInfo": {
+    "assurance": [
+     "FREE_REFUND_IN7DAYS",
+     "VERIFIED_VENDOR",
+     "CASH_GUARANTEE",
+     "TRADE_GUARANTEE"
+    ],
+    "chargeType": "COUNT",
+    "cnDeliveryMethod": "API交付",
+    "deliveryMethod": "API",
+    "digest": "【今日油价 油价查询】实时查询今日油价，覆盖全国31个省，支持国五标准，包含92号汽油、95号汽油、98号汽油、0号柴油价格，每日更新。—— 我们只做精品！",
+    "parameters": [
+     {
+      "name": "使用场景",
+      "type": "text",
+      "value": "金融、石油化工、交通、运输 等行业"
+     },
+     {
+      "name": "适用行业",
+      "type": "text",
+      "value": "金融/银行,石油化工,交通/运输,服务行业,其他"
+     },
+     {
+      "name": "demo链接",
+      "type": "text",
+      "value": ""
+     },
+     {
+      "name": "SLA",
+      "type": "text",
+      "value": ""
+     },
+     {
+      "name": "使用文档",
+      "type": "text",
+      "value": ""
+     }
+    ],
+    "pid": "cb248839-caa3-4846-af75-f9d5cd037443",
+    "productSale": "",
+    "productType": "MKT",
+    "sceneKeywords": [
+     "油价",
+     "今日油价",
+     "全国油价",
+     "汽油"
+    ],
+    "tag": "",
+    "title": "今日油价 全国油价查询 汽油价格查询 柴油价格查询",
+    "tutorialFileName": "使用指南.pdf"
+   },
+   "vendorInfo": {
+    "vendorId": "a707d5ad-4e85-4b19-ab03-8913dedb4ac6",
+    "vendorName": "杭州安那其科技有限公司",
+    "intro": "杭州安那其科技有限公司是一家专注于大数据行业应用的高新技术企业。公司为企业用户提供大数据应用解决方案，重塑人们的生活方式，让生活变得更简单。官网https://www.jumdata.com/"
+   }
+  }
+ },
+ "status": 200,
+ "success": true
+}

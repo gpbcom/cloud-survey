@@ -1,0 +1,44 @@
+{
+ "partner": {
+  "id": "ocid1.marketplacepublisher.oc1.iad.amaaaaaairogfkqa7vebvbkcdw4pfgoqcsicjhe6hs67q5cenlltcl77ykaq",
+  "name": "Meta",
+  "websiteUrl": "https://www.meta.com/"
+ },
+ "id": "ocid1.mktpublisting.oc1.iad.amaaaaaavnsf4tqan47ctumwtmukuidegxt22vmcq5pvl4zi5dkuif7puloa",
+ "name": "AI Solutions by Meta",
+ "tagline": "Muse Models on Meta Model API and Muse Code",
+ "shortDescription": "Muse Models on Meta Model API and Muse Code",
+ "products": [
+  {
+   "code": "oci",
+   "productGroup": "INFRASTRUCTURE",
+   "productName": "Oracle Cloud Infrastructure",
+   "categories": [
+    {
+     "code": "ARTIFICIAL_INTELLIGENCE",
+     "name": "Artificial Intelligence"
+    }
+   ],
+   "additionalFilters": []
+  }
+ ],
+ "timeCreated": "2026-10-15T23:42:44.154Z",
+ "timeUpdated": "2026-10-16T00:00:47.363Z",
+ "listingType": "OCI_APPLICATION",
+ "pricingType": "PAYGO",
+ "languages": [
+  {
+   "code": "en_US",
+   "name": "English"
+  }
+ ],
+ "versionDetails": {
+  "versionNumber": "1.0",
+  "releaseDate": "2026-09-24"
+ },
+ "tags": [
+  "inference",
+  "meta",
+  "muse"
+ ]
+}

@@ -1,0 +1,46 @@
+{
+ "result": {
+  "categoryLink": "https://market.baidu.com/list/0?cid=135001",
+  "order": "desc",
+  "orderBy": "normal",
+  "pageNo": 1,
+  "pageSize": 10,
+  "result": [
+   {
+    "pid": "810cc861-590d-464e-86e7-4c48f73e10a5",
+    "title": "政务智能问答引擎",
+    "digest": "帮助政务服务部门为群众提供智能的在线问答与便捷的在线业务办理。辅助群众一窗口式办理所需业务，代替群众寻找办理入口。平台拥有问答对自动解析生成、问答库自动维护功能，一改人工录入时代，大幅降低人力成本。",
+    "link": "https://market.baidu.com/detail/810cc861-590d-464e-86e7-4c48f73e10a5",
+    "vendorName": "中科极限元（杭州）智能科技股份有限公司",
+    "productType": "MKT"
+   },
+   {
+    "pid": "0783334b-a723-4054-a4e9-ccf4ffd97abf",
+    "title": "Hydsoft AI智能招聘精灵",
+    "digest": "智能招聘精灵运用文心大模型实现了招聘工作的一站式服务闭环，从简历的自动化分析、岗位的智能化匹配，以及AI面试等一系列招聘关键流程，有效降低了企业招聘的时间成本和人力成本，并大幅提高招聘的工作效能。",
+    "link": "https://market.baidu.com/detail/0783334b-a723-4054-a4e9-ccf4ffd97abf",
+    "vendorName": "慧博云通（上海）软件技术有限公司",
+    "productType": "MKT"
+   },
+   {
+    "pid": "4b24447a-70b9-49c4-95a9-f2bbfda4dae3",
+    "title": "百度超级助理 智能助手",
+    "digest": "基于文心大模型的智能助手，含Copilot应用端和Agent开发平台两部分。Copilot以浏览器插件提供翻译、创作、总结、问答等知识服务，也可调用Agent开发平台插件自定义任务。",
+    "link": "https://market.baidu.com/detail/4b24447a-70b9-49c4-95a9-f2bbfda4dae3",
+    "vendorName": "百度智能云官方自营店",
+    "productType": "MKT"
+   },
+   {
+    "pid": "bd88c402-b217-4950-90eb-be5bb628eb54",
+    "title": "数字员工 营销内容创作",
+    "digest": "数字员工·营销内容创作平台可满足企业营销的多种场景，智能创作能力、高拟真数字分身、搭配海量精致模板深度赋能企业营销获客，助力企业提效增收。",
+    "link": "https://market.baidu.com/detail/bd88c402-b217-4950-90eb-be5bb628eb54",
+    "vendorName": "百度智能云官方自营店",
+    "productType": "MKT"
+   }
+  ],
+  "totalCount": 363
+ },
+ "status": 200,
+ "success": true
+}

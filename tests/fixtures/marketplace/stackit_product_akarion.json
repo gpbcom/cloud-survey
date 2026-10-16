@@ -1,0 +1,85 @@
+{
+ "productId": "akarion-grc-cloud-c5649585",
+ "name": "AKARION GRC Cloud",
+ "pricingOptions": [],
+ "deliveryMethod": "SAAS",
+ "logo": "data:image/png;base64,",
+ "videoUrl": "",
+ "summary": "The AKARION GRC Cloud is the best solution for your ISMS, BCMS, and DSMS. Efficiently meet frameworks such as ISO 27001, BSI IT Grundschutz, TISAX, and NIS-2! Modern design, generative AI, and hosting in Germany transform your compliance into a competitive advantage and ensures the highest digital sovereignty.",
+ "description": "AKARION GRC Cloud is the most advanced SaaS platform for integrated governance, risk, and compliance management in the age of NIS-2, AI, and cybercrime. It helps companies to effortlessly implement regulatory requirements and lay the foundation for IT resilience. The platform is user-friendly, flexible, integrated, auditable, and intelligent. The hosting takes place exclusively in Germany and thus",
+ "documentationUrl": "",
+ "vendorTerms": [
+  {
+   "url": "https://akarion.com/de/lizenzbedingungen",
+   "title": "Vendor Terms of Service",
+   "description": "See the terms and conditions of this product"
+  }
+ ],
+ "categories": [
+  "Business Applications",
+  "Infrastructure Software",
+  "Professional Services"
+ ],
+ "industries": [
+  "eGovernment",
+  "Healthcare & Lifescience",
+  "Utilities & Logistics Ecosystem"
+ ],
+ "highlights": [
+  {
+   "highlightIcon": "eye-shine",
+   "highlightTitle": "State-of-the-art user interface",
+   "highlightContent": "Multilingualism including automatic translation of content."
+  },
+  {
+   "highlightIcon": "workflows",
+   "highlightTitle": "Smart Content AI",
+   "highlightContent": "For efficient, complete creation and linking of relevant content."
+  },
+  {
+   "highlightIcon": "clipboard",
+   "highlightTitle": "Individual reporting",
+   "highlightContent": "Personal dashboards and collaborative work (including task and project management, multi-level approval workflows, web forms)."
+  },
+  {
+   "highlightIcon": "speedometer",
+   "highlightTitle": "Multi-client capability with inheritance",
+   "highlightContent": "Top-down and bottom-up (including template clients)."
+  }
+ ],
+ "supportEmail": "support@akarion.com",
+ "supportPhone": "+49 (0) 89 628 265 64",
+ "supportFaqURL": "",
+ "supportResources": [
+  {
+   "supportLink": "https://support.akarion.com/knowledge",
+   "supportLinkTitle": "Community Support"
+  }
+ ],
+ "vendor": {
+  "vendorId": "akarion-ag-d1ff7720",
+  "name": "Akarion AG",
+  "description": "Akarion is a leading provider of state-of-the-art GRC solutions that combine information security, data protection, business continuity management, and auditing in a fully integrated platform. We help companies effortlessly meet regulatory requirements.",
+  "logo": "data:image/svg+xml;base64,",
+  "websiteUrl": "https://akarion.com/",
+  "videoUrl": "",
+  "labels": {}
+ },
+ "offerType": "OFFER_LISTING",
+ "lifecycleState": "PRODUCT_LIVE",
+ "assets": {},
+ "demoUrl": "",
+ "hasDemo": false,
+ "hasPrivatePlanOption": false,
+ "hasAuthenticatedPlanOption": false,
+ "sovereignty": {
+  "maturityLevel": "",
+  "dataLocation": "",
+  "serviceLocation": "",
+  "dataAccess": "",
+  "securityStandard": ""
+ },
+ "approvalTimeout": "PT1H",
+ "activeFeatures": [],
+ "labels": {}
+}

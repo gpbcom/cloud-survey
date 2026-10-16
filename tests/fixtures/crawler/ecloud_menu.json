@@ -1,0 +1,588 @@
+{
+ "state": "OK",
+ "body": [
+  {
+   "situationCode": "product",
+   "bindData": [
+    {
+     "id": "45affb2002e1402db4337014cf486697",
+     "name": "推荐产品",
+     "sort": 0,
+     "level": 1,
+     "parentId": "-1",
+     "type": "recommend",
+     "bindLabel": "product",
+     "bindMetadatas": [],
+     "children": [
+      {
+       "id": "43ec66e34254436bad6668f8093c59fd",
+       "name": "热门产品",
+       "sort": 0,
+       "level": 2,
+       "parentId": "45affb2002e1402db4337014cf486697",
+       "type": "hot",
+       "bindLabel": "product",
+       "bindMetadatas": [
+        {
+         "displayFlag": 1,
+         "englishName": "Art Studio",
+         "id": "2c9a5e07d69c473480aa75d8282ba6b3",
+         "name": "AIGC内容创作平台 Art Studio",
+         "productType": "aigc",
+         "type": "ArtStudio",
+         "sort": 0,
+         "sDesc": "一站式内容创作平台",
+         "status": "NEW",
+         "brief": "一站式内容创作平台"
+        },
+        {
+         "displayFlag": 1,
+         "englishName": "AI LAB",
+         "id": "ad528ca61af44a9facfbe2a41ab50cb1",
+         "name": "科学智能算力服务",
+         "productType": "AILAB",
+         "type": "AILAB",
+         "sort": 1,
+         "sDesc": "打造面向AI for Science垂类市场的科研工作站AILAB，提供一站式智能算力解决方案。",
+         "status": "NEW",
+         "brief": "AI for Science一站式算力解决方案"
+        },
+        {
+         "displayFlag": 1,
+         "englishName": "Elastic Compute Server",
+         "id": "72d13a40362b4d41a56d7f34190a61e6",
+         "name": "云主机 ECS",
+         "productType": "vm",
+         "type": "vm",
+         "sort": 2,
+         "sDesc": "通过虚拟化技术整合IT 资源，为客户提供按需使用的计算资源服务",
+         "status": "",
+         "introduceUrl": "",
+         "brief": "虚拟化技术整合计算资源，可按需开通"
+        },
+        {
+         "displayFlag": 0,
+         "id": "6366b1a4022f4e268b35d0f24e7e57bd",
+         "name": "移动模型服务平台MoMA",
+         "productType": "MPS",
+         "type": "MaaS",
+         "sort": 3,
+         "sDesc": "移动模型服务平台MoMA，提供普惠闭源机密三类模型服务，并支持智能路由节约应用成本",
+         "status": "",
+         "brief": "普惠闭源机密模型及智能路由服务"
+        }
+       ],
+       "children": []
+      },
+      {
+       "id": "3c788dccee804707ad33d5b60dc5204b",
+       "name": "精选AI产品",
+       "sort": 2,
+       "level": 2,
+       "parentId": "45affb2002e1402db4337014cf486697",
+       "type": "aiProduct",
+       "bindLabel": "product",
+       "bindMetadatas": [],
+       "children": [
+        {
+         "id": "9bf8314da3b649d181447da97fbc3d75",
+         "name": "MaaS",
+         "sort": 3,
+         "level": 3,
+         "parentId": "3c788dccee804707ad33d5b60dc5204b",
+         "type": "aiMaaS",
+         "bindLabel": "product",
+         "bindMetadatas": [
+          {
+           "displayFlag": 0,
+           "id": "6366b1a4022f4e268b35d0f24e7e57bd",
+           "name": "移动模型服务平台MoMA",
+           "productType": "MPS",
+           "type": "MaaS",
+           "sort": 0,
+           "sDesc": "移动模型服务平台MoMA，提供普惠闭源机密三类模型服务，并支持智能路由节约应用成本",
+           "status": "",
+           "brief": "普惠闭源机密模型及智能路由服务"
+          },
+          {
+           "displayFlag": 0,
+           "id": "e2dbbc799bdf4bdd8cea7de38f97e36e",
+           "name": "AI原生行业智能体",
+           "productType": "AIIA",
+           "type": "aigc",
+           "sort": 0,
+           "sDesc": "AI原生行业智能体聚焦行业场景AI化需求，以\"智能体即服务\"为核心定位，深度融合行业知识体系、大模型智能体、数字人等技术，为垂直领域客户提供开箱即用的行业智能体应用，以大模型原生应用加速行业客户智能化转型。",
+           "status": "NEW",
+           "brief": "开箱即用的行业智能体应用"
+          },
+          {
+           "displayFlag": 0,
+           "id": "f6f8aae3b7be433691d4a988f0a3f8c5",
+           "name": "MobileClaw",
+           "type": "hotCase",
+           "sort": 0,
+           "sDesc": "热门产品，展示推荐菜单",
+           "status": ""
+          },
+          {
+           "displayFlag": 0,
+           "id": "2e4845d4c4294c3eb3d36d9c25536d5d",
+           "name": "桌面垂类智能体",
+           "type": "AIQIDEAL",
+           "sort": 0,
+           "sDesc": "桌面垂类智能体聚焦智慧办公、教育服务、轻工业设计三大垂直场景，以统一的桌面级智能体编排与服务平台为核心底座，提供开箱即用的教育智能体、轻工业智能体、办公智能体。",
+           "status": "HOT",
+           "brief": "桌面级智能体"
+          }
+         ],
+         "children": []
+        },
+        {
+         "id": "d2d21bcee3fd4698adcf1dea09fec5a1",
+         "name": "AI SaaS",
+         "sort": 4,
+         "level": 3,
+         "parentId": "3c788dccee804707ad33d5b60dc5204b",
+         "type": "aiSaaS",
+         "bindLabel": "product",
+         "bindMetadatas": [
+          {
+           "displayFlag": 0,
+           "id": "7a2fb96ebd0341e489e76c4e8b51bb61",
+           "name": "云电脑",
+           "productType": "computer",
+           "type": "computer",
+           "sort": 0,
+           "sDesc": "云电脑产品总介绍页",
+           "status": "",
+           "introduceUrl": "https://ecloud.10086.cn/portal/product/computer",
+           "brief": "智慧赋能、即开即用、全域安全"
+          },
+          {
+           "displayFlag": 0,
+           "id": "5ce590a305b34a9d98124642fb97e52e",
+           "name": "智能体枢纽",
+           "productType": "AgentLink",
+           "type": "AgentLink",
+           "sort": 0,
+           "sDesc": "智能体枢纽通过执行平台为各类智能体应用提供全面可靠的任务运行环境和工具，支持多环境覆盖、灵活接入、智能调度、高效协同的智能体应用构建与执行支撑能力。",
+           "status": "NEW",
+           "introduceUrl": "https://ecloud.10086.cn/portal/product/AgentLink",
+           "brief": "为各类智能体提供全面可靠的任务运行环境和工具"
+          },
+          {
+           "displayFlag": 0,
+           "englishName": "/",
+           "id": "d4e2f5e42299455ca98819c51df45fe7",
+           "name": "AI巡考服务",
+           "productType": "aiexam",
+           "type": "AIexam-invigilation",
+           "sort": 2,
+           "sDesc": "AI巡考服务以分布式公有云算力为基础，搭载AI巡考业务平台",
+           "status": "",
+           "brief": "AI巡考服务以分布式公有云算力为基础，搭载AI巡考业务平台"
+          },
+          {
+           "displayFlag": 0,
+           "id": "35b9acd6e0614b63814424ffbeeeff1b",
+           "name": "文字识别OCR",
+           "productType": "ocr",
+           "type": "ocr",
+           "sort": 3,
+           "sDesc": "移动云图片文字识别（简称OCR）服务以API的方式为您提供文字识别服务，将图片、扫描文件中所包含的文字识别为可编辑的文本信息",
+           "status": "",
+           "brief": "以API的方式为您提供文字识别服务"
+          }
+         ],
+         "children": []
+        }
+       ]
+      },
+      {
+       "id": "da8984c8487f4ac5b694c12e8c17e88e",
+       "name": "营销活动",
+       "sort": 3,
+       "level": 2,
+       "parentId": "45affb2002e1402db4337014cf486697",
+       "type": "card",
+       "bindLabel": "card",
+       "bindMetadatas": [
+        {
+         "displayFlag": 0,
+         "id": "00d2f13f8a7e43c197e6779c3b38e37c",
+         "name": "中国移动安全专区",
+         "sort": 0,
+         "status": "",
+         "introduceUrl": "https://ecloud.10086.cn/portal/act/anquanzhuanqu"
+        },
+        {
+         "displayFlag": 0,
+         "id": "1f52fc6315364839bee4ab1e2289e019",
+         "name": "中国移动信创专区",
+         "sort": 1,
+         "status": "",
+         "introduceUrl": "https://ecloud.10086.cn/portal/act/xinchuangzhuanqu"
+        }
+       ],
+       "children": []
+      }
+     ]
+    },
+    {
+     "id": "8561670126b54900ae97c8327130e6a6",
+     "name": "弹性计算",
+     "sort": 2,
+     "level": 1,
+     "parentId": "-1",
+     "type": "elastic-computing",
+     "bindLabel": "product",
+     "bindMetadatas": [],
+     "children": [
+      {
+       "id": "18113dafc41d4633b40aa7a52cc91656",
+       "name": "云服务器",
+       "sort": 1,
+       "level": 2,
+       "parentId": "8561670126b54900ae97c8327130e6a6",
+       "bindLabel": "product",
+       "bindMetadatas": [
+        {
+         "displayFlag": 1,
+         "englishName": "Elastic Compute Server",
+         "id": "72d13a40362b4d41a56d7f34190a61e6",
+         "name": "云主机 ECS",
+         "productType": "vm",
+         "type": "vm",
+         "sort": 0,
+         "sDesc": "通过虚拟化技术整合IT 资源，为客户提供按需使用的计算资源服务",
+         "status": "",
+         "introduceUrl": "",
+         "brief": "虚拟化技术整合计算资源，可按需开通"
+        },
+        {
+         "displayFlag": 1,
+         "englishName": "Elastic Auto Scaling Service",
+         "id": "3e26741c591748a0bd762908b04bf95f",
+         "name": "弹性伸缩 EAS",
+         "productType": "autoscaling",
+         "type": "autoscaling",
+         "sort": 0,
+         "sDesc": "根据客户的业务需求和策略，经济地自动调整其弹性计算资源的管理服务",
+         "status": "",
+         "introduceUrl": "",
+         "brief": "自动弹性调整计算资源的免费管理服务"
+        },
+        {
+         "displayFlag": 1,
+         "englishName": "",
+         "id": "f2ba0e4bb46a46b68433db01eae4bf72",
+         "name": "裸金属服务器 BMS",
+         "productType": "ironic",
+         "type": "ironic",
+         "sort": 0,
+         "sDesc": "一种可以直接租赁的专用物理服务器，提供卓越的计算性能。可结合云主机及移动云其它产品实现内网灵活部署",
+         "status": "",
+         "introduceUrl": "",
+         "brief": "可弹性扩展的专属计算服务"
+        }
+       ],
+       "children": []
+      },
+      {
+       "id": "495b88036e1c49bc957cac6881c42088",
+       "name": "云电脑",
+       "sort": 2,
+       "level": 2,
+       "parentId": "8561670126b54900ae97c8327130e6a6",
+       "type": "computer",
+       "bindLabel": "product",
+       "bindMetadatas": [
+        {
+         "displayFlag": 0,
+         "id": "9c3d15f864d24931b05b6f129b4334ea",
+         "name": "云电脑（办公型）",
+         "productType": "cloudcomputer",
+         "type": "cloudComputer",
+         "sort": 0,
+         "sDesc": "依托中国移动优质的算力资源和先进的虚拟化技术，将云端的计算、存储、网络能力以电脑桌面的形态呈现给终端用户，为用户打造一站式、敏捷高效、安全可靠的云上办公空间，可广泛应用于具有高数据安全管控、高效桌面运维等要求的企业办公等场景。",
+         "status": "",
+         "brief": "一种易用、安全、高效的云上桌面服务"
+        },
+        {
+         "displayFlag": 0,
+         "id": "d907799f5c064de2b169ce1e7fbdc9e5",
+         "name": "云电脑（行业型）",
+         "productType": "computerUDM",
+         "type": "cloudcomputeric",
+         "sort": 1,
+         "sDesc": "依托中国移动优质云网资源及先进桌面虚拟化技术，将云端的算网能力以电脑桌面的形态呈现给终端用户，是替代传统PC的一种解决方案。面向大中型企业用户，教育、政务、医疗等行业用户，提供云电脑资源底座及一站式行业应用解决方案。",
+         "status": "NEW",
+         "brief": "面向教医政等多行业，提供场景化方案。"
+        },
+        {
+         "displayFlag": 0,
+         "id": "2883f58c9d5d44999e225b794d54ff77",
+         "name": "云电脑硬件终端",
+         "type": "IntegratedService",
+         "sort": 2,
+         "sDesc": "面向客户提供云电脑产品配套的一体化服务能力，通过“终端+软件+交付”为用户提供便利、高效的使用体验，硬件终端包括云笔电、一体机等多种形态，适用于固定办公、多地移动办公、开箱即用和外设利旧等场景，助力企业场景化需求落地。",
+         "status": "",
+         "brief": "打造软硬件深度融合、多形态的云终端"
+        }
+       ],
+       "children": []
+      },
+      {
+       "id": "d87776dd74434ef4b97915d7bcf6db95",
+       "name": "专场活动",
+       "sort": 5,
+       "level": 2,
+       "parentId": "8561670126b54900ae97c8327130e6a6",
+       "bindLabel": "card",
+       "bindMetadatas": [],
+       "children": []
+      }
+     ]
+    },
+    {
+     "id": "2046ddd6f82741028876f1ec3370feb3",
+     "name": "开发与运维",
+     "sort": 9,
+     "level": 1,
+     "parentId": "-1",
+     "type": "exploitation",
+     "bindLabel": "product",
+     "bindMetadatas": [],
+     "children": [
+      {
+       "id": "bfae53d02f0c47c5a1a64272d0abc54d",
+       "name": "开发与运维",
+       "sort": 1,
+       "level": 2,
+       "parentId": "2046ddd6f82741028876f1ec3370feb3",
+       "bindLabel": "product",
+       "bindMetadatas": [
+        {
+         "displayFlag": 0,
+         "id": "16c5af4e5e0a438c8a480ba82c3e2842",
+         "name": "云迁移中心",
+         "type": "cmc",
+         "sort": 0,
+         "sDesc": "针对有存量业务需要云内迁移的场景，提供面向用户的一站式、自助式、多产品协同的迁移平台，帮助用户减少业务迁移过程中的人工操作，为用户业务导流提供资源准备。",
+         "status": "",
+         "introduceUrl": "/portal/product/cmc",
+         "brief": "多产品协同的一站式云内迁移服务"
+        }
+       ],
+       "children": []
+      },
+      {
+       "id": "647544f982e14ddd9fd53eb4d0b4bce1",
+       "name": "管理与监控",
+       "sort": 2,
+       "level": 2,
+       "parentId": "2046ddd6f82741028876f1ec3370feb3",
+       "bindLabel": "product",
+       "bindMetadatas": [
+        {
+         "displayFlag": 0,
+         "englishName": "",
+         "id": "8f293513a2f949f9ae9715ee5d126fb1",
+         "name": "云监控",
+         "productType": "monitor",
+         "type": "monitor",
+         "sort": 0,
+         "sDesc": "云监控是一项针对移动云资源进行监控和告警的服务",
+         "status": "",
+         "introduceUrl": "",
+         "brief": "云上资源一站式监控平台"
+        },
+        {
+         "displayFlag": 0,
+         "id": "08b2f2c3ddb344429d632a64fc31c9f3",
+         "name": "云审计 Audit",
+         "productType": "audit",
+         "type": "audit",
+         "sort": 0,
+         "sDesc": "提供云服务资源的操作记录，供查询、审计和回溯使用，能够记录从页面控制台和API发起的资源操作请求和操作结果",
+         "status": "",
+         "introduceUrl": "",
+         "brief": "记录移动云账号的云上操作活动"
+        },
+        {
+         "displayFlag": 0,
+         "englishName": "",
+         "id": "6d21f5fee4764377b8c6d37cb1b823a7",
+         "name": "云日志",
+         "productType": "journal",
+         "type": "journal",
+         "sort": 0,
+         "sDesc": "提供用户级别的日志采集、实时搜索、关键字告警、日志存储、归档服务，帮助用户利用实时日志进行线上业务维护",
+         "status": "",
+         "introduceUrl": "",
+         "brief": "助力用户业务运维与日志分析"
+        }
+       ],
+       "children": []
+      }
+     ]
+    },
+    {
+     "id": "03c9858d6d624ed08173e35a5f0e40b8",
+     "name": "CDN与边缘云",
+     "sort": 5,
+     "level": 1,
+     "parentId": "-1",
+     "type": "cdn",
+     "bindLabel": "product",
+     "bindMetadatas": [],
+     "children": [
+      {
+       "id": "dd1047d2914949ea92a3e17deeddb788",
+       "name": "CDN",
+       "sort": 1,
+       "level": 2,
+       "parentId": "03c9858d6d624ed08173e35a5f0e40b8",
+       "bindLabel": "product",
+       "bindMetadatas": [
+        {
+         "displayFlag": 0,
+         "englishName": "China Mobile Content Delivery Network",
+         "id": "face004c1b9c4dbe9ee98ce4a3b894da",
+         "name": "中国移动CDN",
+         "productType": "ecdn",
+         "type": "cmcdn",
+         "sort": 0,
+         "sDesc": "中国移动CDN (China Mobile Content Delivery Network) 是中国移动依托优质网络资源，通过多样化的流量调度机制，利用遍布全国的分布式边缘节点，将源站内容智能分发至最靠近用户的全局最优节点，为用户提供全方位更快速、更稳定、更便捷的极致网络访问体验。",
+         "status": "",
+         "brief": "内容分发加速服务"
+        }
+       ],
+       "children": []
+      },
+      {
+       "id": "47fcbbcff0cb4561a814c011ac88ad2f",
+       "name": "边缘云",
+       "sort": 2,
+       "level": 2,
+       "parentId": "03c9858d6d624ed08173e35a5f0e40b8",
+       "bindLabel": "product",
+       "bindMetadatas": [
+        {
+         "displayFlag": 0,
+         "id": "f440942926d747e1bbcdf195be479aa3",
+         "name": "边缘智能云EIC",
+         "productType": "eic",
+         "type": "eic",
+         "sort": 0,
+         "sDesc": "边缘智能云 EIC（Edge Intelligent Cloud）针对云游戏/vCDN/高清视频/AR/VR等边缘业务需求，打造具备“超低时延、超大带宽、云边网协同”等优势特点且与移动云一致体验的边缘云服务，面向用户提供全域智能调度、分布式资源管理、云边网一体化产品开通等核心能力。",
+         "status": "",
+         "introduceUrl": "",
+         "brief": "低时延、大带宽、广覆盖的边缘云服务"
+        },
+        {
+         "displayFlag": 0,
+         "id": "2d5f0aac1dc94794b92adf128607886e",
+         "name": "边缘智能小站EIS",
+         "productType": "EIS",
+         "type": "EIS",
+         "sort": 0,
+         "sDesc": "边缘智能小站EIS是将云基础设施部署在用户现场，具备数据不出场、超低时延、资源独占等特性的边缘软硬一体化交付产品，满足用户低成本运营、资源专享、数据不出场等需求，提供虚机、容器、存储、网络、镜像等多种云服务及资源、运维监控等管理能力，可广泛应用于医疗、园区、工厂、矿山、港口等局域边缘场景",
+         "status": "",
+         "brief": "支持本地化部署的轻量专属云"
+        }
+       ],
+       "children": []
+      }
+     ]
+    },
+    {
+     "id": "2100188f6b114205958dc7bced67df9c",
+     "name": "和云",
+     "sort": 13,
+     "level": 1,
+     "parentId": "-1",
+     "type": "joint",
+     "bindLabel": "product",
+     "bindMetadatas": [
+      {
+       "displayFlag": 0,
+       "id": "c81954eb0b154d43b80ba6e2b1edcf64",
+       "name": "数字内容生产线MetaStudio",
+       "productType": "",
+       "type": "h-MetaStudio",
+       "sort": 1,
+       "sDesc": "数字内容生产线",
+       "status": "",
+       "introduceUrl": "https://heyun.cmecloud.cn/#/product/metastudio"
+      }
+     ],
+     "children": [
+      {
+       "id": "10aed8e1b49d4899835444c46e7e4750",
+       "name": "弹性计算",
+       "sort": 1,
+       "level": 2,
+       "parentId": "2100188f6b114205958dc7bced67df9c",
+       "bindLabel": "product",
+       "bindMetadatas": [
+        {
+         "displayFlag": 0,
+         "id": "197967f317104476af130b55166c53ea",
+         "name": "弹性伸缩",
+         "type": "h-autoscaling",
+         "sort": 0,
+         "sDesc": "弹性伸缩（Auto Scaling）可根据用户的业务需求和预设策略，自动调整计算资源，使云服务器数量自动随业务负载增长而增加，随业务负载降低而减少，保证业务平稳健康运行。",
+         "status": "",
+         "introduceUrl": "https://heyun.cmecloud.cn/#/product/autoscaling"
+        },
+        {
+         "displayFlag": 0,
+         "id": "8f3d2f153bb14a7e9c389a0ccd6b37ce",
+         "name": "镜像服务 IMS",
+         "type": "h-mirrorservice",
+         "sort": 1,
+         "sDesc": "镜像是一个包含了软件及必要配置的云主机创建模板。镜像分为公共镜像和私有镜像，公共镜像为系统默认提供的镜像，私有镜像为用户自己创建的镜像。用户可以灵活便捷的使用公共镜像或者私有镜像申请云主机，还能通过已有的云主机创建私有镜像。",
+         "status": "",
+         "introduceUrl": "https://heyun.cmecloud.cn/#/product/mirrorservice"
+        }
+       ],
+       "children": []
+      },
+      {
+       "id": "d66fe9201cb94059bd82dae3b95602c4",
+       "name": "云网络",
+       "sort": 6,
+       "level": 2,
+       "parentId": "2100188f6b114205958dc7bced67df9c",
+       "bindLabel": "product",
+       "bindMetadatas": [
+        {
+         "displayFlag": 0,
+         "id": "389ac0cc2aeb484e962a347b4ad0cb30",
+         "name": "IPsec VPN",
+         "type": "h-ipsecvpn",
+         "sort": 0,
+         "sDesc": "虚拟专用网络（Virtual Private Network，以下简称VPN），用于在远端用户和VPC之间建立一条安全加密的公网通信隧道。VPN由VPN网关和VPN连接组成，VPN网关提供了虚拟私有云的公网出口，与用户本地数据中心侧的远端网关对应。VPN连接则通过公网加密技术，将VPN网关与远端网关关联，使本地数据中心与虚拟私有云通信，更快速、安全的构建混合云环境",
+         "status": "",
+         "introduceUrl": "https://heyun.cmecloud.cn/#/product/ipsecvpn"
+        },
+        {
+         "displayFlag": 0,
+         "id": "61d7403bd6804e50ac53cec819719665",
+         "name": "云解析服务DNS",
+         "type": "h-dns",
+         "sort": 0,
+         "sDesc": "云解析服务（Domain Name Service）提供高可用、高扩展的权威DNS服务和DNS管理服务，把人们常用的域名或应用资源转换成用于计算机连接的IP地址，从而将最终用户路由到相应的应用资源上。",
+         "status": "",
+         "introduceUrl": "https://heyun.cmecloud.cn/#/product/dns"
+        }
+       ],
+       "children": []
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,282 @@
+{
+ "aggregation": {
+  "entityId": "product-list",
+  "name": "All products 100+",
+  "url": "https://www.alibabacloud.com/product"
+ },
+ "defaultAdGroup": {
+  "adList": [
+   {
+    "name": "Cloud Server",
+    "shortDesc": "Lightweight to Enterprise — Scale Smart",
+    "url": "https://www.alibabacloud.com/campaign/cloud-server"
+   },
+   {
+    "name": "Alibaba Cloud Academy",
+    "shortDesc": "Technical and business training programs",
+    "url": "https://edu.alibabacloud.com/"
+   }
+  ],
+  "groupId": "featured",
+  "groupName": "Related Programs"
+ },
+ "detailedCategories": [
+  {
+   "adGroup": {
+    "adList": [
+     {
+      "name": "Elasticity Assurance",
+      "shortDesc": "Elasticity Assurance offers guaranteed resources to flexibly meet your daily requirements.",
+      "url": "https://www.alibabacloud.com/help/elastic-compute-service/latest/overview-of-elasticity-assurance#concept-1999478"
+     }
+    ],
+    "groupId": "computing",
+    "groupName": "Cost Optimization Solution"
+   },
+   "entityId": "computing",
+   "iconEntityId": "computing",
+   "id": "alicloud.product-category.computing.en",
+   "name": "Computing",
+   "products": [],
+   "subCategories": [
+    {
+     "entityId": "cloud_server",
+     "id": "alicloud.product-category.cloud_server.en",
+     "name": "Cloud Server",
+     "parentCategoryId": "computing",
+     "products": [
+      {
+       "name": "Elastic Compute Service (ECS)",
+       "shortDesc": "Host your website and scale enterprise workloads anywhere",
+       "url": "https://www.alibabacloud.com/product/ecs",
+       "entityId": "ecs",
+       "productCode": "ecs",
+       "feature": {
+        "entityId": "featured-products-new",
+        "name": "Featured Products",
+        "products": [
+         {},
+         {}
+        ],
+        "recommend": false,
+        "shortName": "Featured"
+       }
+      },
+      {
+       "name": "Elastic GPU Service",
+       "shortDesc": "Powerful parallel computing capabilities",
+       "url": "https://www.alibabacloud.com/product/heterogeneous_computing",
+       "entityId": "ecsgpu",
+       "productCode": "ecsgpu"
+      },
+      {
+       "name": "ECS Bare Metal Instance",
+       "shortDesc": "Elastic bare metal computing service",
+       "url": "https://www.alibabacloud.com/product/ebm",
+       "entityId": "xdragon",
+       "productCode": "xdragon"
+      },
+      {
+       "name": "Elastic Container Instance (ECI)",
+       "shortDesc": "A serverless container instance service",
+       "url": "https://www.alibabacloud.com/product/elastic-container-instance",
+       "entityId": "eci",
+       "productCode": "eci"
+      }
+     ],
+     "subCategories": []
+    },
+    {
+     "entityId": "serverless",
+     "id": "alicloud.product-category.serverless.en",
+     "name": "Serverless",
+     "parentCategoryId": "computing",
+     "products": [
+      {
+       "name": "Function Compute (FC)",
+       "shortDesc": "Run your code in serverless environment",
+       "url": "https://www.alibabacloud.com/product/function-compute",
+       "entityId": "fc",
+       "productCode": "fc"
+      },
+      {
+       "name": "Serverless App Engine (SAE)",
+       "shortDesc": "A serverless PaaS for cost-effective and efficient application hosting",
+       "url": "https://www.alibabacloud.com/product/severless-application-engine",
+       "entityId": "sae",
+       "productCode": "sae"
+      }
+     ],
+     "subCategories": []
+    }
+   ],
+   "url": "https://www.alibabacloud.com/product/computing"
+  },
+  {
+   "adGroup": {
+    "adList": [
+     {
+      "name": "Digital Credit Lending",
+      "shortDesc": "Big data and AI reduce credit and fraud risks",
+      "url": "https://www.alibabacloud.com/solutions/financial/digital-credit-lending"
+     }
+    ],
+    "groupId": "artificial_intelligence",
+    "groupName": "Related solutions"
+   },
+   "entityId": "artificial_intelligence",
+   "iconEntityId": "artificial_intelligence",
+   "id": "alicloud.product-category.artificial_intelligence.en",
+   "name": "AI & Machine Learning",
+   "products": [
+    {
+     "name": "Alibaba Cloud Model Studio",
+     "shortDesc": "Supercharge your AI journey effortlessly with industry-leading GenAI models",
+     "url": "https://www.alibabacloud.com/product/modelstudio",
+     "entityId": "sfm",
+     "productCode": "sfm",
+     "feature": {
+      "entityId": "featured-products-new",
+      "name": "Featured Products",
+      "products": [
+       {},
+       {}
+      ],
+      "recommend": false,
+      "shortName": "Featured"
+     }
+    },
+    {
+     "name": "Platform for AI (PAI)",
+     "shortDesc": "Perform end-to-end AI engineering tasks",
+     "url": "https://www.alibabacloud.com/product/machine-learning",
+     "entityId": "learn",
+     "productCode": "learn"
+    },
+    {
+     "name": "DashVector",
+     "shortDesc": "A high-performance vector retrieval service with low-code APIs and cost-effectiveness",
+     "url": "https://www.alibabacloud.com/product/dashvector",
+     "entityId": "dashvector",
+     "productCode": "dashvector"
+    },
+    {
+     "name": "AIRec",
+     "shortDesc": "A high-quality personalized recommendation service for your applications",
+     "url": "https://www.alibabacloud.com/product/airec",
+     "entityId": "airec",
+     "productCode": "airec"
+    }
+   ],
+   "subCategories": []
+  },
+  {
+   "entityId": "domain_names_and_websites",
+   "iconEntityId": "domain_names_and_websites",
+   "id": "alicloud.product-category.domain_names_and_websites.en",
+   "name": "Domain Names and Websites",
+   "products": [
+    {
+     "name": "Domain Names and Website",
+     "shortDesc": "Get the perfect domain name to suit your every need",
+     "url": "https://www.alibabacloud.com/domain",
+     "entityId": "domain",
+     "productCode": "domain",
+     "feature": {
+      "entityId": "featured-products-new",
+      "name": "Featured Products",
+      "products": [
+       {},
+       {}
+      ],
+      "recommend": false,
+      "shortName": "Featured"
+     }
+    },
+    {
+     "name": "Alibaba Cloud DNS (DNS)",
+     "shortDesc": "Manage your DNS settings",
+     "url": "https://www.alibabacloud.com/product/dns",
+     "entityId": "dns",
+     "productCode": "dns"
+    },
+    {
+     "name": "GoChina ICP Filing Assistant",
+     "shortDesc": "Help enterprises navigate the requirements to obtain an ICP filing",
+     "url": "https://www.alibabacloud.com/product/icp-filing",
+     "entityId": "healthcheck",
+     "productCode": "healthcheck"
+    },
+    {
+     "name": "WHOIS",
+     "shortDesc": "Search WHOIS database to look up domain",
+     "url": "https://www.alibabacloud.com/whois/home",
+     "entityId": "whois",
+     "productCode": "whois"
+    }
+   ],
+   "subCategories": []
+  }
+ ],
+ "otherCategory": {
+  "adGroup": {
+   "adList": [
+    {
+     "name": "Product Map - Alibaba Cloud vs AWS, Azure, and GCP Products",
+     "shortDesc": "Product Map - Alibaba Cloud vs AWS, Azure, and GCP Products",
+     "url": "https://www.alibabacloud.com/product/product-mapping"
+    },
+    {
+     "name": "Apsara Prime - For Easy Cloud Product Selection",
+     "url": "https://www.alibabacloud.com/apsaraprime"
+    }
+   ],
+   "groupId": "updates_and_promotions",
+   "groupName": "Updates & Promotions"
+  },
+  "name": "Featured Product",
+  "products": [],
+  "subCategories": [
+   {
+    "name": "Featured Products",
+    "products": [
+     {
+      "name": "Elastic Compute Service (ECS)",
+      "shortDesc": "Host your website and scale enterprise workloads anywhere",
+      "url": "https://www.alibabacloud.com/product/ecs",
+      "entityId": "ecs",
+      "productCode": "ecs"
+     },
+     {
+      "name": "Simple Application Server (SAS)",
+      "shortDesc": "All-in-one services for fast deployment",
+      "url": "https://www.alibabacloud.com/product/swas",
+      "entityId": "swas",
+      "productCode": "swas"
+     }
+    ],
+    "subCategories": []
+   },
+   {
+    "name": "New Products",
+    "products": [
+     {
+      "name": "AgentBay",
+      "shortDesc": "Multimodal cloud-based operating environment and expert agent platform",
+      "url": "https://www.alibabacloud.com/product/agentbay",
+      "entityId": "agentbay",
+      "productCode": "agentbay"
+     },
+     {
+      "name": "App Streaming",
+      "shortDesc": "Secure, easy-to-use, and efficient cloud application management and use",
+      "url": "https://www.alibabacloud.com/product/appstreaming",
+      "entityId": "appstreaming",
+      "productCode": "appstreaming"
+     }
+    ],
+    "subCategories": []
+   }
+  ]
+ }
+}

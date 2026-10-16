@@ -1,0 +1,183 @@
+{
+ "nextPage": "120",
+ "items": [
+  {
+   "id": "ocid1.mktpublisting.oc1.iad.amaaaaaavnsf4tqan47ctumwtmukuidegxt22vmcq5pvl4zi5dkuif7puloa",
+   "name": "AI Solutions by Meta",
+   "tagline": "Muse Models on Meta Model API and Muse Code",
+   "shortDescription": "Muse Models on Meta Model API and Muse Code",
+   "products": [
+    {
+     "code": "oci",
+     "productGroup": "INFRASTRUCTURE",
+     "productName": "Oracle Cloud Infrastructure",
+     "categories": [
+      {
+       "code": "ARTIFICIAL_INTELLIGENCE",
+       "name": "Artificial Intelligence"
+      }
+     ],
+     "additionalFilters": []
+    }
+   ],
+   "timeCreated": "2026-10-15T23:42:44.154Z",
+   "timeUpdated": "2026-10-16T00:00:47.363Z",
+   "listingType": "OCI_APPLICATION",
+   "pricingType": "PAYGO"
+  },
+  {
+   "id": "ocid1.mktpublisting.oc1.iad.amaaaaaapemeveaaabrlull3v4kijruiyiszplddp4b7hkkzkkg777h6czgq",
+   "name": "T-PAY",
+   "tagline": "Table-Side Payment for Oracle Simphony – Pay at the Table with T-Pay",
+   "shortDescription": "T-Pay is a table-side payment solution that integrates with Oracle Simphony via Transaction Services Gen2 (STSG2). Cashiers can retrieve open checks, settle payments (card or room charge), and close tables directly at the guest’s table using an Android Smart POS.",
+   "products": [
+    {
+     "code": "foodbev",
+     "productGroup": "APPLICATION",
+     "productName": "Restaurants Cloud",
+     "categories": [
+      {
+       "code": "ORDER_STATUS_/_DIGITAL_RECEIPTS@FOODBEV",
+       "name": "Order Status / Digital Receipts"
+      },
+      {
+       "code": "CATERING@FOODBEV",
+       "name": "Catering"
+      },
+      {
+       "code": "DIGITAL_SIGNAGE@FOODBEV",
+       "name": "Digital Signage / Order Confirmation System"
+      }
+     ],
+     "additionalFilters": [
+      {
+       "filterCode": "PAYOPTIONS",
+       "filterCodeName": "Pay Options",
+       "filterProperties": [
+        {
+         "filterPropertyCode": "PAYATTABLE",
+         "filterPropertyCodeName": "Pay at Table"
+        }
+       ]
+      },
+      {
+       "filterCode": "APILEVERAGED",
+       "filterCodeName": "API Leveraged",
+       "filterProperties": [
+        {
+         "filterPropertyCode": "TRANSACTIONSERVICESAPIGEN2(STSG2)",
+         "filterPropertyCodeName": "Transaction Services API Gen2 (STSG2)"
+        }
+       ]
+      },
+      {
+       "filterCode": "OSSUPPORTED",
+       "filterCodeName": "OS Supported",
+       "filterProperties": [
+        {
+         "filterPropertyCode": "ANDROID",
+         "filterPropertyCodeName": "Android"
+        }
+       ]
+      },
+      {
+       "filterCode": "VALIDATEDON",
+       "filterCodeName": "Validated On",
+       "filterProperties": [
+        {
+         "filterPropertyCode": "RELEASE19.8",
+         "filterPropertyCodeName": "Release 19.8"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "timeCreated": "2026-10-15T02:45:39.899Z",
+   "timeUpdated": "2026-10-15T07:21:39.941Z",
+   "listingType": "LEAD_GENERATION",
+   "pricingType": "FREE"
+  },
+  {
+   "id": "ocid1.mktpublisting.oc1.iad.amaaaaaaxvowp3ianwseckum2w2jxia5nbikzskbqirzacp6yaada35uwaxa",
+   "name": "Transfer Orders to Purchase Orders Converter",
+   "tagline": "Convert open Transfer Order lines into consolidated Purchase Orders automatically",
+   "products": [
+    {
+     "code": "procurement",
+     "productGroup": "APPLICATION",
+     "productName": "Procurement Cloud",
+     "categories": [],
+     "additionalFilters": []
+    }
+   ],
+   "timeCreated": "2026-10-14T16:33:00.152Z",
+   "timeUpdated": "2026-10-15T19:27:14.393Z",
+   "listingType": "AI_AGENT"
+  },
+  {
+   "id": "ocid1.mktpublisting.oc1.iad.amaaaaaamlm2vfqa3uxxb4f3izmiavt2v3reimeyzliizg3prs264mvhvwga",
+   "name": "EEMC – Oracle Hospitality & Food and Beverage Solutions",
+   "tagline": "Oracle Hospitality & Food and Beverage Solutions | Licensing, Implementation & Integration Services",
+   "shortDescription": "EEMC provides Oracle Hospitality and Food & Beverage solutions, including OPERA Cloud PMS, Simphony Cloud POS, licensing, implementation, integration, consulting, and managed services for hotels, resorts, restaurants, and F&B businesses.",
+   "products": [
+    {
+     "code": "RESELLERS",
+     "productGroup": "SERVICES",
+     "productName": "Resellers",
+     "categories": []
+    }
+   ],
+   "timeCreated": "2026-10-11T09:58:57.799Z",
+   "timeUpdated": "2026-10-14T08:39:09.807Z",
+   "listingType": "SERVICE"
+  },
+  {
+   "id": "ocid1.mktpublisting.oc1.iad.amaaaaaaa3tmauiae726dx4gqsjn24cqxz2oxgunvmp7nmybl36tr2dtpdia",
+   "name": "SC Absence Booking Explainer",
+   "tagline": "Explains to an employee why an absence booking is being blocked | Spoon Consulting | HCM",
+   "products": [
+    {
+     "code": "HumanResources",
+     "productGroup": "APPLICATION",
+     "productName": "HCM | Human Capital Management",
+     "categories": [],
+     "additionalFilters": []
+    }
+   ],
+   "timeCreated": "2026-10-09T10:12:38.126Z",
+   "timeUpdated": "2026-10-14T07:33:06.704Z",
+   "listingType": "AI_AGENT"
+  },
+  {
+   "id": "ocid1.mktpublisting.oc1.iad.amaaaaaac2u4zjyadqutnu6o4pr54h5c6ctigrnrtenr63qwk4pr7gqykpgq",
+   "name": "AlmaLinux OS 10 (x86_64)",
+   "tagline": "AlmaLinux OS 10.2",
+   "shortDescription": "AlmaLinux OS is an open-source, community-driven enterprise Linux distribution that is binary compatible with RHEL®.",
+   "products": [
+    {
+     "code": "oci",
+     "productGroup": "INFRASTRUCTURE",
+     "productName": "Oracle Cloud Infrastructure",
+     "categories": [
+      {
+       "code": "OPERATING_SYSTEMS",
+       "name": "Operating Systems"
+      }
+     ],
+     "additionalFilters": []
+    }
+   ],
+   "timeCreated": "2026-10-12T11:13:53.166Z",
+   "timeUpdated": "2026-10-12T14:07:43.725Z",
+   "listingType": "OCI_APPLICATION",
+   "pricingType": "FREE"
+  }
+ ],
+ "pagination": {
+  "totalItems": 3624,
+  "currentPage": 1,
+  "pageSize": 120,
+  "totalPages": 31
+ }
+}

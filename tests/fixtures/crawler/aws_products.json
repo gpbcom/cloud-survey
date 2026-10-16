@@ -1,0 +1,90 @@
+{
+  "items": [
+    {
+      "item": {
+        "id": "products-cards-interactive-aws-products-ams#aws-amplify",
+        "locale": "en_US",
+        "directoryId": "products-cards-interactive-aws-products-ams",
+        "name": "aws-amplify",
+        "dateCreated": "2025-05-23T11:15:32+0000",
+        "dateUpdated": "2026-07-07T19:52:54+0000",
+        "additionalFields": {
+          "publishedDate": "2017-11-21T08:00:00Z",
+          "title": "AWS Amplify",
+          "body": "<p>Build, deploy, host, and manage scalable web and mobile apps</p>",
+          "ctaLink": "https://aws.amazon.com/amplify/?did=ap_card&trk=ap_card"
+        }
+      },
+      "tags": []
+    },
+    {
+      "item": {
+        "id": "products-cards-interactive-aws-products-ams#aws-amplify-studio",
+        "locale": "en_US",
+        "directoryId": "products-cards-interactive-aws-products-ams",
+        "name": "aws-amplify-studio",
+        "dateCreated": "2025-05-23T11:25:32+0000",
+        "dateUpdated": "2026-01-23T03:54:32+0000",
+        "additionalFields": {
+          "title": "AWS Amplify Studio",
+          "body": "Extend AWS Amplify with a visual development environment for creating apps with minimal coding",
+          "ctaLink": "https://aws.amazon.com/amplify/studio/?did=ap_card&trk=ap_card"
+        }
+      },
+      "tags": []
+    },
+    {
+      "item": {
+        "id": "products-cards-interactive-aws-products-ams#aws-app-mesh",
+        "locale": "en_US",
+        "directoryId": "products-cards-interactive-aws-products-ams",
+        "name": "aws-app-mesh",
+        "dateCreated": "2025-05-23T11:41:02+0000",
+        "dateUpdated": "2026-07-07T19:50:07+0000",
+        "additionalFields": {
+          "publishedDate": "2019-03-27T07:00:00Z",
+          "title": "AWS App Mesh",
+          "body": "Monitor and control microservices",
+          "ctaLink": "https://aws.amazon.com/app-mesh/?did=ap_card&trk=ap_card"
+        }
+      },
+      "tags": []
+    },
+    {
+      "item": {
+        "id": "products-cards-interactive-aws-products-ams#aws-data-transfer-terminal",
+        "locale": "en_US",
+        "directoryId": "products-cards-interactive-aws-products-ams",
+        "name": "aws-data-transfer-terminal",
+        "dateCreated": "2025-05-01T23:30:55+0000",
+        "dateUpdated": "2025-06-17T15:19:03+0000",
+        "additionalFields": {
+          "title": "AWS Data Transfer Terminal",
+          "body": "High-throughput connections to the cloud while maintaining full control of your devices",
+          "ctaLink": "https://aws.amazon.com/data-transfer-terminal/?hp=fa&trk=a79957e5-202c-4216-a60e-d939e828825f"
+        }
+      },
+      "tags": []
+    },
+    {
+      "item": {
+        "id": "products-cards-interactive-aws-products-ams#aws-data-transfer-terminal-1",
+        "locale": "en_US",
+        "directoryId": "products-cards-interactive-aws-products-ams",
+        "name": "aws-data-transfer-terminal-1",
+        "dateCreated": "2025-05-23T12:03:15+0000",
+        "dateUpdated": "2025-12-08T21:38:28+0000",
+        "additionalFields": {
+          "title": "AWS Data Transfer Terminal",
+          "body": "<p>High-throughput connections to the cloud while maintaining full control of your devices</p>\n",
+          "ctaLink": "https://aws.amazon.com/data-transfer-terminal/?hp=fa&trk=a79957e5-202c-4216-a60e-d939e828825f"
+        }
+      },
+      "tags": []
+    }
+  ],
+  "metadata": {
+    "count": 5,
+    "totalHits": 5
+  }
+}

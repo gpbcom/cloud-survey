@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://stackit.com/en/learn/knowledge/cloud</loc>
+    <lastmod>2026-08-31T15:45:10+02:00</lastmod>
+  </url>
+  <url>
+    <loc>https://stackit.com/en/products/network/stackit-dns</loc>
+    <lastmod>2025-12-04T15:08:01+01:00</lastmod>
+  </url>
+  <url>
+    <loc>https://stackit.com/en/products/storage</loc>
+    <lastmod>2025-11-26T16:56:03+01:00</lastmod>
+  </url>
+  <url>
+    <loc>https://stackit.com/en/products/compute-engine/stackit-compute-engine-gpu/gpu-models-in-comparison</loc>
+    <lastmod>2025-12-01T16:57:57+01:00</lastmod>
+  </url>
+  <url>
+    <loc>https://stackit.com/en/products/data-ai/stackit-intake</loc>
+    <lastmod>2026-06-16T08:54:42+02:00</lastmod>
+  </url>
+  <url>
+    <loc>https://stackit.com/en/solutions/workspace</loc>
+    <lastmod>2026-08-12T14:04:00+02:00</lastmod>
+  </url>
+  <url>
+    <loc>https://stackit.com/en/products/storage/stackit-object-storage/backup</loc>
+    <lastmod>2026-06-26T08:35:36+02:00</lastmod>
+  </url>
+  <url>
+    <loc>https://stackit.com/en/products/stackit-distributed-cloud</loc>
+    <lastmod>2026-10-15T10:14:56+02:00</lastmod>
+  </url>
+</urlset>

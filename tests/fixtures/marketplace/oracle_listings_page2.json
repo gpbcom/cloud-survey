@@ -1,0 +1,129 @@
+{
+ "nextPage": "240",
+ "items": [
+  {
+   "id": "ocid1.mktpublisting.oc1.iad.amaaaaaajr4nj7qayzqzsjfkumx2q3nwvd3mmcdz7zdhp3jvq2f7acap2hea",
+   "name": "MyOme Atlas: Whole-Genome Risk Insights",
+   "tagline": "MyOme Atlas: Whole-Genome Risk Insights",
+   "shortDescription": "MyOme Atlas uses clinically integrated whole-genome sequencing to map comprehensive health risks and guide personalized care.",
+   "products": [
+    {
+     "code": "health",
+     "productGroup": "HEALTHCARE",
+     "productName": "Oracle Healthcare Marketplace",
+     "categories": [
+      {
+       "code": "HEALTHCARE@HEALTH",
+       "name": "Healthcare"
+      }
+     ],
+     "additionalFilters": [
+      {
+       "filterProperties": [
+        {
+         "filterPropertyCodeName": "Clinical Applications",
+         "filterPropertyCode": "CLINICALAPPLICATIONS"
+        }
+       ],
+       "filterCode": "PRODUCTS",
+       "filterCodeName": "Products"
+      }
+     ]
+    }
+   ],
+   "timeCreated": "2026-10-01T19:25:45.844Z",
+   "timeUpdated": "2026-10-02T19:22:40.715Z",
+   "listingType": "LEAD_GENERATION",
+   "pricingType": "PAYGO"
+  },
+  {
+   "id": "ocid1.mktpublisting.oc1.iad.amaaaaaazpuaj3iaott5ehdzfzbkacyfduzzojfn5yk6aqqnfaj5ymq653ja",
+   "name": "DCA Hardened NoSQL Database for Apache Cassandra",
+   "tagline": "DCA Hardened NoSQL Database for Apache Cassandra",
+   "shortDescription": "A hardened, CVE-patched virtual machine image running Apache Cassandra® — the open-source, master...",
+   "products": [
+    {
+     "code": "oci",
+     "productGroup": "INFRASTRUCTURE",
+     "productName": "Oracle Cloud Infrastructure",
+     "categories": [
+      {
+       "code": "DATABASE",
+       "name": "Database"
+      }
+     ],
+     "additionalFilters": []
+    }
+   ],
+   "timeCreated": "2026-10-01T15:38:03.699Z",
+   "timeUpdated": "2026-10-14T21:56:20.392Z",
+   "listingType": "OCI_APPLICATION",
+   "pricingType": "PAYGO"
+  },
+  {
+   "id": "ocid1.mktpublisting.oc1.iad.amaaaaaa4vlrraiaa3swzefkr6lnilmhddhwi5omfx5zv3tdtpa3hg7gofxa",
+   "name": "AP Period Close Readiness Agent",
+   "tagline": "Accelerate AP Period Close from Exception Resolution to Final Close",
+   "products": [
+    {
+     "code": "financials",
+     "productGroup": "APPLICATION",
+     "productName": "Financials Cloud",
+     "categories": [],
+     "additionalFilters": []
+    }
+   ],
+   "timeCreated": "2026-10-01T15:04:21.133Z",
+   "timeUpdated": "2026-10-01T17:07:48.707Z",
+   "listingType": "AI_AGENT"
+  },
+  {
+   "id": "ocid1.mktpublisting.oc1.iad.amaaaaaa4gyzziqae3lbpr73oyd3aapgkien3zga6bbmqntzw4n6kp2fxqeq",
+   "name": "Check Point Secure AI Advisory",
+   "tagline": "Secure AI Advisory from Check Point Services",
+   "shortDescription": "Secure AI Advisory by Check Point Services provides structured, intel driven guidance for secure and responsible enterprise AI adoption. As part of a unified framework, the service strengthens governance, supports regulatory readiness, and delivers remediation guidance to reduce AI related risk across the organization.",
+   "products": [
+    {
+     "code": "oci",
+     "productGroup": "INFRASTRUCTURE",
+     "productName": "Oracle Cloud Infrastructure",
+     "categories": [
+      {
+       "code": "SECURITY",
+       "name": "Security"
+      },
+      {
+       "code": "ARTIFICIAL_INTELLIGENCE",
+       "name": "Artificial Intelligence"
+      }
+     ],
+     "additionalFilters": []
+    },
+    {
+     "code": "machinelearningai",
+     "productGroup": "APPLICATION",
+     "productName": "Machine Learning and AI",
+     "categories": [],
+     "additionalFilters": []
+    },
+    {
+     "code": "integration",
+     "productGroup": "PLATFORM",
+     "productName": "Oracle Integration",
+     "categories": [],
+     "additionalFilters": []
+    }
+   ],
+   "timeCreated": "2026-04-20T13:41:58.768Z",
+   "timeUpdated": "2026-05-13T00:44:20.521Z",
+   "listingType": "LEAD_GENERATION",
+   "pricingType": "PAYGO"
+  }
+ ],
+ "pagination": {
+  "totalItems": 3624,
+  "currentPage": 2,
+  "pageSize": 120,
+  "totalPages": 31
+ }
+}

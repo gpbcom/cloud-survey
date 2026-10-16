@@ -1,0 +1,107 @@
+{
+ "partner": {
+  "id": "ocid1.marketplacepublisher.oc1.iad.amaaaaaapemeveaamuxaifocs7yzcgwbbl4ttnhlclpr6jgzfryo7hrglhfa",
+  "name": "安徽悦航信息技术有限公司",
+  "websiteUrl": "https://www.spaypos.cn"
+ },
+ "id": "ocid1.mktpublisting.oc1.iad.amaaaaaapemeveaaabrlull3v4kijruiyiszplddp4b7hkkzkkg777h6czgq",
+ "name": "T-PAY",
+ "tagline": "Table-Side Payment for Oracle Simphony – Pay at the Table with T-Pay",
+ "shortDescription": "T-Pay is a table-side payment solution that integrates with Oracle Simphony via Transaction Services Gen2 (STSG2). Cashiers can retrieve open checks, settle payments (card or room charge), and close tables directly at the guest’s table using an Android Smart POS.",
+ "products": [
+  {
+   "code": "foodbev",
+   "productGroup": "APPLICATION",
+   "productName": "Restaurants Cloud",
+   "categories": [
+    {
+     "code": "ORDER_STATUS_/_DIGITAL_RECEIPTS@FOODBEV",
+     "name": "Order Status / Digital Receipts"
+    },
+    {
+     "code": "CATERING@FOODBEV",
+     "name": "Catering"
+    },
+    {
+     "code": "DIGITAL_SIGNAGE@FOODBEV",
+     "name": "Digital Signage / Order Confirmation System"
+    }
+   ],
+   "additionalFilters": [
+    {
+     "filterCode": "PAYOPTIONS",
+     "filterCodeName": "Pay Options",
+     "filterProperties": [
+      {
+       "filterPropertyCode": "PAYATTABLE",
+       "filterPropertyCodeName": "Pay at Table"
+      }
+     ]
+    },
+    {
+     "filterCode": "APILEVERAGED",
+     "filterCodeName": "API Leveraged",
+     "filterProperties": [
+      {
+       "filterPropertyCode": "TRANSACTIONSERVICESAPIGEN2(STSG2)",
+       "filterPropertyCodeName": "Transaction Services API Gen2 (STSG2)"
+      }
+     ]
+    },
+    {
+     "filterCode": "OSSUPPORTED",
+     "filterCodeName": "OS Supported",
+     "filterProperties": [
+      {
+       "filterPropertyCode": "ANDROID",
+       "filterPropertyCodeName": "Android"
+      }
+     ]
+    },
+    {
+     "filterCode": "VALIDATEDON",
+     "filterCodeName": "Validated On",
+     "filterProperties": [
+      {
+       "filterPropertyCode": "RELEASE19.8",
+       "filterPropertyCodeName": "Release 19.8"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "timeCreated": "2026-10-15T02:45:39.899Z",
+ "timeUpdated": "2026-10-15T07:21:39.941Z",
+ "listingType": "LEAD_GENERATION",
+ "pricingType": "FREE",
+ "languages": [
+  {
+   "code": "en_US",
+   "name": "English"
+  },
+  {
+   "code": "zh_CN",
+   "name": "Chinese (Simplified)"
+  }
+ ],
+ "versionDetails": {
+  "versionNumber": "1.0",
+  "releaseDate": "2026-10-13"
+ },
+ "tags": [
+  "t-pay",
+  "table-side payment",
+  "pay at table",
+  "simphony",
+  "stsg2",
+  "oracle simphony",
+  "room charge",
+  "house account",
+  "mobile pos",
+  "hotel f&b",
+  "restaurant payment",
+  "yuehang",
+  "spaypos"
+ ]
+}

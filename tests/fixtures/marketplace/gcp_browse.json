@@ -1,0 +1,208 @@
+[
+ {
+  "successfulResult": {
+   "resultData": {
+    "marketplaceBrowseProducts": {
+     "facetValueLinkLists": [
+      {
+       "title": "Type",
+       "facetId": "solution-type",
+       "facetValueLinks": [
+        {
+         "facetBinding": {
+          "facetId": "solution-type",
+          "facetValueId": "ai-agent-service"
+         },
+         "displayName": "AI Agent as a Service",
+         "count": 123
+        },
+        {
+         "facetBinding": {
+          "facetId": "solution-type",
+          "facetValueId": "container"
+         },
+         "displayName": "Container images",
+         "count": 106
+        },
+        {
+         "facetBinding": {
+          "facetId": "solution-type",
+          "facetValueId": "dataset"
+         },
+         "displayName": "Data",
+         "count": 381
+        }
+       ],
+       "displayOrder": 3
+      },
+      {
+       "title": "Category",
+       "facetId": "category",
+       "facetValueLinks": [
+        {
+         "facetBinding": {
+          "facetId": "category",
+          "facetValueId": "analytics"
+         },
+         "displayName": "Analytics",
+         "count": 2345
+        },
+        {
+         "facetBinding": {
+          "facetId": "category",
+          "facetValueId": "crm"
+         },
+         "displayName": "CRM",
+         "count": 315
+        },
+        {
+         "facetBinding": {
+          "facetId": "category",
+          "facetValueId": "developer-tools"
+         },
+         "displayName": "DevOps",
+         "count": 2100
+        },
+        {
+         "facetBinding": {
+          "facetId": "category",
+          "facetValueId": "managed-services"
+         },
+         "displayName": "Managed Services",
+         "count": 134
+        },
+        {
+         "facetBinding": {
+          "facetId": "category",
+          "facetValueId": "others"
+         },
+         "displayName": "Other",
+         "count": 986
+        }
+       ],
+       "displayOrder": 2
+      }
+     ],
+     "totalCount": 9492,
+     "nextPageToken": "CkEwLDAuMCwxNjU0OTk0NDIzOTMzOTEyMjQyNiwiMzg1YTU0NTctZGJkYS00MmQ1LWFiNmEtOTQ4MzgwMmYwYmRjIhIMCI3PyNYGEMDR6p0B",
+     "searchResult": {
+      "cards": [
+       {
+        "productId": "3d5cd55c-4681-404f-9c43-7d3127fd6c80",
+        "productDisplayName": "cloud-infrastructure-services/xfce-desktop-ubuntu-24-04",
+        "title": "XFCE Desktop on Ubuntu 24.04",
+        "subtitle": "Cloud Infrastructure Services",
+        "description": "XFCE desktop environment and xRDP for fast, secure remote desktop access over RDP on Ubuntu 24.04.",
+        "productType": "Virtual machines",
+        "familyType": "PackagedDeployment"
+       },
+       {
+        "productId": "92e2f385-390f-4c88-8a60-f3ac6b48f168",
+        "productDisplayName": "google/datacatalog.googleapis.com",
+        "title": "Google Cloud Data Catalog API",
+        "subtitle": "Google Enterprise API",
+        "description": "A data discovery and metadata management service.",
+        "productType": "SaaS & APIs",
+        "familyType": "GoogleManagedService"
+       },
+       {
+        "productId": "2267a555-1041-4c05-8f64-a36be25dcb31",
+        "productDisplayName": "miriinfotech-public/torch-30-03-2020",
+        "title": "Torch",
+        "subtitle": "Miri Infotech",
+        "description": "All-in-one artificial intelligence powered business suite",
+        "productType": "Virtual machines",
+        "familyType": "PackagedDeployment"
+       },
+       {
+        "productId": "138687fa-a87e-46dd-984a-3b68965567ab",
+        "productDisplayName": "louaosh-acn-ai-agent-marketpla/cloud-marketplace-fb3204e0-b8c4-4594-8df5-c7d6bd0dc2ef.cloudpartnerservices.goog",
+        "title": "Execute Agent – Automation Agent",
+        "description": "Execute Agent – Automation Agent: Streamline workflows, automate success",
+        "productType": "Professional Services",
+        "familyType": "ProfessionalServicesProduct"
+       },
+       {
+        "productId": "55e290de-f150-4a8d-a51b-6b688b9f48c5",
+        "productDisplayName": "atroposhealth-public/geneva-os-saas",
+        "title": "Geneva OS SaaS",
+        "subtitle": "Atropos Health Inc",
+        "description": "The future of evidence based medicine",
+        "productType": "SaaS & APIs",
+        "familyType": "ManagedService"
+       },
+       {
+        "productId": "db425d7e-b887-4c33-910f-2cf9d9800411",
+        "productDisplayName": "deepgram-public/deepgram-voice-ai",
+        "title": "Deepgram Voice AI",
+        "subtitle": "Deepgram",
+        "description": "The fastest, most accurate Voice AI platform. STT, TTS, & language models for any enterprise scale.",
+        "productType": "Kubernetes apps",
+        "familyType": "K8sApp"
+       },
+       {
+        "productId": "5b7a25d4-ece2-4ae3-b8c3-652b2af4a5ec",
+        "productDisplayName": "google/falco0",
+        "title": "Falco",
+        "subtitle": "Google Click to Deploy containers",
+        "description": "Kubernetes threat detection engine",
+        "productType": "Container images",
+        "familyType": "Container"
+       },
+       {
+        "productId": "fe17bd97-17d4-411a-bde1-58eaea5f6402",
+        "productDisplayName": "meta/code-llama",
+        "title": "Code Llama",
+        "subtitle": "Meta",
+        "description": "Code Llama is an AI model built on top of Llama 2, fine-tuned for generating and discussing code.",
+        "productType": "Vertex AI",
+        "familyType": "OssAiPlatformModel"
+       },
+       {
+        "productId": "08b47d0c-9207-4e46-806e-c51aeb425107",
+        "productDisplayName": "manhattan-gcm-public/ma-transportation-planner",
+        "title": "Transportation Planner ",
+        "subtitle": " Manhattan Associates, Inc",
+        "description": "Optimize every load before the wheels start turning",
+        "productType": "AI Agent as a Service",
+        "familyType": "BillingIntegratedManagedAiAgentService"
+       },
+       {
+        "productId": "f605f9a6-57a3-42f5-864d-24d60f96e4a7",
+        "productDisplayName": "google-cloud-platform/cloud-datastore",
+        "title": "Cloud Datastore",
+        "subtitle": "Google",
+        "description": "A highly-scalable NoSQL database for your web and mobile applications",
+        "productType": "Google Cloud Platform",
+        "familyType": "GCP"
+       },
+       {
+        "productId": "3c307ce3-71bf-4be6-b738-76bdaf13d59d",
+        "productDisplayName": "xai/cloud-marketplace-9098c1b4-63a0-4714-b237-5058e14f4160.cloudpartnerservices.goog",
+        "title": "Provisioned Throughput with xAI's Grok models",
+        "subtitle": "X.AI LLC",
+        "description": "Access provisioned throughput (dedicated capacity) with xAI's Grok models",
+        "productType": "Provisioned Throughput",
+        "familyType": "ProvisionedThroughputProduct"
+       },
+       {
+        "productId": "814181aa-56b3-49c2-a262-bfd6a8835fb7",
+        "productDisplayName": "bigquery-public-data/google-books-ngrams-2020",
+        "title": "google-books-ngrams-2020",
+        "subtitle": "BigQuery Public Data",
+        "description": "Google Books word counts found in books from 1500-2012",
+        "productType": "Data",
+        "familyType": "Dataset"
+       }
+      ],
+      "totalCount": "9492",
+      "showPagination": true
+     }
+    }
+   }
+  },
+  "responseContext": {
+   "eti": "AcsagChcpJDJhkWyUc6qMYDoN5hZcq5vvCso8eqxtEHrSE65hkNx2FjlrGBsd7r45UcNBRotHl/wsZvQwNBXP8RBUBPYR+v16LAUjwtqTwi6yx8UZSPWbx30UohkuoKJV9nxpfPMnQhgIy7/4X8y6LVsbJiaW6TSLqE6KTK/NdOQPtLkX0nBiA=="
+  }
+ }
+]

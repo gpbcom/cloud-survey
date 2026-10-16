@@ -1,0 +1,34 @@
+{
+ "partner": {
+  "id": "ocid1.marketplacepublisher.oc1.iad.amaaaaaaxvowp3ia5x2jd4re3taknrz6lqafgeuvvjjnkyvopsygnpmj44uq",
+  "name": "Infosys Limited",
+  "websiteUrl": "www.infosys.com"
+ },
+ "id": "ocid1.mktpublisting.oc1.iad.amaaaaaaxvowp3ianwseckum2w2jxia5nbikzskbqirzacp6yaada35uwaxa",
+ "name": "Transfer Orders to Purchase Orders Converter",
+ "tagline": "Convert open Transfer Order lines into consolidated Purchase Orders automatically",
+ "products": [
+  {
+   "code": "procurement",
+   "productGroup": "APPLICATION",
+   "productName": "Procurement Cloud",
+   "categories": [],
+   "additionalFilters": []
+  }
+ ],
+ "timeCreated": "2026-10-14T16:33:00.152Z",
+ "timeUpdated": "2026-10-15T19:27:14.393Z",
+ "listingType": "AI_AGENT",
+ "languages": [
+  {
+   "code": "en_US",
+   "name": "English"
+  }
+ ],
+ "tags": [],
+ "keyBenefits": "The agent eliminates repetitive buyer effort by automatically converting eligible open transfer order lines into purchase orders. It groups lines for the same supplier and supplier site into consolidated multi-line POs, reducing PO volume and supplier administration. Prices, payment terms, freight terms, FOB, carrier, mode of transport, and service level are sourced directly from the applicable blanket purchase agreement, reducing manual transcription. After creation, the PO is submitted for approval and the PO number and line number are written back to each converted transfer order line. This creates a direct audit trail and prevents lines with an existing PO reference from being processed again. Lines that cannot be converted are reported with the specific missing prerequisite, such as no matching open agreement, missing bill-to or ship-to setup, or incomplete supplier or item data, creating a clear exception worklist for procurement teams.",
+ "competitiveDifferentiators": "Unlike manual conversion or a basic PO record-creation utility, the agent automates the complete transfer-order-to-purchase-order process. It scans eligible open transfer order lines, skips lines already linked to a PO, matches each remaining line to an open blanket purchase agreement, and sources live commercial terms rather than relying on static defaults. Eligible lines are grouped by supplier and supplier site to create consolidated multi-line POs instead of one PO per transfer order line. The agent calculates tax, submits the PO for approval, and writes the resulting PO number and line number back to every converted transfer order line. This write-back serves as both an audit trail and a duplicate-prevention control, making the process safe to rerun. The solution uses Fusion-native REST services throughout, with no middleware, external endpoints, third-party integrations, or stored credentials, and reports exact prerequisites for lines it cannot convert.",
+ "targetAudience": "Consultants, Procurement Buyers, Procurement Operations Teams, Shared Service Centers, Replenishment Teams, Distribution Operations Teams, Procurement Excellence Teams, and Oracle Fusion Procurement and Supply Chain Administrators",
+ "assetType": "Workflow",
+ "location": "Seeded"
+}

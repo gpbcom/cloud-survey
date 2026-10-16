@@ -1,0 +1,592 @@
+[
+ {
+  "id": "yfG4RhBH7IvuRVNuLDZIH",
+  "categories": [
+   "KMAQJqOnjUq5eLq-cqFuo",
+   "aCZ2fBsogHjdvZlUzL2Q_",
+   "qu7Pc6ih_KSQxgSh_J9jy",
+   "9FT3aBRJ1U8mACMoC8U2l",
+   "PIyLZSu0IReHsR7ex7RMG"
+  ],
+  "configuration": null,
+  "contractual_documents_info": [],
+  "created_at": "2025-10-28T12:10:18Z",
+  "description": "Accelerate your time to market and confidently run your application in production with our Managed PaaS environments on Open Telekom Cloud. Built and hardened to T-Systems security standards and expertly managed by our  professionals from Europe, our service provides a secure, efficient, and fully-s",
+  "description_short": "T-Systems MCS OpenShift provides an all-in-one solution based on the RedHat OpenShift Container Platform (OCP). ",
+  "guidance": "",
+  "description_de": "",
+  "description_short_de": "",
+  "guidance_de": "",
+  "icon": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/logo/yfG4RhBH7IvuRVNuLDZIH/EeH45fobN7_iskonAK3N-/logo.svg",
+  "license_fee": "0.00",
+  "license_info": "",
+  "license_type": "",
+  "lg_product_plans": {
+   "mode": "plans",
+   "plans": []
+  },
+  "llm_hub": {
+   "external_api": ""
+  },
+  "name": "Managed Container Stack (MCS) OpenShift",
+  "post_deployment_info": "",
+  "pre_deployment_info": "",
+  "post_deployment_info_de": "",
+  "pre_deployment_info_de": "",
+  "pricing_info": "Usage based",
+  "version": "",
+  "seller": {
+   "description": "T-Systems Managed Container Services",
+   "email": "sebastian.sutter@t-systems.com",
+   "id": "c_Pcb42yXU9w3PmW11tPj",
+   "name": "T-Systems Managed Container Services",
+   "state": "active",
+   "support_email": "cloud-products@telekom.de",
+   "support_url": "https://www.t-systems.com/de/en/company/t-systems-portals"
+  },
+  "type": "lead-generation",
+  "used_software": null,
+  "weight": 7,
+  "eol_date": null
+ },
+ {
+  "id": "g2chzNTJzN5HTINwEkE5z",
+  "categories": [
+   "Ld3HP4UUqDMPzA8qaafOf",
+   "O1Ptu2y5fcEwhUc4PZRKR"
+  ],
+  "configuration": null,
+  "contractual_documents_info": [
+   {
+    "file_name": "Besondere_Vertragsbedingungen_TCloudPublic_Marketplace_v2_13.pdf",
+    "url": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/contractual-docs/g2chzNTJzN5HTINwEkE5z/YcpNmpitzU8cem_APoFQr/Besondere_Vertragsbedingungen_TCloudPublic_Marketplace_v2_13.pdf"
+   },
+   {
+    "file_name": "Leistungsbeschreibung_LLM_Serving_v-1_23.pdf",
+    "url": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/contractual-docs/g2chzNTJzN5HTINwEkE5z/YcpNmpitzU8cem_APoFQr/Leistungsbeschreibung_LLM_Serving_v-1_23.pdf"
+   },
+   {
+    "file_name": "20260729_ErgBAV_LLM_Serving.pdf",
+    "url": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/contractual-docs/g2chzNTJzN5HTINwEkE5z/YcpNmpitzU8cem_APoFQr/20260729_ErgBAV_LLM_Serving.pdf"
+   },
+   {
+    "file_name": "Allgemeine_Geschäftsbedingungen_IT_Leistungen.pdf",
+    "url": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/contractual-docs/g2chzNTJzN5HTINwEkE5z/YcpNmpitzU8cem_APoFQr/Allgemeine_Geschäftsbedingungen_IT_Leistungen.pdf"
+   }
+  ],
+  "created_at": "2025-05-16T15:31:00Z",
+  "description": "**Note:** The T Cloud Public Marketplace includes only models hosted on the T Cloud Public. For an offer including models hosted on Azure or GCP, please contact us: \\[[CLICK HERE](mailto:AI_Data@t-systems.com?cc=AI@t-systems.com%2CSDM_AI_Foundation_Service@t-systems.com\\&subject=Request%20for%20Offe",
+  "description_short": "LLM Serving Service provides access to large language and embedding models for privacy-compliant use in your organization.",
+  "guidance": "",
+  "description_de": "**Hinweis:** Über den T Cloud Public Marketplace sind ausschließlich die auf der T Cloud Public gehosteten Modelle buchbar. Für ein Angebot inklusive Modelle mit Hosting auf Azure oder GCP schreiben Sie uns gerne: \\[[HIER KLICKEN](mailto:AI_Data@t-systems.com?cc=AI@t-systems.com%2CSDM_AI_Foundation_",
+  "description_short_de": "LLM Serving: Zugang zu Sprach- & Embedding-Modellen – datenschutzkonform für Ihr Unternehmen.",
+  "guidance_de": "",
+  "icon": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/logo/g2chzNTJzN5HTINwEkE5z/YcpNmpitzU8cem_APoFQr/logo.jpg",
+  "license_fee": "",
+  "license_info": "",
+  "license_type": "",
+  "llm_hub": {
+   "external_api": "https://llm-server.llmhub.t-systems.net/v2"
+  },
+  "name": "LLM Serving Service (TCP Models)",
+  "post_deployment_info": "Kindly visit the [**LLM HUB Documents**](https://docs.llmhub.t-systems.net/Introduction)[](https://docs.llmhub.t-systems.net/Introduction) before using this Model.\n\nFor technical information and a how-to-get-started guide please consult: [**API Reference**](https://docs.llmhub.t-systems.net/Model%20",
+  "pre_deployment_info": "Kindly visit the [**LLM HUB Documents**](https://docs.llmhub.t-systems.net/Introduction)[](https://docs.llmhub.t-systems.net/Introduction) before using this Model.\n\nFor technical information and a how-to-get-started guide please consult: [**API Reference**](https://docs.llmhub.t-systems.net/getting-",
+  "post_deployment_info_de": "Kindly visit the [**LLM HUB Documents**](https://docs.llmhub.t-systems.net/Introduction)[](https://docs.llmhub.t-systems.net/Introduction) before using this Model.\n\nFor technical information and a how-to-get-started guide please consult: [**API Reference**](https://docs.llmhub.t-systems.net/getting-",
+  "pre_deployment_info_de": "Kindly visit the [**LLM HUB Documents**](https://docs.llmhub.t-systems.net/Introduction)[](https://docs.llmhub.t-systems.net/Introduction) before using this Model.\n\nFor technical information and a how-to-get-started guide please consult: [**API Reference**](https://docs.llmhub.t-systems.net/getting-",
+  "pricing_info": "Usage based",
+  "version": "",
+  "seller": {
+   "description": "private_gen_ai_operations_services01@t-systems.com",
+   "email": "sdm_ai_foundation_service@t-systems.com",
+   "id": "pj1M5KdrO5wqFRZOFW-4Y",
+   "name": "AI Foundation Services",
+   "state": "active",
+   "support_email": "private_gen_ai_operations_services01@t-systems.com",
+   "support_url": "https://docs.llmhub.t-systems.net/category/model-serving"
+  },
+  "type": "llm-tpm",
+  "used_software": null,
+  "weight": 6,
+  "eol_date": null
+ },
+ {
+  "id": "cccq7szJKoI-EeaqG0oBP",
+  "categories": [
+   "KMAQJqOnjUq5eLq-cqFuo"
+  ],
+  "configuration": null,
+  "contractual_documents_info": [],
+  "created_at": "2025-03-06T12:16:49Z",
+  "description": "OTC Prometheus Exporter\nThis software gathers metrics from the Open Telekom Cloud (OTC) for Prometheus. The metrics are then usable in any service which can use Prometheus as a datasource. For example Grafana.\n\nAvailable Metrics\nMetrics for the following services are available:\n\n* Elastic Cloud Serv",
+  "description_short": "This software gathers metrics from the Open Telekom Cloud (OTC) for Prometheus.",
+  "guidance": "",
+  "description_de": "",
+  "description_short_de": "",
+  "guidance_de": "",
+  "icon": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/logo/cccq7szJKoI-EeaqG0oBP/jU62v_UR_-CcvXTzuWh5H/logo.png",
+  "license_fee": "0.00",
+  "license_info": "GNU General Public License v3.0",
+  "license_type": "opensource",
+  "llm_hub": {
+   "external_api": ""
+  },
+  "name": "OTC prometheus-exporterv1",
+  "post_deployment_info": "It pushes data to prometheus-stack",
+  "pre_deployment_info": "    # OTC Prometheus Exporter\n\n    This software gathers metrics from the [Open Telekom Cloud (OTC)](https://open-telekom-cloud.com/)\n    for [Prometheus](https://prometheus.io/). The metrics are then usable in any service which can use Prometheus as a\n    datasource. For example [Grafana](https://g",
+  "post_deployment_info_de": "",
+  "pre_deployment_info_de": "",
+  "pricing_info": "Free",
+  "version": "1.0.0",
+  "seller": {
+   "description": "iits-consulting",
+   "email": "otc-marketplace@iits-consulting.de",
+   "id": "9E-KZsRU2L6sPRZxAWfCW",
+   "name": "iits-consulting GmbH",
+   "state": "active",
+   "support_email": "otc-marketplace-support@iits-consulting.de",
+   "support_url": "https://iits-consulting.de"
+  },
+  "type": "container",
+  "used_software": [
+   {
+    "name": "Prometheus Exporter",
+    "license_name": "Apache License 2.0",
+    "license_url": "https://raw.githubusercontent.com/prometheus/node_exporter/refs/heads/master/LICENSE"
+   }
+  ],
+  "weight": 3,
+  "eol_date": null
+ },
+ {
+  "id": "DaqMD5oXdYeHvqG4E9ouS",
+  "categories": [
+   "KMAQJqOnjUq5eLq-cqFuo",
+   "qu7Pc6ih_KSQxgSh_J9jy",
+   "9FT3aBRJ1U8mACMoC8U2l",
+   "7or4e6DIjTUJrUMhXx280",
+   "8AHKpkvplNxsgDj38w5dc"
+  ],
+  "configuration": null,
+  "contractual_documents_info": [],
+  "created_at": "2024-09-25T11:36:10Z",
+  "description": "# Airlock Microgateway\n\n[](https://github.com/rancher/partner-charts/tree/main-source/charts/airlock/microgateway/4.3.3#airlock-microgateway)\n\n[](https://camo.githubusercontent.com/85eef54ba3f0dbeb704fd7a5984934ac3d07a313f80349e211523ef699ee2b71/68747470733a2f2f696d672e736869656c64732e696f2f62616467",
+  "description_short": "Airlock Microgateway is a Kubernetes native WAAP (Web Application and API Protection) solution to protect microservices.",
+  "guidance": "",
+  "description_de": "# Airlock Microgateway\n\n[](https://github.com/rancher/partner-charts/tree/main-source/charts/airlock/microgateway/4.3.3#airlock-microgateway)\n\n[](https://camo.githubusercontent.com/85eef54ba3f0dbeb704fd7a5984934ac3d07a313f80349e211523ef699ee2b71/68747470733a2f2f696d672e736869656c64732e696f2f62616467",
+  "description_short_de": "Airlock Microgateway ist eine Kubernetes-native WAAP-Lösung (Web Application and API Protection), für Microservices und APIs",
+  "guidance_de": "",
+  "icon": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/logo/DaqMD5oXdYeHvqG4E9ouS/-oHsbQ6Vxwg4YHolQzaLE/logo.svg",
+  "license_fee": "0.00",
+  "license_info": "",
+  "license_type": "byol",
+  "llm_hub": {
+   "external_api": ""
+  },
+  "name": "Airlock Microgateway",
+  "post_deployment_info": "[https://docs.airlock.com/microgateway/latest/index/1659942661105.html](https://docs.airlock.com/microgateway/latest/index/1659942661105.html)\n\nYou need a [running example](https://github.com/airlock/microgateway-running-example)?",
+  "pre_deployment_info": "## Prerequisites\n\n* Gateway API 1.6.0\n\n### **Install Gateway API CRDs**\n\n```sh\nkubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.0/standard-install.yaml\n```",
+  "post_deployment_info_de": "[https://docs.airlock.com/microgateway/latest/index/1659942661105.html](https://docs.airlock.com/microgateway/latest/index/1659942661105.html)\n\nSie möchten sofort starten? Unsere [Praxisbeispiele](https://github.com/airlock/microgateway-running-example) helfen Ihnen dabei!",
+  "pre_deployment_info_de": "",
+  "pricing_info": "Usage Based",
+  "version": "5.2.0",
+  "seller": {
+   "description": "Ergon Informatik GmbH",
+   "email": "sales@airlock.com",
+   "id": "6BH6J4QDDw3VmdURkAguK",
+   "name": "Ergon Informatik GmbH",
+   "state": "active",
+   "support_email": "sales@airlock.com",
+   "support_url": "https://techzone.ergon.ch"
+  },
+  "type": "container",
+  "used_software": null,
+  "weight": 0,
+  "byol": {
+   "activation_url": "https://docs.airlock.com/microgateway/latest/index/1675772882054.html",
+   "secret_name": "airlock-microgateway-license",
+   "file_name_in_secret": "microgateway-license.txt",
+   "webshop_url": "https://www.airlock.com/microgateway-evaluation"
+  },
+  "eol_date": null
+ },
+ {
+  "id": "CwV-oqh646lLiXAUoq33s",
+  "categories": [
+   "tINtYYC6YKzSc_OHa7F5-"
+  ],
+  "configuration": null,
+  "contractual_documents_info": [],
+  "created_at": "2026-05-08T12:32:33Z",
+  "description": "▪ A structured, modular migration framework that breaks complex migrations into manageable modules\n▪ Workload migration planning, architecture design, and execution aligned with T Cloud Public services\n▪ Use of automation, AI driven assessments, and proven migration methodology to accelerate deliver",
+  "description_short": "Accelerate your T Cloud Public migration with a structured, low-risk approach ensuring speed and continuity.",
+  "guidance": "",
+  "description_de": "▪ Ein strukturiertes, modulares Migrations-Framework, das komplexe Migrationen in überschaubare Module unterteilt\n▪ Planung, Architekturdesign und Durchführung der Workload-Migration – abgestimmt auf die T Cloud Public Services\n▪ Einsatz von Automatisierung, KI-gestützten Analysen und bewährten Migr",
+  "description_short_de": "Beschleunigen Sie Ihre T Cloud Public-Migration mit einem strukturierten, risikoarmen Ansatz.",
+  "guidance_de": "",
+  "icon": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/logo/CwV-oqh646lLiXAUoq33s/tRjjuEODthoi1AB8dvNOF/logo.svg",
+  "license_fee": "0.00",
+  "license_info": "",
+  "license_type": "",
+  "lg_product_plans": {
+   "mode": "plans",
+   "plans": []
+  },
+  "llm_hub": {
+   "external_api": ""
+  },
+  "name": "Migration Service",
+  "post_deployment_info": "",
+  "pre_deployment_info": "",
+  "post_deployment_info_de": "",
+  "pre_deployment_info_de": "",
+  "pricing_info": "Usage based",
+  "version": "",
+  "seller": {
+   "description": "T-Systems  ",
+   "email": "radhika.jadhav@t-systems.com",
+   "id": "U3HSrw3lBsywF-q57FIph",
+   "name": "T-Systems | Cloud Professional Services",
+   "state": "active",
+   "support_email": "radhika.jadhav@t-systems.com",
+   "support_url": "https://www.t-systems.com/de/de/cloud-services/loesungen/cloud-professional-services"
+  },
+  "type": "lead-generation",
+  "used_software": null,
+  "weight": 0,
+  "eol_date": null
+ },
+ {
+  "id": "a3FR8klB8v-EkD0FDkMX7",
+  "categories": [
+   "NN8cULlNNG9tDFdQ8vXVZ"
+  ],
+  "configuration": null,
+  "contractual_documents_info": [],
+  "created_at": "2026-05-07T06:58:28Z",
+  "description": "▪ A structured, tool driven cloud assessment analyzing infrastructure and applications to determine migration readiness\n▪ Automated discovery and baseline creation providing a complete inventory of workloads and dependencies\n▪ Definition of workload level migration strategies using the 6R model alig",
+  "description_short": "We combine automated discovery, expert validation, and GenAI workload analysis to deliver speed, accuracy, and scale.",
+  "guidance": "",
+  "description_de": "▪ Ein strukturiertes, toolgestütztes Cloud-Assessment zur Analyse von Infrastruktur und Anwendungen, um die Migrationsbereitschaft zu ermitteln\n▪ Automatisierte Erkennung und Erstellung einer Basislinie (Baseline), die ein vollständiges Inventar der Workloads und Abhängigkeiten liefert\n▪ Definition ",
+  "description_short_de": "Wir kombinieren Discovery, Expertenvalidierung und GenAI-Analyse für Geschwindigkeit, Präzision und Skalierbarkeit.",
+  "guidance_de": "",
+  "icon": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/logo/a3FR8klB8v-EkD0FDkMX7/M8Cs6x0mHsBe2Y1dphr3T/logo.svg",
+  "license_fee": "0.00",
+  "license_info": "",
+  "license_type": "",
+  "lg_product_plans": {
+   "mode": "plans",
+   "plans": []
+  },
+  "llm_hub": {
+   "external_api": ""
+  },
+  "name": "Cloud Assessment",
+  "post_deployment_info": "",
+  "pre_deployment_info": "",
+  "post_deployment_info_de": "",
+  "pre_deployment_info_de": "",
+  "pricing_info": "Usage based",
+  "version": "",
+  "seller": {
+   "description": "T-Systems  ",
+   "email": "radhika.jadhav@t-systems.com",
+   "id": "U3HSrw3lBsywF-q57FIph",
+   "name": "T-Systems | Cloud Professional Services",
+   "state": "active",
+   "support_email": "radhika.jadhav@t-systems.com",
+   "support_url": "https://www.t-systems.com/de/de/cloud-services/loesungen/cloud-professional-services"
+  },
+  "type": "lead-generation",
+  "used_software": null,
+  "weight": 0,
+  "eol_date": null
+ },
+ {
+  "id": "2i73NPWQdRkrArICFZYwN",
+  "categories": [
+   "S2vYpue-EhH-ngj7GIJqM"
+  ],
+  "configuration": null,
+  "contractual_documents_info": [],
+  "created_at": "2026-04-08T20:13:05Z",
+  "description": "##### **The Detecon Sovereign Cloud Assessment is a structured, multi-phase approach to evaluate, quantify and strengthen digital sovereignty across cloud environments, applications and platforms.**\n\n* The service is based on a proven methodology aligned with the EU Cloud Sovereignty Framework and e",
+  "description_short": "Assess your cloud sovereignty with a structured, EU-aligned approach to risk and compliance requirements",
+  "guidance": "",
+  "description_de": "##### **Der Detecon Sovereign Cloud Assessment Service ist ein strukturierter, mehrphasiger Ansatz zur Bewertung, Quantifizierung und Stärkung der digitalen Souveränität über Cloud-Umgebungen, Anwendungen und Plattformen hinweg.**\n\n* Der Service basiert auf einer bewährten Methodik, die am EU Cloud ",
+  "description_short_de": "Bewerten Sie Ihre Cloud-Souveränität mit einem strukturierten, EU-konformen Ansatz für Risiko- und Compliance-Anforderungen",
+  "guidance_de": "",
+  "icon": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/logo/2i73NPWQdRkrArICFZYwN/Ooy0s7WF1B8IEGxVCPuGt/logo.png",
+  "license_fee": "0.00",
+  "license_info": "",
+  "license_type": "",
+  "lg_product_plans": {
+   "mode": "plans",
+   "plans": []
+  },
+  "llm_hub": {
+   "external_api": ""
+  },
+  "name": "Detecon Sovereign Cloud Assessment",
+  "post_deployment_info": "",
+  "pre_deployment_info": "",
+  "post_deployment_info_de": "",
+  "pre_deployment_info_de": "",
+  "pricing_info": "Usage based",
+  "version": "",
+  "seller": {
+   "description": "Detecon International GmbH",
+   "email": "goekhan.oezdemir@detecon.com",
+   "id": "unY4q0dkbntEkbaNTOnVw",
+   "name": "Detecon International GmbH",
+   "state": "active",
+   "support_email": "goekhan.oezdemir@detecon.com",
+   "support_url": "https://www.detecon.com/en/expert/gokhan-ozdemir"
+  },
+  "type": "lead-generation",
+  "used_software": null,
+  "weight": 0,
+  "eol_date": null
+ },
+ {
+  "id": "JXEbzONlXSwfaNNaVCyrZ",
+  "categories": [
+   "9FT3aBRJ1U8mACMoC8U2l"
+  ],
+  "configuration": null,
+  "contractual_documents_info": [],
+  "created_at": "2025-09-30T10:28:08Z",
+  "description": "Atos is a global leader in digital transformation and a trusted partner for organizations moving to the cloud. &#x20;\n\nWith strong expertise in hybrid and multi-cloud environments, Atos helps enterprises design, build, and operate robust platforms on Open Telekom Cloud. &#x20;\n\n\n\nOur service offerin",
+  "description_short": "Atos Cloud Acceleration",
+  "guidance": "",
+  "description_de": "",
+  "description_short_de": "",
+  "guidance_de": "",
+  "icon": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/logo/JXEbzONlXSwfaNNaVCyrZ/710sYwT4mM_yyDoTY-EqN/logo.png",
+  "license_fee": "0.00",
+  "license_info": "",
+  "license_type": "",
+  "lg_product_plans": {
+   "mode": "plans",
+   "plans": []
+  },
+  "llm_hub": {
+   "external_api": ""
+  },
+  "name": "Atos Cloud Transformation Services",
+  "post_deployment_info": "",
+  "pre_deployment_info": "",
+  "post_deployment_info_de": "",
+  "pre_deployment_info_de": "",
+  "pricing_info": "Usage based",
+  "version": "",
+  "seller": {
+   "description": "Atos France",
+   "email": "dl-en-spaceoffering@atos.net",
+   "id": "0gj8r4leJ0zJ1arkjhTP-",
+   "name": "Atos France",
+   "state": "active",
+   "support_email": "spaceoffering@atos.net",
+   "support_url": "https://atos.net/en/"
+  },
+  "type": "lead-generation",
+  "used_software": null,
+  "weight": 0,
+  "eol_date": null
+ },
+ {
+  "id": "7z_QYY46tyVihPVJRqb4t",
+  "categories": [
+   "pI29W7PqvZWfmB-cd189z",
+   "Ld3HP4UUqDMPzA8qaafOf",
+   "XuA515dNI9NJSGY24SITR",
+   "7MwAumKdy5GtD_Dl0Lgxp"
+  ],
+  "configuration": null,
+  "contractual_documents_info": [],
+  "created_at": "2026-08-13T09:41:27Z",
+  "description": "#### d.velop invoices – Intelligent invoice processing\n\nTransparent, clear, and efficient—d.velop invoices is d.velop’s solution for invoice processing and the central hub for all processes related to incoming invoices. It covers the entire workflow: from invoice receipt through recognition, verific",
+  "description_short": "Intelligent Invoice Processing",
+  "guidance": "",
+  "description_de": "#### d.velop invoices – Die intelligente Rechnungsverarbeitung  \n\n \n\nTransparent, übersichtlich & effizient – d.velop invoices ist die Lösung für die Rechnungsverarbeitung der d.velop und der Dreh- und Angelpunkt für sämtliche Prozesse rund um eingehende Rechnungen. Dabei deckt d.velop invoices den ",
+  "description_short_de": "Intelligente Rechnungsverarbeitung  ",
+  "guidance_de": "",
+  "icon": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/logo/7z_QYY46tyVihPVJRqb4t/p5iPv5JrkQMVZ4WrWofmL/logo.png",
+  "license_fee": "0.00",
+  "license_info": "",
+  "license_type": "",
+  "lg_product_plans": {
+   "mode": "plans",
+   "plans": []
+  },
+  "llm_hub": {
+   "external_api": ""
+  },
+  "name": "d.velop invoices",
+  "post_deployment_info": "",
+  "pre_deployment_info": "",
+  "post_deployment_info_de": "",
+  "pre_deployment_info_de": "",
+  "pricing_info": "Usage based",
+  "version": "",
+  "seller": {
+   "description": "d.velop AG",
+   "email": "skle@d-velop.de",
+   "id": "3jcSJVKyLviVcX2AcQKp_",
+   "name": "d.velop AG",
+   "state": "active",
+   "support_email": "skle@d-velop.de",
+   "support_url": "https://www.d-velop.de/leistungen/support#top"
+  },
+  "type": "lead-generation",
+  "used_software": null,
+  "weight": 0,
+  "eol_date": null
+ },
+ {
+  "id": "y8i5ETMBuotWIjExJzcQg",
+  "categories": [
+   "qu7Pc6ih_KSQxgSh_J9jy",
+   "9FT3aBRJ1U8mACMoC8U2l",
+   "7or4e6DIjTUJrUMhXx280"
+  ],
+  "configuration": null,
+  "contractual_documents_info": [],
+  "created_at": "2026-10-12T12:03:44Z",
+  "description": "### Keycloak as a Service by iits-consulting\n\n**Identity and access management without running it yourself.**\n\nKeycloak is the leading open source identity provider: single sign-on, OpenID Connect, OAuth 2.0, SAML 2.0, user federation (LDAP and Active Directory), social login, multi-factor authentic",
+  "description_short": "Fully managed Keycloak on T Cloud Public: SSO, OIDC and SAML for your applications, operated 24/7 by iits-consulting.",
+  "guidance": "",
+  "description_de": "### Keycloak as a Service von iits-consulting\n\n**Identity- und Access-Management, ohne es selbst betreiben zu müssen.**\n\nKeycloak ist der führende Open-Source-Identity-Provider: Single Sign-on, OpenID Connect, OAuth 2.0, SAML 2.0, Nutzer-Federation (LDAP und Active Directory), Social Login, Multi-Fa",
+  "description_short_de": "Vollständig verwaltetes Keycloak auf T Cloud Public: SSO, OIDC und SAML für Ihre Anwendungen, betrieben von iits-consulting.",
+  "guidance_de": "",
+  "icon": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/logo/y8i5ETMBuotWIjExJzcQg/JytD2-wpI9hlFbHzPANKT/logo.png",
+  "license_fee": "",
+  "license_info": "Keycloak is open source software under the Apache License 2.0. No license fee applies.",
+  "license_type": "",
+  "lg_product_plans": {
+   "mode": "plans",
+   "plans": []
+  },
+  "llm_hub": {
+   "external_api": ""
+  },
+  "name": "Keycloak as a Service",
+  "post_deployment_info": "",
+  "pre_deployment_info": "",
+  "post_deployment_info_de": "",
+  "pre_deployment_info_de": "",
+  "pricing_info": "500 € per month, unlimited users, organisations, realms and clients. Infrastructure on T Cloud Public is billed separately by Telekom.",
+  "version": "1.0.0",
+  "seller": {
+   "description": "iits-consulting",
+   "email": "otc-marketplace@iits-consulting.de",
+   "id": "9E-KZsRU2L6sPRZxAWfCW",
+   "name": "iits-consulting GmbH",
+   "state": "active",
+   "support_email": "otc-marketplace-support@iits-consulting.de",
+   "support_url": "https://iits-consulting.de"
+  },
+  "type": "lead-generation",
+  "used_software": null,
+  "weight": 0,
+  "eol_date": null
+ },
+ {
+  "id": "M7XcDPw4x4CUAjgj2cc1a",
+  "categories": [
+   "KMAQJqOnjUq5eLq-cqFuo",
+   "aCZ2fBsogHjdvZlUzL2Q_",
+   "Ld3HP4UUqDMPzA8qaafOf",
+   "O1Ptu2y5fcEwhUc4PZRKR",
+   "9FT3aBRJ1U8mACMoC8U2l",
+   "PIyLZSu0IReHsR7ex7RMG",
+   "tINtYYC6YKzSc_OHa7F5-",
+   "8AHKpkvplNxsgDj38w5dc"
+  ],
+  "configuration": null,
+  "contractual_documents_info": [],
+  "created_at": "2026-07-07T14:46:43Z",
+  "description": "#### Codesphere - The Virtual Cloud Provider (VCP)\n\nMuch like Airbnb owns no hotels, Codesphere owns no servers.\n\nInstead, we upgrade existing hardware or cloud provider into a standardized, high-performance development and operations environment.\n\n\n\nOur Virtual Cloud Provider (VCP) technology abstr",
+  "description_short": "Operating layer delivering governance, portability and operational efficiency across multi-cloud, hybrid and on-premise.",
+  "guidance": "",
+  "description_de": "#### Codesphere - Der virtuelle Cloud-Provider (VCP)\n\nSo wie Airbnb keine Hotels und Uber keine Autos besitzt,\n\nbesitzt Codesphere keine Server.&#x20;\n\nUnd transformiert dennoch nahezu jede Infrastruktur in eine souveräne Enterprise-Cloud.\n\n\n\nUnsere Virtual Cloud Provider (VCP)-Technologie abstrahie",
+  "description_short_de": "Einheitliche Betriebsebene für Governance, Portabilität und operative Effizienz über Multi-Cloud, Hybrid und On-Premise.",
+  "guidance_de": "",
+  "icon": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/logo/M7XcDPw4x4CUAjgj2cc1a/wtA-96Z58gjyRHS5jiFXQ/logo.png",
+  "license_fee": "0.00",
+  "license_info": "",
+  "license_type": "",
+  "lg_product_plans": {
+   "mode": "plans",
+   "plans": []
+  },
+  "llm_hub": {
+   "external_api": ""
+  },
+  "name": "Codesphere",
+  "post_deployment_info": "",
+  "pre_deployment_info": "",
+  "post_deployment_info_de": "",
+  "pre_deployment_info_de": "",
+  "pricing_info": "Usage based",
+  "version": "",
+  "seller": {
+   "description": "Codesphere GmbH",
+   "email": "joerg.nottebohm@codesphere.com",
+   "id": "AbfkzqYJGLhzxYvWUSQ4G",
+   "name": "Codesphere GmbH",
+   "state": "active",
+   "support_email": "support@codesphere.com",
+   "support_url": "https://docs.codesphere.com/intro"
+  },
+  "type": "lead-generation",
+  "used_software": null,
+  "weight": 0,
+  "eol_date": null
+ },
+ {
+  "id": "qnHMcydCFjXZ39PTJ1CQW",
+  "categories": [
+   "OZug4aRG1IS_A5Bf7NeZo"
+  ],
+  "configuration": null,
+  "contractual_documents_info": [],
+  "created_at": "2026-04-20T10:32:41Z",
+  "description": "Enterprise Backup & Disaster Recovery  with T Cloud Public helps organisations assess, design and improve their recovery capability across hybrid, multi-cloud and on-premises environments. The service focuses on business resilience, recovery readiness, cyber-resilient backup and continuity planning ",
+  "description_short": " Business Continuity & Disaster Recovery on T-Cloud",
+  "guidance": "",
+  "description_de": "Enterprise Backup & Disaster Recovery mit T Cloud Public unterstützt Organisationen dabei, ihre Wiederherstellungsfähigkeit in hybriden, Multi‑Cloud‑ und On‑Premises‑Umgebungen zu bewerten, zu gestalten und zu verbessern. Der Service konzentriert sich auf Business‑Resilienz, Wiederherstellungsbereit",
+  "description_short_de": " Business Continuity & Disaster Recovery on T-Cloud",
+  "guidance_de": "",
+  "icon": "https://marketplace-production-image.obs.eu-de.otc.t-systems.com/logo/qnHMcydCFjXZ39PTJ1CQW/S47lj7jySIorw8ftSAnW_/logo.jpg",
+  "license_fee": "0.00",
+  "license_info": "",
+  "license_type": "",
+  "lg_product_plans": {
+   "mode": "plans",
+   "plans": []
+  },
+  "llm_hub": {
+   "external_api": ""
+  },
+  "name": "Enterprise Backup & Disaster Recovery ",
+  "post_deployment_info": "",
+  "pre_deployment_info": "",
+  "post_deployment_info_de": "",
+  "pre_deployment_info_de": "",
+  "pricing_info": "Usage based",
+  "version": "",
+  "seller": {
+   "description": "T-Systems  ",
+   "email": "radhika.jadhav@t-systems.com",
+   "id": "U3HSrw3lBsywF-q57FIph",
+   "name": "T-Systems | Cloud Professional Services",
+   "state": "active",
+   "support_email": "radhika.jadhav@t-systems.com",
+   "support_url": "https://www.t-systems.com/de/de/cloud-services/loesungen/cloud-professional-services"
+  },
+  "type": "lead-generation",
+  "used_software": null,
+  "weight": 0,
+  "eol_date": null
+ }
+]

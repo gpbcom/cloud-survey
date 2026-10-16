@@ -1,0 +1,77 @@
+{
+ "result": {
+  "errCode": "",
+  "product": {
+   "crumbInfo": [
+    {
+     "cid": 110,
+     "name": "镜像环境"
+    },
+    {
+     "cid": 110001,
+     "name": "基础环境"
+    }
+   ],
+   "productInfo": {
+    "assurance": [
+     "FREE_REFUND_IN7DAYS",
+     "VERIFIED_VENDOR",
+     "CASH_GUARANTEE",
+     "TRADE_GUARANTEE"
+    ],
+    "chargeType": "PERIOD",
+    "cnDeliveryMethod": "镜像交付",
+    "deliveryMethod": "MIRROR",
+    "digest": "基于Stable diffusion4.0，默认集成集成anything-v5-PrtRE、animevae.pt等外挂VAE模型。支持文生图、图生图、模型融合、训练等功能。",
+    "parameters": [
+     {
+      "name": "交付形式",
+      "type": "text",
+      "value": "镜像交付"
+     },
+     {
+      "name": "交付时间",
+      "type": "text",
+      "value": "实时"
+     },
+     {
+      "name": "系统类型",
+      "type": "text",
+      "value": "Linux"
+     },
+     {
+      "name": "基础系统版本",
+      "type": "text",
+      "value": "Ubuntu,22.04 LTS amd64 (64bit)"
+     },
+     {
+      "name": "集成服务组件及版本",
+      "type": "text",
+      "value": "Stable Diffusion WebUI"
+     }
+    ],
+    "pid": "02cba765-e935-4d63-8f4e-dbe7b85847a8",
+    "productSale": "",
+    "productType": "MKT",
+    "sceneKeywords": [
+     "AI作画",
+     "AI绘图",
+     "文生图",
+     "模型",
+     "SD"
+    ],
+    "tag": "MKT_BD",
+    "tip": "注：该商品需首先购买有百度云计算类产品：BCC。",
+    "title": "Stable Diffusion WebUI Ubuntu 版",
+    "tutorialFileName": "使用指南.docx"
+   },
+   "vendorInfo": {
+    "vendorId": "05f83b93-3a85-4899-b5ff-5dc95241a402",
+    "vendorName": "百度智能云服务交付中心",
+    "intro": "由百度智能云服务交付中心支持，提供百度智能云官方自营商品及服务"
+   }
+  }
+ },
+ "status": 200,
+ "success": true
+}

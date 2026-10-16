@@ -1,0 +1,23 @@
+{
+ "state": "OK",
+ "body": {
+  "id": "f4a843dea48c4b69acbfcb3844a8d658",
+  "name": "MobileClaw",
+  "type": "hotCase",
+  "group": "product-gray",
+  "sourceId": null,
+  "description": "MobileClaw产品介绍页",
+  "status": 0,
+  "background": "",
+  "template": "[]",
+  "bindAdverts": [],
+  "seoTitle": "移动云MobileClaw_个人AI操作系统_移动云官网",
+  "seoKeywords": "私人数字员工，能理解复杂指令，自主规划步骤，调用各种工具，直接执行任务",
+  "seoDescription": "一位住在您设备里的全能数字员工，不是另一个需要您主动打开的聊天机器人，而是一个常驻在您设备中的\"个人AI操作系统\"。它深度融合了类似本地化、无感交互理念，以及强任务执行力。只需发送一句话，它便能理解复杂指令，自主规划步骤，调用各种工具，并在您的电脑或云端环境中直接执行任务，\n\n最终交付可用成果。它就像一位24小时待命、能力超群的私人数字员工。",
+  "createBy": null,
+  "createDate": null,
+  "updateBy": null,
+  "updateDate": null
+ },
+ "requestId": "reqId-b0d63765427d843d0b52b71d9cdafca6"
+}

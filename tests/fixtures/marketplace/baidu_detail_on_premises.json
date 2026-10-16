@@ -1,0 +1,76 @@
+{
+ "result": {
+  "errCode": "",
+  "product": {
+   "crumbInfo": [
+    {
+     "cid": 135,
+     "name": "人工智能"
+    },
+    {
+     "cid": 135001,
+     "name": "软件服务"
+    }
+   ],
+   "productInfo": {
+    "assurance": [
+     "FREE_REFUND_IN7DAYS",
+     "VERIFIED_VENDOR",
+     "CASH_GUARANTEE",
+     "TRADE_GUARANTEE"
+    ],
+    "chargeType": "COUNT",
+    "cnDeliveryMethod": "线下交付",
+    "deliveryMethod": "OFFLINE",
+    "digest": "帮助政务服务部门为群众提供智能的在线问答与便捷的在线业务办理。辅助群众一窗口式办理所需业务，代替群众寻找办理入口。平台拥有问答对自动解析生成、问答库自动维护功能，一改人工录入时代，大幅降低人力成本。",
+    "parameters": [
+     {
+      "name": "交付形式",
+      "type": "text",
+      "value": "线下交付"
+     },
+     {
+      "name": "交付时间",
+      "type": "text",
+      "value": "实时"
+     },
+     {
+      "name": "使用场景",
+      "type": "text",
+      "value": "加快推进政务服务便利化、集约化办事、智慧化服务、政务服务线上线下深度融合、方便快捷优质高效。帮助各政务服务部门为群众提供智能的在线问答与便捷的在线业务办理。辅助群众”一窗口“式办理所需业务，节省群众全站寻找办理入口时间。"
+     },
+     {
+      "name": "适用行业",
+      "type": "text",
+      "value": "事业单位/机构"
+     },
+     {
+      "name": "使用文档",
+      "type": "text",
+      "value": ""
+     }
+    ],
+    "pid": "810cc861-590d-464e-86e7-4c48f73e10a5",
+    "productSale": "",
+    "productType": "MKT",
+    "sceneKeywords": [
+     "智能政务",
+     "智能问答",
+     "智能导办",
+     "智能推荐",
+     "智能客服"
+    ],
+    "tag": "",
+    "title": "政务智能问答引擎",
+    "tutorialFileName": "使用指南.docx"
+   },
+   "vendorInfo": {
+    "vendorId": "6d564349-1b96-443a-a794-0ad4323453f7",
+    "vendorName": "中科极限元（杭州）智能科技股份有限公司",
+    "intro": "以“多模态信息智能处理与挖掘分析”为核心的人工智能技术公司，拥有自主产权的自然语言处理、大数据分析、音视频、情感智能等AI技术，产品广泛应用于安全、交通、政务等多个领域。"
+   }
+  }
+ },
+ "status": 200,
+ "success": true
+}

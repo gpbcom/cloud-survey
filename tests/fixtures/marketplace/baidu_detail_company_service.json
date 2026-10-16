@@ -1,0 +1,61 @@
+{
+ "result": {
+  "errCode": "",
+  "product": {
+   "crumbInfo": [
+    {
+     "cid": 150,
+     "name": "公司服务"
+    },
+    {
+     "cid": 150001,
+     "name": "工商服务"
+    }
+   ],
+   "productInfo": {
+    "assurance": [
+     "FREE_REFUND_IN7DAYS",
+     "VERIFIED_VENDOR",
+     "CASH_GUARANTEE",
+     "TRADE_GUARANTEE"
+    ],
+    "chargeType": "COUNT",
+    "cnDeliveryMethod": "人工交付",
+    "deliveryMethod": "MAN_MADE",
+    "digest": "本款濮阳公司注册商标高新企业IDC证文网文ISO环境质量体系验厂认证的商品咨询服务，上门实地代办公司注册咨询，专业人员上门辅助办理验厂包通过咨询，还有相关产品资质咨询，详情请联系客服！",
+    "parameters": [
+     {
+      "name": "交付形式",
+      "type": "text",
+      "value": "人工交付"
+     },
+     {
+      "name": "交付时间",
+      "type": "text",
+      "value": "7天"
+     }
+    ],
+    "pid": "948d79d6-6c65-4e1f-961a-64a8181fc787",
+    "productSale": "",
+    "productType": "MKT",
+    "sceneKeywords": [
+     "濮阳公司注册",
+     "濮阳环境质量体系",
+     "ISO濮阳IDC",
+     "濮阳注册商标",
+     "濮阳文网文"
+    ],
+    "tag": "",
+    "title": "濮阳公司注册商标高新企业IDC证文网文ISO环境质量体系验厂认证",
+    "tutorialFileName": "使用指南.pdf"
+   },
+   "vendorInfo": {
+    "vendorId": "0abf6f0b-5b9c-49a9-afe5-e5cbc2f3ee56",
+    "vendorName": "广州市德力擎科技发展有限公司",
+    "intro": "德力擎，为国内客户提供公司注册及质量体系验厂相关资质标准上门代办、商标软著发明专利、商城网站建设，电商代运营等业务，是国内地区分布最广的综合发展业务为一体的品牌公司，同时诚招部分区域有资源合作代理商。"
+   }
+  }
+ },
+ "status": 200,
+ "success": true
+}

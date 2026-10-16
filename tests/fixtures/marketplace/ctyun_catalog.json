@@ -1,0 +1,163 @@
+{
+ "duration": "4493360784",
+ "reason": "服务调用成功",
+ "code": "core.ok",
+ "data": {
+  "all": "29",
+  "item": [
+   {
+    "offerId": "14030954",
+    "name": "智能组网-组网集成服务",
+    "note": "智能组网是为用户提供无线网络(WIFI)覆盖的产品。是在天翼云的平台上叠加的WIFI行业应用产品，为行业客户、集团客户、商客等提供高性价比、高性能、低故障的 WIFI产品。",
+    "offerCseName": "智能组网",
+    "owner": {
+     "id": "200",
+     "name": "天翼云甄选商城"
+    },
+    "class": "devops",
+    "subclass": "10030",
+    "deliverMode": "saas",
+    "deliverName": "SAAS类",
+    "state": "online",
+    "display": "true",
+    "detailUrl": "https://market.ctyun.cn/market/mallproduct/14030954?",
+    "minPrice": "100000"
+   },
+   {
+    "offerId": "10192117",
+    "name": "SSL证书",
+    "note": "SSL 证书，又称服务器证书、 HTTPS 加密协议，针对 App 及网页等应用系统的通讯防止数据在传送过程中被窃取、篡改，确保数据的完整性；防止运营商的流量劫持、网页植入广告现象；同时有效抵挡中间人的攻击；有利于提升网站的搜索排名及站点可信度。",
+    "offerCseName": "小X",
+    "owner": {
+     "id": "200",
+     "name": "天翼云甄选商城"
+    },
+    "class": "site_build",
+    "subclass": "9000",
+    "deliverMode": "saas",
+    "deliverName": "SAAS类",
+    "state": "online",
+    "display": "true",
+    "detailUrl": "https://market.ctyun.cn/market/mallproduct/10192117?",
+    "minPrice": "39900"
+   },
+   {
+    "offerId": "13892535",
+    "name": "翼备份（SaaS版）100G",
+    "note": "翼备份SaaS版是企业级云备份服务，为企业提供安全数据库备份、应用系统/文档/虚拟环境备份等服务；助力企业快速轻松完成云到云、本地到云的异地备份建设，降低运维成本和工作强度。",
+    "offerCseName": "翼备份客服",
+    "owner": {
+     "id": "200",
+     "name": "天翼云甄选商城"
+    },
+    "class": "devops",
+    "subclass": "10050",
+    "deliverMode": "saas",
+    "deliverName": "SAAS类",
+    "state": "online",
+    "display": "true",
+    "detailUrl": "https://market.ctyun.cn/market/mallproduct/13892535?",
+    "minPrice": "4900"
+   },
+   {
+    "offerId": "14023547",
+    "name": "安全邮箱（央企SaaS版）",
+    "note": "安全邮箱（央企SaaS版）为央企、国企、机关单位、学校等行业提供安全邮件服务，基于国资央企SaaS服务平台部署和运行，具备反垃圾、防病毒木马、防钓鱼、敏感内容检测等安全防护能力。采用密码算法，对身份鉴别、邮件内容、邮件传输、邮件存储、日志记录进行安全防护。",
+    "offerCseName": "邮专家",
+    "owner": {
+     "id": "200",
+     "name": "天翼云甄选商城"
+    },
+    "class": "application",
+    "subclass": "3000",
+    "deliverMode": "saas",
+    "deliverName": "SAAS类",
+    "state": "online",
+    "display": "true",
+    "detailUrl": "https://market.ctyun.cn/market/mallproduct/14023547?",
+    "minPrice": "22000"
+   },
+   {
+    "offerId": "13887356",
+    "name": "WPS 365",
+    "note": "WPS云文档是金山办公面向企业推出的专业版本，基于WPS Office 客户端 ，金山文档等多种云端一体化的办公工具，构建了企业云文档中心，实现企业全员的云端办公和协作。（该版本不支持麒麟、统信等国产化操作系统）",
+    "offerCseName": "方捷",
+    "owner": {
+     "id": "200",
+     "name": "天翼云甄选商城"
+    },
+    "class": "application",
+    "subclass": "3000",
+    "deliverMode": "saas",
+    "deliverName": "SAAS类",
+    "state": "online",
+    "display": "true",
+    "detailUrl": "https://market.ctyun.cn/market/mallproduct/13887356?",
+    "minPrice": "16800"
+   },
+   {
+    "offerId": "14037761",
+    "name": "智能组网",
+    "note": "智能组网是为用户提供无线网络(WIFI)覆盖的产品。是在公有云的平台上叠加的WIFI行业应用产品，为行业客户、集团客户、商客等提供高性价比、高性能、低故障的 WIFI产品。",
+    "offerCseName": "智能组网",
+    "owner": {
+     "id": "200",
+     "name": "天翼云甄选商城"
+    },
+    "class": "devops",
+    "subclass": "10030",
+    "deliverMode": "service",
+    "deliverName": "线下交付类",
+    "state": "online",
+    "display": "true",
+    "detailUrl": "https://market.ctyun.cn/market/mallproduct/14037761?",
+    "minPrice": "200"
+   },
+   {
+    "offerId": "12250392",
+    "name": "翼建站",
+    "note": "翼建站是业界领先的建站平台，专为企事业单位打造，能展示形象、升华价值、突破时空限制、扩展业务。它可弥补传统宣传不足，助力单位迈向互联网，实现资源信息化与效率高速化，大幅提升工作效率。",
+    "offerCseName": "傅先生",
+    "owner": {
+     "id": "200",
+     "name": "天翼云甄选商城"
+    },
+    "class": "site_build",
+    "subclass": "9030",
+    "deliverMode": "saas",
+    "deliverName": "SAAS类",
+    "state": "online",
+    "display": "true",
+    "detailUrl": "https://market.ctyun.cn/market/mallproduct/12250392?",
+    "minPrice": "1000"
+   },
+   {
+    "offerId": "17975991",
+    "name": "智擎思政平台（旗舰版）",
+    "note": "智擎思政平台依托AI技术实现思政教学辅助，聚合海量时政资源与热门新闻，助力高校铸魂育人，培养心系家国、具有高尚品德的人才。\n",
+    "offerCseName": "平台客服",
+    "owner": {
+     "id": "200",
+     "name": "天翼云甄选商城"
+    },
+    "class": "industry",
+    "subclass": "8030",
+    "deliverMode": "saas",
+    "deliverName": "SAAS类",
+    "state": "online",
+    "display": "true",
+    "detailUrl": "https://market.ctyun.cn/market/mallproduct/17975991?",
+    "minPrice": "15938500"
+   }
+  ],
+  "total": "29",
+  "keywordPinyin": [],
+  "offset": "0",
+  "limit": "50",
+  "keyword": [],
+  "labelTerms": []
+ },
+ "serial": "fad8dcd03858974738b4ee60ba8cfa8a",
+ "advise": "OK",
+ "host": "*.*.*.16:8080"
+}

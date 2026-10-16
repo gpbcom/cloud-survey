@@ -1,0 +1,293 @@
+# Rules classifying the marketplace software into categories and types (see `classifier.software_classifier`).
+#
+# The types of a software are, in this order of precedence:
+#   1. `name_rules`: well-known products, matched on the software name (e.g. Odoo is an ERP whatever its category).
+#   2. When the marketplace categories give more than 2 types (`category_rules`, over-ticked listings), the ones
+#      confirmed by `keyword_rules` (matched on the name, else on the description).
+#   3. The `category_rules` types together with the `keyword_rules` types of the name: when they disagree, both are
+#      usually partly right (e.g. an observability tool filed under development).
+#   4. The `keyword_rules` types of the description.
+#   5. Otherwise `other`.
+# The names are matched without their packaging suffix (`packaging_suffix`), e.g. `Grafana on Ubuntu 24.04` is
+# matched as `Grafana`: the operating system it is packaged on does not make it an operating system.
+# Its categories are those of its types (`type_categories`), plus the `category_hints` matched on the marketplace
+# categories. A software of type `other` only gets the category of its delivery method (`delivery_categories`).
+# Patterns are case-insensitive Python regular expressions. `\\b` does not separate Latin words from Chinese characters
+# (both are word characters): `(?<![a-z])...(?![a-z])` is used instead around the short Latin words.
+
+type_categories:
+  ats: [end-user-software]
+  crm: [end-user-software]
+  erp: [end-user-software]
+  hris: [end-user-software]
+  accounting: [end-user-software]
+  ecommerce: [end-user-software]
+  cms: [end-user-software]
+  marketing: [end-user-software]
+  customer-service: [end-user-software]
+  collaboration: [end-user-software]
+  communication: [end-user-software]
+  project-management: [end-user-software]
+  document-management: [end-user-software]
+  business-intelligence: [end-user-software]
+  supply-chain: [end-user-software]
+  legal-compliance: [end-user-software]
+  e-learning: [end-user-software]
+  healthcare: [end-user-software]
+  media: [end-user-software]
+  itsm: [developer-tool]
+  ai-ml: [developer-tool, end-user-software]
+  database: [developer-tool]
+  data-integration: [developer-tool]
+  devops: [developer-tool]
+  development: [developer-tool]
+  low-code: [developer-tool, end-user-software]
+  testing: [developer-tool]
+  monitoring: [developer-tool]
+  security: [developer-tool]
+  identity: [developer-tool]
+  backup: [developer-tool]
+  storage: [developer-tool]
+  networking: [developer-tool]
+  operating-system: [developer-tool]
+  container: [developer-tool]
+  messaging: [developer-tool]
+  api-management: [developer-tool]
+  iot: [developer-tool]
+  blockchain: [developer-tool]
+  other: []
+
+delivery_categories:
+  saas: [end-user-software]
+  one-click-app: [end-user-software]
+  download: [end-user-software]
+  virtual-machine: [developer-tool]
+  container: [developer-tool]
+  kubernetes: [developer-tool]
+  api: [developer-tool]
+  ai-model: [developer-tool]
+  other: [end-user-software]
+
+packaging_suffix: "\\s*(?:\\bon\\b|\\bover\\b|\\bwith\\b|\\||-|_)\\s*(?:ubuntu|debian|centos|windows|rhel|red hat|rocky|alma ?linux|suse|amazon linux|oracle linux)(?![a-z]).*$"
+
+category_hints:
+  - pattern: "developer|devops|development|开发|研发|运维"
+    categories: [developer-tool]
+  - pattern: "business (software|applications?)|enterprise app|企业应用|企业经营|企业管理|企业服务"
+    categories: [end-user-software]
+
+name_rules:
+  - pattern: "woocommerce|magento|prestashop|shopify|shopware|oscommerce|opencart|bigcommerce|sylius"
+    types: [ecommerce]
+  - pattern: "moodle|chamilo|canvas lms|open edx|totara"
+    types: [e-learning]
+  - pattern: "odoo|dolibarr|erpnext|netsuite|sap s/?4|sap business one|business central|用友|金蝶"
+    types: [erp]
+  - pattern: "matomo|metabase|superset|tableau|power bi|looker|redash|quick ?bi"
+    types: [business-intelligence]
+  - pattern: "orangehrm|bamboohr|workday|personio|sap successfactors"
+    types: [hris]
+  - pattern: "greenhouse|smartrecruiters|workable|recruitee|icims|lever ats"
+    types: [ats]
+  - pattern: "suitecrm|vtiger|espocrm|salesforce|hubspot|zoho crm|sugarcrm|dynamics 365 sales|纷享销客|销售易"
+    types: [crm]
+  - pattern: "osticket|zendesk|freshdesk|zammad|uvdesk|livechat"
+    types: [customer-service]
+  - pattern: "(?<![a-z])glpi(?![a-z])|(?<![a-z])itop(?![a-z])|servicenow|jira service management"
+    types: [itsm]
+  - pattern: "phplist|mautic|mailchimp|sendinblue|brevo|stape"
+    types: [marketing]
+  - pattern: "mantis|redmine|openproject|taiga|(?<![a-z])jira(?![a-z])|asana|trello|monday\\.com"
+    types: [project-management]
+  - pattern: "nextcloud|owncloud|onlyoffice|collabora|xwiki|confluence|wps|钉钉|飞书|企业微信"
+    types: [collaboration]
+  - pattern: "mattermost|rocket\\.?chat|jitsi|zulip|(?<![a-z])zoom(?![a-z])|microsoft teams|webex"
+    types: [communication]
+  - pattern: "wordpress|drupal|joomla|(?<![a-z])ghost(?![a-z])|typo3|concrete ?cms|umbraco|strapi|contao"
+    types: [cms]
+  - pattern: "gitlab|jenkins|argo ?cd|artifactory|sonatype nexus|sonarqube|gitea|(?<![a-z])gogs(?![a-z])|flux ?cd"
+    types: [devops]
+  - pattern: "grafana|prometheus|alertmanager|zabbix|icinga|nagios|datadog|(?<![a-z])loki(?![a-z])|new relic|dynatrace|splunk"
+    types: [monitoring]
+  - pattern: "postgres(ql)?|mysql|mariadb|mongodb|(?<![a-z])redis(?![a-z])|neo4j|cassandra|clickhouse|couchbase|cockroachdb|oceanbase|(?<![a-z])tidb(?![a-z])|polardb|gaussdb|opengauss|达梦|人大金仓"
+    types: [database]
+  - pattern: "keycloak|(?<![a-z])okta(?![a-z])|authentik|(?<![a-z])auth0(?![a-z])"
+    types: [identity]
+  - pattern: "passbolt|bitwarden|hashicorp vault|1password|keeper security"
+    types: [security, identity]
+  - pattern: "rabbitmq|apache kafka|(?<![a-z])kafka(?![a-z])|(?<![a-z])nats(?![a-z])|activemq|pulsar"
+    types: [messaging]
+  - pattern: "(?<![a-z])n8n(?![a-z])|uipath|(?<![a-z])pega(?![a-z])|power automate|zapier|node-red"
+    types: [low-code]
+  - pattern: "(?<![a-z])plesk(?![a-z])|cpanel|cyberpanel|webmin|virtualmin|宝塔"
+    types: [devops]
+  - pattern: "veeam|acronis|commvault|rubrik|cohesity"
+    types: [backup]
+  - pattern: "wireguard|openvpn|pfsense|opnsense|vyos"
+    types: [networking]
+  - pattern: "fortigate|palo alto|check point|crowdstrike|sophos|trend micro|kaspersky|zscaler"
+    types: [security]
+  - pattern: "ubuntu|debian|centos|red hat enterprise linux|(?<![a-z])rhel(?![a-z])|windows server|rocky linux|almalinux|opensuse|suse linux|oracle linux|amazon linux|麒麟|统信"
+    types: [operating-system]
+  - pattern: "docker|kubernetes|openshift|rancher|(?<![a-z])k3s(?![a-z])"
+    types: [container]
+
+category_rules:
+  - pattern: "talent.?acquisition|recruit|applicant|hiring|招聘"
+    types: [ats]
+  - pattern: "customer relationship|(?<![a-z])crm(?![a-z])|客户关系|客户管理|销售管理"
+    types: [crm]
+  - pattern: "enterprise resource planning|(?<![a-z])erp(?![a-z])|(?<![a-z])sap(?![a-z])|企业资源"
+    types: [erp]
+  - pattern: "human.?resources?|(?<![a-z])hr(?![a-z])|(?<![a-z])hcm(?![a-z])|payroll|talent.?management|workforce|人事|人力资源|薪酬"
+    types: [hris]
+  - pattern: "accounting|billing|invoic|(?<![a-z])tax|expense|财务|财税|发票|记账"
+    types: [accounting]
+  - pattern: "(?<![a-z])e[- ]?commerce|commerce|retail|online store|(?<![a-z])shops?(?![a-z])|point of sale|(?<![a-z])pos(?![a-z])|payment|merchant services|digital ordering|电商|零售|商城"
+    types: [ecommerce]
+  - pattern: "(?<![a-z])cms(?![a-z])|content management|blog|website|web.?site|web apps|portal|建站(?!推广)|网站|小程序"
+    types: [cms]
+  - pattern: "marketing|advertis|(?<![a-z])seo(?![a-z])|social media|tag manager|(?<!建站)推广|营销|广告"
+    types: [marketing]
+  - pattern: "customer (service|support|experience|engagement)|contact.?cent|help.?desk|call cent|客服|呼叫中心"
+    types: [customer-service]
+  - pattern: "collaboration|productivity|(?<!back )office|协同|办公|协作"
+    types: [collaboration]
+  - pattern: "communication|(?<![a-z])e[- ]?mail|messaging apps|corporate messaging|telephon|(?<![a-z])voip(?![a-z])|conferenc|forum|bulletin board|community|邮箱|通信|通讯|视频会议|论坛"
+    types: [communication]
+  - pattern: "project.?management|task.?and.?project|agile lifecycle|项目管理"
+    types: [project-management]
+  - pattern: "document|(?<![a-z])e[- ]?signature|(?<![a-z])ecm(?![a-z])|(?<![a-z])ocr(?![a-z])|文档|文字识别|电子签"
+    types: [document-management]
+  - pattern: "business intelligence|analytics|reporting|visuali[sz]ation|power.?bi|dashboard|商业智能|数据分析|数据智能|报表|可视化"
+    types: [business-intelligence]
+  - pattern: "supply chain|procurement|logistic|inventory|manufactur|operations.?and.?supply|供应链|采购|物流|制造"
+    types: [supply-chain]
+  - pattern: "legal|compliance|(?<![a-z])grc(?![a-z])|governance,? risk|risk management|法务|合规|风控"
+    types: [legal-compliance]
+  - pattern: "(?<![a-z])e[- ]?learning|education|(?<![a-z])training(?! data)|(?<![a-z])lms(?![a-z])|learning management|learning (&|and) training|教育|培训|课程"
+    types: [e-learning]
+  - pattern: "health|medical|life science|(?<![a-z])hospitals?(?![a-z])|医疗|健康"
+    types: [healthcare]
+  - pattern: "media|video|streaming|audio|(?<!machine )image(?! builder)|photo|视频|直播|音频|图像|媒体"
+    types: [media]
+  - pattern: "(?<![a-z])itsm(?![a-z])|it service|service management|it (business )?management|it and management|asset management|system administration|运维管理"
+    types: [itsm]
+  - pattern: "artificial intelligence|(?<![a-z])ai(?![a-z])|machine learning|(?<![a-z])ml(?![a-z])|generative|(?<![a-z])llm|ai agents?|agentic|agents? (&|and) tools|agent tools|computer vision|natural language|(?<![a-z])nlp(?![a-z])|人工智能|机器学习|大模型|智能体|数字人"
+    types: [ai-ml]
+  - pattern: "database|(?<![a-z])sql(?![a-z])|nosql|caching|data management|数据库|缓存"
+    types: [database]
+  - pattern: "data integration|(?<![a-z])etl(?![a-z])|data processing|big data|data pipeline|data transfer|data platform|migration|大数据|数据集成|数据处理|迁移"
+    types: [data-integration]
+  - pattern: "devops|ci.?cd|continuous|source control|infrastructure as code|(?<![a-z])iac(?![a-z])|automation tools|server panel|control panel|开发运维|持续集成|代码管理"
+    types: [devops]
+  - pattern: "application development|developer tools|(?<!data )development|app(lication)? stacks?|application servers|runtime|running environment|middleware|frameworks?|(?<![a-z])compute(?![a-z])|high.performance computing|(?<![a-z])hpc(?![a-z])|geolocation|(?<![a-z])maps?(?![a-z])|开发(?!运维)|中间件|运行环境|工具软件"
+    types: [development]
+  - pattern: "low.?code|no.?code|workflow automation|intelligent automation|robotic process|service orchestration|^automation$|power platform|低代码|零代码"
+    types: [low-code]
+  - pattern: "testing|(?<![a-z])test(?![a-z])|quality assurance|bug tracking|issue (&|and) bug|测试"
+    types: [testing]
+  - pattern: "monitor|observab|logging|log analysis|diagnostic|(?<![a-z])apm(?![a-z])|cloud management|监控|日志"
+    types: [monitoring]
+  - pattern: "security|firewall|threat|vulnerab|antivirus|malware|encryption|siem|安全|防火墙|防护"
+    types: [security]
+  - pattern: "identity|access management|(?<![a-z])iam(?![a-z])|single sign|(?<![a-z])sso(?![a-z])|authenticat|身份|认证"
+    types: [identity]
+  - pattern: "backup|disaster recovery|recovery|备份|容灾|灾备"
+    types: [backup]
+  - pattern: "storage|存储"
+    types: [storage]
+  - pattern: "network|(?<![a-z])vpn(?![a-z])|load balanc|(?<![a-z])cdn(?![a-z])|sd.?wan|(?<![a-z])dns(?![a-z])|service mesh|网络|负载均衡"
+    types: [networking]
+  - pattern: "operating system|(?<![a-z])os(?![a-z])|virtual desktop|remote desktop|linux|操作系统|云桌面"
+    types: [operating-system]
+  - pattern: "container|kubernetes|(?<![a-z])k8s(?![a-z])|helm|容器"
+    types: [container]
+  - pattern: "message queue|event stream|消息队列"
+    types: [messaging]
+  - pattern: "(?<![a-z])api(?![a-z])|api management|api gateway|(?<!data )integration|(?<![a-z])mcp(?![a-z])|插件|API服务"
+    types: [api-management]
+  - pattern: "internet of things|(?<![a-z])iot(?![a-z])|物联网"
+    types: [iot]
+  - pattern: "blockchain|web3|区块链"
+    types: [blockchain]
+
+keyword_rules:
+  - pattern: "(?<![a-z])ats(?![a-z])|applicant tracking|recruit|hiring|talent acquisition|招聘"
+    types: [ats]
+  - pattern: "(?<![a-z])crm(?![a-z])|customer relationship|sales pipeline|客户关系"
+    types: [crm]
+  - pattern: "(?<![a-z])erp(?![a-z])|enterprise resource planning|企业资源"
+    types: [erp]
+  - pattern: "(?<![a-z])hris?(?![a-z])|(?<![a-z])hcm(?![a-z])|human resources?|payroll|employee (experience|onboarding)|人事|人力资源|薪酬"
+    types: [hris]
+  - pattern: "accounting|invoic|billing|bookkeeping|expense management|(?<![a-z])tax(?![a-z])|财务|发票|记账"
+    types: [accounting]
+  - pattern: "(?<![a-z])e[- ]?commerce|online store|webshop|point of sale|电商|商城"
+    types: [ecommerce]
+  - pattern: "(?<![a-z])cms(?![a-z])|content management system|website builder|(?<![a-z])blog(?![a-z])|建站"
+    types: [cms]
+  - pattern: "marketing|advertis|(?<![a-z])seo(?![a-z])|newsletter|social media|tag manager|server.?side tagging|营销|广告"
+    types: [marketing]
+  - pattern: "help.?desk|contact.?cent|call cent|customer (service|support)|ticketing|chatbot|客服"
+    types: [customer-service]
+  - pattern: "office suite|collaborat|whiteboard|file sharing|intranet|productivity|协同办公|协作"
+    types: [collaboration]
+  - pattern: "(?<![a-z])e[- ]?mail|(?<![a-z])smtp(?![a-z])|(?<![a-z])chat(?![a-z])|messenger|video conferenc|(?<![a-z])voip(?![a-z])|telephon|forum|邮箱|视频会议"
+    types: [communication]
+  - pattern: "project management|task management|kanban|项目管理"
+    types: [project-management]
+  - pattern: "document management|(?<![a-z])e[- ]?signature|(?<![a-z])ocr(?![a-z])|(?<![a-z])pdf(?![a-z])|(?<![a-z])ecm(?![a-z])|文档|电子签"
+    types: [document-management]
+  - pattern: "business intelligence|(?<![a-z])bi(?![a-z])|dashboards?|reporting|analytics|商业智能|数据分析|报表"
+    types: [business-intelligence]
+  - pattern: "supply chain|procurement|logistic|inventory|warehouse management|供应链|物流"
+    types: [supply-chain]
+  - pattern: "compliance|(?<![a-z])gdpr(?![a-z])|governance|risk management|audit|合规"
+    types: [legal-compliance]
+  - pattern: "(?<![a-z])lms(?![a-z])|(?<![a-z])e[- ]?learning|learning management|online courses?|education|教育|培训"
+    types: [e-learning]
+  - pattern: "healthcare|medical|clinical|patient|hospital|医疗"
+    types: [healthcare]
+  - pattern: "video|streaming|transcod|media server|image processing|audio|视频|直播"
+    types: [media]
+  - pattern: "(?<![a-z])itsm(?![a-z])|service desk|it asset"
+    types: [itsm]
+  - pattern: "(?<![a-z])ai(?![a-z])|(?<![a-z])ml(?![a-z])|artificial intelligence|machine learning|(?<![a-z])llms?(?![a-z])|generative|(?<![a-z])gpt|ai agents?|agentic|deep learning|tensorflow|pytorch|jupyter|rstudio|langchain|langsmith|(?<![a-z])ray(?![a-z])|neural|computer vision|(?<![a-z])nlp(?![a-z])|人工智能|大模型|智能体"
+    types: [ai-ml]
+  - pattern: "database|(?<![a-z])sql(?![a-z])|数据库"
+    types: [database]
+  - pattern: "(?<![a-z])etl(?![a-z])|data integration|data pipeline|airflow|spark|hadoop|data lake|data warehouse|大数据"
+    types: [data-integration]
+  - pattern: "ci/?cd|continuous (integration|delivery|deployment)|terraform|ansible|devops|gitops|code.?server|(?<![a-z])git(hub)?(?![a-z])|repository manag"
+    types: [devops]
+  - pattern: "(?<![a-z])ide(?![a-z])|(?<![a-z])sdk(?![a-z])|framework|(?<![a-z])lamp(?![a-z])|(?<![a-z])lemp(?![a-z])|node\\.?js|(?<![a-z])php(?![a-z])|(?<![a-z])java(?![a-z])|python|\\.net(?![a-z])|application server|tomcat|nginx|apache|laravel|symfony|django|gradle|maven|(?<![a-z])scala(?![a-z])|golang|(?<![a-z])rust(?![a-z])|ruby|(?<![a-z])perl(?![a-z])"
+    types: [development]
+  - pattern: "low.?code|no.?code|workflow automation|robotic process automation|(?<![a-z])rpa(?![a-z])|低代码"
+    types: [low-code]
+  - pattern: "testing|test automation|load test|selenium|(?<![a-z])qa(?![a-z])|测试"
+    types: [testing]
+  - pattern: "monitoring|observability|alerting|(?<![a-z])apm(?![a-z])|logging|log management|syslog|metrics|监控|日志"
+    types: [monitoring]
+  - pattern: "security|firewall|(?<![a-z])waf(?![a-z])|threat|vulnerab|antivirus|malware|(?<![a-z])siem(?![a-z])|ddos|encryption|intrusion|deception|attack surface|exposure management|secrets? manag|password manager|安全|防火墙"
+    types: [security]
+  - pattern: "identity|(?<![a-z])iam(?![a-z])|single sign|(?<![a-z])sso(?![a-z])|active directory|(?<![a-z])mfa(?![a-z])|passwordless|webauthn|fido2|身份认证"
+    types: [identity]
+  - pattern: "back.?up|disaster recovery|restore|备份|容灾|灾备"
+    types: [backup]
+  - pattern: "storage|(?<![a-z])nas(?![a-z])|(?<![a-z])san(?![a-z])|object store|minio|存储"
+    types: [storage]
+  - pattern: "(?<![a-z])vpn(?![a-z])|load balanc|(?<![a-z])cdn(?![a-z])|sd.?wan|router|(?<![a-z])dns(?![a-z])|proxy|service mesh|网络"
+    types: [networking]
+  - pattern: "operating system|virtual desktop|(?<![a-z])vdi(?![a-z])|desktop.as.a.service|remote desktop|操作系统|云桌面"
+    types: [operating-system]
+  - pattern: "kubernetes|(?<![a-z])k8s(?![a-z])|docker|container|helm|容器"
+    types: [container]
+  - pattern: "message queue|(?<![a-z])mqtt(?![a-z])|event streaming|消息队列"
+    types: [messaging]
+  - pattern: "api management|api gateway|(?<![a-z])apis?(?![a-z])|(?<![a-z])mcp(?![a-z])|插件"
+    types: [api-management]
+  - pattern: "(?<![a-z])iot(?![a-z])|internet of things|物联网"
+    types: [iot]
+  - pattern: "blockchain|web3|crypto|区块链"
+    types: [blockchain]

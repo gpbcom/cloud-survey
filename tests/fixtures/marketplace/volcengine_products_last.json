@@ -1,0 +1,79 @@
+{
+ "Result": {
+  "List": [
+   {
+    "ProductInfo": {
+     "Product": "wysf1000025",
+     "ZhName": "千机盒电商财务管理系统",
+     "StandardProductName": "云市场生态产品",
+     "ChildProductName": "云市场生态产品",
+     "Status": 1,
+     "Shop": {
+      "Shop": "高层线_万有商城店",
+      "SrvAccountVerifyName": "信阳高层线文化传媒有限公司",
+      "ISVAccountVerifyName": "信阳高层线文化传媒有限公司",
+      "ShopID": "Shop7504664107816075318"
+     }
+    },
+    "ProductBasic": {
+     "Product": "wysf1000025",
+     "ProductTitle": "【千机盒】电商财务管理系统",
+     "ZhName": "千机盒电商财务管理系统",
+     "ProductDesc": "是一款针对电商商家的电商解决方案的软件，从素材制作-广告投放-绩效计算-财务统计全方位的去提高公司的人效，降低成本.",
+     "ProductType": 1,
+     "DeliverType": 2,
+     "BizMode": 3,
+     "Status": 1,
+     "FrontendCategoryL1": 10001,
+     "FrontendCategoryL1Name": "电商提效",
+     "FrontendCategoryL2": 20005,
+     "FrontendCategoryL2Name": "数据分析",
+     "BackendCategoryL1Name": "电商提效",
+     "BackendCategoryL2Name": "数据分析"
+    }
+   },
+   {
+    "ProductInfo": {
+     "Product": "wysf1000023",
+     "ZhName": "网易七鱼-客服机器人",
+     "StandardProductName": "云市场生态产品",
+     "ChildProductName": "云市场生态产品",
+     "Status": 1,
+     "Shop": {
+      "Shop": "网易云商_万有商城店",
+      "SrvAccountVerifyName": "杭州网易质云科技有限公司",
+      "ISVAccountVerifyName": "杭州网易质云科技有限公司",
+      "ShopID": "Shop7496882518046556211"
+     }
+    },
+    "ProductBasic": {
+     "Product": "wysf1000023",
+     "ProductTitle": "【网易七鱼客服机器人】全链路产品 ",
+     "ZhName": "网易七鱼-客服机器人",
+     "ProductDesc": "网易七鱼客服机器人，基于多年的深度自研能力，通过LLM及NLP技术实现精准且高效的应答，同时适配各种企业级应用场景，能有效帮助品牌降低客服投入，节省成本支出。",
+     "ProductType": 1,
+     "DeliverType": 2,
+     "BizMode": 3,
+     "Status": 1,
+     "FrontendCategoryL1": 10007,
+     "FrontendCategoryL1Name": "AI生态市场",
+     "FrontendCategoryL2": 20045,
+     "FrontendCategoryL2Name": "行业应用",
+     "BackendCategoryL1Name": "AI生态市场",
+     "BackendCategoryL2Name": "行业应用"
+    }
+   }
+  ],
+  "Total": 228,
+  "Limit": 100,
+  "Offset": 200
+ },
+ "ResponseMetadata": {
+  "LogId": "202610162132004E7EEB1DCE34AD05E7B1",
+  "RequestId": "",
+  "Action": "ListProduct",
+  "Version": "2025-01-01",
+  "Service": "",
+  "Region": ""
+ }
+}

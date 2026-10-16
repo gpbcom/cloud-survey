@@ -1,0 +1,57 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  detailed:
+    class: logging.Formatter
+    format: "%(asctime)s.%(msecs)03d - %(levelname)s - %(name)s - %(processName)s:%(process)d - %(threadName)s:%(thread)d - %(taskName)s - %(filename)s:%(lineno)d - %(funcName)s - %(message)s"
+    datefmt: "%Y-%m-%dT%H:%M:%S"
+  coloured:
+    "()": colorlog.ColoredFormatter
+    format: "%(asctime)s.%(msecs)03d - %(log_color)s%(levelname)s%(reset)s - %(cyan)s%(name)s%(reset)s - %(processName)s:%(process)d - %(threadName)s:%(thread)d - %(taskName)s - %(cyan)s%(filename)s:%(lineno)d%(reset)s - %(funcName)s - %(message_log_color)s%(message)s"
+    datefmt: "%Y-%m-%dT%H:%M:%S"
+    stream: ext://sys.stdout
+    log_colors:
+      DEBUG: white
+      INFO: green
+      WARNING: yellow
+      ERROR: red
+      CRITICAL: bold_red,bg_white
+    secondary_log_colors:
+      message:
+        WARNING: yellow
+        ERROR: red
+        CRITICAL: bold_red
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: coloured
+    stream: ext://sys.stdout
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: logs/poc-crawler.log
+    maxBytes: 10485760 # 10 MiB
+    backupCount: 5
+    encoding: utf-8
+
+loggers:
+  asyncio:
+    level: WARNING
+  httpx:
+    level: WARNING
+  httpcore:
+    level: WARNING
+  urllib3:
+    level: WARNING
+  # Configuring it drops the console handler scrapling installs itself: the crawl logs (emitted by the
+  # `scrapling.spiders.<crawler>` loggers, routed here by the crawlers) are then only written by the handlers above.
+  scrapling:
+    level: WARNING
+
+root:
+  level: DEBUG
+  handlers: [console, file]

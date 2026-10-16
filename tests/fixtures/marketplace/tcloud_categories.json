@@ -1,0 +1,154 @@
+[
+ {
+  "id": "KMAQJqOnjUq5eLq-cqFuo",
+  "name": "Monitoring",
+  "name_de": "Überwachung",
+  "description": "Monitoring and Notification",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "aCZ2fBsogHjdvZlUzL2Q_",
+  "name": "CICD",
+  "name_de": "CICD",
+  "description": "Continuous Integration (CI) and Continuous Delivery (CD)",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "pI29W7PqvZWfmB-cd189z",
+  "name": "Document Management",
+  "name_de": "Dokumenten Management",
+  "description": "Document Management",
+  "position": 4,
+  "state": "active"
+ },
+ {
+  "id": "ULMPRBiaCxE4r-iEBfv58",
+  "name": "Automation",
+  "name_de": "Automation",
+  "description": "Automation",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "Ld3HP4UUqDMPzA8qaafOf",
+  "name": "Artificial Intelligence",
+  "name_de": "Künstliche Intelligenz",
+  "description": "Artificial Intelligence",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "qu7Pc6ih_KSQxgSh_J9jy",
+  "name": "Identity and Access Management",
+  "name_de": "Identitäts- und Zugriffsmanagement",
+  "description": "Identity and Access Management",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "O1Ptu2y5fcEwhUc4PZRKR",
+  "name": "LLM HUB",
+  "name_de": "LLM Hub",
+  "description": "AI LLM HUB",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "9FT3aBRJ1U8mACMoC8U2l",
+  "name": "Application Development",
+  "name_de": "Anwendungsentwicklung",
+  "description": "Application Development",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "XuA515dNI9NJSGY24SITR",
+  "name": "Data Processing",
+  "name_de": "Datenverarbeitung",
+  "description": "Data Processing",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "PIyLZSu0IReHsR7ex7RMG",
+  "name": "Service Orchestration",
+  "name_de": "Service Orchestrierung",
+  "description": "Service Orchestration",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "NCBOlVH27AJ1OPnV7JIl-",
+  "name": "Workflow Automation",
+  "name_de": "Workflow Automatisierung",
+  "description": "Workflow Automation",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "7or4e6DIjTUJrUMhXx280",
+  "name": "Secure Communication",
+  "name_de": "Sichere Kommunikation",
+  "description": "Secure Communication",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "S2vYpue-EhH-ngj7GIJqM",
+  "name": "Communication",
+  "name_de": "Kommunikation",
+  "description": "Communication",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "OZug4aRG1IS_A5Bf7NeZo",
+  "name": "Data Backup and Disaster Recovery",
+  "name_de": "Datensicherung und Notfallwiederherstellung",
+  "description": "Data Backup and Disaster Recovery",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "NN8cULlNNG9tDFdQ8vXVZ",
+  "name": "Advisory & Assessment",
+  "name_de": "Beratung und Begutachtung",
+  "description": "Advisory & Assessment",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "tINtYYC6YKzSc_OHa7F5-",
+  "name": "Build & Migrate",
+  "name_de": "Aufbau und Migration",
+  "description": "Build & Migrate",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "8AHKpkvplNxsgDj38w5dc",
+  "name": "Optimize & Secure",
+  "name_de": "Optimierung und Sicherheit",
+  "description": "Optimize & Secure",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "Lo6I730LnSI1xRPQd8wt3",
+  "name": "Billing & Payments",
+  "name_de": "Abrechnung und Zahlungen",
+  "description": "Billing & Payments",
+  "position": 0,
+  "state": "active"
+ },
+ {
+  "id": "7MwAumKdy5GtD_Dl0Lgxp",
+  "name": "Financial Management",
+  "name_de": "Finanzmanagement",
+  "description": "Financial Management",
+  "position": 0,
+  "state": "active"
+ }
+]

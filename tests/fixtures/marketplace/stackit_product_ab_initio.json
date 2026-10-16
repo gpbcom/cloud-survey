@@ -1,0 +1,80 @@
+{
+ "productId": "ab-initio-d15a43bf",
+ "name": "Ab Initio® Data Platform",
+ "pricingOptions": [],
+ "deliveryMethod": "CONTAINER_IMAGE",
+ "logo": "data:image/png;base64,",
+ "videoUrl": "",
+ "summary": "The Ab Initio Data Platform provides innovative data governance capabilities that combine business and technical metadata with an enterprise data catalog. The platform combines glossaries and taxonomy management with data quality controls and metrics, permission-based access and lineage.",
+ "description": "The <strong>Ab Initio® Data Platform</strong> is the most powerful cloud-ready data processing platform available. It can process complex enterprise data of pretty much any format to and from pretty much any 3rd party technology with any level of transformation complexity and do so at any scale. Applications are built graphically using no-code, low-code, and power-user interfaces, and can run in b",
+ "documentationUrl": "https://www.abinitio.com/de/data-processing-platform/",
+ "vendorTerms": [],
+ "categories": [
+  "Business Applications",
+  "Data & AI",
+  "Infrastructure Software",
+  "Internet of Things",
+  "Machine Learning",
+  "Professional Services"
+ ],
+ "industries": [
+  "Automotive & Manufacturing",
+  "Defense & Security",
+  "eGovernment",
+  "Financial Services & Insurance",
+  "Healthcare & Lifescience",
+  "Retail"
+ ],
+ "highlights": [
+  {
+   "highlightIcon": "clipboard-circle-check",
+   "highlightTitle": "Innovative Data Governance",
+   "highlightContent": "The Ab Initio Data Platform also provides innovative data governance features, combining business and technical metadata with an optional enterprise data catalog to encompass all aspects of enterprise data. The platform unites data dictionaries and taxonomy management with sophisticated data quality controls and metrics, permissions-based access, true data lineage derived from many sources, and the latest forms of traceability and observability."
+  },
+  {
+   "highlightIcon": "tool-path-1",
+   "highlightTitle": "Graphical Application Development",
+   "highlightContent": "Applications are built graphically using no-code, low-code, and power-user interfaces, and can run in batch, streaming, event-driven or microservice architectures."
+  },
+  {
+   "highlightIcon": "cloud-connect",
+   "highlightTitle": "Cloud-ready Data Processing Platform",
+   "highlightContent": "It can process complex enterprise data of pretty much any format to and from pretty much any 3rd party technology with any level of transformation complexity and do so at any scale."
+  }
+ ],
+ "supportEmail": "support@abinitio.com",
+ "supportPhone": "",
+ "supportFaqURL": "",
+ "supportResources": [
+  {
+   "supportLink": "https://forum.abinitio.com/",
+   "supportLinkTitle": "Community Support"
+  }
+ ],
+ "vendor": {
+  "vendorId": "ab-initio-software-g-5baac5ea",
+  "name": "Ab Initio Software Germany GmbH",
+  "description": "Ab Initio is excited to work with the world’s best companies on their hardest challenges to transform their business.",
+  "logo": "data:image/svg+xml;base64,",
+  "websiteUrl": "https://www.abinitio.com/de/",
+  "videoUrl": "",
+  "labels": {}
+ },
+ "offerType": "OFFER_LISTING",
+ "lifecycleState": "PRODUCT_LIVE",
+ "assets": {},
+ "demoUrl": "",
+ "hasDemo": false,
+ "hasPrivatePlanOption": false,
+ "hasAuthenticatedPlanOption": false,
+ "sovereignty": {
+  "maturityLevel": "",
+  "dataLocation": "",
+  "serviceLocation": "",
+  "dataAccess": "",
+  "securityStandard": ""
+ },
+ "approvalTimeout": "PT1H",
+ "activeFeatures": [],
+ "labels": {}
+}

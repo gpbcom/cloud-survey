@@ -1,0 +1,58 @@
+{
+ "result": {
+  "farRelatedProducts": [
+   {
+    "count": 1,
+    "icon": "https://product-upload-picture.bj.bcebos.com/723693bc-f9d3-4a6a-a41d-d1715485d9fc/e571382b-2913-4b9e-a36b-c71cc0b3bcee/1/picture__b93213d0-8f8d-45a5-8f5c-605eb341ce17.jpg",
+    "price": 12000,
+    "productId": "e571382b-2913-4b9e-a36b-c71cc0b3bcee",
+    "productName": "私域运营一体化解决方案 SCRM私有化定制",
+    "unit": "年"
+   },
+   {
+    "count": 1,
+    "icon": "https://product-upload-picture.bj.bcebos.com/723693bc-f9d3-4a6a-a41d-d1715485d9fc/fe9f23ef-9f20-4c20-ac0a-329cd2cde40f/1/picture__d5a60a2c-cb65-4400-b28c-61c2d09ae032.jpg",
+    "price": 10000,
+    "productId": "fe9f23ef-9f20-4c20-ac0a-329cd2cde40f",
+    "productName": "智能人事管理 招聘管理 薪酬管理 培训管理平台",
+    "unit": "年"
+   },
+   {
+    "count": 1,
+    "icon": "https://product-upload-picture.bj.bcebos.com/b3799622-5f1f-4506-ba85-83bf6cfa0565/f9719c1f-9fcf-4475-89eb-8b8a5254e075/8/picture__92098666-121a-4324-842d-f9e5e8e81233.jpg",
+    "price": 180,
+    "productId": "f9719c1f-9fcf-4475-89eb-8b8a5254e075",
+    "productName": "美橙EDM邮件推广（快速精准高性价比）",
+    "unit": "次"
+   }
+  ],
+  "nearRelatedProducts": [
+   {
+    "count": 1,
+    "icon": "https://product-upload-picture.bj.bcebos.com/d39b49e6-7e7c-4f87-a3ad-1777f679a9fc/c657cf73-cd35-409e-b072-637bd8f0640f/6/picture__9fe4fca7-40d8-445b-9b7a-6d9c19376415.png",
+    "price": 0,
+    "productId": "c657cf73-cd35-409e-b072-637bd8f0640f",
+    "productName": "百度智能云度安安",
+    "unit": "次"
+   },
+   {
+    "count": 5,
+    "icon": "https://product-upload-picture.bj.bcebos.com/d39b49e6-7e7c-4f87-a3ad-1777f679a9fc/65be7c72-9604-4161-a24c-62a9767f0df5/2/picture__c684cc4f-6535-4197-869a-07860e1d7286.png",
+    "price": 0,
+    "productId": "65be7c72-9604-4161-a24c-62a9767f0df5",
+    "productName": "幻兽帕鲁Linux版",
+    "unit": "月"
+   },
+   {
+    "count": 1,
+    "icon": "https://product-upload-picture.bj.bcebos.com/fd4b91ed-4772-4bbe-92f7-3db183d37fea/fc95b2ea-bd9a-45b4-a2b8-67eb51a170b8/1/picture__4cdaf2af-35ed-4c2a-b379-d133c35a0ed2.png",
+    "price": 0,
+    "productId": "fc95b2ea-bd9a-45b4-a2b8-67eb51a170b8",
+    "productName": "PingCode AI",
+    "unit": "次"
+   }
+  ]
+ },
+ "status": 200,
+ "success": true
+}

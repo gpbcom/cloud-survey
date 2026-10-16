@@ -1,0 +1,68 @@
+{
+ "result": {
+  "errCode": "",
+  "product": {
+   "crumbInfo": [
+    {
+     "cid": 115,
+     "name": "企业应用"
+    },
+    {
+     "cid": 115004,
+     "name": "销售管理"
+    }
+   ],
+   "productInfo": {
+    "assurance": [
+     "FREE_REFUND_IN7DAYS",
+     "VERIFIED_VENDOR",
+     "CASH_GUARANTEE",
+     "TRADE_GUARANTEE"
+    ],
+    "chargeType": "PERIOD",
+    "cnDeliveryMethod": "SAAS-自动交付",
+    "deliveryMethod": "SAAS_AUTO",
+    "digest": "销售流程精细化提效率促转化有效管理监控，多角度业绩统计分析精准制定销售计划，客户有效积累不丢失开发跟进更高效，团队高效协同权限精细管理，轻松实现移动CRM销售快人一步",
+    "parameters": [
+     {
+      "name": "交付形式",
+      "type": "text",
+      "value": "SAAS-自动交付"
+     },
+     {
+      "name": "交付时间",
+      "type": "text",
+      "value": "实时"
+     },
+     {
+      "name": "适用行业",
+      "type": "text",
+      "value": "全行业"
+     },
+     {
+      "name": "交付形态",
+      "type": "text",
+      "value": "SaaS"
+     }
+    ],
+    "pid": "3042dd83-9efa-4382-b6dd-5099c13622fe",
+    "productSale": "",
+    "productType": "MKT_IND",
+    "sceneKeywords": [
+     "互联网企业",
+     "企业销售系统",
+     "销售管理一站式服务"
+    ],
+    "tag": "",
+    "title": "CRM客户管理"
+   },
+   "vendorInfo": {
+    "vendorId": "b3799622-5f1f-4506-ba85-83bf6cfa0565",
+    "vendorName": "上海美橙科技信息发展有限公司",
+    "intro": "美橙互联是国内基于云计算的一流互联网基础服务提供商，主要面向海内外广大客户提供域名注册、建站之星、橙云主机、服务器租用托管、网站空间、企业邮箱、网络推广、工商代注册、财税记账、商标注册等一站式服务。"
+   }
+  }
+ },
+ "status": 200,
+ "success": true
+}

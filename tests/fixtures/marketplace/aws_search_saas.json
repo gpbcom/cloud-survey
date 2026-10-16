@@ -1,0 +1,378 @@
+{
+ "ListingSummaries": [
+  {
+   "AssociatedEntities": [
+    {
+     "Manufacturer": {
+      "DisplayName": "Anthropic",
+      "ProfileId": "seller-v6kfbdtqxnqgo"
+     },
+     "Product": {
+      "ProductId": "prod-schhqk74bq4xe"
+     }
+    }
+   ],
+   "CanonicalListingReference": "3fa44676-6d80-4c49-b52f-efa6be9d1002",
+   "Categories": [
+    {
+     "DisplayName": "Content Creation",
+     "ParentValue": "f1d47436-8a98-40db-b687-696723ec32cb",
+     "Value": "6de021ae-715a-47ac-938f-3a68b2b60440"
+    },
+    {
+     "DisplayName": "AI Agents & Tools",
+     "Value": "f1d47436-8a98-40db-b687-696723ec32cb"
+    },
+    {
+     "DisplayName": "Software Development",
+     "ParentValue": "f1d47436-8a98-40db-b687-696723ec32cb",
+     "Value": "1f52b936-71a3-4862-ab4d-1d76efe2d9cc"
+    },
+    {
+     "DisplayName": "Research",
+     "ParentValue": "f1d47436-8a98-40db-b687-696723ec32cb",
+     "Value": "329680af-0f17-469c-b860-24f57ba62dca"
+    }
+   ],
+   "DisplayAttributes": {
+    "ShortDescription": "Claude Enterprise gives every employee access to Claude Chat, Claude Code, and Cowork - Anthropic's full suite of AI tools for chat, coding, and workflow automation with enterprise-grade security, controls, and data privacy by default. Claude Enterprise is HIPAA-eligible, with a BAA available. Recently added capabilities include Claude Security and Claude Design. For AWS customers, spend draws down directly from your EDP or PPA commitment.",
+    "Title": "Claude Enterprise"
+   },
+   "FulfillmentOptionTypes": [
+    {
+     "DisplayName": "SaaS",
+     "Value": "SAAS"
+    }
+   ],
+   "Id": "prodview-nnvi6wff6ef6m",
+   "ListingCreator": {
+    "DisplayName": "Anthropic",
+    "ProfileId": "seller-v6kfbdtqxnqgo"
+   }
+  },
+  {
+   "AssociatedEntities": [
+    {
+     "Manufacturer": {
+      "DisplayName": "Anthropic",
+      "ProfileId": "seller-v6kfbdtqxnqgo"
+     },
+     "Product": {
+      "ProductId": "prod-3qbeiztufnva6"
+     }
+    }
+   ],
+   "CanonicalListingReference": "3fa44676-6d80-4c49-b52f-efa6be9d1002",
+   "Categories": [
+    {
+     "DisplayName": "Software Development",
+     "ParentValue": "f1d47436-8a98-40db-b687-696723ec32cb",
+     "Value": "1f52b936-71a3-4862-ab4d-1d76efe2d9cc"
+    },
+    {
+     "DisplayName": "AI Agents & Tools",
+     "Value": "f1d47436-8a98-40db-b687-696723ec32cb"
+    },
+    {
+     "DisplayName": "Research",
+     "ParentValue": "f1d47436-8a98-40db-b687-696723ec32cb",
+     "Value": "329680af-0f17-469c-b860-24f57ba62dca"
+    },
+    {
+     "DisplayName": "Generative AI",
+     "ParentValue": "c3714653-8485-4e34-b35b-82c2203e81c1",
+     "Value": "f18b0260-a963-4c5d-bd1b-eb3e896fb851"
+    },
+    {
+     "DisplayName": "Machine Learning",
+     "Value": "c3714653-8485-4e34-b35b-82c2203e81c1"
+    }
+   ],
+   "DisplayAttributes": {
+    "ShortDescription": "The Claude Platform on AWS delivers the complete Claude experience through your AWS account, including IAM authentication, native billing, and commitment retirement. Access Claude's frontier models alongside API features like skills, code execution, web search, and MCP connectors.",
+    "Title": "Claude Platform"
+   },
+   "FulfillmentOptionTypes": [
+    {
+     "DisplayName": "SaaS",
+     "Value": "SAAS"
+    }
+   ],
+   "Id": "prodview-azcxbb24erpd4",
+   "ListingCreator": {
+    "DisplayName": "Anthropic",
+    "ProfileId": "seller-v6kfbdtqxnqgo"
+   }
+  },
+  {
+   "AssociatedEntities": [
+    {
+     "Manufacturer": {
+      "DisplayName": "MongoDB, Inc",
+      "ProfileId": "c9032c7b-70dd-459f-834f-c1e23cf3d092"
+     },
+     "Product": {
+      "ProductId": "ab5111b7-41e1-4340-8742-3246c00b0032"
+     }
+    }
+   ],
+   "CanonicalListingReference": "a8e6c682-330e-4761-ae68-478713c1a29c",
+   "Categories": [
+    {
+     "DisplayName": "Databases & Analytics Platforms",
+     "ParentValue": "adb29c06-d13c-4cfa-a2c3-944475c7e1bd",
+     "Value": "e55f17a0-56a8-4a90-bc2f-95b9a93029d2"
+    },
+    {
+     "DisplayName": "Data Analytics",
+     "ParentValue": "579164ab-a400-4924-9c9c-590e45580b7d",
+     "Value": "adb29c06-d13c-4cfa-a2c3-944475c7e1bd"
+    },
+    {
+     "DisplayName": "Infrastructure Software",
+     "Value": "579164ab-a400-4924-9c9c-590e45580b7d"
+    },
+    {
+     "DisplayName": "Generative AI",
+     "ParentValue": "c3714653-8485-4e34-b35b-82c2203e81c1",
+     "Value": "f18b0260-a963-4c5d-bd1b-eb3e896fb851"
+    },
+    {
+     "DisplayName": "Machine Learning",
+     "Value": "c3714653-8485-4e34-b35b-82c2203e81c1"
+    },
+    {
+     "DisplayName": "Software Development",
+     "ParentValue": "f1d47436-8a98-40db-b687-696723ec32cb",
+     "Value": "1f52b936-71a3-4862-ab4d-1d76efe2d9cc"
+    },
+    {
+     "DisplayName": "AI Agents & Tools",
+     "Value": "f1d47436-8a98-40db-b687-696723ec32cb"
+    }
+   ],
+   "DisplayAttributes": {
+    "ShortDescription": "MongoDB Atlas on AWS enables organizations to build intelligent, AI-powered applications that scale effortlessly. As a fully managed NoSQL database and vector search platform, Atlas unifies operational data and search in a single system, helping teams move from prototype to production with enterprise-grade security, high availability, and seamless AWS integrations. With Atlas Agent Engine, now in public preview, teams can also build, deploy, and govern production AI agents on the same platform, with memory, retrieval, and governance built in. Try MongoDB Atlas (Mongo as a Service) today with the free trial tier and get 512 MB of storage at no cost.",
+    "Title": "MongoDB Atlas (pay-as-you-go)"
+   },
+   "FulfillmentOptionTypes": [
+    {
+     "DisplayName": "SaaS",
+     "Value": "SAAS"
+    }
+   ],
+   "Id": "prodview-pp445qepfdy34",
+   "ListingCreator": {
+    "DisplayName": "MongoDB, Inc",
+    "ProfileId": "c9032c7b-70dd-459f-834f-c1e23cf3d092"
+   }
+  },
+  {
+   "AssociatedEntities": [
+    {
+     "Manufacturer": {
+      "DisplayName": "Palo Alto Networks",
+      "ProfileId": "0ed48363-5064-4d47-b41b-a53f7c937314"
+     },
+     "Product": {
+      "ProductId": "f2fbe0f2-acd2-4461-b786-723de605051d"
+     }
+    }
+   ],
+   "CanonicalListingReference": "1e31017e-6d8e-40b0-a16e-1b03c237a8f3",
+   "Categories": [
+    {
+     "DisplayName": "Security",
+     "ParentValue": "579164ab-a400-4924-9c9c-590e45580b7d",
+     "Value": "0625e4fd-88dd-4dd9-9e57-4a0461f97fb4"
+    },
+    {
+     "DisplayName": "Infrastructure Software",
+     "Value": "579164ab-a400-4924-9c9c-590e45580b7d"
+    },
+    {
+     "DisplayName": "Network Infrastructure",
+     "ParentValue": "579164ab-a400-4924-9c9c-590e45580b7d",
+     "Value": "3141913d-a073-4452-8473-843f58081505"
+    },
+    {
+     "DisplayName": "Generative AI",
+     "ParentValue": "c3714653-8485-4e34-b35b-82c2203e81c1",
+     "Value": "f18b0260-a963-4c5d-bd1b-eb3e896fb851"
+    },
+    {
+     "DisplayName": "Machine Learning",
+     "Value": "c3714653-8485-4e34-b35b-82c2203e81c1"
+    }
+   ],
+   "DisplayAttributes": {
+    "ShortDescription": "Fully managed, cloud-native firewall service with threat prevention, app control and advanced URL filtering that integrates with AWS Firewall Manager, CloudWatch and more.",
+    "Title": "Cloud Next-Generation Firewall as a Service (30-Day Free Trial to PAYG)"
+   },
+   "FulfillmentOptionTypes": [
+    {
+     "DisplayName": "SaaS",
+     "Value": "SAAS"
+    },
+    {
+     "DisplayName": "CloudFormation Template",
+     "Value": "CLOUDFORMATION_TEMPLATE"
+    }
+   ],
+   "Id": "prodview-nkug66dl4df4i",
+   "ListingCreator": {
+    "DisplayName": "Palo Alto Networks",
+    "ProfileId": "0ed48363-5064-4d47-b41b-a53f7c937314"
+   }
+  },
+  {
+   "AssociatedEntities": [
+    {
+     "Manufacturer": {
+      "DisplayName": "IBM Software",
+      "ProfileId": "345ea612-6e57-4b07-b5a9-f5747652c4ee"
+     },
+     "Product": {
+      "ProductId": "prod-nf5qap5gvhq5u"
+     }
+    }
+   ],
+   "CanonicalListingReference": "e6567e65-b7d4-4213-b10d-31c9ae70cd28",
+   "Categories": [
+    {
+     "DisplayName": "Databases",
+     "ParentValue": "e55f17a0-56a8-4a90-bc2f-95b9a93029d2",
+     "Value": "e4df8b93-bbd1-43eb-8604-89460b9c2cf0"
+    },
+    {
+     "DisplayName": "Databases & Analytics Platforms",
+     "ParentValue": "adb29c06-d13c-4cfa-a2c3-944475c7e1bd",
+     "Value": "e55f17a0-56a8-4a90-bc2f-95b9a93029d2"
+    },
+    {
+     "DisplayName": "Data Analytics",
+     "ParentValue": "579164ab-a400-4924-9c9c-590e45580b7d",
+     "Value": "adb29c06-d13c-4cfa-a2c3-944475c7e1bd"
+    },
+    {
+     "DisplayName": "Infrastructure Software",
+     "Value": "579164ab-a400-4924-9c9c-590e45580b7d"
+    },
+    {
+     "DisplayName": "Managed Services",
+     "ParentValue": "ba3a2bf7-795d-4d9f-83fc-6166fa98780d",
+     "Value": "7a7aba4d-7766-4f38-abd8-603a95afe9f1"
+    },
+    {
+     "DisplayName": "Professional Services",
+     "Value": "ba3a2bf7-795d-4d9f-83fc-6166fa98780d"
+    }
+   ],
+   "DisplayAttributes": {
+    "ShortDescription": "Consume IBM® Db2® Standard Edition licenses at an hourly rate on Amazon RDS for Db2 in a fully managed database service. Deploy Db2 instances up to 16 virtual processor cores (VPC) and 128 GB of memory.",
+    "Title": "IBM Db2 Standard Edition Hourly License Subscription for Amazon RDS"
+   },
+   "FulfillmentOptionTypes": [
+    {
+     "DisplayName": "SaaS",
+     "Value": "SAAS"
+    }
+   ],
+   "Id": "prodview-gbsgwalbkphv6",
+   "ListingCreator": {
+    "DisplayName": "IBM Software",
+    "ProfileId": "345ea612-6e57-4b07-b5a9-f5747652c4ee"
+   }
+  },
+  {
+   "AssociatedEntities": [
+    {
+     "Manufacturer": {
+      "DisplayName": "Palo Alto Networks",
+      "ProfileId": "0ed48363-5064-4d47-b41b-a53f7c937314"
+     },
+     "Product": {
+      "ProductId": "prod-omjhcphuw3lmu"
+     }
+    }
+   ],
+   "CanonicalListingReference": "13dd1eef-7a36-443a-b723-01c191993b17",
+   "Categories": [
+    {
+     "DisplayName": "Security",
+     "ParentValue": "579164ab-a400-4924-9c9c-590e45580b7d",
+     "Value": "0625e4fd-88dd-4dd9-9e57-4a0461f97fb4"
+    },
+    {
+     "DisplayName": "Infrastructure Software",
+     "Value": "579164ab-a400-4924-9c9c-590e45580b7d"
+    },
+    {
+     "DisplayName": "Assessments",
+     "ParentValue": "ba3a2bf7-795d-4d9f-83fc-6166fa98780d",
+     "Value": "6f17dccf-d4cc-4cc6-8c65-5395145d76f9"
+    },
+    {
+     "DisplayName": "Professional Services",
+     "Value": "ba3a2bf7-795d-4d9f-83fc-6166fa98780d"
+    }
+   ],
+   "DisplayAttributes": {
+    "ShortDescription": "From cases involving rogue insiders to organized crime syndicates and nation-state threats, Unit 42 performs more than 1,000 incident response investigations each year. The Unit 42 Retainer gives you deep forensics and response expertise when you need it most, with predetermined service-level agreements (SLAs). You can also allocate your retainer credits for proactive Unit 42 cyber risk management services scoped during your retainer term. Our trusted advisors can assist your team with security strategy, assessment of technical controls, and overall program maturity.",
+    "Title": "Unit 42 Retainer"
+   },
+   "FulfillmentOptionTypes": [
+    {
+     "DisplayName": "Professional Services",
+     "Value": "PROFESSIONAL_SERVICES"
+    }
+   ],
+   "Id": "prodview-uohxqjhrkj6l4",
+   "ListingCreator": {
+    "DisplayName": "Palo Alto Networks",
+    "ProfileId": "0ed48363-5064-4d47-b41b-a53f7c937314"
+   }
+  },
+  {
+   "AssociatedEntities": [
+    {
+     "Manufacturer": {
+      "DisplayName": "PredictHQ",
+      "ProfileId": "b82dc088-06e8-4b0c-9068-42e35f9a099b"
+     },
+     "Product": {
+      "ProductId": "prod-uui4nfnfickfe"
+     }
+    }
+   ],
+   "Categories": [
+    {
+     "DisplayName": "Retail, Location & Marketing Data",
+     "ParentValue": "d5a43d97-558f-4be7-8543-cce265fe6d9d",
+     "Value": "2d1c8868-2642-4741-af5d-9ced77da7024"
+    },
+    {
+     "DisplayName": "Data Products",
+     "Value": "d5a43d97-558f-4be7-8543-cce265fe6d9d"
+    }
+   ],
+   "DisplayAttributes": {
+    "ShortDescription": "Free sample dataset containing non-attended event data for a 1 year historical period and a 30 day future period for the Seattle, Washington area. Includes events in the Public Holidays, School holidays, Observances, politics, Daylight Savings and Academic (University holiday and exam period) event categories.",
+    "Title": "Intelligent Event data sample - Non attended events, Seattle"
+   },
+   "FulfillmentOptionTypes": [
+    {
+     "DisplayName": "Data Exchange",
+     "Value": "DATA_EXCHANGE"
+    }
+   ],
+   "Id": "prodview-xyzxww7esepcu",
+   "ListingCreator": {
+    "DisplayName": "PredictHQ",
+    "ProfileId": "b82dc088-06e8-4b0c-9068-42e35f9a099b"
+   }
+  }
+ ],
+ "NextToken": "eyJ2ZXJzaW9uIjoiMi4wIiwibWF0ZXJpYWxTZXRTZXJpYWxOdW1iZXIiOm51bGwsImNpcGhlclRleHQiOiJBZ1Y0UjBJWUpxMnIxSzFHQ1FfQTdrVGRIeVo5aXQ4XzJxc0tHWWZpNHFwMEFLb0FYd0FCQUJWaGQzTXRZM0o1Y0hSdkxYQjFZbXhwWXkxclpYa0FSRUZ6UWpjMlJGSktZekpCU1cwNGJ6aHJkVlZhU1ZacmJXMW5iRE55YUVsdVdXcEdSVXQwT0ROd00xRktOMUl3WVhkNlRVYzVkMVZaUlRncmFHVm1iSHBKWnowOUFBRUFFV0YzY3kxcmJYTXRhR2xsY21GeVkyaDVBQjFFYVhOamIzWmxjbmxUWldGeVkyaE1hWE4wYVc1bmMwdHRjMHRsZVFCY2JGaVh6WGhnOUpUYk9PSTV1c1hRRFZkZkw1S21neFJqYml0eXVLWXR5T0tWczBZWWhSNGxjMFlSQ3FOTkhfaTlfa21rVFVXaG01NDhfX1M4QmlpTVlrQk45YVdtQXJtUW02aC1LR29HN0FaQmtNS1g3Nmltb05DUjlkSUNBQUFRQUE1UWJnUDlXM1B0OE5WX19CdTFIdVI2bERfLXlMdXNTSUxTdkJkOERSMGlZWTUxNHBCR2ZMcW5VMkY0MTMxREh2X19fXzhBQUFBQkFBQUFBQUFBQUFBQUFBQUJBQUFCOExQc1JYeTBZVVdSVjVscG9waUkxazBxcDZMOF94ZnREdGhrLXJqM01xbWx0eFV2LVNrUF9hVUI1cXQ5SWNFWUViTzhvcWJTeGdJXy1LQ3Bsb01yZFRHQURwWEh5R3E5ZnhNcUhWNk9mU3NHNDlYaGpHbXdzblJULUlxejBFcVNQVzQ3cXlCQjBkd0NvNkczNXZKNlo4Z09jcFBiNG5yaEtzMTRzdkYzbEUzQVA5TXp2LVpKNnZpYVRUbk00bHh4Y1AtLS14a0YwSDJmekw1c3ZqaTBpa0RjRGlITHZXS3lzYmo5REY4em1mWEx5eFVxeTJSR1dFbXVxeFNLdkRLSEsxbmxNWW5jYnZfMGZuRHBjUzRaYW5Odk45WmtQVDREMnBDay1zUEw3VHhCNVAyRUFqazVLYUlmcGUyeXRsZi1CTk9SZzFMUEdRX21wbEIyTXVTS3NoUWZ5ajYweUtxbUpfTFl0aTVtTm9TR1BENkVLa1ZyMVBITWxxSWVCSG5rbkxYejc4Zk4tcEVYUVdDZzJ0MlNXdS1pRjlURVlQRElXa3hRTkk0R2c2ZHRKT0ZyR0ptRzRiU3RxZzdoeXc0RU5Za3hXRVNZcGFfWk9CYm1kTi1leVlqUE16eEVOVlh1NFlHa0REN0RVUFFoUnFjTTRDVHdpRUtuRmxYUzB2dDFSMXBMWTNlUTIxMjZLVnZQcHFIY0RLWkJqVndXVUt6X0czUzdHZy1MTE1zSVJMY2JSb29XTGhwNjRmRkNFRnRFcmpBRTRuSnBjU1BhLWV6X1hUVUxiMXBSckMzV3JESkplMmROaWwyVERNU253U3hWcmZnQ21xYVNRTVI2Q1M2WW0tbG9mYVp3cGFzRGowR0tGblNCR2dwa2JURzBLSlAwSS1MelMwRjA3X1l1QUdjd1pRSXdWdG5aSXBhZlBXZHJ4YWxZdlhuNk1fWWx1M3hNc0c5anNCQkNBX0NxZS1PUko5NmhuWHdHUHVMR05keWppQUdvQWpFQW5xWkt3VFdBVWJ3bEEtTlNsZl8tZmw1eUpieTZkb2tlUlBIazdhY3loeTFGcFAybDMtdExtazc3OHAtVGF6UFIifQ==",
+ "TotalResults": 9315
+}

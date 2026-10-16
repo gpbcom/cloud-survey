@@ -1,0 +1,58 @@
+[
+ {
+  "successfulResult": {
+   "resultData": {
+    "marketplaceBrowseProducts": {
+     "facetValueLinkLists": [],
+     "totalCount": 315,
+     "nextPageToken": "CkAwLDAuMCwxODY0NTE2NjAyOTczODc2NDEzLCJhYjE1ZmQyMy1lZjA1LTQ3YWQtOGQyNy00NmZmNGFjOWY4Y2MiEgsIqdDI1gYQgPPfGQ==",
+     "searchResult": {
+      "cards": [
+       {
+        "productId": "66f6e821-68c4-4344-a056-6e8f03181c57",
+        "productDisplayName": "labra-public/labra-cloud-commerce-management-platform",
+        "title": "Labra Cloud Commerce Platform",
+        "subtitle": "Labra.io",
+        "longDescription": "With the Labra Cloud Commerce Management Platform, you can drastically shorten the time required to list your software on GCP marketplace, and enhance your co-sell business with GCP with automated opportunity sharing.\n\nLabra is a SOC 2 compliant platform that is made up of the following components:\nLabra FlyOut: Easily list your software products and services on the GCP marketplace, create private offers (CPPO), and manage revenue tracking - all from your own CRM. \n\nThe Labra Cloud Commerce Management Platform optimizes cloud commerce activities for ISVs and Consulting Partners by bringing all",
+        "productType": "SaaS & APIs",
+        "familyType": "ManagedService"
+       },
+       {
+        "productId": "a64f616a-766f-4da9-8e0e-8dc672177b8e",
+        "productDisplayName": "cognosys-public/beyourmarket-on-windows-server-2019",
+        "title": "BeYourMarket on Windows server 2019",
+        "subtitle": "Cognosys Inc.",
+        "description": "Optimize web performance with BeYourMarket on Windows server 2019 at Gcp cloud",
+        "productType": "Virtual machines",
+        "familyType": "PackagedDeployment"
+       },
+       {
+        "productId": "3021d6aa-50dc-4488-a307-b8008366d28a",
+        "productDisplayName": "bigquery-connectors-public/netsuite-connector-by-windsor.ai",
+        "title": "Netsuite Connector by Windsor.ai",
+        "subtitle": "Windsor.ai",
+        "description": "Connect your Netsuite data to BigQuery",
+        "productType": "SaaS & APIs",
+        "familyType": "ListingOnly"
+       },
+       {
+        "productId": "c67939a5-504c-4d3a-96f4-953403679384",
+        "productDisplayName": "sarvam-public/agent",
+        "title": "Sarvam Samvaad (Conversational AI Agents)",
+        "subtitle": "Axonwise Private Limited",
+        "description": "A Billion Voices",
+        "productType": "SaaS & APIs",
+        "familyType": "ManagedService"
+       }
+      ],
+      "totalCount": "315",
+      "showPagination": true
+     }
+    }
+   }
+  },
+  "responseContext": {
+   "eti": "AcsagCjWkOkeice1q35dg0OlIP+HuvnU8P0HA+c3bgMDlSnJgjidTZfT8mpweQlghrATH9WweFVBBZvxufIA7ZS0tN2MCUtXDdg7jiuIule0DZ3M4hWTJBCNquP0SnvYz8GNPekOyPcs3YfX18zBtWH3M3c5YKy/RN+vd/1VUQpsZS1xQTAMJg=="
+  }
+ }
+]

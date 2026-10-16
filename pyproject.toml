@@ -1,0 +1,115 @@
+[project]
+name = "poc-crawler"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "colorlog>=6.12.0",
+    "fastapi>=0.142.2",
+    "langchain>=1.4.3",
+    "langgraph>=1.2.12",
+    "pydantic>=2.13.5",
+    "pyqt6>=6.11.0",
+    "pyyaml>=6.0.3",
+    "scrapling[fetchers]>=0.4.15",
+]
+
+[project.scripts]
+poc-crawler = "crawler:main"
+poc-crawler-gui = "gui.app:main"
+
+[build-system]
+requires = ["uv_build>=0.12.21,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = ["catalogue", "classifier", "conf", "crawler", "gui", "logger", "models"]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "pytest-qt>=4.5.0",
+    "ruff>=0.17.0",
+    "types-pyyaml>=6.0.12.20260906",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py314"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "D",   # pydocstyle
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "G",   # flake8-logging-format
+    "PT",  # flake8-pytest-style
+    "RUF", # ruff-specific rules
+    "ANN401", # `Any` is not allowed in signatures (except `*args` / `**kwargs`, see below)
+]
+ignore = [
+    "D100",  # Missing docstring in public module
+    "D104",  # Missing docstring in public package
+    "UP006", # Project convention: `typing.Dict` / `typing.List` instead of builtin `dict` / `list` generics
+    "UP035", # Same convention: `typing.Dict` / `typing.List` imports are allowed
+    "UP007", # Project convention: `Union[A, B]` instead of the `A | B` union operator
+    "UP045", # Project convention: `Optional[A]` instead of `A | None`
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+
+[tool.ruff.lint.pep8-naming]
+# Pydantic turns `field_validator` methods into classmethods: their first argument is `cls`.
+classmethod-decorators = ["pydantic.field_validator"]
+# Qt virtual methods overridden by the GUI keep their Qt (camelCase) names.
+extend-ignore-names = [
+    "rowCount",
+    "columnCount",
+    "headerData",
+    "filterAcceptsRow",
+    "paintEvent",
+    "sizeHint",
+    "minimumSizeHint",
+    "closeEvent",
+    "mouseReleaseEvent",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+known-first-party = ["catalogue", "conf", "crawler", "gui", "logger", "models"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+addopts = "--strict-markers"
+markers = ["live: crawls the real websites (skipped unless `pytest --live`)"]
+# Raised inside scrapling's lxml parser configuration, not by this project.
+filterwarnings = ["ignore:The 'strip_cdata' option of HTMLParser:DeprecationWarning:lxml"]
+
+[tool.mypy]
+mypy_path = "src"
+files = ["src", "tests"]
+explicit_package_bases = true
+python_version = "3.14"
+plugins = ["pydantic.mypy"]
+warn_unused_ignores = true
+disallow_any_generics = true
