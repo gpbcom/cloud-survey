@@ -13,10 +13,32 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from classifier.software_classifier import SoftwareClassifier
+from crawler.cloud.tencent.enums import (
+    TencentClassesResponseField,
+    TencentClassField,
+    TencentFamilyPrefix,
+    TencentGoodsBasicField,
+    TencentGoodsCategoryField,
+    TencentGoodsDetailField,
+    TencentGoodsField,
+    TencentGoodsProviderField,
+    TencentGoodsStatus,
+    TencentMarketPagePropsField,
+    TencentMarketplaceMeta,
+    TencentMarketplaceSource,
+    TencentNextDataField,
+    TencentProductCategory,
+    TencentProductFamily,
+    TencentProductField,
+    TencentProductListField,
+    TencentTimezone,
+    TencentVendorAccount,
+)
 from crawler.exception import CatalogueFormatError
 from crawler.marketplace.base import BaseMarketplaceCrawler
-from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.enums import DateCaveat, DeliveryMethod
+from models.cloud.software.marketplace_category import MarketplaceCategory
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -28,20 +50,23 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
         PRODUCTS_URL (ClassVar[str]): The marketplace product list, by page.
         MARKET_URL (ClassVar[str]): The marketplace home page, whose Next.js data holds the SPU goods.
         PAGE_SIZE (ClassVar[int]): The number of products requested per page.
-        SOURCE (ClassVar[str]): The meta key telling the source of a page: `CLASSES`, `PRODUCTS` or `GOODS`.
-        PAGE (ClassVar[str]): The meta key holding the number of a product list page.
-        CLASSES (ClassVar[str]): The source of the product classes.
-        PRODUCTS (ClassVar[str]): The source of the product list.
-        GOODS (ClassVar[str]): The source of the SPU goods.
-        SAAS_CATEGORY (ClassVar[str]): The product category of the SaaS products (`3` being the services).
-        EXCLUDED_FAMILIES (ClassVar[FrozenSet[str]]): The product families which are not software.
-        ONLINE (ClassVar[str]): The status of the SPU goods on sale.
-        PLACEHOLDER_VENDORS (ClassVar[FrozenSet[str]]): The vendor accounts which hold the products of other
-            publishers, not named as their publisher.
+        SOURCE (ClassVar[TencentMarketplaceMeta]): The meta key telling the source of a page: `CLASSES`, `PRODUCTS`
+            or `GOODS`.
+        PAGE (ClassVar[TencentMarketplaceMeta]): The meta key holding the number of a product list page.
+        CLASSES (ClassVar[TencentMarketplaceSource]): The source of the product classes.
+        PRODUCTS (ClassVar[TencentMarketplaceSource]): The source of the product list.
+        GOODS (ClassVar[TencentMarketplaceSource]): The source of the SPU goods.
+        SAAS_CATEGORY (ClassVar[TencentProductCategory]): The product category of the SaaS products (`3` being the
+            services).
+        EXCLUDED_FAMILIES (ClassVar[FrozenSet[TencentProductFamily]]): The product families which are not software.
+        ONLINE (ClassVar[TencentGoodsStatus]): The status of the SPU goods on sale.
+        PLACEHOLDER_VENDORS (ClassVar[FrozenSet[TencentVendorAccount]]): The vendor accounts which hold the products
+            of other publishers, not named as their publisher.
         PRODUCT_DATE (ClassVar[re.Pattern[str]]): The product identifiers starting with their creation time, e.g.
             `P20250925163210630227958` created on 2025-09-25 at 16:32:10.
         PRODUCT_TIMEZONE (ClassVar[ZoneInfo]): The timezone of the creation time of the product identifiers.
         class_families (Dict[str, str]): The family name of each product class name.
+        class_codes (Dict[str, str]): The code of each product class name, of the class whose family is kept.
         listed_names (Set[str]): The normalized names of the listed products, to skip the same SPU goods.
 
     Notes:
@@ -61,17 +86,19 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
     PRODUCTS_URL: ClassVar[str] = f"{HOST}/market/api/mid/listProduct?preview=0&pageIndex={{page}}&pageSize={{size}}"
     MARKET_URL: ClassVar[str] = f"{HOST}/market"
     PAGE_SIZE: ClassVar[int] = 100
-    SOURCE: ClassVar[str] = "source"
-    PAGE: ClassVar[str] = "page"
-    CLASSES: ClassVar[str] = "classes"
-    PRODUCTS: ClassVar[str] = "products"
-    GOODS: ClassVar[str] = "goods"
-    SAAS_CATEGORY: ClassVar[str] = "1"
-    EXCLUDED_FAMILIES: ClassVar[FrozenSet[str]] = frozenset({"Professional Services"})
-    ONLINE: ClassVar[str] = "onlined"
-    PLACEHOLDER_VENDORS: ClassVar[FrozenSet[str]] = frozenset({"200022263022"})
+    SOURCE: ClassVar[TencentMarketplaceMeta] = TencentMarketplaceMeta.SOURCE
+    PAGE: ClassVar[TencentMarketplaceMeta] = TencentMarketplaceMeta.PAGE
+    CLASSES: ClassVar[TencentMarketplaceSource] = TencentMarketplaceSource.CLASSES
+    PRODUCTS: ClassVar[TencentMarketplaceSource] = TencentMarketplaceSource.PRODUCTS
+    GOODS: ClassVar[TencentMarketplaceSource] = TencentMarketplaceSource.GOODS
+    SAAS_CATEGORY: ClassVar[TencentProductCategory] = TencentProductCategory.SAAS
+    EXCLUDED_FAMILIES: ClassVar[FrozenSet[TencentProductFamily]] = frozenset(
+        {TencentProductFamily.PROFESSIONAL_SERVICES}
+    )
+    ONLINE: ClassVar[TencentGoodsStatus] = TencentGoodsStatus.ONLINE
+    PLACEHOLDER_VENDORS: ClassVar[FrozenSet[TencentVendorAccount]] = frozenset({TencentVendorAccount.PLACEHOLDER})
     PRODUCT_DATE: ClassVar[re.Pattern[str]] = re.compile(r"^P(\d{14})\d+$")
-    PRODUCT_TIMEZONE: ClassVar[ZoneInfo] = ZoneInfo("Asia/Shanghai")
+    PRODUCT_TIMEZONE: ClassVar[ZoneInfo] = ZoneInfo(TencentTimezone.CHINA_STANDARD_TIME)
 
     name = "tencent-marketplace"
     catalogue_url: ClassVar[str] = CLASSES_URL
@@ -91,18 +118,19 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         super().__init__(crawldir=crawldir, interval=interval, classifier=classifier)
         self.class_families: Dict[str, str] = {}
+        self.class_codes: Dict[str, str] = {}
         self.listed_names: Set[str] = set()
 
     ############################
     # Internal Helpers Methods #
     ############################
 
-    def _browser_request(self, url: str, source: str, page: Optional[int] = None) -> Request:
+    def _browser_request(self, url: str, source: TencentMarketplaceSource, page: Optional[int] = None) -> Request:
         """Build a browser request, passing the EdgeOne challenge.
 
         Args:
             url (str): The requested URL.
-            source (str): The source of the page: `CLASSES`, `PRODUCTS` or `GOODS`.
+            source (TencentMarketplaceSource): The source of the page: `CLASSES`, `PRODUCTS` or `GOODS`.
             page (Optional[int]): The number of a product list page.
 
         Returns:
@@ -157,15 +185,20 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the page is not JSON, or has no `data` list.
         """
-        classes = self._as_object(self._json_body(response)).get("data")
+        classes = self._as_object(self._json_body(response)).get(TencentClassesResponseField.DATA)
         if not isinstance(classes, list):
             self.logger.error("The %s product classes %s have no `data` list.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the `data` list is missing")
         for entry in classes:
             item = self._as_object(entry)
-            label, family = self._as_text(item.get("className")), self._as_text(item.get("familyName"))
-            if label and family and not family.startswith("PCD"):
+            label, family = (
+                self._as_text(item.get(TencentClassField.CLASS_NAME)),
+                self._as_text(item.get(TencentClassField.FAMILY_NAME)),
+            )
+            if label and family and not family.startswith(TencentFamilyPrefix.PCD):
                 self.class_families.setdefault(self._clean_text(label), self._clean_text(family))
+                if code := self._as_text(item.get(TencentClassField.CLASS_CODE)):
+                    self.class_codes.setdefault(self._clean_text(label), code)
         self.logger.info("%d %s product classes read.", len(self.class_families), self.name)
 
     def _products(self, response: Response) -> List[Dict[str, JsonValue]]:
@@ -180,7 +213,7 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the page is not JSON, or has no `prdList` list.
         """
-        products = self._as_object(self._json_body(response)).get("prdList")
+        products = self._as_object(self._json_body(response)).get(TencentProductListField.PRD_LIST)
         if not isinstance(products, list):
             self.logger.error("The %s product list %s has no `prdList` list.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the `prdList` list is missing")
@@ -195,8 +228,54 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             List[str]: The class names, e.g. `Security`.
         """
-        classes = [self._clean_text(label) for label in (self._as_text(product.get("classNames")) or "").split(",")]
+        classes = [
+            self._clean_text(label)
+            for label in (self._as_text(product.get(TencentProductField.CLASS_NAMES)) or "").split(",")
+        ]
         return [label for label in classes if label]
+
+    def _class_paths(self, classes: List[str]) -> List[Optional[MarketplaceCategory]]:
+        """Build the marketplace category paths of the classes of a listed product.
+
+        Args:
+            classes (List[str]): The class names of the product.
+
+        Returns:
+            List[Optional[MarketplaceCategory]]: One `[family, class]` path per class (`[class]` when its family is
+                unknown), identified by the class code when it is known.
+        """
+        paths = [
+            self._category([self.class_families.get(label), label], self.class_codes.get(label)) for label in classes
+        ]
+        unknown = [label for label in classes if label not in self.class_families]
+        if unknown:
+            self.logger.debug("No %s family known for the product classes %s.", self.name, ", ".join(unknown))
+        self.logger.debug("%d %s category paths built from %d classes.", len(paths), self.name, len(classes))
+        return paths
+
+    def _goods_paths(self, detail: Dict[str, JsonValue]) -> List[Optional[MarketplaceCategory]]:
+        """Build the marketplace category paths of SPU goods.
+
+        Args:
+            detail (Dict[str, JsonValue]): The `GoodsDetailInfo` of the goods.
+
+        Returns:
+            List[Optional[MarketplaceCategory]]: One path per category of its `CategoryList`, identified by its
+                `CategoryId` when it has one.
+        """
+        paths: List[Optional[MarketplaceCategory]] = []
+        for entry in self._as_list(detail.get(TencentGoodsDetailField.CATEGORY_LIST)):
+            category = self._as_object(entry)
+            label, identifier = (
+                category.get(TencentGoodsCategoryField.CATEGORY_NAME),
+                category.get(TencentGoodsCategoryField.CATEGORY_ID),
+            )
+            if not isinstance(label, str):
+                self.logger.debug("Skipping the %s goods category without name %r.", self.name, category)
+                continue
+            paths.append(self._category([label], identifier if isinstance(identifier, (str, int)) else None))
+        self.logger.debug("%d %s goods category paths built.", len(paths), self.name)
+        return paths
 
     def _service_reason(self, product: Dict[str, JsonValue]) -> Optional[str]:
         """Tell why a listed product is a service.
@@ -207,8 +286,9 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             Optional[str]: The reason (service category, professional service class), `None` for a SaaS product.
         """
-        if product.get("categoryID") != self.SAAS_CATEGORY:
-            return f"category {product.get('categoryID')!r}, a service"
+        category = product.get(TencentProductField.CATEGORY_ID)
+        if category != self.SAAS_CATEGORY:
+            return f"category {category!r}, a service"
         if {self.class_families.get(label) for label in self._classes(product)} & self.EXCLUDED_FAMILIES:
             return "professional service"
         return None
@@ -256,16 +336,20 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         classes = self._classes(product)
         families = [self.class_families[label] for label in classes if label in self.class_families]
-        vendor = self._as_text(product.get("vendorID"))
-        name = self._as_text(product.get("prdName"))
+        vendor = self._as_text(product.get(TencentProductField.VENDOR_ID))
+        name = self._as_text(product.get(TencentProductField.PRD_NAME))
         software = self._build_software(
             name,
-            self._as_text(product.get("introduce")),
+            self._as_text(product.get(TencentProductField.INTRODUCE)),
             url=url,
-            publisher=None if vendor in self.PLACEHOLDER_VENDORS else self._as_text(product.get("vendorName")),
+            publisher=None
+            if vendor in self.PLACEHOLDER_VENDORS
+            else self._as_text(product.get(TencentProductField.VENDOR_NAME)),
             delivery=DeliveryMethod.SAAS,
             marketplace_categories=[*families, *classes],
+            marketplace_category_paths=self._class_paths(classes),
             added_at=self._created_at(identifier, name),
+            added_caveat=DateCaveat.ASSUMED_TIMEZONE,
         )
         if software is not None:
             self.listed_names.add(self._name_key(software.name))
@@ -289,11 +373,16 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         products = self._products(response)
         services = {
-            self._name_key(self._as_text(item.get("prdName")) or "") for item in products if self._service_reason(item)
+            self._name_key(self._as_text(item.get(TencentProductField.PRD_NAME)) or "")
+            for item in products
+            if self._service_reason(item)
         }
         identifiers: Dict[str, Optional[str]] = {}
         for product in products:
-            name, identifier = self._as_text(product.get("prdName")), self._as_text(product.get("prdID"))
+            name, identifier = (
+                self._as_text(product.get(TencentProductField.PRD_NAME)),
+                self._as_text(product.get(TencentProductField.PRD_ID)),
+            )
             if reason := self._service_reason(product):
                 self.logger.debug("Skipping the product %r (%s).", name, reason)
                 continue
@@ -317,32 +406,43 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the page has no Next.js data, or no `props.pageProps.goodsInfo` list.
         """
-        props = self._as_object(self._as_object(self._next_data(response).get("props")).get("pageProps"))
-        goods = props.get("goodsInfo")
+        next_props = self._as_object(self._next_data(response).get(TencentNextDataField.PROPS))
+        props = self._as_object(next_props.get(TencentNextDataField.PAGE_PROPS))
+        goods = props.get(TencentMarketPagePropsField.GOODS_INFO)
         if not isinstance(goods, list):
             self.logger.error("The %s page %s has no `goodsInfo` list.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "`props.pageProps.goodsInfo` is not a list")
         for entry in goods:
             item = self._as_object(entry)
-            basic, detail = self._as_object(item.get("GoodsBasicInfo")), self._as_object(item.get("GoodsDetailInfo"))
-            name, status = self._as_text(detail.get("GoodsName")) or "", basic.get("Status", self.ONLINE)
+            basic, detail = (
+                self._as_object(item.get(TencentGoodsField.GOODS_BASIC_INFO)),
+                self._as_object(item.get(TencentGoodsField.GOODS_DETAIL_INFO)),
+            )
+            name = self._as_text(detail.get(TencentGoodsDetailField.GOODS_NAME)) or ""
+            status = basic.get(TencentGoodsBasicField.STATUS, self.ONLINE)
             if status != self.ONLINE:
                 self.logger.debug("Skipping the goods %r (status %r).", name, status)
                 continue
             if self._name_key(name) in self.listed_names:
                 self.logger.debug("Skipping the goods %r (already listed).", name)
                 continue
-            spu = self._as_text(basic.get("SpuId"))
+            spu = self._as_text(basic.get(TencentGoodsBasicField.SPU_ID))
             categories = [
-                self._as_object(category).get("CategoryName") for category in self._as_list(detail.get("CategoryList"))
+                self._as_object(category).get(TencentGoodsCategoryField.CATEGORY_NAME)
+                for category in self._as_list(detail.get(TencentGoodsDetailField.CATEGORY_LIST))
             ]
             software = self._build_software(
                 name,
-                self._as_text(detail.get("GoodsDescription")),
+                self._as_text(detail.get(TencentGoodsDetailField.GOODS_DESCRIPTION)),
                 url=f"{self.HOST}/market/detail/{spu}" if spu else None,
-                publisher=self._as_text(self._as_object(item.get("GoodsProviderInfo")).get("ProviderName")),
+                publisher=self._as_text(
+                    self._as_object(item.get(TencentGoodsField.GOODS_PROVIDER_INFO)).get(
+                        TencentGoodsProviderField.PROVIDER_NAME
+                    )
+                ),
                 delivery=DeliveryMethod.OTHER,
                 marketplace_categories=[label for label in categories if isinstance(label, str)],
+                marketplace_category_paths=self._goods_paths(detail),
             )
             if software is not None:
                 yield software
@@ -361,7 +461,7 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         page = int(str(response.meta.get(self.PAGE, 1)))
         count = len(self._products(response))
-        total = self._as_object(self._json_body(response)).get("pageCount")
+        total = self._as_object(self._json_body(response)).get(TencentProductListField.PAGE_COUNT)
         total_count = int(total) if isinstance(total, (int, str)) and str(total).isdigit() else count
         self.logger.info("%s product list page %d: %d products of %d.", self.name, page, count, total_count)
         if count == self.PAGE_SIZE and page * self.PAGE_SIZE < total_count and self._within_page_limit(page + 1):

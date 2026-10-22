@@ -11,7 +11,9 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
-from models.cloud.product import CloudProduct
+from crawler.cloud.gcore.enums import GcoreMenuTab
+from crawler.enums import HtmlAttribute, PageMetaName
+from models.cloud.products.product import CloudProduct
 
 
 class GcoreCrawler(BaseCloudCrawler):
@@ -19,21 +21,23 @@ class GcoreCrawler(BaseCloudCrawler):
 
     Attributes:
         SITEMAP_URL (ClassVar[str]): The main sitemap of the website, listing the product pages.
-        EXCLUDED_TABS (ClassVar[Tuple[str, ...]]): The menu tabs listing use cases, not products (case-insensitive).
+        EXCLUDED_TABS (ClassVar[Tuple[GcoreMenuTab, ...]]): The menu tabs listing use cases, not products
+            (case-insensitive).
         PRODUCT_PATHS (ClassVar[Tuple[str, ...]]): The sitemap paths of the product pages missing from the menu.
         TITLE_SUFFIX (ClassVar[re.Pattern[str]]): The tagline or brand suffix of a page heading or title.
 
     Notes:
         The main source is the products menu of the https://gcore.com/ home page: its tabbed menus (Edge Network,
-        AI, Cloud, Security) list the products with a name and a short description. The "By industry" and "By need"
-        tabs (use cases) are skipped. The main sitemap completes it with an allowlist of product pages (compute,
-        hosting, security and services pages missing from the menu), read for their heading and meta description.
+        AI, Cloud, Security) list the products with a name and a short description, each product being filed
+        under its tabs. The "By industry" and "By need" tabs (use cases) are skipped. The main sitemap completes it
+        with an allowlist of product pages (compute, hosting, security and services pages missing from the menu),
+        read for their heading and meta description (without categories).
         The `robots.txt` of the website declares `Content-Signal: ai-train=no, search=yes, ai-input=no` and is
         obeyed.
     """
 
     SITEMAP_URL: ClassVar[str] = "https://gcore.com/sitemap-main.xml"
-    EXCLUDED_TABS: ClassVar[Tuple[str, ...]] = ("by industry", "by need")
+    EXCLUDED_TABS: ClassVar[Tuple[GcoreMenuTab, ...]] = (GcoreMenuTab.BY_INDUSTRY, GcoreMenuTab.BY_NEED)
     PRODUCT_PATHS: ClassVar[Tuple[str, ...]] = (
         "/cloud/virtual-machines",
         "/cloud/faas",
@@ -95,23 +99,28 @@ class GcoreCrawler(BaseCloudCrawler):
         """
         heading = response.css("h1").first
         title = self._clean_text(heading.get_all_text(separator=" ", strip=True)) if heading is not None else None
-        title = title or self._meta_content(response, "og:title")
+        title = title or self._meta_content(response, PageMetaName.OG_TITLE)
         return self._page_title(title) if title else None
 
-    def _menu_products(self, response: Response) -> Iterator[CloudProduct]:
-        """Extract the products of the tabbed menus, skipping the use case tabs.
-
-        Each menu lists its tab labels (`.gc-tabbed-menu__rail-label`) and, in the same order, one grid of links
-        per tab (`.gc-tabbed-menu__grid`).
+    def _menu_entries(self, response: Response) -> List[Tuple[str, str, str, List[str]]]:
+        """Gather the product links of the tabbed menus with all their tabs, skipping the use case tabs.
 
         Args:
             response (Response): The home page.
 
-        Yields:
-            Iterator[CloudProduct]: Each valid product of the menus.
+        Returns:
+            List[Tuple[str, str, str, List[str]]]: The name, description and URL of the first link of each product,
+                by order of appearance, and the tabs of all its links.
+
+        Notes:
+            Each menu lists its tab labels (`.gc-tabbed-menu__rail-label`) and, in the same order, one grid of links
+            per tab (`.gc-tabbed-menu__grid`). The links of a product are matched by name or by URL, as the
+            streamed products are.
         """
         menus = response.css(".gc-tabbed-menu")
         self.logger.debug("%d tabbed menus in %s.", len(menus), response.url)
+        entries: List[Tuple[str, str, str, List[str]]] = []
+        positions: Dict[str, int] = {}
         for menu in menus:
             tabs = [
                 self._clean_text(tab.get_all_text(separator=" ", strip=True))
@@ -128,10 +137,32 @@ class GcoreCrawler(BaseCloudCrawler):
                     if label is None or description is None:
                         self.logger.debug("Skipping a menu link without name or description in the tab %r.", tab)
                         continue
-                    url = urljoin(response.url, link.attrib.get("href", ""))
+                    url = urljoin(response.url, link.attrib.get(HtmlAttribute.HREF, ""))
                     name = label.get_all_text(separator=" ", strip=True)
-                    if product := self._build_product(name, description.get_all_text(separator=" ", strip=True), url):
-                        yield product
+                    keys = [f"name:{self._name_key(name)}", f"url:{self._url_key(url)}"]
+                    position = next((positions[key] for key in keys if key in positions), None)
+                    if position is None:
+                        position = len(entries)
+                        entries.append((name, description.get_all_text(separator=" ", strip=True), url, []))
+                    else:
+                        self.logger.debug("Menu product %r listed again, in the tab %r.", name, tab)
+                    if tab:
+                        entries[position][3].append(tab)
+                    positions.update(dict.fromkeys(keys, position))
+        return entries
+
+    def _menu_products(self, response: Response) -> Iterator[CloudProduct]:
+        """Extract the products of the tabbed menus, filed under their tabs, skipping the use case tabs.
+
+        Args:
+            response (Response): The home page.
+
+        Yields:
+            Iterator[CloudProduct]: Each valid product of the menus, once.
+        """
+        for name, description, url, tabs in self._menu_entries(response):
+            if product := self._build_product(name, description, url, categories=tabs):
+                yield product
 
     def _sitemap_requests(self, response: Response) -> List[Request]:
         """Request the allowlisted product pages of the sitemap which were not found in the menu.

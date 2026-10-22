@@ -1,0 +1,63 @@
+# Language model settings of the crawler: which model answers which task, and what the calls may spend.
+#
+# Nothing is sent to a model unless the environment variable named by `api_key` is set (e.g. ANTHROPIC_API_KEY): the
+# new non-English labels then wait in the Categories manager ("pending") and the items nothing else categorized stay
+# "Other". `CRAWLER_LLM_CONFIG` points to another file of the same shape.
+#
+# The current Claude models take no `temperature` (a 400 if sent) and accept `effort` (low ... max). Their forced tool
+# use is refused too: the structured answers use `json_schema` (output_config.format).
+
+# The model used when the routing below is absent or `enabled: false`.
+llm:
+  provider: anthropic
+  model_name: claude-sonnet-5-5
+  api_key: "ANTHROPIC_API_KEY"
+  max_tokens: 8192
+  # USD per million tokens (Anthropic list price).
+  input_rate_per_million: 2.0
+  output_rate_per_million: 10.0
+
+# Per-task routing: `profiles` names the tiers, `tasks` binds each task to a tier and may override `effort` and
+# `max_tokens` only.
+llm_routing:
+  enabled: true
+  default_profile: balanced
+  profiles:
+    precise:
+      provider: anthropic
+      model_name: claude-opus-5-5
+      api_key: "ANTHROPIC_API_KEY"
+      max_tokens: 16384
+      input_rate_per_million: 4.0
+      output_rate_per_million: 20.0
+    balanced:
+      provider: anthropic
+      model_name: claude-sonnet-5-5
+      api_key: "ANTHROPIC_API_KEY"
+      max_tokens: 16384
+      input_rate_per_million: 2.0
+      output_rate_per_million: 10.0
+    fast:
+      provider: anthropic
+      model_name: claude-haiku-5-5
+      api_key: "ANTHROPIC_API_KEY"
+      max_tokens: 8192
+      input_rate_per_million: 0.10
+      output_rate_per_million: 0.50
+  tasks:
+    # Short labels, many of them: the cheap tier, little thinking.
+    label_translation: { profile: fast, effort: low, max_tokens: 8192 }
+    # An item from its name, description and labels: a judgement worth the working tier.
+    item_classification: { profile: balanced, effort: low, max_tokens: 8192 }
+    # Which services of several providers are the same: a comparison of whole categories, worth some thinking.
+    service_correspondence: { profile: balanced, effort: medium, max_tokens: 16384 }
+
+# What the calls may spend in total (the costs are recorded in the `llm_usage` table). `enforce: false` warns only.
+llm_budget:
+  ceiling: 10.0
+  currency: USD
+  enforce: true
+
+# The labels or items sent per call, and whether a crawl ends with the model tasks for its provider.
+batch_size: 50
+after_crawl: true

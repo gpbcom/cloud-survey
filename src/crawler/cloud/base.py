@@ -5,9 +5,9 @@ import html
 import json
 import logging
 import re
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import AsyncGenerator, ClassVar, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union
+from typing import AsyncGenerator, ClassVar, Dict, Iterable, Iterator, List, Optional, Sequence, Set, Tuple, Union
 from urllib.parse import urlparse
 
 # Third Party Imports.
@@ -17,9 +17,11 @@ from scrapling.spiders import Request, Response, Spider
 from scrapling.spiders.session import SessionManager
 
 # First Party Imports.
+from crawler.enums import HtmlAttribute, PageMetaName, RequestMeta, TextEncoding
 from crawler.exception import CatalogueFormatError, CrawlerError, EmptyCatalogueError, ParseNotImplementedError
 from models.cloud.dated_item import DatedItem
-from models.cloud.product import CloudProduct
+from models.cloud.enums import DateCaveat, UrlScheme
+from models.cloud.products.product import CloudProduct
 
 
 class BaseCloudCrawler(Spider):
@@ -27,16 +29,27 @@ class BaseCloudCrawler(Spider):
 
     Attributes:
         PRIMARY_PRIORITY (ClassVar[int]): The priority of the main catalogue requests, crawled before the complements.
+        DATES_PRIORITY (ClassVar[int]): The priority of the sitemaps read for their dates, crawled first.
+        PAGE_DATES (ClassVar[str]): The meta key marking a sitemap request read for the last modification of its
+            pages.
         PRODUCT_PAGE (ClassVar[str]): The meta key marking a product page request, holding the requested URL.
         PRODUCT_NAME (ClassVar[str]): The meta key holding the product name given by a listing, if any.
         PRODUCT_UPDATED (ClassVar[str]): The meta key holding the last modification of a product page given by a
             sitemap, if any.
-        ADDED_META (ClassVar[Tuple[str, ...]]): The `meta` tags giving the publication date of a page.
-        UPDATED_META (ClassVar[Tuple[str, ...]]): The `meta` tags giving the last modification of a page.
+        PRODUCT_CATEGORIES (ClassVar[str]): The meta key holding the catalogue categories of a product page given by
+            a listing, if any.
+        ADDED_META (ClassVar[Tuple[PageMetaName, ...]]): The `meta` tags giving the publication date of a page.
+        UPDATED_META (ClassVar[Tuple[PageMetaName, ...]]): The `meta` tags giving the last modification of a page.
+        EARLIEST_DATE (ClassVar[datetime]): The earliest plausible date of a product: an earlier one is an error of
+            the website.
+        SAME_DAY_LIMIT (ClassVar[int]): From how many pages a sitemap dating them all the same day is ignored: its
+            dates are then the generation date of the sitemap.
         name (str): The crawler name.
         catalogue_url (ClassVar[str]): The URL the catalogue crawl starts from: the main product listing.
         complement_urls (ClassVar[Tuple[str, ...]]): Secondary sources, crawled after the main listing, which only
             add the products not found yet.
+        dates_sitemaps (ClassVar[Tuple[str, ...]]): The sitemaps giving the last modification of the product pages,
+            read before anything else so that every product with a listed page is dated.
         name_prefixes (ClassVar[Tuple[str, ...]]): Brand prefixes ignored when comparing product names, e.g. `AWS `.
         robots_txt_obey (bool): Whether the `robots.txt` rules of the provider are respected.
         solve_cloudflare (ClassVar[bool]): Whether the browser solves the Cloudflare challenges. Off by default: no
@@ -49,6 +62,8 @@ class BaseCloudCrawler(Spider):
         download_delay (float): The delay between two requests, in seconds.
         seen_products (Set[str]): The normalized names (and aliases) of the products already streamed by the crawl.
         seen_urls (Set[str]): The normalized URLs of the products already streamed by the crawl.
+        page_dates (Dict[str, str]): The last modification (raw) of each page listed by the `dates_sitemaps`, by
+            normalized URL.
 
     Notes:
         A product is streamed once: it is skipped when its normalized name or URL was already seen.
@@ -56,24 +71,33 @@ class BaseCloudCrawler(Spider):
         The scrapling spider logger (`scrapling.spiders.<name>`), also used by the crawl engine, is routed to the
         application logging configuration.
         When a listing only gives the product names or links, each product page is requested (`PRODUCT_PAGE` meta)
-        and its product is read from its title and meta description.
+        and its product is read from its title and meta description, filed under the categories the listing gave
+        (`PRODUCT_CATEGORIES` meta).
+        A listing filing a product under several categories lists it once per category: `_merge_categories` gathers
+        these occurrences into one product holding all their categories.
     """
 
     PRIMARY_PRIORITY: ClassVar[int] = 10
-    PRODUCT_PAGE: ClassVar[str] = "product_page"
-    PRODUCT_NAME: ClassVar[str] = "product_name"
-    PRODUCT_UPDATED: ClassVar[str] = "product_updated"
-    ADDED_META: ClassVar[Tuple[str, ...]] = ("article:published_time", "datePublished")
-    UPDATED_META: ClassVar[Tuple[str, ...]] = (
-        "article:modified_time",
-        "og:updated_time",
-        "dateModified",
-        "cpp-last-modified-time",
+    DATES_PRIORITY: ClassVar[int] = 20
+    PAGE_DATES: ClassVar[str] = RequestMeta.PAGE_DATES
+    SAME_DAY_LIMIT: ClassVar[int] = 10
+    EARLIEST_DATE: ClassVar[datetime] = datetime(1990, 1, 1, tzinfo=UTC)
+    PRODUCT_PAGE: ClassVar[str] = RequestMeta.PRODUCT_PAGE
+    PRODUCT_NAME: ClassVar[str] = RequestMeta.PRODUCT_NAME
+    PRODUCT_UPDATED: ClassVar[str] = RequestMeta.PRODUCT_UPDATED
+    PRODUCT_CATEGORIES: ClassVar[str] = RequestMeta.PRODUCT_CATEGORIES
+    ADDED_META: ClassVar[Tuple[PageMetaName, ...]] = (PageMetaName.ARTICLE_PUBLISHED_TIME, PageMetaName.DATE_PUBLISHED)
+    UPDATED_META: ClassVar[Tuple[PageMetaName, ...]] = (
+        PageMetaName.ARTICLE_MODIFIED_TIME,
+        PageMetaName.OG_UPDATED_TIME,
+        PageMetaName.DATE_MODIFIED,
+        PageMetaName.CPP_LAST_MODIFIED_TIME,
     )
 
     name: str = "default-crawler"
     catalogue_url: ClassVar[str] = ""
     complement_urls: ClassVar[Tuple[str, ...]] = ()
+    dates_sitemaps: ClassVar[Tuple[str, ...]] = ()
     name_prefixes: ClassVar[Tuple[str, ...]] = ()
     robots_txt_obey: bool = True
     solve_cloudflare: ClassVar[bool] = False
@@ -96,6 +120,7 @@ class BaseCloudCrawler(Spider):
         self.allowed_domains = {urlparse(url).netloc for url in urls}
         self.seen_products: Set[str] = set()
         self.seen_urls: Set[str] = set()
+        self.page_dates: Dict[str, str] = {}
         self.logger.debug(
             "%s crawler ready: catalogue %s, allowed domains %s.", self.name, self.catalogue_url, self.allowed_domains
         )
@@ -240,8 +265,7 @@ class BaseCloudCrawler(Spider):
         return Request(self.catalogue_url, priority=self.PRIMARY_PRIORITY)
 
     def _complement_request(self, url: str) -> Request:
-        """Build the request of a complementary catalogue page,
-            after the main listing (lower priority).
+        """Build the request of a complementary catalogue page, after the main listing (lower priority).
 
         Args:
             url (str): The complementary catalogue page.
@@ -267,8 +291,7 @@ class BaseCloudCrawler(Spider):
         return product.item_dump()
 
     def _shorten(self, text: str) -> str:
-        """Shorten a text over the description limit:
-            at its last sentence end, else at a word, with an ellipsis.
+        """Shorten a text over the description limit: at its last sentence end, else at a word, with an ellipsis.
 
         Args:
             text (str): The text, whitespaces collapsed.
@@ -300,7 +323,7 @@ class BaseCloudCrawler(Spider):
         if not url or not url.strip():
             return None
         link = urlparse(url.strip())
-        if link.scheme not in ("http", "https") or not link.netloc:
+        if link.scheme not in tuple(UrlScheme) or not link.netloc:
             self.logger.debug("Ignoring the invalid URL %r of the catalogue entry %r.", url, name)
             return None
         return url.strip()
@@ -313,13 +336,18 @@ class BaseCloudCrawler(Spider):
             name (Optional[str]): The item the date belongs to, for the logs.
 
         Returns:
-            Optional[datetime]: The timezone-aware date, `None` when missing or unreadable (logged).
+            Optional[datetime]: The timezone-aware date, `None` when missing, unreadable or implausible (before 1990
+                or in the future, logged).
         """
         try:
-            return DatedItem.model_validate({"added_at": value}).added_at
+            date = DatedItem.model_validate({"added_at": value}).added_at
         except ValidationError:
             self.logger.debug("Ignoring the unreadable date %r of the entry %r.", value, name)
             return None
+        if date is not None and not self.EARLIEST_DATE <= date <= datetime.now(UTC) + timedelta(days=1):
+            self.logger.debug("Ignoring the implausible date %s of the entry %r.", date.isoformat(), name)
+            return None
+        return date
 
     def _build_product(
         self,
@@ -328,35 +356,89 @@ class BaseCloudCrawler(Spider):
         url: Optional[str] = None,
         added_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None,
+        added_caveat: Optional[DateCaveat] = None,
+        updated_caveat: Optional[DateCaveat] = None,
+        categories: Optional[Sequence[Optional[str]]] = None,
     ) -> Optional[CloudProduct]:
-        """Build a product from scraped texts,
-            with collapsed whitespaces and a description within the limit.
+        """Build a product from scraped texts, with collapsed whitespaces and a description within the limit.
 
         Args:
             name (Optional[str]): The scraped product name.
             description (Optional[str]): The scraped product description.
             url (Optional[str]): The product page, dropped (not the product) when it is not an absolute http(s) link.
             added_at (Optional[datetime]): When the website says the product was added, if it does.
-            updated_at (Optional[datetime]): When the website says the product was last updated, if it does.
+            updated_at (Optional[datetime]): When the website says the product was last updated, if it does. Else,
+                the last modification of its page given by a `dates_sitemaps` sitemap, if any.
+            added_caveat (Optional[DateCaveat]): Why `added_at` may not be the launch, if it may not.
+            updated_caveat (Optional[DateCaveat]): Why `updated_at` may not be a change of the product, if it may not.
+            categories (Optional[Sequence[Optional[str]]]): The categories the catalogue files the product under, as
+                labelled there (blank ones dropped), `None` when it gives none.
 
         Returns:
             Optional[CloudProduct]: The product, or `None` (logged) when the scraped texts are invalid.
         """
         url = self._valid_url(url, name)
+        if updated_at is None and url and self._url_key(url) in self.page_dates:
+            updated_at = self._parse_date(self.page_dates[self._url_key(url)], name)
+            updated_caveat = DateCaveat.PAGE_MODIFIED
         try:
             return CloudProduct.model_validate(
                 {
                     "name": self._clean_text(name),
                     "description": self._shorten(self._clean_text(description)),
                     "url": url,
+                    "catalogue_categories": [self._clean_text(category) for category in categories or []],
                     "added_at": added_at,
+                    "added_caveat": added_caveat if added_at else None,
                     "updated_at": updated_at,
+                    "updated_caveat": updated_caveat if updated_at else None,
                 }
             )
         except ValidationError as e:
-            reasons = "; ".join(f"{'.'.join(map(str, error['loc']))}: {error['msg']}" for error in e.errors())
+            reasons = "; ".join(
+                f"{'.'.join(map(str, error['loc']))}: {error['msg']}"
+                for error in e.errors()
+            )
             self.logger.warning("Skipping the invalid catalogue entry %r (%s).", name, reasons)
             return None
+
+    def _merge_categories(self, products: Iterable[CloudProduct]) -> List[CloudProduct]:
+        """Merge the occurrences of the same product (same normalized name or URL) of a listing.
+
+        Args:
+            products (Iterable[CloudProduct]): The products of the listing, an occurrence per category.
+
+        Returns:
+            List[CloudProduct]: Each product once, as first listed, with the categories of all its occurrences in
+                their first-occurrence order.
+
+        Notes:
+            An occurrence matches a product kept before when its normalized name or URL is one of those of the
+            first occurrence, as `_is_new` compares the streamed products.
+            The merged product is validated again, so that its categories are cleaned like those of a built product.
+            Should it be invalid, the first occurrence is kept unchanged (logged).
+        """
+        merged: List[CloudProduct] = []
+        positions: Dict[str, int] = {}
+        count = 0
+        for product in products:
+            count += 1
+            keys = [self._name_key(product.name)] + ([self._url_key(product.url)] if product.url else [])
+            position = next((positions[key] for key in keys if key in positions), None)
+            if position is None:
+                positions.update(dict.fromkeys(keys, len(merged)))
+                merged.append(product)
+                continue
+            first = merged[position]
+            categories = [*first.catalogue_categories, *product.catalogue_categories]
+            try:
+                merged[position] = type(first).model_validate(
+                    {**first.model_dump(), "catalogue_categories": categories}
+                )
+            except ValidationError as e:
+                self.logger.warning("Keeping the categories of the first %r listing (%s).", first.name, e)
+        self.logger.debug("%d distinct products out of %d listed entries.", len(merged), count)
+        return merged
 
     def _next_data(self, response: Response) -> Dict[str, JsonValue]:
         """Read the Next.js data embedded in a page (`__NEXT_DATA__` script).
@@ -399,7 +481,7 @@ class BaseCloudCrawler(Spider):
             CatalogueFormatError: If the response is not JSON.
         """
         try:
-            data: JsonValue = json.loads(response.body.decode("utf-8", errors="replace"))
+            data: JsonValue = json.loads(response.body.decode(TextEncoding.UTF_8, errors=TextEncoding.REPLACE))
         except json.JSONDecodeError as e:
             self.logger.error("The %s page %s is not JSON: %s", self.name, response.url, e)
             raise CatalogueFormatError(self.name, response.url, "the page is not JSON") from e
@@ -417,7 +499,7 @@ class BaseCloudCrawler(Spider):
         Raises:
             CatalogueFormatError: If the sitemap lists no page.
         """
-        body = response.body.decode("utf-8", errors="replace")
+        body = response.body.decode(TextEncoding.UTF_8, errors=TextEncoding.REPLACE)
         blocks = re.findall(r"<(?:url|sitemap)>(.*?)</(?:url|sitemap)>", body, re.DOTALL) or [body]
         entries: Dict[str, Optional[str]] = {}
         for block in blocks:
@@ -445,8 +527,7 @@ class BaseCloudCrawler(Spider):
         return list(self._sitemap_entries(response))
 
     def _meta_content(self, response: Response, *names: str) -> Optional[str]:
-        """Read the first non-empty `meta` tag content of
-            a page among some names, case-insensitively.
+        """Read the first non-empty `meta` tag content of a page among some names, case-insensitively.
 
         Args:
             response (Response): The page.
@@ -457,15 +538,14 @@ class BaseCloudCrawler(Spider):
         """
         contents: Dict[str, str] = {}
         for tag in response.css("meta[content]"):
-            key = (tag.attrib.get("name") or tag.attrib.get("property") or "").casefold()
-            content = self._clean_text(tag.attrib.get("content"))
+            key = (tag.attrib.get(HtmlAttribute.NAME) or tag.attrib.get(HtmlAttribute.PROPERTY) or "").casefold()
+            content = self._clean_text(tag.attrib.get(HtmlAttribute.CONTENT))
             if key and content and key not in contents:
                 contents[key] = content
         return next((contents[name.casefold()] for name in names if name.casefold() in contents), None)
 
     def _page_title(self, title: str) -> str:
-        """Clean the product name read from a product page title,
-            e.g. to remove a brand suffix.
+        """Clean the product name read from a product page title, e.g. to remove a brand suffix.
 
         Args:
             title (str): The page title.
@@ -476,8 +556,7 @@ class BaseCloudCrawler(Spider):
         return self._clean_text(title)
 
     def _page_name(self, response: Response) -> Optional[str]:
-        """Read the product name of a product page:
-            its Open Graph title, else its first heading.
+        """Read the product name of a product page: its Open Graph title, else its first heading.
 
         Args:
             response (Response): The product page.
@@ -485,14 +564,13 @@ class BaseCloudCrawler(Spider):
         Returns:
             Optional[str]: The product name, `None` when the page has none.
         """
-        title = self._meta_content(response, "og:title")
+        title = self._meta_content(response, PageMetaName.OG_TITLE)
         if title is None and (heading := response.css("h1").first) is not None:
             title = heading.get_all_text(separator=" ", strip=True)
         return self._page_title(title) if title else None
 
     def _page_description(self, response: Response) -> Optional[str]:
-        """Read the product description of a product page:
-            its meta description, else its Open Graph one.
+        """Read the product description of a product page: its meta description, else its Open Graph one.
 
         Args:
             response (Response): The product page.
@@ -500,13 +578,16 @@ class BaseCloudCrawler(Spider):
         Returns:
             Optional[str]: The description, `None` when the page has none.
         """
-        return self._meta_content(response, "description", "og:description")
+        return self._meta_content(response, PageMetaName.DESCRIPTION, PageMetaName.OG_DESCRIPTION)
 
     def _product_page_request(
-        self, url: str, name: Optional[str] = None, updated: Optional[str] = None
+        self,
+        url: str,
+        name: Optional[str] = None,
+        updated: Optional[str] = None,
+        categories: Optional[Sequence[str]] = None,
     ) -> Optional[Request]:
-        """Build the request of a product page,
-            whose product is read from the page (`PRODUCT_PAGE` meta).
+        """Build the request of a product page, whose product is read from the page (`PRODUCT_PAGE` meta).
 
         Args:
             url (str): The absolute product page URL.
@@ -514,6 +595,8 @@ class BaseCloudCrawler(Spider):
                 preferred to the page title.
             updated (Optional[str]): The last modification of the page given by a sitemap, preferred to the page
                 `meta` tags.
+            categories (Optional[Sequence[str]]): The categories the listing files the product under, carried by the
+                request (`PRODUCT_CATEGORIES` meta) when there are some.
 
         Returns:
             Optional[Request]: The request, `None` when a product
@@ -522,16 +605,31 @@ class BaseCloudCrawler(Spider):
         if self._url_key(url) in self.seen_urls:
             self.logger.debug("Not requesting the product page %s, its product is already streamed.", url)
             return None
-        meta: Dict[str, str] = {self.PRODUCT_PAGE: url}
+        meta: Dict[str, Union[str, List[str]]] = {self.PRODUCT_PAGE: url}
         if name and self._clean_text(name):
             meta[self.PRODUCT_NAME] = self._clean_text(name)
         if updated:
             meta[self.PRODUCT_UPDATED] = updated
+        if categories:
+            meta[self.PRODUCT_CATEGORIES] = list(categories)
         return Request(url, meta=meta)
 
+    def _page_categories(self, response: Response) -> List[str]:
+        """Read the catalogue categories a request carries, e.g. a product page request.
+
+        Args:
+            response (Response): The page, requested with the `PRODUCT_CATEGORIES` meta, if any.
+
+        Returns:
+            List[str]: The categories (`PRODUCT_CATEGORIES` meta), empty when the request carries none.
+        """
+        categories = response.meta.get(self.PRODUCT_CATEGORIES)
+        if not isinstance(categories, list):
+            return []
+        return [str(category) for category in categories if category]
+
     def _page_product(self, response: Response) -> Optional[CloudProduct]:
-        """Extract the product of a product page:
-            its name and description.
+        """Extract the product of a product page: its name and description, filed under the request categories.
 
         Args:
             response (Response): The product page, requested with the `PRODUCT_PAGE` meta.
@@ -569,7 +667,35 @@ class BaseCloudCrawler(Spider):
             response.url,
             self._parse_date(added, name) if added else None,
             self._parse_date(str(updated), name) if updated else None,
+            DateCaveat.PAGE_PUBLISHED,
+            DateCaveat.PAGE_MODIFIED,
+            categories=self._page_categories(response),
         )
+
+    def _record_page_dates(self, response: Response) -> None:
+        """Remember the last modification of the pages listed by a sitemap, unless they are all of the same day.
+
+        Args:
+            response (Response): A `dates_sitemaps` sitemap.
+
+        Notes:
+            Some websites date every page of their sitemap
+            with the generation date of the sitemap: such dates tell
+            nothing about the pages and are ignored.
+        """
+        dates = {url: lastmod for url, lastmod in self._sitemap_entries(response).items() if lastmod}
+        days = {lastmod[:10] for lastmod in dates.values()}
+        if len(dates) >= self.SAME_DAY_LIMIT and len(days) == 1:
+            self.logger.info(
+                "The %s sitemap %s dates its %d pages %s, its generation date: its dates are ignored.",
+                self.name,
+                response.url,
+                len(dates),
+                days.pop(),
+            )
+            return
+        self.page_dates.update({self._url_key(url): lastmod for url, lastmod in dates.items()})
+        self.logger.info("%d page dates read from the %s sitemap %s.", len(dates), self.name, response.url)
 
     ############################
     # Publicly Exposed Methods #
@@ -617,6 +743,7 @@ class BaseCloudCrawler(Spider):
         else:
             self.seen_products.clear()
             self.seen_urls.clear()
+            self.page_dates.clear()
             self.logger.info("Starting the %s catalogue crawl from %s.", self.name, self.catalogue_url)
 
     async def on_error(self, request: Request, error: Exception) -> None:
@@ -646,14 +773,21 @@ class BaseCloudCrawler(Spider):
         """Start the crawl from the catalogue URL.
 
         Yields:
-            Request: The main catalogue page request,
-                then the complementary pages ones (lower priority).
+            Request: The `dates_sitemaps` requests (first), the main catalogue page request,
+                then the complementary pages ones (lower priority, a sitemap already read for its dates is
+                requested again, not filtered out as a duplicate).
         """
+        for url in self.dates_sitemaps:
+            self.logger.debug("Requesting the %s sitemap %s for the dates of the product pages.", self.name, url)
+            yield Request(url, priority=self.DATES_PRIORITY, dont_filter=True, meta={self.PAGE_DATES: url})
         self.logger.debug("Requesting the %s catalogue page %s.", self.name, self.catalogue_url)
         yield self._catalogue_request()
         for url in self.complement_urls:
             self.logger.debug("Requesting the %s complementary catalogue page %s.", self.name, url)
-            yield self._complement_request(url)
+            request = self._complement_request(url)
+            if url in self.dates_sitemaps:
+                request.dont_filter = True
+            yield request
 
     def extract_products(self, response: Response) -> Iterator[CloudProduct]:
         """Extract the products of a catalogue page.
@@ -683,6 +817,14 @@ class BaseCloudCrawler(Spider):
             EmptyCatalogueError: If a catalogue page holds no valid product at all.
         """
         self.logger.debug("Parsing the %s catalogue page %s (HTTP %s).", self.name, response.url, response.status)
+        if self.PAGE_DATES in response.meta:
+            if response.status < 400:
+                self._record_page_dates(response)
+            else:
+                self.logger.warning(
+                    "The %s sitemap %s is unavailable (HTTP %s).", self.name, response.url, response.status
+                )
+            return
         if self.PRODUCT_PAGE in response.meta:
             product = self._page_product(response)
             if product is not None and (page_item := self._stream(product)) is not None:

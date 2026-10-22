@@ -3,11 +3,11 @@ from __future__ import annotations
 # Standard Library Imports.
 import logging
 from datetime import datetime
-from typing import ClassVar, Dict, Optional
+from typing import ClassVar, Dict, Optional, Tuple
 
 # Third Party Imports.
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor, QIcon, QPainter, QPalette, QPixmap
+from PyQt6.QtCore import QPointF, QRectF, Qt
+from PyQt6.QtGui import QColor, QIcon, QPainter, QPalette, QPixmap, QPolygonF
 from PyQt6.QtWidgets import QApplication
 
 # First Party Imports.
@@ -16,14 +16,18 @@ from models.cloud.dated_item import DatedItem
 from models.cloud.enums import (
     CloudProvider,
     Country,
+    DateCaveat,
     DateSource,
     DeliveryMethod,
+    GeoBloc,
     MarketPlayer,
     MarketRegion,
     MarketSegment,
+    SoftwareAudience,
     SoftwareCategory,
-    SoftwareType,
 )
+from models.correspondence.enums import CardinalityClass
+from models.drivers.enums import DriverRole, WarningSeverity
 
 
 class Theme:
@@ -44,15 +48,38 @@ class Theme:
         COUNTRY_LABELS (ClassVar[Dict[Country, str]]): The display name of each cloud provider country.
         CATEGORY_LABELS (ClassVar[Dict[SoftwareCategory, str]]): The display name of each software category.
         CATEGORY_COLORS (ClassVar[Dict[SoftwareCategory, str]]): The colour of each software category.
-        TYPE_LABELS (ClassVar[Dict[SoftwareType, str]]): The display names of the software types which are not the
-            capitalized enum value, e.g. `CRM`.
+        AUDIENCE_LABELS (ClassVar[Dict[SoftwareAudience, str]]): The display name of each software audience.
+        AUDIENCE_COLORS (ClassVar[Dict[SoftwareAudience, str]]): The colour of each software audience (both: a mix of
+            the two category colours).
+        UI_FONT_SIZE (ClassVar[int]): The text size of the controls, tables and panels, in pixels (compact, so that
+            the charts get the room).
+        CHART_FONT_SIZE (ClassVar[int]): The text size of the charts and diagrams, in pixels (kept larger).
+        CHART_WIDGETS (ClassVar[Tuple[str, ...]]): The painted chart and diagram widgets keeping `CHART_FONT_SIZE`.
+        CORRESPONDENCE_FILLS (ClassVar[Dict[CardinalityClass, str]]): The fill of the service pills of each
+            correspondence class, light for 1:1, darker as one side holds more services.
+        CORRESPONDENCE_INKS (ClassVar[Dict[CardinalityClass, str]]): The text colour on each pill fill.
+        CORRESPONDENCE_EDGES (ClassVar[Dict[CardinalityClass, str]]): The connector colour of each class (brighter as
+            the class grows, readable on the dark surfaces).
+        CORRESPONDENCE_LABELS (ClassVar[Dict[CardinalityClass, str]]): The legend of each class.
         DELIVERY_LABELS (ClassVar[Dict[DeliveryMethod, str]]): The display name of each delivery method.
         REGION_LABELS (ClassVar[Dict[MarketRegion, str]]): The display name of each market region.
         SEGMENT_LABELS (ClassVar[Dict[MarketSegment, str]]): The display name of each market segment.
         PLAYER_LABELS (ClassVar[Dict[MarketPlayer, str]]): The display name of each market player.
         PLAYER_COLORS (ClassVar[Dict[MarketPlayer, str]]): The colour of the market players which are not crawled
             providers (the others take their provider colour).
+        BLOC_LABELS (ClassVar[Dict[GeoBloc, str]]): The display name of each geopolitical bloc.
+        BLOC_COLORS (ClassVar[Dict[GeoBloc, str]]): The colour of each geopolitical bloc (Okabe-Ito, colour-blind
+            safe).
         LEVEL_COLORS (ClassVar[Dict[int, str]]): The colour of each log level.
+        WARNING (ClassVar[str]): The colour of the warnings, e.g. the dates with a caveat.
+        DRIVER_POSITIVE (ClassVar[str]): A criterion going with the rise (significant).
+        DRIVER_NEGATIVE (ClassVar[str]): A criterion going against the rise (significant).
+        DRIVER_FAINT (ClassVar[str]): A criterion whose correlation is not significant.
+        DRIVER_ROLE_COLORS (ClassVar[Dict[DriverRole, str]]): The colour of each role of the driver analysis (the
+            legend chips, the scatter axes). The criteria share the colour of the importance bars.
+        WARNING_COLORS (ClassVar[Dict[WarningSeverity, str]]): The colour of each severity of the warnings.
+        WARNING_SYMBOLS (ClassVar[Dict[WarningSeverity, str]]): The glyph drawn on the warnings of each severity.
+        CAVEAT_LABELS (ClassVar[Dict[DateCaveat, str]]): Why a date published by a website may be inaccurate.
         flags (FlagPainter): The painter of the country flags.
     """
 
@@ -93,6 +120,10 @@ class Theme:
         CloudProvider.VOLCENGINE: "#a1887f",
         CloudProvider.CTYUN: "#ffb74d",
         CloudProvider.ECLOUD: "#81d4fa",
+        CloudProvider.YANDEX_CLOUD: "#fc3f1d",
+        CloudProvider.VK_CLOUD: "#0077ff",
+        CloudProvider.CLOUD_RU: "#26d07c",
+        CloudProvider.SELECTEL: "#c62828",
     }
     PROVIDER_LABELS: ClassVar[Dict[CloudProvider, str]] = {
         CloudProvider.AWS: "Amazon Web Services",
@@ -123,6 +154,10 @@ class Theme:
         CloudProvider.VOLCENGINE: "Volcano Engine",
         CloudProvider.CTYUN: "China Telecom Cloud",
         CloudProvider.ECLOUD: "China Mobile Cloud",
+        CloudProvider.YANDEX_CLOUD: "Yandex Cloud",
+        CloudProvider.VK_CLOUD: "VK Cloud",
+        CloudProvider.CLOUD_RU: "Cloud.ru",
+        CloudProvider.SELECTEL: "Selectel",
     }
     PROVIDER_SHORT_LABELS: ClassVar[Dict[CloudProvider, str]] = {
         CloudProvider.AWS: "AWS",
@@ -153,6 +188,10 @@ class Theme:
         CloudProvider.VOLCENGINE: "Volcano",
         CloudProvider.CTYUN: "China Telecom",
         CloudProvider.ECLOUD: "China Mobile",
+        CloudProvider.YANDEX_CLOUD: "Yandex",
+        CloudProvider.VK_CLOUD: "VK Cloud",
+        CloudProvider.CLOUD_RU: "Cloud.ru",
+        CloudProvider.SELECTEL: "Selectel",
     }
     COUNTRY_LABELS: ClassVar[Dict[Country, str]] = {
         Country.UNITED_STATES: "United States",
@@ -165,6 +204,7 @@ class Theme:
         Country.SWITZERLAND: "Switzerland",
         Country.UNITED_KINGDOM: "United Kingdom",
         Country.CHINA: "China",
+        Country.RUSSIA: "Russia",
     }
     CATEGORY_LABELS: ClassVar[Dict[SoftwareCategory, str]] = {
         SoftwareCategory.DEVELOPER_TOOL: "Developer tool",
@@ -174,19 +214,58 @@ class Theme:
         SoftwareCategory.DEVELOPER_TOOL: "#4f8cff",
         SoftwareCategory.END_USER_SOFTWARE: "#3fb950",
     }
-    TYPE_LABELS: ClassVar[Dict[SoftwareType, str]] = {
-        SoftwareType.ATS: "ATS",
-        SoftwareType.CRM: "CRM",
-        SoftwareType.ERP: "ERP",
-        SoftwareType.HRIS: "HRIS",
-        SoftwareType.ECOMMERCE: "E-commerce",
-        SoftwareType.CMS: "CMS",
-        SoftwareType.E_LEARNING: "E-learning",
-        SoftwareType.ITSM: "ITSM",
-        SoftwareType.AI_ML: "AI / ML",
-        SoftwareType.DEVOPS: "DevOps",
-        SoftwareType.API_MANAGEMENT: "API management",
-        SoftwareType.IOT: "IoT",
+    AUDIENCE_LABELS: ClassVar[Dict[SoftwareAudience, str]] = {
+        SoftwareAudience.DEVELOPER_TOOL: "Developer tool only",
+        SoftwareAudience.END_USER_SOFTWARE: "End-user software only",
+        SoftwareAudience.BOTH: "Both",
+    }
+    AUDIENCE_COLORS: ClassVar[Dict[SoftwareAudience, str]] = {
+        SoftwareAudience.DEVELOPER_TOOL: "#4f8cff",
+        SoftwareAudience.END_USER_SOFTWARE: "#3fb950",
+        SoftwareAudience.BOTH: "#47a2a7",
+    }
+    UI_FONT_SIZE: ClassVar[int] = 12
+    CHART_FONT_SIZE: ClassVar[int] = 13
+    CHART_WIDGETS: ClassVar[Tuple[str, ...]] = (
+        "MetricChart",
+        "ShareBarChart",
+        "MarketSizeChart",
+        "ProviderBarChart",
+        "DomainBarChart",
+        "CorrespondenceDiagram",
+        "DiagramHeader",
+        "DiagramLegend",
+        "CoverageMatrix",
+        "DriverBarChart",
+        "DriverScatterChart",
+    )
+    CORRESPONDENCE_FILLS: ClassVar[Dict[CardinalityClass, str]] = {
+        CardinalityClass.ONE_TO_ONE: "#d3e2e6",
+        CardinalityClass.TWO_TO_ONE: "#8fb4be",
+        CardinalityClass.THREE_TO_ONE: "#2c6c7a",
+        CardinalityClass.MANY_TO_ONE: "#0e2930",
+        CardinalityClass.MISSING: "#212835",
+    }
+    CORRESPONDENCE_INKS: ClassVar[Dict[CardinalityClass, str]] = {
+        CardinalityClass.ONE_TO_ONE: "#11151c",
+        CardinalityClass.TWO_TO_ONE: "#11151c",
+        CardinalityClass.THREE_TO_ONE: "#eef4f6",
+        CardinalityClass.MANY_TO_ONE: "#eef4f6",
+        CardinalityClass.MISSING: "#9aa4b2",
+    }
+    CORRESPONDENCE_EDGES: ClassVar[Dict[CardinalityClass, str]] = {
+        CardinalityClass.ONE_TO_ONE: "#b5cfd6",
+        CardinalityClass.TWO_TO_ONE: "#79b3c1",
+        CardinalityClass.THREE_TO_ONE: "#3d9fb3",
+        CardinalityClass.MANY_TO_ONE: "#4fd0e6",
+        CardinalityClass.MISSING: "#4a5566",
+    }
+    CORRESPONDENCE_LABELS: ClassVar[Dict[CardinalityClass, str]] = {
+        CardinalityClass.ONE_TO_ONE: "1:1 correspondence",
+        CardinalityClass.TWO_TO_ONE: "2:1 correspondence",
+        CardinalityClass.THREE_TO_ONE: "3:1 correspondence",
+        CardinalityClass.MANY_TO_ONE: "n:1 correspondence",
+        CardinalityClass.MISSING: "No equivalent",
     }
     DELIVERY_LABELS: ClassVar[Dict[DeliveryMethod, str]] = {
         DeliveryMethod.SAAS: "SaaS",
@@ -225,12 +304,64 @@ class Theme:
         MarketPlayer.NEOCLOUDS: "#c792ea",
         MarketPlayer.OTHERS: "#6b7486",
     }
+    BLOC_LABELS: ClassVar[Dict[GeoBloc, str]] = {
+        GeoBloc.UNITED_STATES: "United States",
+        GeoBloc.EUROPEAN_UNION: "European Union",
+        GeoBloc.CHINA: "China",
+        GeoBloc.RUSSIA: "Russia",
+        GeoBloc.OTHER: "Other countries",
+    }
+    BLOC_COLORS: ClassVar[Dict[GeoBloc, str]] = {
+        GeoBloc.UNITED_STATES: "#56B4E9",
+        GeoBloc.EUROPEAN_UNION: "#F0E442",
+        GeoBloc.CHINA: "#D55E00",
+        GeoBloc.RUSSIA: "#CC79A7",
+        GeoBloc.OTHER: "#999999",
+    }
     LEVEL_COLORS: ClassVar[Dict[int, str]] = {
         logging.DEBUG: "#8b949e",
         logging.INFO: "#3fb950",
         logging.WARNING: "#d29922",
         logging.ERROR: "#f85149",
         logging.CRITICAL: "#ff7b72",
+    }
+    WARNING: ClassVar[str] = "#e3a008"
+    DRIVER_POSITIVE: ClassVar[str] = "#3fb950"
+    DRIVER_NEGATIVE: ClassVar[str] = "#f85149"
+    DRIVER_FAINT: ClassVar[str] = "#4a5568"
+    DRIVER_ROLE_COLORS: ClassVar[Dict[DriverRole, str]] = {
+        DriverRole.TARGET: "#f0883e",
+        DriverRole.CRITERION: "#4f8cff",
+        DriverRole.CONTROL: "#a77bf3",
+        DriverRole.SCOPE: "#3fb9a8",
+        DriverRole.LAG: "#d29922",
+    }
+    WARNING_COLORS: ClassVar[Dict[WarningSeverity, str]] = {
+        WarningSeverity.INFO: "#58a6ff",
+        WarningSeverity.CAUTION: "#e3a008",
+        WarningSeverity.BLOCKING: "#f85149",
+    }
+    WARNING_SYMBOLS: ClassVar[Dict[WarningSeverity, str]] = {
+        WarningSeverity.INFO: "i",
+        WarningSeverity.CAUTION: "!",
+        WarningSeverity.BLOCKING: "✕",
+    }
+    CAVEAT_LABELS: ClassVar[Dict[DateCaveat, str]] = {
+        DateCaveat.PAGE_MODIFIED: (
+            "it is when the provider's web page was last modified, maybe a change of the page only"
+        ),
+        DateCaveat.PAGE_PUBLISHED: "it is when the provider's web page was published, which may differ from the launch",
+        DateCaveat.CATALOGUE_ENTRY: (
+            "it is when the provider's catalogue entry was published or edited, which may differ from the launch or "
+            "from a change of the product"
+        ),
+        DateCaveat.WEBSITE_RECORD: (
+            "it is when the page was created in the provider's website, often by a website migration long after the "
+            "launch"
+        ),
+        DateCaveat.ASSUMED_TIMEZONE: "it is read from the product identifier in China's time, it may be hours off",
+        DateCaveat.YEAR_ONLY: "only the launch year is published, the day is unknown",
+        DateCaveat.OLDEST_VERSION: "it is the release of the oldest version still listed, older ones may be gone",
     }
 
     def __init__(self) -> None:
@@ -341,16 +472,82 @@ class Theme:
         """
         return self.CATEGORY_LABELS[category]
 
-    def type_label(self, kind: SoftwareType) -> str:
-        """Get the display name of a software type.
+    def audience_label(self, audience: SoftwareAudience) -> str:
+        """Get the display name of a software audience.
 
         Args:
-            kind (SoftwareType): The software type.
+            audience (SoftwareAudience): The software audience.
 
         Returns:
-            str: The type display name, e.g. `CRM` or `Project management`.
+            str: The audience display name, e.g. `Both`.
         """
-        return self.TYPE_LABELS.get(kind, kind.value.replace("-", " ").capitalize())
+        return self.AUDIENCE_LABELS[audience]
+
+    def audience_color(self, audience: SoftwareAudience) -> QColor:
+        """Get the colour of a software audience.
+
+        Args:
+            audience (SoftwareAudience): The software audience.
+
+        Returns:
+            QColor: The audience colour.
+        """
+        return QColor(self.AUDIENCE_COLORS[audience])
+
+    def driver_role_color(self, role: DriverRole) -> QColor:
+        """Get the colour of a role of the driver analysis.
+
+        Args:
+            role (DriverRole): The role.
+
+        Returns:
+            QColor: Its colour.
+        """
+        return QColor(self.DRIVER_ROLE_COLORS[role])
+
+    def warning_color(self, severity: WarningSeverity) -> QColor:
+        """Get the colour of a severity of the driver warnings.
+
+        Args:
+            severity (WarningSeverity): The severity.
+
+        Returns:
+            QColor: Its colour.
+        """
+        return QColor(self.WARNING_COLORS[severity])
+
+    def correspondence_fill(self, kind: CardinalityClass) -> QColor:
+        """Get the fill of the service pills of a correspondence class.
+
+        Args:
+            kind (CardinalityClass): The class.
+
+        Returns:
+            QColor: The fill.
+        """
+        return QColor(self.CORRESPONDENCE_FILLS[kind])
+
+    def correspondence_ink(self, kind: CardinalityClass) -> QColor:
+        """Get the text colour on the pills of a correspondence class.
+
+        Args:
+            kind (CardinalityClass): The class.
+
+        Returns:
+            QColor: The text colour.
+        """
+        return QColor(self.CORRESPONDENCE_INKS[kind])
+
+    def correspondence_edge(self, kind: CardinalityClass) -> QColor:
+        """Get the connector colour of a correspondence class.
+
+        Args:
+            kind (CardinalityClass): The class.
+
+        Returns:
+            QColor: The connector colour.
+        """
+        return QColor(self.CORRESPONDENCE_EDGES[kind])
 
     def delivery_label(self, delivery: DeliveryMethod) -> str:
         """Get the display name of a delivery method.
@@ -386,33 +583,105 @@ class Theme:
         provider = player.provider
         return QColor(self.PROVIDER_COLORS[provider] if provider else self.PLAYER_COLORS[player])
 
-    def date_label(self, value: Optional[datetime]) -> str:
+    def bloc_label(self, bloc: GeoBloc) -> str:
+        """Get the display name of a geopolitical bloc.
+
+        Args:
+            bloc (GeoBloc): The bloc.
+
+        Returns:
+            str: The bloc display name, e.g. `European Union`.
+        """
+        return self.BLOC_LABELS[bloc]
+
+    def bloc_color(self, bloc: GeoBloc) -> QColor:
+        """Get the colour of a geopolitical bloc.
+
+        Args:
+            bloc (GeoBloc): The bloc.
+
+        Returns:
+            QColor: The bloc colour.
+        """
+        return QColor(self.BLOC_COLORS[bloc])
+
+    def date_label(self, value: Optional[datetime], caveat: Optional[DateCaveat] = None) -> str:
         """Get the short label of a date, in the local timezone.
 
         Args:
             value (Optional[datetime]): The date.
+            caveat (Optional[DateCaveat]): Why it may be inaccurate, if it may be.
 
         Returns:
-            str: The day (e.g. `2026-10-16`), empty when the date is unknown.
+            str: The day (e.g. `2026-10-16`), the year only for a `YEAR_ONLY` date, empty when the date is unknown.
         """
-        return value.astimezone().strftime("%Y-%m-%d") if value else ""
+        if value is None:
+            return ""
+        if caveat is DateCaveat.YEAR_ONLY:
+            return f"{value.year}"
+        return value.astimezone().strftime("%Y-%m-%d")
 
-    def date_description(self, value: Optional[datetime], source: Optional[DateSource] = None) -> str:
-        """Describe a date and where it comes from, in the local timezone.
+    def date_description(
+        self, value: Optional[datetime], source: Optional[DateSource] = None, caveat: Optional[DateCaveat] = None
+    ) -> str:
+        """Describe a date, where it comes from and its caveat, in the local timezone.
 
         Args:
             value (Optional[datetime]): The date.
             source (Optional[DateSource]): Where it comes from, if known.
+            caveat (Optional[DateCaveat]): Why it may be inaccurate, if it may be.
 
         Returns:
-            str: The date and time with its origin (e.g. `2026-10-16 09:24, seen by a crawl`), `unknown` when the date
-                is unknown.
+            str: The date and time with its origin (e.g. `2026-10-16 09:24, seen by a crawl`) and its caveat on a
+                second line (starting with ⚠), `unknown` when the date is unknown.
         """
         if value is None:
             return "unknown"
-        text = value.astimezone().strftime("%Y-%m-%d %H:%M")
+        text = f"{value.year}" if caveat is DateCaveat.YEAR_ONLY else value.astimezone().strftime("%Y-%m-%d %H:%M")
         origins = {DateSource.WEBSITE: "published by the website", DateSource.CRAWL: "seen by a crawl"}
-        return f"{text}, {origins[source]}" if source else text
+        text = f"{text}, {origins[source]}" if source else text
+        return f"{text}\n\u26a0 Approximate: {self.CAVEAT_LABELS[caveat]}." if caveat else text
+
+    def caveat_text(self, item: DatedItem) -> str:
+        """Warn about the dates of a product or software which may be inaccurate.
+
+        Args:
+            item (DatedItem): The product or software.
+
+        Returns:
+            str: One warning per date with a caveat (starting with ⚠), empty when there is none.
+        """
+        caveats = (("added", item.added_at, item.added_caveat), ("updated", item.updated_at, item.updated_caveat))
+        return "\n".join(
+            f"\u26a0 The {label} date is approximate: {self.CAVEAT_LABELS[caveat]}."
+            for label, value, caveat in caveats
+            if value and caveat
+        )
+
+    def warning_icon(self, size: int = 14) -> QIcon:
+        """Draw the warning icon: an exclamation mark in an amber triangle.
+
+        Args:
+            size (int): The icon size, in pixels.
+
+        Returns:
+            QIcon: The icon.
+        """
+        pixmap = QPixmap(size, size)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QColor(self.WARNING))
+        painter.drawPolygon(QPolygonF([QPointF(size / 2, 1), QPointF(size - 1, size - 1), QPointF(1, size - 1)]))
+        painter.setPen(QColor(self.WINDOW))
+        font = painter.font()
+        font.setBold(True)
+        font.setPixelSize(max(size - 5, 6))
+        painter.setFont(font)
+        painter.drawText(QRectF(0, 3, size, size - 3), Qt.AlignmentFlag.AlignCenter, "!")
+        painter.end()
+        return QIcon(pixmap)
 
     def history_text(self, item: DatedItem) -> str:
         """Describe when a product or software was added, updated and deleted, and where the dates come from.
@@ -449,39 +718,67 @@ class Theme:
             str: The Qt stylesheet.
         """
         return f"""
-            QWidget {{ background-color: {self.WINDOW}; color: {self.TEXT}; font-size: 13px; }}
+            QWidget {{ background-color: {self.WINDOW}; color: {self.TEXT}; font-size: {self.UI_FONT_SIZE}px; }}
+            {", ".join(self.CHART_WIDGETS)} {{ font-size: {self.CHART_FONT_SIZE}px; }}
             QToolBar {{ background-color: {self.SURFACE}; border: none; border-bottom: 1px solid {self.BORDER};
-                spacing: 6px; padding: 6px; }}
+                spacing: 4px; padding: 4px; }}
             QToolButton {{ background-color: {self.SURFACE_ALT}; border: 1px solid {self.BORDER}; border-radius: 6px;
-                padding: 6px 12px; }}
+                padding: 4px 10px; }}
             QToolButton:hover {{ border-color: {self.ACCENT}; }}
             QToolButton:disabled {{ color: {self.TEXT_MUTED}; background-color: {self.SURFACE}; }}
             QListWidget, QTableView, QPlainTextEdit, QTextEdit {{ background-color: {self.SURFACE};
                 border: 1px solid {self.BORDER}; border-radius: 8px; }}
-            QListWidget::item {{ padding: 10px 8px; border-radius: 6px; margin: 2px 4px; }}
+            QListWidget::item {{ padding: 6px 8px; border-radius: 6px; margin: 1px 4px; }}
             QListWidget::item:selected {{ background-color: {self.SURFACE_ALT}; color: {self.TEXT};
                 border-left: 3px solid {self.ACCENT}; }}
             QTableView::item:selected {{ background-color: #263247; color: {self.TEXT}; }}
             QTableView {{ gridline-color: {self.BORDER}; alternate-background-color: #1c2230; }}
             QHeaderView::section {{ background-color: {self.SURFACE_ALT}; color: {self.TEXT_MUTED}; border: none;
-                border-bottom: 1px solid {self.BORDER}; padding: 6px; font-weight: 600; }}
+                border-bottom: 1px solid {self.BORDER}; padding: 4px 6px; font-weight: 600; }}
             QLineEdit, QComboBox {{ background-color: {self.SURFACE}; border: 1px solid {self.BORDER};
-                border-radius: 6px; padding: 6px 10px; }}
+                border-radius: 6px; padding: 4px 8px; }}
             QLineEdit:focus, QComboBox:focus {{ border-color: {self.ACCENT}; }}
             QPushButton {{ background-color: {self.SURFACE_ALT}; border: 1px solid {self.BORDER}; border-radius: 6px;
-                padding: 6px 14px; }}
+                padding: 4px 12px; }}
             QPushButton:hover {{ border-color: {self.ACCENT}; }}
             QFrame#card, QFrame#details {{ background-color: {self.SURFACE}; border: 1px solid {self.BORDER};
                 border-radius: 10px; }}
             QFrame#card QLabel, QFrame#details QLabel {{ background: transparent; }}
             QLabel#muted {{ color: {self.TEXT_MUTED}; background: transparent; }}
-            QLabel#title {{ font-size: 18px; font-weight: 700; background: transparent; }}
-            QLabel#value {{ font-size: 24px; font-weight: 700; background: transparent; }}
-            QDockWidget::title {{ background-color: {self.SURFACE_ALT}; padding: 6px; }}
+            QLabel#warning {{ color: {self.WARNING}; background: transparent; }}
+            QToolTip {{ background-color: {self.SURFACE_ALT}; color: {self.TEXT}; border: 1px solid {self.BORDER};
+                border-radius: 6px; padding: 6px; }}
+            QFrame#columnGuide {{ background-color: {self.SURFACE}; border: 1px solid {self.BORDER};
+                border-radius: 8px; }}
+            QLabel#guideTitle {{ font-weight: bold; background: transparent; }}
+            QLabel#guideEntry {{ background: transparent; border: 1px solid transparent; border-radius: 6px;
+                padding: 3px 6px; }}
+            QLabel#guideEntry:hover {{ background-color: {self.SURFACE_ALT}; border-color: {self.BORDER}; }}
+            QLabel#guideEntry[active="true"] {{ background-color: {self.SURFACE_ALT}; border-color: {self.ACCENT}; }}
+            QLabel#title {{ font-size: 16px; font-weight: 700; background: transparent; }}
+            QLabel#value {{ font-size: 20px; font-weight: 700; background: transparent; }}
+            QDockWidget::title {{ background-color: {self.SURFACE_ALT}; padding: 4px; }}
             QStatusBar {{ background-color: {self.SURFACE}; border-top: 1px solid {self.BORDER}; }}
             QProgressBar {{ background-color: {self.SURFACE_ALT}; border: none; border-radius: 4px; max-height: 8px; }}
             QProgressBar::chunk {{ background-color: {self.ACCENT}; border-radius: 4px; }}
             QSplitter::handle {{ background-color: {self.BORDER}; }}
+            QFrame#chartCard {{ background-color: {self.SURFACE}; border: 1px solid {self.BORDER};
+                border-radius: 10px; }}
+            QFrame#chartCard QLabel, QFrame#chartCard QCheckBox {{ background: transparent; }}
+            QToolButton#sectionToggle {{ background: transparent; border: none; padding: 2px 4px; font-size: 13px;
+                font-weight: 600; }}
+            QToolButton#sectionToggle:hover, QToolButton#sectionToggle:focus {{ color: {self.ACCENT}; }}
+            QToolButton#segment {{ padding: 3px 9px; border-radius: 0px; }}
+            QToolButton#segment:checked {{ background-color: #263247; border-color: {self.ACCENT}; }}
+            QToolButton#chartTool {{ padding: 3px 7px; }}
+            QToolButton#chartTool::menu-indicator {{ image: none; }}
+            QLabel#chartSubtitle {{ color: {self.TEXT_MUTED}; font-size: 11px; background: transparent; }}
+            QLabel#footnote {{ color: {self.TEXT_MUTED}; font-size: 10px; background: transparent; }}
+            QMenu {{ background-color: {self.SURFACE_ALT}; border: 1px solid {self.BORDER}; padding: 4px; }}
+            QMenu::item {{ padding: 4px 22px 4px 18px; border-radius: 4px; }}
+            QMenu::item:selected {{ background-color: #263247; }}
+            QMenu::item:disabled {{ color: {self.TEXT_MUTED}; }}
+            QMenu::section {{ color: {self.TEXT_MUTED}; padding: 6px 8px 2px 8px; font-weight: 600; }}
         """
 
     def apply(self, app: QApplication) -> None:
@@ -497,5 +794,7 @@ class Theme:
         palette.setColor(QPalette.ColorRole.Text, QColor(self.TEXT))
         palette.setColor(QPalette.ColorRole.WindowText, QColor(self.TEXT))
         palette.setColor(QPalette.ColorRole.Highlight, QColor(self.ACCENT))
+        palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(self.SURFACE_ALT))
+        palette.setColor(QPalette.ColorRole.ToolTipText, QColor(self.TEXT))
         app.setPalette(palette)
         app.setStyleSheet(self.stylesheet())

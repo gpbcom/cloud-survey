@@ -9,9 +9,11 @@ from scrapling.parser import Selector
 from scrapling.spiders import Response
 
 # First Party Imports.
+from crawler.cloud.combell.enums import CombellBadge, CombellCategorySlug
+from crawler.enums import HtmlAttribute
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class CombellMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -20,6 +22,7 @@ class CombellMarketplaceCrawler(BaseMarketplaceCrawler):
     Attributes:
         CATEGORY (ClassVar[str]): The marketplace category of every listing, the page lists content management
             systems.
+        CATEGORY_ID (ClassVar[CombellCategorySlug]): The identifier of the category, the slug of the page URL.
         ONE_CLICK_DESCRIPTION (ClassVar[str]): The description of the listings marked "One-click install".
         SUPPORTED_DESCRIPTION (ClassVar[str]): The description of the other listings, only said to be supported.
         NAME_SUFFIX (ClassVar[re.Pattern[str]]): The ` hosting` suffix of some card labels, e.g.
@@ -32,10 +35,13 @@ class CombellMarketplaceCrawler(BaseMarketplaceCrawler):
         description and their link leads to a hosting plan, not to an application page: each listing gets a
         generic description and the page URL with an anchor made of its name. A few cards carry a
         "One-click install" badge (installed from the control panel), the others are only said to be supported.
-        Every listing is kept as a one-click application of the web hosting. The page gives no publisher.
+        Every listing is kept as a one-click application of the web hosting. The page gives no publisher. The page
+        shows no category element: being the CMS page of the hosting, its category path is `CMS`, identified by the
+        `cms` slug of its URL.
     """
 
     CATEGORY: ClassVar[str] = "CMS"
+    CATEGORY_ID: ClassVar[CombellCategorySlug] = CombellCategorySlug.CMS
     ONE_CLICK_DESCRIPTION: ClassVar[str] = "One-click installation on Combell web hosting."
     SUPPORTED_DESCRIPTION: ClassVar[str] = "Supported on Combell web hosting."
     NAME_SUFFIX: ClassVar[re.Pattern[str]] = re.compile(r"\s+hosting$", re.IGNORECASE)
@@ -71,7 +77,9 @@ class CombellMarketplaceCrawler(BaseMarketplaceCrawler):
             bool: Whether the listing is marked as installed in one click.
         """
         badges = card.xpath("../*[contains(concat(' ', normalize-space(@class), ' '), ' badge ')]")
-        return any("one-click" in badge.get_all_text(separator=" ", strip=True).casefold() for badge in badges)
+        return any(
+            CombellBadge.ONE_CLICK in badge.get_all_text(separator=" ", strip=True).casefold() for badge in badges
+        )
 
     ############################
     # Publicly Exposed Methods #
@@ -88,9 +96,10 @@ class CombellMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         cards = response.css("div.card.shadow")
         self.logger.debug("%d cards in the %s page %s.", len(cards), self.name, response.url)
+        path = self._category([self.CATEGORY], self.CATEGORY_ID)
         for card in cards:
             logo = card.css(":scope > img").first
-            label = self._clean_text(logo.attrib.get("alt")) if logo is not None else ""
+            label = self._clean_text(logo.attrib.get(HtmlAttribute.ALT)) if logo is not None else ""
             if not label:
                 self.logger.debug("Skipping a %s card without logo label.", self.name)
                 continue
@@ -102,6 +111,7 @@ class CombellMarketplaceCrawler(BaseMarketplaceCrawler):
                 self._listing_url(name),
                 delivery=DeliveryMethod.ONE_CLICK_APP,
                 marketplace_categories=[self.CATEGORY],
+                marketplace_category_paths=[path],
             )
             if software is not None:
                 yield software

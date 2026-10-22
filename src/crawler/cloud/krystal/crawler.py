@@ -12,7 +12,9 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
-from models.cloud.product import CloudProduct
+from crawler.cloud.krystal.enums import KrystalFooterColumn, KrystalSitemapSection
+from crawler.enums import HtmlAttribute
+from models.cloud.products.product import CloudProduct
 
 
 class KrystalCrawler(BaseCloudCrawler):
@@ -22,9 +24,10 @@ class KrystalCrawler(BaseCloudCrawler):
         SITE_URL (ClassVar[str]): The website root, the links being relative to it.
         SITEMAP_PAGE_URL (ClassVar[str]): The HTML sitemap, listing the hosting, server and domain products.
         SITEMAP_URL (ClassVar[str]): The XML sitemap, listing every page of the website.
-        PRODUCT_CARDS (ClassVar[str]): The CSS selector of the product cards of the cloud products page.
-        SITEMAP_SECTIONS (ClassVar[FrozenSet[str]]): The HTML sitemap sections listing products.
-        FOOTER_COLUMNS (ClassVar[FrozenSet[str]]): The footer columns listing products.
+        PRODUCT_SECTIONS (ClassVar[str]): The CSS selector of the product sections of the cloud products page.
+        PRODUCT_CARDS (ClassVar[str]): The CSS selector of the product cards of a product section.
+        SITEMAP_SECTIONS (ClassVar[FrozenSet[KrystalSitemapSection]]): The HTML sitemap sections listing products.
+        FOOTER_COLUMNS (ClassVar[FrozenSet[KrystalFooterColumn]]): The footer columns listing products.
         NOT_PRODUCT_LINK (ClassVar[re.Pattern[str]]): The links which are not product pages (anchors, the cloud
             overview, pricing and technology pages).
         RENAMED (ClassVar[Dict[str, str]]): The product names replacing the action labels of the HTML sitemap, by path.
@@ -38,14 +41,22 @@ class KrystalCrawler(BaseCloudCrawler):
         link to the remaining product pages. Last, the XML sitemap gives the product pages linked from nowhere else
         (`SITEMAP_PRODUCTS`). The product pages are read for their description, the product name being the listing
         label, as their titles are marketing slogans.
+        The catalogue categories of a product are the titles of the sections listing it (e.g. `Compute` on the
+        cloud products page, `Website Hosting` on the HTML sitemap), else of the footer columns listing it (e.g.
+        `Services`). The products only listed by the XML sitemap have none.
     """
 
     SITE_URL: ClassVar[str] = "https://krystal.io/"
     SITEMAP_PAGE_URL: ClassVar[str] = "https://krystal.io/sitemap"
     SITEMAP_URL: ClassVar[str] = "https://krystal.io/sitemap.xml"
-    PRODUCT_CARDS: ClassVar[str] = "main section ul > li > a[href]"
-    SITEMAP_SECTIONS: ClassVar[FrozenSet[str]] = frozenset({"Website Hosting", "Servers", "Domain Names"})
-    FOOTER_COLUMNS: ClassVar[FrozenSet[str]] = frozenset({"Services", "Cloud"})
+    PRODUCT_SECTIONS: ClassVar[str] = "main section"
+    PRODUCT_CARDS: ClassVar[str] = "ul > li > a[href]"
+    SITEMAP_SECTIONS: ClassVar[FrozenSet[KrystalSitemapSection]] = frozenset(
+        {KrystalSitemapSection.WEBSITE_HOSTING, KrystalSitemapSection.SERVERS, KrystalSitemapSection.DOMAIN_NAMES}
+    )
+    FOOTER_COLUMNS: ClassVar[FrozenSet[KrystalFooterColumn]] = frozenset(
+        {KrystalFooterColumn.SERVICES, KrystalFooterColumn.CLOUD}
+    )
     NOT_PRODUCT_LINK: ClassVar[re.Pattern[str]] = re.compile(r"#|^/cloud/?$|/pricing\b|/technology\b")
     RENAMED: ClassVar[Dict[str, str]] = {"/domains": "Domain names"}
     SITEMAP_PRODUCTS: ClassVar[Dict[str, str]] = {
@@ -96,13 +107,21 @@ class KrystalCrawler(BaseCloudCrawler):
             response (Response): The cloud products page.
 
         Yields:
-            Iterator[CloudProduct]: Each valid product of the page.
+            Iterator[CloudProduct]: Each valid product of the page, once, with the titles of all its sections.
         """
-        cards = response.css(self.PRODUCT_CARDS)
-        self.logger.debug("%d product cards in %s.", len(cards), response.url)
-        for card in cards:
-            name, description = self._text(card.css("h3").first), self._text(card.css("p").first)
-            if product := self._build_product(name, description, urljoin(self.SITE_URL, card.attrib.get("href", ""))):
+        entries: Dict[str, Tuple[Optional[str], Optional[str], str, List[str]]] = {}
+        for section in response.css(self.PRODUCT_SECTIONS):
+            title = self._clean_text(self._text(section.css("h2").first))
+            cards = section.css(self.PRODUCT_CARDS)
+            self.logger.debug("%d product cards in the section %r of %s.", len(cards), title, response.url)
+            for card in cards:
+                url = urljoin(self.SITE_URL, card.attrib.get(HtmlAttribute.HREF, ""))
+                if (key := self._url_key(url)) in entries:
+                    entries[key][3].append(title)
+                    continue
+                entries[key] = (self._text(card.css("h3").first), self._text(card.css("p").first), url, [title])
+        for name, description, url, titles in entries.values():
+            if product := self._build_product(name, description, url, categories=titles):
                 yield product
 
     def _sitemap_page_products(self, response: Response) -> Iterator[CloudProduct]:
@@ -126,7 +145,7 @@ class KrystalCrawler(BaseCloudCrawler):
                 path = urlparse(href).path.rstrip("/")
                 description = self._text(card.css("p").first)
                 if product := self._build_product(
-                    self.RENAMED.get(path, name), description, urljoin(self.SITE_URL, href)
+                    self.RENAMED.get(path, name), description, urljoin(self.SITE_URL, href), categories=[title]
                 ):
                     yield product
 
@@ -137,21 +156,25 @@ class KrystalCrawler(BaseCloudCrawler):
             response (Response): A page of the website.
 
         Returns:
-            List[Request]: The product page requests, named after the footer labels.
+            List[Request]: The product page requests, named after the footer labels, with their footer columns.
         """
-        requests: List[Request] = []
+        requests: Dict[str, Request] = {}
         for column in response.css("footer div.space-y-4"):
             title = self._clean_text(self._text(column.css("p").first))
             if title not in self.FOOTER_COLUMNS:
                 continue
             for link in column.css("ul li a[href]"):
-                label, href = self._clean_text(self._text(link)), link.attrib.get("href", "")
+                label, href = self._clean_text(self._text(link)), link.attrib.get(HtmlAttribute.HREF, "")
+                url = urljoin(self.SITE_URL, href)
+                if (key := self._url_key(url)) in requests:
+                    requests[key].meta[self.PRODUCT_CATEGORIES].append(title)
+                    continue
                 if self._is_product_link(href, label) and (
-                    request := self._product_page_request(urljoin(self.SITE_URL, href), label)
+                    request := self._product_page_request(url, label, categories=[title])
                 ):
-                    requests.append(request)
+                    requests[key] = request
         self.logger.info("%d %s product pages to read from the footer of %s.", len(requests), self.name, response.url)
-        return requests
+        return list(requests.values())
 
     def _sitemap_requests(self, response: Response) -> List[Request]:
         """Request the product pages only listed by the XML sitemap.

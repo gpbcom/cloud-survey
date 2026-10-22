@@ -9,10 +9,12 @@ from pydantic import JsonValue
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
+from crawler.cloud.stackit.enums import StackitDeliveryMethod, StackitProductField, StackitRequestMeta
 from crawler.exception import CatalogueFormatError, EmptyCatalogueError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_category import MarketplaceCategory
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class STACKITMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -22,10 +24,12 @@ class STACKITMarketplaceCrawler(BaseMarketplaceCrawler):
         API_URL (ClassVar[str]): The catalog products API, the product details being under it.
         PAGE_SIZE (ClassVar[int]): The number of products per listing page, at most 100.
         PRODUCT_URL (ClassVar[str]): The product page URL template, filled with the product identifier.
-        PAGE (ClassVar[str]): The meta key holding the number of a listing page.
-        PRODUCT (ClassVar[str]): The meta key marking a product detail, holding the product identifier.
-        EXCLUDED_DELIVERIES (ClassVar[FrozenSet[str]]): The delivery methods of the offers which are not software.
-        DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery method of each marketplace delivery method.
+        PAGE (ClassVar[StackitRequestMeta]): The meta key holding the number of a listing page.
+        PRODUCT (ClassVar[StackitRequestMeta]): The meta key marking a product detail, holding the product identifier.
+        EXCLUDED_DELIVERIES (ClassVar[FrozenSet[StackitDeliveryMethod]]): The delivery methods of the offers which
+            are not software.
+        DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery method of each marketplace delivery method,
+            keyed by `StackitDeliveryMethod` members.
 
     Notes:
         The catalog API lists the products by pages of 100 (`items`), the next page being requested with the
@@ -38,13 +42,15 @@ class STACKITMarketplaceCrawler(BaseMarketplaceCrawler):
     API_URL: ClassVar[str] = "https://stackit-marketplace.api.stackit.cloud/v1/catalog/products"
     PAGE_SIZE: ClassVar[int] = 100
     PRODUCT_URL: ClassVar[str] = "https://marketplace.stackit.cloud/en/products/{product}"
-    PAGE: ClassVar[str] = "page"
-    PRODUCT: ClassVar[str] = "product"
-    EXCLUDED_DELIVERIES: ClassVar[FrozenSet[str]] = frozenset({"PROFESSIONAL_SERVICE"})
+    PAGE: ClassVar[StackitRequestMeta] = StackitRequestMeta.PAGE
+    PRODUCT: ClassVar[StackitRequestMeta] = StackitRequestMeta.PRODUCT
+    EXCLUDED_DELIVERIES: ClassVar[FrozenSet[StackitDeliveryMethod]] = frozenset(
+        {StackitDeliveryMethod.PROFESSIONAL_SERVICE}
+    )
     DELIVERIES: ClassVar[Dict[str, DeliveryMethod]] = {
-        "SAAS": DeliveryMethod.SAAS,
-        "CONTAINER_IMAGE": DeliveryMethod.CONTAINER,
-        "CLOUD_IMAGE": DeliveryMethod.VIRTUAL_MACHINE,
+        StackitDeliveryMethod.SAAS: DeliveryMethod.SAAS,
+        StackitDeliveryMethod.CONTAINER_IMAGE: DeliveryMethod.CONTAINER,
+        StackitDeliveryMethod.CLOUD_IMAGE: DeliveryMethod.VIRTUAL_MACHINE,
     }
 
     name = "stackit-marketplace"
@@ -81,8 +87,11 @@ class STACKITMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             Optional[Request]: The detail request, `None` for a product skipped (logged).
         """
-        identifier, name = self._as_text(product.get("productId")), self._as_text(product.get("name"))
-        delivery = self._as_text(product.get("deliveryMethod"))
+        identifier, name = (
+            self._as_text(product.get(StackitProductField.PRODUCT_ID)),
+            self._as_text(product.get(StackitProductField.NAME)),
+        )
+        delivery = self._as_text(product.get(StackitProductField.DELIVERY_METHOD))
         if not identifier:
             self.logger.debug("Skipping the %s product %r without identifier.", self.name, name)
             return None
@@ -111,7 +120,7 @@ class STACKITMarketplaceCrawler(BaseMarketplaceCrawler):
             EmptyCatalogueError: If the page lists no product at all.
         """
         data = self._json_object(response)
-        products = data.get("items")
+        products = data.get(StackitProductField.ITEMS)
         if not isinstance(products, list):
             self.logger.error("The %s listing page %s has no products list.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the page has no products list")
@@ -126,11 +135,11 @@ class STACKITMarketplaceCrawler(BaseMarketplaceCrawler):
             self.name,
             number,
             len(products),
-            data.get("totalCount"),
+            data.get(StackitProductField.TOTAL_COUNT),
             len(requests),
         )
         yield from requests
-        cursor = self._as_text(data.get("cursor"))
+        cursor = self._as_text(data.get(StackitProductField.CURSOR))
         if cursor and self._within_page_limit(number + 1):
             self.logger.info("Requesting the %s listing page %d.", self.name, number + 1)
             yield Request(
@@ -148,10 +157,23 @@ class STACKITMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             List[str]: The category labels.
         """
-        categories = product.get("categories")
+        categories = product.get(StackitProductField.CATEGORIES)
         if not isinstance(categories, list):
             return []
         return [label for label in (self._as_text(category) for category in categories) if label]
+
+    def _category_paths(self, categories: List[str]) -> List[Optional[MarketplaceCategory]]:
+        """Build the marketplace category paths of a product detail.
+
+        Args:
+            categories (List[str]): The category labels of the product detail.
+
+        Returns:
+            List[Optional[MarketplaceCategory]]: One single-level path per category, without identifier (the API
+                gives none, nor any parent category).
+        """
+        self.logger.debug("%d %s category paths built.", len(categories), self.name)
+        return [self._category([label]) for label in categories]
 
     ############################
     # Publicly Exposed Methods #
@@ -170,18 +192,25 @@ class STACKITMarketplaceCrawler(BaseMarketplaceCrawler):
             self.logger.debug("Skipping the %s product detail %s (HTTP %s).", self.name, response.url, response.status)
             return
         product = self._json_object(response)
-        name, delivery = self._as_text(product.get("name")), self._as_text(product.get("deliveryMethod")) or ""
+        name, delivery = (
+            self._as_text(product.get(StackitProductField.NAME)),
+            self._as_text(product.get(StackitProductField.DELIVERY_METHOD)) or "",
+        )
         if delivery in self.EXCLUDED_DELIVERIES:
             self.logger.debug("Skipping the %s product %r, not a software (%s).", self.name, name, delivery)
             return
-        identifier = self._as_text(product.get("productId")) or str(response.meta.get(self.PRODUCT, ""))
+        identifier = self._as_text(product.get(StackitProductField.PRODUCT_ID)) or str(
+            response.meta.get(self.PRODUCT, "")
+        )
+        categories = self._categories(product)
         software = self._build_software(
             name,
-            self._as_text(product.get("summary")),
+            self._as_text(product.get(StackitProductField.SUMMARY)),
             self.PRODUCT_URL.format(product=identifier) if identifier else None,
-            self._as_text(self._as_object(product.get("vendor")).get("name")),
+            self._as_text(self._as_object(product.get(StackitProductField.VENDOR)).get(StackitProductField.NAME)),
             self.DELIVERIES.get(delivery, DeliveryMethod.OTHER),
-            self._categories(product),
+            categories,
+            marketplace_category_paths=self._category_paths(categories),
         )
         if software is not None:
             yield software

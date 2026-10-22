@@ -10,7 +10,7 @@ from scrapling.spiders import Response
 # First Party Imports.
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class GcoreMarketplaceCrawler(BaseMarketplaceCrawler):

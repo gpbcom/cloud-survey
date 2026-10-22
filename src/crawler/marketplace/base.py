@@ -14,9 +14,12 @@ from scrapling.spiders.session import SessionManager
 # First Party Imports.
 from classifier.software_classifier import SoftwareClassifier
 from crawler.cloud.base import BaseCloudCrawler
+from crawler.enums import HttpMethod, RequestMeta
 from crawler.exception import EmptyCatalogueError, ParseNotImplementedError
-from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from crawler.tls.ca_bundle import CaBundle
+from models.cloud.enums import DateCaveat, DeliveryMethod
+from models.cloud.software.marketplace_category import MarketplaceCategory
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class BaseMarketplaceCrawler(BaseCloudCrawler):
@@ -28,18 +31,22 @@ class BaseMarketplaceCrawler(BaseCloudCrawler):
         lazy_browser (ClassVar[bool]): The stealth browser is only started when a request uses it.
         page_limit (ClassVar[Optional[int]]): The maximum number of pages read per paginated source, `None` for all of
             them (e.g. to keep the live tests short).
-        classifier (SoftwareClassifier): The classifier giving the software categories and types.
+        classifier (SoftwareClassifier): The classifier giving the software audiences.
         software_categories (Dict[str, List[str]]): The marketplace categories of each streamed software, by identity.
+        software_category_paths (Dict[str, List[MarketplaceCategory]]): The categories of the marketplace taxonomy of
+            each streamed software (with their parents), by identity.
 
     Notes:
         The marketplaces are mostly read through the JSON APIs their pages use: the requests go through an HTTP
         session (`<name>-http`, browser impersonation), which is the default session. The stealth browser
         (`<name>-session`) is only started for the pages which need it. A software listed again with new marketplace
         categories (e.g. by a category query) is streamed again, with all its categories and classified again: the
-        runner keeps its last version.
+        runner keeps its last version. The categories are kept twice: as the flat labels of the marketplace (which
+        the classifier reads), and as paths of the marketplace taxonomy, each category with its parents
+        (`MarketplaceCategory`), when the marketplace gives its taxonomy.
     """
 
-    MAY_BE_EMPTY: ClassVar[str] = "may_be_empty"
+    MAY_BE_EMPTY: ClassVar[str] = RequestMeta.MAY_BE_EMPTY
     NAME_LIMIT: ClassVar[int] = 300
 
     lazy_browser: ClassVar[bool] = True
@@ -61,6 +68,7 @@ class BaseMarketplaceCrawler(BaseCloudCrawler):
         super().__init__(crawldir=crawldir, interval=interval)
         self.classifier = classifier if classifier else SoftwareClassifier()
         self.software_categories: Dict[str, List[str]] = {}
+        self.software_category_paths: Dict[str, List[MarketplaceCategory]] = {}
 
     ############################
     # Internal Helpers Methods #
@@ -77,7 +85,7 @@ class BaseMarketplaceCrawler(BaseCloudCrawler):
     def _api_request(
         self,
         url: str,
-        method: str = "GET",
+        method: str = HttpMethod.GET,
         json: Optional[JsonValue] = None,
         headers: Optional[Dict[str, str]] = None,
         meta: Optional[Dict[str, JsonValue]] = None,
@@ -122,6 +130,33 @@ class BaseMarketplaceCrawler(BaseCloudCrawler):
             return False
         return True
 
+    def _category(
+        self, path: Sequence[Optional[str]], category_id: Optional[Union[str, int]] = None
+    ) -> Optional[MarketplaceCategory]:
+        """Build a category of the marketplace taxonomy from scraped labels.
+
+        Args:
+            path (Sequence[Optional[str]]): The scraped labels, from the root of the taxonomy to the category (the
+                missing levels are skipped).
+            category_id (Optional[Union[str, int]]): The identifier (or slug) of the category in the marketplace.
+
+        Returns:
+            Optional[MarketplaceCategory]: The category, `None` when no label is usable (logged).
+        """
+        labels = [label for label in (self._clean_text(level) for level in path) if label]
+        if not labels:
+            self.logger.debug("No usable label in the category path %r.", list(path))
+            return None
+        try:
+            category = MarketplaceCategory.model_validate(
+                {"path": labels, "id": str(category_id) if category_id is not None else None}
+            )
+        except ValidationError as e:
+            self.logger.warning("Skipping the invalid marketplace category %r: %s", labels, e.errors()[0]["msg"])
+            return None
+        self.logger.debug("Marketplace category of %s: %s.", self.name, category.label())
+        return category
+
     def _build_software(
         self,
         name: Optional[str],
@@ -130,8 +165,11 @@ class BaseMarketplaceCrawler(BaseCloudCrawler):
         publisher: Optional[str] = None,
         delivery: DeliveryMethod = DeliveryMethod.OTHER,
         marketplace_categories: Sequence[Optional[str]] = (),
+        marketplace_category_paths: Sequence[Optional[MarketplaceCategory]] = (),
         added_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None,
+        added_caveat: Optional[DateCaveat] = None,
+        updated_caveat: Optional[DateCaveat] = None,
     ) -> Optional[MarketplaceSoftware]:
         """Build a classified software from scraped texts, with collapsed whitespaces and texts within the limits.
 
@@ -143,8 +181,12 @@ class BaseMarketplaceCrawler(BaseCloudCrawler):
             publisher (Optional[str]): The scraped software publisher.
             delivery (DeliveryMethod): How the software is delivered.
             marketplace_categories (Sequence[Optional[str]]): The categories given by the marketplace.
+            marketplace_category_paths (Sequence[Optional[MarketplaceCategory]]): The categories of the marketplace
+                taxonomy, with their parents (see `_category`), the missing ones skipped.
             added_at (Optional[datetime]): When the marketplace says the software was listed, if it does.
             updated_at (Optional[datetime]): When the marketplace says the software was last updated, if it does.
+            added_caveat (Optional[DateCaveat]): Why `added_at` may not be the listing date, if it may not.
+            updated_caveat (Optional[DateCaveat]): Why `updated_at` may not be a change of the software, if it may not.
 
         Returns:
             Optional[MarketplaceSoftware]: The software, or `None` (logged) when the scraped texts are invalid.
@@ -152,7 +194,8 @@ class BaseMarketplaceCrawler(BaseCloudCrawler):
         clean_name = self._clean_text(name)[: self.NAME_LIMIT]
         clean_description = self._shorten(self._clean_text(description))
         labels = [label for label in (self._clean_text(category) for category in marketplace_categories) if label]
-        categories, types = self.classifier.classify(clean_name, clean_description, labels, delivery)
+        classification = self.classifier.classify(clean_name, clean_description, labels, delivery)
+        categories = classification.audiences
         try:
             return MarketplaceSoftware.model_validate(
                 {
@@ -162,16 +205,53 @@ class BaseMarketplaceCrawler(BaseCloudCrawler):
                     "url": self._valid_url(url, name),
                     "delivery": delivery,
                     "marketplace_categories": labels,
+                    "marketplace_category_paths": [path for path in marketplace_category_paths if path] or None,
                     "categories": categories,
-                    "types": types,
                     "added_at": added_at,
+                    "added_caveat": added_caveat if added_at else None,
                     "updated_at": updated_at,
+                    "updated_caveat": updated_caveat if updated_at else None,
                 }
             )
         except ValidationError as e:
             reasons = "; ".join(f"{'.'.join(map(str, error['loc']))}: {error['msg']}" for error in e.errors())
             self.logger.warning("Skipping the invalid marketplace entry %r (%s).", name, reasons)
             return None
+
+    def _merge_listings(
+        self, software: MarketplaceSoftware, labels: List[str], paths: List[MarketplaceCategory]
+    ) -> Optional[MarketplaceSoftware]:
+        """Merge a software listed again with what its previous listings gave.
+
+        Args:
+            software (MarketplaceSoftware): The software listed again.
+            labels (List[str]): The marketplace categories of its previous listings.
+            paths (List[MarketplaceCategory]): The category paths of its previous listings.
+
+        Returns:
+            Optional[MarketplaceSoftware]: The software with every category seen for it, classified again, `None` when
+                the new listing brings no new category.
+        """
+        merged = list(dict.fromkeys([*labels, *software.marketplace_categories]))
+        listed = MarketplaceSoftware.model_validate(
+            {
+                **software.model_dump(),
+                "marketplace_categories": merged,
+                "marketplace_category_paths": [*paths, *(software.marketplace_category_paths or [])],
+            }
+        )
+        merged_paths = listed.marketplace_category_paths or []
+        if merged == labels and merged_paths == paths:
+            self.logger.debug("Skipping the duplicated software %r.", software.name)
+            return None
+        classification = self.classifier.classify(software.name, software.description, merged, software.delivery)
+        categories = classification.audiences
+        self.logger.debug(
+            "New marketplace categories for %r: %s.",
+            software.name,
+            ", ".join([*merged, *(path.label() for path in merged_paths)]),
+        )
+        return listed.model_copy(update={"categories": categories})
 
     def _stream_software(self, software: MarketplaceSoftware) -> Optional[Dict[str, JsonValue]]:
         """Get the item of a software not streamed yet, or streamed with fewer marketplace categories, and log it.
@@ -180,27 +260,23 @@ class BaseMarketplaceCrawler(BaseCloudCrawler):
             software (MarketplaceSoftware): The extracted software.
 
         Returns:
-            Optional[Dict[str, JsonValue]]: The software as a dictionary, with every marketplace category seen for it
-                and classified again when they changed. `None` when it brings nothing new.
+            Optional[Dict[str, JsonValue]]: The software as a dictionary, with every marketplace category (and
+                category path) seen for it, classified again when they changed. `None` when it brings nothing new.
         """
         identity = software.identity()
         known = self.software_categories.get(identity)
         if known is not None:
-            merged = list(dict.fromkeys([*known, *software.marketplace_categories]))
-            if merged == known:
-                self.logger.debug("Skipping the duplicated software %r.", software.name)
+            merged = self._merge_listings(software, known, self.software_category_paths.get(identity, []))
+            if merged is None:
                 return None
-            categories, types = self.classifier.classify(software.name, software.description, merged, software.delivery)
-            software = software.model_copy(
-                update={"marketplace_categories": merged, "categories": categories, "types": types}
-            )
-            self.logger.debug("New marketplace categories for %r: %s.", software.name, ", ".join(merged))
+            software = merged
         self.software_categories[identity] = list(software.marketplace_categories)
+        self.software_category_paths[identity] = list(software.marketplace_category_paths or [])
         self.logger.info(
             "Software extracted from %s: %s (%s) - %s",
             self.name,
             software.name,
-            ", ".join(software.types),
+            ", ".join(software.categories),
             software.description,
         )
         return software.item_dump()
@@ -217,10 +293,14 @@ class BaseMarketplaceCrawler(BaseCloudCrawler):
         """
         super().configure_sessions(manager)
         self.logger.debug("Configuring the HTTP session %s.", self._http_session_id())
+        CaBundle(logger=self.logger).install()
         manager.add(
             self._http_session_id(),
             FetcherSession(
-                impersonate="chrome", timeout=60, retries=self.fetch_retries, retry_delay=round(self.retry_delay)
+                impersonate="chrome",
+                timeout=60,
+                retries=self.fetch_retries,
+                retry_delay=round(self.retry_delay),
             ),
             default=True,
         )
@@ -234,6 +314,7 @@ class BaseMarketplaceCrawler(BaseCloudCrawler):
         await super().on_start(resuming=resuming)
         if not resuming:
             self.software_categories.clear()
+            self.software_category_paths.clear()
 
     async def on_close(self) -> None:
         """Log the crawl summary."""

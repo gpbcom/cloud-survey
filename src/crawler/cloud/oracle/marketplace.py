@@ -10,10 +10,22 @@ from pydantic import JsonValue
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
+from crawler.cloud.oracle.enums import (
+    OracleCategoryField,
+    OracleHeader,
+    OracleListingField,
+    OracleListingsPageField,
+    OracleListingType,
+    OracleMarketplaceMeta,
+    OraclePartnerProduct,
+    OracleProductField,
+    OracleProductGroup,
+)
 from crawler.exception import CatalogueFormatError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_category import MarketplaceCategory
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class OracleMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -23,13 +35,15 @@ class OracleMarketplaceCrawler(BaseMarketplaceCrawler):
         API_URL (ClassVar[str]): The public Oracle Cloud Marketplace API.
         LISTING_URL (ClassVar[str]): The marketplace page of a listing, by slug and identifier.
         PAGE_SIZE (ClassVar[int]): The number of listings per page, the largest one the API accepts.
-        PAGE (ClassVar[str]): The meta key holding the number of a listings page.
-        DETAIL (ClassVar[str]): The meta key marking a listing detail.
-        EXCLUDED_TYPES (ClassVar[FrozenSet[str]]): The listing types of the services.
-        EXCLUDED_GROUPS (ClassVar[FrozenSet[str]]): The product groups of the services.
-        EXCLUDED_PRODUCTS (ClassVar[FrozenSet[str]]): The products of the partners which are not software publishers.
+        PAGE (ClassVar[OracleMarketplaceMeta]): The meta key holding the number of a listings page.
+        DETAIL (ClassVar[OracleMarketplaceMeta]): The meta key marking a listing detail.
+        EXCLUDED_TYPES (ClassVar[FrozenSet[OracleListingType]]): The listing types of the services.
+        EXCLUDED_GROUPS (ClassVar[FrozenSet[OracleProductGroup]]): The product groups of the services.
+        EXCLUDED_PRODUCTS (ClassVar[FrozenSet[OraclePartnerProduct]]): The products of the partners which are not
+            software publishers.
         NOT_SOFTWARE (ClassVar[re.Pattern[str]]): The names of the advisory, managed and professional services.
-        DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery of each listing type, `OTHER` for the others.
+        DELIVERIES (ClassVar[Dict[OracleListingType, DeliveryMethod]]): The delivery of each listing type, `OTHER` for
+            the others.
         HEADERS (ClassVar[Dict[str, str]]): The API request headers: the marketplace website as referrer, since the
             API answers `NotAuthorizedOrNotFound` (HTTP 404) to the default search engine referrer.
 
@@ -46,23 +60,27 @@ class OracleMarketplaceCrawler(BaseMarketplaceCrawler):
     API_URL: ClassVar[str] = "https://public.marketplace.us-ashburn-1.oci.oraclecloud.com/20180828"
     LISTING_URL: ClassVar[str] = "https://marketplace.oracle.com/listings/{slug}/{id}"
     PAGE_SIZE: ClassVar[int] = 120
-    PAGE: ClassVar[str] = "page"
-    DETAIL: ClassVar[str] = "detail"
-    EXCLUDED_TYPES: ClassVar[FrozenSet[str]] = frozenset({"SERVICE"})
-    EXCLUDED_GROUPS: ClassVar[FrozenSet[str]] = frozenset({"SERVICES"})
-    EXCLUDED_PRODUCTS: ClassVar[FrozenSet[str]] = frozenset(
-        {"System Integrators", "Resellers", "Influencers and Advisors"}
+    PAGE: ClassVar[OracleMarketplaceMeta] = OracleMarketplaceMeta.PAGE
+    DETAIL: ClassVar[OracleMarketplaceMeta] = OracleMarketplaceMeta.DETAIL
+    EXCLUDED_TYPES: ClassVar[FrozenSet[OracleListingType]] = frozenset({OracleListingType.SERVICE})
+    EXCLUDED_GROUPS: ClassVar[FrozenSet[OracleProductGroup]] = frozenset({OracleProductGroup.SERVICES})
+    EXCLUDED_PRODUCTS: ClassVar[FrozenSet[OraclePartnerProduct]] = frozenset(
+        {
+            OraclePartnerProduct.SYSTEM_INTEGRATORS,
+            OraclePartnerProduct.RESELLERS,
+            OraclePartnerProduct.INFLUENCERS_AND_ADVISORS,
+        }
     )
     NOT_SOFTWARE: ClassVar[re.Pattern[str]] = re.compile(
         r"\b(?:professional|consulting|managed|implementation) services?\b|\badvisory\b", re.IGNORECASE
     )
-    DELIVERIES: ClassVar[Dict[str, DeliveryMethod]] = {
-        "OCI_APPLICATION": DeliveryMethod.VIRTUAL_MACHINE,
-        "LEAD_GENERATION": DeliveryMethod.SAAS,
-        "AI_AGENT": DeliveryMethod.API,
+    DELIVERIES: ClassVar[Dict[OracleListingType, DeliveryMethod]] = {
+        OracleListingType.OCI_APPLICATION: DeliveryMethod.VIRTUAL_MACHINE,
+        OracleListingType.LEAD_GENERATION: DeliveryMethod.SAAS,
+        OracleListingType.AI_AGENT: DeliveryMethod.API,
     }
 
-    HEADERS: ClassVar[Dict[str, str]] = {"Referer": "https://marketplace.oracle.com/"}
+    HEADERS: ClassVar[Dict[str, str]] = {OracleHeader.REFERER: "https://marketplace.oracle.com/"}
 
     name = "oracle-marketplace"
     catalogue_url: ClassVar[str] = f"{API_URL}/listings?limit={PAGE_SIZE}&page=1"
@@ -116,14 +134,17 @@ class OracleMarketplaceCrawler(BaseMarketplaceCrawler):
             Optional[str]: The reason (service listing type, service product group or partner product, service
                 name), `None` for a software.
         """
-        products = [self._as_object(product) for product in self._as_list(listing.get("products"))]
-        groups = {self._as_text(product.get("productGroup")) for product in products}
-        names = {self._as_text(product.get("productName")) for product in products}
+        products = [self._as_object(product) for product in self._as_list(listing.get(OracleListingField.PRODUCTS))]
+        groups = {self._as_text(product.get(OracleProductField.PRODUCT_GROUP)) for product in products}
+        names = {self._as_text(product.get(OracleProductField.PRODUCT_NAME)) for product in products}
         reasons = {
-            f"listing type {listing.get('listingType')!r}": listing.get("listingType") in self.EXCLUDED_TYPES,
+            f"listing type {listing.get(OracleListingField.LISTING_TYPE)!r}": listing.get(
+                OracleListingField.LISTING_TYPE
+            )
+            in self.EXCLUDED_TYPES,
             "service product group": bool(groups & self.EXCLUDED_GROUPS),
             "partner product": bool(names & self.EXCLUDED_PRODUCTS),
-            "service": bool(self.NOT_SOFTWARE.search(self._as_text(listing.get("name")) or "")),
+            "service": bool(self.NOT_SOFTWARE.search(self._as_text(listing.get(OracleListingField.NAME)) or "")),
         }
         failed = [reason for reason, matched in reasons.items() if matched]
         return ", ".join(failed) if failed else None
@@ -140,7 +161,7 @@ class OracleMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the page is not JSON, or has no `items` list.
         """
-        items = self._as_object(self._json_body(response)).get("items")
+        items = self._as_object(self._json_body(response)).get(OracleListingsPageField.ITEMS)
         if not isinstance(items, list):
             self.logger.error("The %s listings page %s has no `items` list.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the `items` list is missing")
@@ -155,8 +176,9 @@ class OracleMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             int: The number of pages, from `pagination.totalPages`, else from `pagination.totalItems`, at least 1.
         """
-        pagination = self._as_object(self._as_object(self._json_body(response)).get("pagination"))
-        pages, total = pagination.get("totalPages"), pagination.get("totalItems")
+        pagination = self._as_object(self._as_object(self._json_body(response)).get(OracleListingsPageField.PAGINATION))
+        pages = pagination.get(OracleListingsPageField.TOTAL_PAGES)
+        total = pagination.get(OracleListingsPageField.TOTAL_ITEMS)
         if isinstance(pages, int) and pages > 0:
             return pages
         return max(1, math.ceil(total / self.PAGE_SIZE)) if isinstance(total, int) else 1
@@ -177,7 +199,8 @@ class OracleMarketplaceCrawler(BaseMarketplaceCrawler):
         listings = self._listings(response)
         kept = 0
         for listing in listings:
-            identifier, name = self._as_text(listing.get("id")), self._as_text(listing.get("name"))
+            identifier = self._as_text(listing.get(OracleListingField.ID))
+            name = self._as_text(listing.get(OracleListingField.NAME))
             if identifier is None:
                 self.logger.debug("Skipping the listing %r, it has no identifier.", name)
                 continue
@@ -225,15 +248,35 @@ class OracleMarketplaceCrawler(BaseMarketplaceCrawler):
             List[str]: The product names and category names, without duplicates.
         """
         labels: List[str] = []
-        for entry in self._as_list(listing.get("products")):
+        for entry in self._as_list(listing.get(OracleListingField.PRODUCTS)):
             product = self._as_object(entry)
-            names = [self._as_text(product.get("productName"))]
+            names = [self._as_text(product.get(OracleProductField.PRODUCT_NAME))]
             names += [
-                self._as_text(self._as_object(category).get("name"))
-                for category in self._as_list(product.get("categories"))
+                self._as_text(self._as_object(category).get(OracleCategoryField.NAME))
+                for category in self._as_list(product.get(OracleProductField.CATEGORIES))
             ]
             labels += [label for label in names if label and label not in labels]
         return labels
+
+    def _category_paths(self, listing: Dict[str, JsonValue]) -> List[Optional[MarketplaceCategory]]:
+        """Read the category paths of a listing: the categories of its products, not the products themselves.
+
+        Args:
+            listing (Dict[str, JsonValue]): The listing.
+
+        Returns:
+            List[Optional[MarketplaceCategory]]: One path per product category (its `name`), identified by its `code`.
+        """
+        paths: List[Optional[MarketplaceCategory]] = []
+        for entry in self._as_list(listing.get(OracleListingField.PRODUCTS)):
+            for raw in self._as_list(self._as_object(entry).get(OracleProductField.CATEGORIES)):
+                category = self._as_object(raw)
+                label = self._as_text(category.get(OracleCategoryField.NAME))
+                paths.append(self._category([label], self._as_text(category.get(OracleCategoryField.CODE))))
+        self.logger.debug(
+            "%d category paths for the %s listing %r.", len(paths), self.name, listing.get(OracleListingField.NAME)
+        )
+        return paths
 
     ############################
     # Publicly Exposed Methods #
@@ -259,16 +302,23 @@ class OracleMarketplaceCrawler(BaseMarketplaceCrawler):
             )
             return
         listing = self._as_object(self._json_body(response))
-        name = self._as_text(listing.get("name")) or ""
+        name = self._as_text(listing.get(OracleListingField.NAME)) or ""
+        listing_type = self._as_text(listing.get(OracleListingField.LISTING_TYPE)) or ""
         software = self._build_software(
             name,
-            self._as_text(listing.get("shortDescription")) or self._as_text(listing.get("tagline")),
+            self._as_text(listing.get(OracleListingField.SHORT_DESCRIPTION))
+            or self._as_text(listing.get(OracleListingField.TAGLINE)),
             url=self._listing_url(identifier, name),
-            publisher=self._as_text(self._as_object(listing.get("partner")).get("name")),
-            delivery=self.DELIVERIES.get(self._as_text(listing.get("listingType")) or "", DeliveryMethod.OTHER),
+            publisher=self._as_text(
+                self._as_object(listing.get(OracleListingField.PARTNER)).get(OracleListingField.NAME)
+            ),
+            delivery=self.DELIVERIES[OracleListingType(listing_type)]
+            if listing_type in self.DELIVERIES
+            else DeliveryMethod.OTHER,
             marketplace_categories=self._categories(listing),
-            added_at=self._parse_date(listing.get("timeCreated"), name),
-            updated_at=self._parse_date(listing.get("timeUpdated"), name),
+            marketplace_category_paths=self._category_paths(listing),
+            added_at=self._parse_date(listing.get(OracleListingField.TIME_CREATED), name),
+            updated_at=self._parse_date(listing.get(OracleListingField.TIME_UPDATED), name),
         )
         if software is not None:
             yield software

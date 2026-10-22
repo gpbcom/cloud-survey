@@ -13,24 +13,41 @@ from pydantic import JsonValue
 from scrapling.spiders import Response
 
 # First Party Imports.
+from crawler.cloud.ovh.enums import (
+    OvhAssetTypeField,
+    OvhCustomField,
+    OvhFilterGroup,
+    OvhFilterGroupField,
+    OvhPreloadedField,
+    OvhProductField,
+    OvhScriptId,
+    OvhSeoField,
+    OvhServiceType,
+    OvhSubcategory,
+)
+from crawler.enums import TextEncoding
 from crawler.exception import CatalogueFormatError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_category import MarketplaceCategory
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class OVHcloudMarketplaceCrawler(BaseMarketplaceCrawler):
     """OVHcloud marketplace crawler.
 
     Attributes:
-        PRODUCTS_SCRIPT (ClassVar[str]): The identifier of the script holding the marketplace products.
-        ASSET_TYPES_SCRIPT (ClassVar[str]): The identifier of the script holding the top categories (asset types).
+        PRODUCTS_SCRIPT (ClassVar[OvhScriptId]): The identifier of the script holding the marketplace products.
+        ASSET_TYPES_SCRIPT (ClassVar[OvhScriptId]): The identifier of the script holding the top categories (asset
+            types).
         PRODUCT_URL (ClassVar[str]): The product page URL template, filled with the product slug and key.
-        SUBCATEGORIES (ClassVar[str]): The name of the product filter group listing its sub-categories.
-        SERVICE_TYPE (ClassVar[str]): The name of the product filter group listing its service types.
-        EXCLUDED_SERVICE_TYPES (ClassVar[FrozenSet[str]]): The service types of the services, which are not software.
-        EXCLUDED_SUBCATEGORIES (ClassVar[FrozenSet[str]]): The sub-categories of the technical support offers.
-        DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery method of each software service type.
+        SUBCATEGORIES (ClassVar[OvhFilterGroup]): The name of the product filter group listing its sub-categories.
+        SERVICE_TYPE (ClassVar[OvhFilterGroup]): The name of the product filter group listing its service types.
+        EXCLUDED_SERVICE_TYPES (ClassVar[FrozenSet[OvhServiceType]]): The service types of the services, which are not
+            software.
+        EXCLUDED_SUBCATEGORIES (ClassVar[FrozenSet[OvhSubcategory]]): The sub-categories of the technical support
+            offers.
+        DELIVERIES (ClassVar[Dict[OvhServiceType, DeliveryMethod]]): The delivery method of each software service type.
 
     Notes:
         The https://marketplace.ovhcloud.com/en/products page embeds every product (no pagination) as base64 JSON
@@ -40,19 +57,21 @@ class OVHcloudMarketplaceCrawler(BaseMarketplaceCrawler):
         skipped.
     """
 
-    PRODUCTS_SCRIPT: ClassVar[str] = "preloadedProductsData"
-    ASSET_TYPES_SCRIPT: ClassVar[str] = "preloadedAssetTypesData"
+    PRODUCTS_SCRIPT: ClassVar[OvhScriptId] = OvhScriptId.PRODUCTS
+    ASSET_TYPES_SCRIPT: ClassVar[OvhScriptId] = OvhScriptId.ASSET_TYPES
     PRODUCT_URL: ClassVar[str] = "https://marketplace.ovhcloud.com/en/product/{slug}/{key}"
-    SUBCATEGORIES: ClassVar[str] = "Subcategories"
-    SERVICE_TYPE: ClassVar[str] = "Service type"
-    EXCLUDED_SERVICE_TYPES: ClassVar[FrozenSet[str]] = frozenset({"support", "managed services"})
-    EXCLUDED_SUBCATEGORIES: ClassVar[FrozenSet[str]] = frozenset(
-        {"technical support", "assistance technique ponctuelle"}
+    SUBCATEGORIES: ClassVar[OvhFilterGroup] = OvhFilterGroup.SUBCATEGORIES
+    SERVICE_TYPE: ClassVar[OvhFilterGroup] = OvhFilterGroup.SERVICE_TYPE
+    EXCLUDED_SERVICE_TYPES: ClassVar[FrozenSet[OvhServiceType]] = frozenset(
+        {OvhServiceType.SUPPORT, OvhServiceType.MANAGED_SERVICES}
     )
-    DELIVERIES: ClassVar[Dict[str, DeliveryMethod]] = {
-        "saas": DeliveryMethod.SAAS,
-        "paas": DeliveryMethod.SAAS,
-        "software on-prem": DeliveryMethod.DOWNLOAD,
+    EXCLUDED_SUBCATEGORIES: ClassVar[FrozenSet[OvhSubcategory]] = frozenset(
+        {OvhSubcategory.TECHNICAL_SUPPORT, OvhSubcategory.ONE_OFF_TECHNICAL_ASSISTANCE}
+    )
+    DELIVERIES: ClassVar[Dict[OvhServiceType, DeliveryMethod]] = {
+        OvhServiceType.SAAS: DeliveryMethod.SAAS,
+        OvhServiceType.PAAS: DeliveryMethod.SAAS,
+        OvhServiceType.SOFTWARE_ON_PREM: DeliveryMethod.DOWNLOAD,
     }
 
     name = "ovhcloud-marketplace"
@@ -81,7 +100,7 @@ class OVHcloudMarketplaceCrawler(BaseMarketplaceCrawler):
             raise CatalogueFormatError(self.name, response.url, f"the `{script}` script is missing")
         try:
             # The script declares UTF-16, but its data is UTF-8.
-            data: JsonValue = json.loads(base64.b64decode(raw.strip(), validate=True).decode("utf-8"))
+            data: JsonValue = json.loads(base64.b64decode(raw.strip(), validate=True).decode(TextEncoding.UTF_8))
         except (binascii.Error, UnicodeDecodeError, json.JSONDecodeError) as e:
             self.logger.error(
                 "The `%s` script of the %s page %s is not base64 JSON: %s", script, self.name, response.url, e
@@ -102,12 +121,13 @@ class OVHcloudMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             Dict[int, str]: The English name of each top category, by field set identifier.
         """
-        types = self._preloaded_data(response, self.ASSET_TYPES_SCRIPT).get("response")
+        types = self._preloaded_data(response, self.ASSET_TYPES_SCRIPT).get(OvhPreloadedField.RESPONSE)
         categories: Dict[int, str] = {}
         for entry in types if isinstance(types, list) else []:
             fields = self._as_object(entry)
-            label = self._as_text(fields.get("localizedName")) or self._as_text(fields.get("name"))
-            field_set = fields.get("fieldSetID")
+            localized = self._as_text(fields.get(OvhAssetTypeField.LOCALIZED_NAME))
+            label = localized or self._as_text(fields.get(OvhAssetTypeField.NAME))
+            field_set = fields.get(OvhAssetTypeField.FIELD_SET_ID)
             if isinstance(field_set, int) and label:
                 categories[field_set] = label
         self.logger.debug("%d top categories read: %s.", len(categories), ", ".join(categories.values()))
@@ -123,14 +143,33 @@ class OVHcloudMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             List[str]: The filter values, empty when the product has no such group.
         """
-        groups = product.get("categories")
+        groups = product.get(OvhProductField.CATEGORIES)
         values: List[str] = []
         for entry in groups if isinstance(groups, list) else []:
             fields = self._as_object(entry)
-            filters = fields.get("filters")
-            if fields.get("categoryName") == group and isinstance(filters, list):
+            filters = fields.get(OvhFilterGroupField.FILTERS)
+            if fields.get(OvhFilterGroupField.CATEGORY_NAME) == group and isinstance(filters, list):
                 values.extend(text for text in (self._as_text(value) for value in filters) if text)
         return values
+
+    def _category_paths(
+        self, top_category: Optional[str], asset_type: Optional[int], subcategories: List[str]
+    ) -> List[Optional[MarketplaceCategory]]:
+        """Build the marketplace category paths of a product.
+
+        Args:
+            top_category (Optional[str]): The name of its top category (asset type), `None` when unknown.
+            asset_type (Optional[int]): The field set identifier of its top category, `None` when unknown.
+            subcategories (List[str]): Its sub-categories (`Subcategories` filters).
+
+        Returns:
+            List[Optional[MarketplaceCategory]]: One `[top category, sub-category]` path per sub-category, identified
+                by the sub-category value, else the top category alone, identified by its field set.
+        """
+        if not subcategories:
+            self.logger.debug("No %s sub-category under the top category %r.", self.name, top_category)
+            return [self._category([top_category], asset_type if top_category else None)]
+        return [self._category([top_category, label], label) for label in subcategories]
 
     def _excluded(self, product: Dict[str, JsonValue], service_types: List[str]) -> Optional[str]:
         """Tell why a product is not a software, if it is not.
@@ -145,7 +184,8 @@ class OVHcloudMarketplaceCrawler(BaseMarketplaceCrawler):
         excluded = sorted(self.EXCLUDED_SERVICE_TYPES.intersection(kind.casefold() for kind in service_types))
         if excluded:
             return f"service type {', '.join(excluded)}"
-        custom = self._as_text(self._as_object(product.get("customFields")).get("Subcategory")) or ""
+        custom_fields = self._as_object(product.get(OvhProductField.CUSTOM_FIELDS))
+        custom = self._as_text(custom_fields.get(OvhCustomField.SUBCATEGORY)) or ""
         labels = [label.casefold() for label in self._filters(product, self.SUBCATEGORIES)]
         if any(label in self.EXCLUDED_SUBCATEGORIES for label in labels) or any(
             label in custom.casefold() for label in self.EXCLUDED_SUBCATEGORIES
@@ -162,10 +202,10 @@ class OVHcloudMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             Optional[str]: The description, `None` when the product has none.
         """
-        seo = self._as_text(self._as_object(product.get("seoElements")).get("description"))
+        seo = self._as_text(self._as_object(product.get(OvhProductField.SEO_ELEMENTS)).get(OvhSeoField.DESCRIPTION))
         if seo and seo.strip():
             return seo
-        description = self._as_text(product.get("description"))
+        description = self._as_text(product.get(OvhProductField.DESCRIPTION))
         return html.unescape(re.sub(r"<[^>]+>", " ", description)) if description else None
 
     def _delivery(self, service_types: List[str]) -> DeliveryMethod:
@@ -178,7 +218,11 @@ class OVHcloudMarketplaceCrawler(BaseMarketplaceCrawler):
             DeliveryMethod: The delivery method of its first known service type, `OTHER` without any.
         """
         return next(
-            (self.DELIVERIES[kind.casefold()] for kind in service_types if kind.casefold() in self.DELIVERIES),
+            (
+                self.DELIVERIES[OvhServiceType(kind.casefold())]
+                for kind in service_types
+                if kind.casefold() in self.DELIVERIES
+            ),
             DeliveryMethod.OTHER,
         )
 
@@ -191,7 +235,8 @@ class OVHcloudMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             Optional[str]: The page URL, `None` without slug or key.
         """
-        slug, key = self._as_text(product.get("slugName")), self._as_text(product.get("assetEncryptKey"))
+        slug = self._as_text(product.get(OvhProductField.SLUG_NAME))
+        key = self._as_text(product.get(OvhProductField.ASSET_ENCRYPT_KEY))
         return self.PRODUCT_URL.format(slug=slug, key=key) if slug and key else None
 
     ############################
@@ -211,7 +256,8 @@ class OVHcloudMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the page data has no products list.
         """
-        products = self._as_object(self._preloaded_data(response, self.PRODUCTS_SCRIPT).get("response")).get("assets")
+        data = self._as_object(self._preloaded_data(response, self.PRODUCTS_SCRIPT).get(OvhPreloadedField.RESPONSE))
+        products = data.get(OvhPreloadedField.ASSETS)
         if not isinstance(products, list):
             self.logger.error("The %s page %s data has no products list.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the page data has no products list")
@@ -219,22 +265,26 @@ class OVHcloudMarketplaceCrawler(BaseMarketplaceCrawler):
         self.logger.info("%d products listed by the %s page %s.", len(products), self.name, response.url)
         for entry in products:
             product = self._as_object(entry)
-            name = self._as_text(product.get("name"))
+            name = self._as_text(product.get(OvhProductField.NAME))
             service_types = self._filters(product, self.SERVICE_TYPE)
             if reason := self._excluded(product, service_types):
                 self.logger.debug("Skipping the %s product %r, not a software (%s).", self.name, name, reason)
                 continue
-            asset_type = product.get("assetTypeID")
+            asset_type = product.get(OvhProductField.ASSET_TYPE_ID)
             top_category = top_categories.get(asset_type) if isinstance(asset_type, int) else None
+            subcategories = self._filters(product, self.SUBCATEGORIES)
             software = self._build_software(
                 name,
                 self._description(product),
                 self._product_url(product),
-                self._as_text(product.get("organizationName")),
+                self._as_text(product.get(OvhProductField.ORGANIZATION_NAME)),
                 self._delivery(service_types),
-                [top_category, *self._filters(product, self.SUBCATEGORIES)],
-                added_at=self._parse_date(product.get("createdOn"), name),
-                updated_at=self._parse_date(product.get("updatedOn"), name),
+                [top_category, *subcategories],
+                marketplace_category_paths=self._category_paths(
+                    top_category, asset_type if isinstance(asset_type, int) else None, subcategories
+                ),
+                added_at=self._parse_date(product.get(OvhProductField.CREATED_ON), name),
+                updated_at=self._parse_date(product.get(OvhProductField.UPDATED_ON), name),
             )
             if software is not None:
                 yield software

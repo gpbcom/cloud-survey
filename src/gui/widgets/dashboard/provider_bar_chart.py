@@ -4,11 +4,13 @@ from __future__ import annotations
 from typing import ClassVar, Dict, List, Optional
 
 # Third Party Imports.
-from PyQt6.QtCore import QRect, QSize, Qt
+from PyQt6.QtCore import QRect, QRectF, QSize, Qt
 from PyQt6.QtGui import QColor, QPainter, QPaintEvent
 from PyQt6.QtWidgets import QWidget
 
 # First Party Imports.
+from gui.charts.base.chart_zoom import ChartZoom
+from gui.charts.base.plot_frame import PlotFrame
 from gui.theme import Theme
 from models.cloud.enums import CloudProvider
 
@@ -23,6 +25,7 @@ class ProviderBarChart(QWidget):
         theme (Theme): The application theme.
         providers (List[CloudProvider]): The charted providers, one row each.
         counts (Dict[CloudProvider, int]): The number of products, by cloud provider.
+        zoom (ChartZoom): The zoom of the counts (Ctrl + wheel or a dragged rectangle, reset by a double-click).
     """
 
     ROW_HEIGHT: ClassVar[int] = 22
@@ -36,6 +39,7 @@ class ProviderBarChart(QWidget):
             theme (Theme): The application theme.
         """
         super().__init__()
+        self.zoom = ChartZoom(self, zoom_y=False, anchor_low=True)
         self.theme = theme
         self.providers: List[CloudProvider] = list(CloudProvider)
         self.counts: Dict[CloudProvider, int] = {}
@@ -93,6 +97,9 @@ class ProviderBarChart(QWidget):
         label_width, row_height = self._label_width(), self.ROW_HEIGHT
         flag_width = round(self.FLAG_HEIGHT * 1.5)
         bar_space = max(self.width() - label_width - self.COUNT_WIDTH - 8, 1)
+        shown = self.zoom.x_range(0.0, float(highest))[1]
+        frame = PlotFrame(QRectF(label_width, 0, bar_space, self.height()), (0.0, shown), (0.0, 1.0))
+        self.zoom.set_frame(frame, (0.0, float(highest)), None)
         for row, provider in enumerate(self.providers):
             top = row * row_height
             count = self.counts.get(provider, 0)
@@ -106,8 +113,11 @@ class ProviderBarChart(QWidget):
             track = QRect(label_width, top + row_height // 4, bar_space, row_height // 2)
             painter.drawRoundedRect(track, 4, 4)
             painter.setBrush(self.theme.provider_color(provider))
-            painter.drawRoundedRect(track.adjusted(0, 0, -bar_space + bar_space * count // highest, 0), 4, 4)
+            painter.drawRoundedRect(
+                track.adjusted(0, 0, -bar_space + round(bar_space * min(count / shown, 1)), 0), 4, 4
+            )
             painter.setPen(QColor(self.theme.TEXT))
             count_box = QRect(label_width + bar_space + 8, top, self.COUNT_WIDTH, row_height)
             painter.drawText(count_box, Qt.AlignmentFlag.AlignVCenter, str(count) if count else "\u2013")
+        self.zoom.paint(painter)
         painter.end()

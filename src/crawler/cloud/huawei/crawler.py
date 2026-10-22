@@ -8,12 +8,22 @@ from urllib.parse import urljoin, urlparse
 
 # Third Party Imports.
 from pydantic import JsonValue
+from scrapling.parser import Selector
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
+from crawler.cloud.huawei.enums import (
+    HuaweiDocsCatalogueField,
+    HuaweiDocsCategory,
+    HuaweiDocsCategoryField,
+    HuaweiDocsCode,
+    HuaweiDocsEntryField,
+    HuaweiProductSection,
+)
+from crawler.enums import HtmlAttribute
 from crawler.exception import CatalogueFormatError
-from models.cloud.product import CloudProduct
+from models.cloud.products.product import CloudProduct
 
 
 class HuaweiCloudCrawler(BaseCloudCrawler):
@@ -23,8 +33,18 @@ class HuaweiCloudCrawler(BaseCloudCrawler):
         DOCS_URL (ClassVar[str]): The documentation catalogue JSON, listing the documented services by category.
         DOCS_HOST (ClassVar[str]): The documentation website, whose pages describe the services without description.
         PRODUCT_CARDS (ClassVar[str]): The CSS selector of the product cards of the products page (desktop copy).
-        DOCS_EXCLUDED_CATEGORIES (ClassVar[FrozenSet[str]]): The documentation categories which are not services.
-        DOCS_EXCLUDED_CODES (ClassVar[FrozenSet[str]]): The documentation entries which are guides, not services.
+        SECTIONS (ClassVar[str]): The CSS selector of the category sections of the products page.
+        SECTION_TITLE (ClassVar[str]): The CSS selector of the category title of a section.
+        SUB_SECTIONS (ClassVar[str]): The CSS selector of the sub-category groups of a section (desktop copy).
+        SUB_SECTION_TITLE (ClassVar[str]): The CSS selector of the sub-category title of a group, absent from the
+            sections without sub-categories.
+        CARD (ClassVar[str]): The CSS selector of a product card within a group.
+        MARKETING_SECTIONS (ClassVar[FrozenSet[HuaweiProductSection]]): The sections of the products page which are
+            not categories.
+        DOCS_EXCLUDED_CATEGORIES (ClassVar[FrozenSet[HuaweiDocsCategory]]): The documentation categories which are
+            not services.
+        DOCS_EXCLUDED_CODES (ClassVar[FrozenSet[HuaweiDocsCode]]): The documentation entries which are guides, not
+            services.
         DOCS_NOT_PRODUCT (ClassVar[re.Pattern[str]]): The documentation pages which are not services (decision
             guides).
 
@@ -35,6 +55,9 @@ class HuaweiCloudCrawler(BaseCloudCrawler):
         from the products page, its solutions, cloud adoption, ecosystem, user support and miscellaneous
         categories, decision guides, SDK and signing guides excluded. The documentation page of a service without
         description is read for its meta description.
+        The products page files its cards under categories (e.g. `Compute`), some split into sub-categories (e.g.
+        `Containers & Middleware` > `Containers`): a product gets every category it is listed under, the `Featured`
+        section excepted. A documented service gets its documentation category.
     """
 
     DOCS_URL: ClassVar[str] = (
@@ -42,10 +65,14 @@ class HuaweiCloudCrawler(BaseCloudCrawler):
     )
     DOCS_HOST: ClassVar[str] = "support.huaweicloud.com"
     PRODUCT_CARDS: ClassVar[str] = "div.second-content.second-pc a.card"
-    DOCS_EXCLUDED_CATEGORIES: ClassVar[FrozenSet[str]] = frozenset(
-        {"Solutions", "Cloud Transformation", "Cloud Ecosystem", "User Support", "Others"}
-    )
-    DOCS_EXCLUDED_CODES: ClassVar[FrozenSet[str]] = frozenset({"sdk", "apisign", "securityInfo"})
+    SECTIONS: ClassVar[str] = "div.first-content"
+    SECTION_TITLE: ClassVar[str] = ".first-title"
+    SUB_SECTIONS: ClassVar[str] = "div.second-content.second-pc div.second-flex"
+    SUB_SECTION_TITLE: ClassVar[str] = ".second-title"
+    CARD: ClassVar[str] = "a.card"
+    MARKETING_SECTIONS: ClassVar[FrozenSet[HuaweiProductSection]] = frozenset({HuaweiProductSection.FEATURED})
+    DOCS_EXCLUDED_CATEGORIES: ClassVar[FrozenSet[HuaweiDocsCategory]] = frozenset(HuaweiDocsCategory)
+    DOCS_EXCLUDED_CODES: ClassVar[FrozenSet[HuaweiDocsCode]] = frozenset(HuaweiDocsCode)
     DOCS_NOT_PRODUCT: ClassVar[re.Pattern[str]] = re.compile(r"/how-to-choose-")
 
     name = "huawei"
@@ -78,6 +105,45 @@ class HuaweiCloudCrawler(BaseCloudCrawler):
         """
         return urlparse(response.url).netloc == urlparse(self.DOCS_URL).netloc
 
+    def _first_text(self, element: Selector, selector: str) -> Optional[str]:
+        """Read the text of the first element matching a CSS selector within an element.
+
+        Args:
+            element (Selector): The element.
+            selector (str): The CSS selector.
+
+        Returns:
+            Optional[str]: The text, `None` when no element matches.
+        """
+        match = element.css(selector).first
+        return match.get_all_text(separator=" ", strip=True) if match is not None else None
+
+    def _card_categories(self, response: Response) -> Dict[str, List[str]]:
+        """Gather the categories of the desktop cards of the products page, by card link.
+
+        Args:
+            response (Response): The products page.
+
+        Returns:
+            Dict[str, List[str]]: The category and sub-category labels of each card link (`_url_key`), in page order.
+
+        Notes:
+            A product listed in several sections gets the categories of all of them, the marketing sections excepted.
+        """
+        categories: Dict[str, List[str]] = {}
+        for section in response.css(self.SECTIONS):
+            category = self._clean_text(self._first_text(section, self.SECTION_TITLE))
+            if not category or category in self.MARKETING_SECTIONS:
+                self.logger.debug("Skipping the section %r of %s, not a category.", category, response.url)
+                continue
+            for group in section.css(self.SUB_SECTIONS):
+                labels = [category, self._clean_text(self._first_text(group, self.SUB_SECTION_TITLE))]
+                for card in group.css(self.CARD):
+                    link = self._url_key(urljoin(response.url, card.attrib.get(HtmlAttribute.HREF, "")))
+                    categories.setdefault(link, []).extend(labels)
+        self.logger.debug("%d categorized product cards in %s.", len(categories), response.url)
+        return categories
+
     def _card_products(self, response: Response) -> Iterator[CloudProduct]:
         """Extract the products of the desktop cards of the products page.
 
@@ -89,12 +155,14 @@ class HuaweiCloudCrawler(BaseCloudCrawler):
         """
         cards = response.css(self.PRODUCT_CARDS)
         self.logger.debug("%d product cards in %s.", len(cards), response.url)
+        categories = self._card_categories(response)
         for card in cards:
-            title, description = card.css(".card-title").first, card.css(".card-description").first
+            url = urljoin(response.url, card.attrib.get(HtmlAttribute.HREF, ""))
             if product := self._build_product(
-                title.get_all_text(separator=" ", strip=True) if title is not None else None,
-                description.get_all_text(separator=" ", strip=True) if description is not None else None,
-                urljoin(response.url, card.attrib.get("href", "")),
+                self._first_text(card, ".card-title"),
+                self._first_text(card, ".card-description"),
+                url,
+                categories=categories.get(self._url_key(url), []),
             ):
                 yield product
 
@@ -110,40 +178,49 @@ class HuaweiCloudCrawler(BaseCloudCrawler):
         Raises:
             CatalogueFormatError: If the response is not JSON or has no `data` list.
         """
-        categories = self._as_object(self._json_body(response)).get("data")
+        categories = self._as_object(self._json_body(response)).get(HuaweiDocsCatalogueField.DATA)
         if not isinstance(categories, list):
             self.logger.error("The %s documentation catalogue %s has no `data` list.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the `data` list is missing")
         self.logger.debug("%d documentation categories in %s.", len(categories), response.url)
         return categories
 
-    def _docs_entries(self, response: Response) -> Iterator[Tuple[str, Optional[str], Optional[str]]]:
+    def _docs_entries(self, response: Response) -> Iterator[Tuple[str, Optional[str], Optional[str], str]]:
         """Walk the documented services, skipping the excluded categories, the guides and the SDK entries.
 
         Args:
             response (Response): The documentation catalogue JSON.
 
         Yields:
-            Tuple[str, Optional[str], Optional[str]]: The name, description and documentation URL of each service.
+            Tuple[str, Optional[str], Optional[str], str]: The name, description, documentation URL and category of
+                each service.
 
         Raises:
             CatalogueFormatError: If the response is not JSON or has no `data` list.
         """
         for category in self._docs_categories(response):
             fields = self._as_object(category)
-            category_name = self._as_text(fields.get("name"))
+            category_name = self._as_text(fields.get(HuaweiDocsCategoryField.NAME))
             if category_name in self.DOCS_EXCLUDED_CATEGORIES:
                 self.logger.debug("Skipping the documentation category %r, not services.", category_name)
                 continue
-            products = fields.get("products")
+            products = fields.get(HuaweiDocsCategoryField.PRODUCTS)
             for entry in products if isinstance(products, list) else []:
                 item = self._as_object(entry)
-                title, uri = self._clean_text(self._as_text(item.get("title"))), self._as_text(item.get("uri"))
-                code = self._as_text(item.get("code"))
+                title, uri = (
+                    self._clean_text(self._as_text(item.get(HuaweiDocsEntryField.TITLE))),
+                    self._as_text(item.get(HuaweiDocsEntryField.URI)),
+                )
+                code = self._as_text(item.get(HuaweiDocsEntryField.CODE))
                 if code in self.DOCS_EXCLUDED_CODES or self.DOCS_NOT_PRODUCT.search(uri or ""):
                     self.logger.debug("Skipping the documentation entry %r (%s), not a service.", title, code)
                     continue
-                yield title, self._as_text(item.get("description")), uri
+                yield (
+                    title,
+                    self._as_text(item.get(HuaweiDocsEntryField.DESCRIPTION)),
+                    uri,
+                    self._clean_text(category_name),
+                )
 
     def _docs_products(self, response: Response) -> Iterator[CloudProduct]:
         """Extract the documented services which have a description.
@@ -156,9 +233,18 @@ class HuaweiCloudCrawler(BaseCloudCrawler):
 
         Raises:
             CatalogueFormatError: If the response is not JSON or has no `data` list.
+
+        Notes:
+            A service documented in several categories gets all of them.
         """
-        for title, description, uri in self._docs_entries(response):
-            if self._clean_text(description) and (product := self._build_product(title, description, uri)):
+        entries = list(self._docs_entries(response))
+        categories: Dict[str, List[str]] = {}
+        for title, _, _, category in entries:
+            categories.setdefault(self._name_key(title), []).append(category)
+        for title, description, uri, _ in entries:
+            if self._clean_text(description) and (
+                product := self._build_product(title, description, uri, categories=categories[self._name_key(title)])
+            ):
                 yield product
 
     def _docs_page_requests(self, response: Response) -> List[Request]:
@@ -174,7 +260,7 @@ class HuaweiCloudCrawler(BaseCloudCrawler):
             CatalogueFormatError: If the response is not JSON or has no `data` list.
         """
         requests: List[Request] = []
-        for title, description, uri in self._docs_entries(response):
+        for title, description, uri, _ in self._docs_entries(response):
             if self._clean_text(description) or not title or not uri:
                 continue
             if self._name_key(title) in self.seen_products:

@@ -10,9 +10,11 @@ from scrapling.fetchers import FetcherSession
 from scrapling.spiders import Request, Response
 from scrapling.spiders.session import SessionManager
 
-# First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
 from crawler.exception import ParseNotImplementedError
+
+# First Party Imports.
+from crawler.tls.ca_bundle import CaBundle
 from models.cloud.enums import MarketRegion, MarketSegment
 from models.stats.market_report import MarketReport
 
@@ -116,10 +118,14 @@ class BaseStatsCrawler(BaseCloudCrawler):
         """
         super().configure_sessions(manager)
         self.logger.debug("Configuring the HTTP session %s.", self._http_session_id())
+        CaBundle(logger=self.logger).install()
         manager.add(
             self._http_session_id(),
             FetcherSession(
-                impersonate="chrome", timeout=60, retries=self.fetch_retries, retry_delay=round(self.retry_delay)
+                impersonate="chrome",
+                timeout=60,
+                retries=self.fetch_retries,
+                retry_delay=round(self.retry_delay),
             ),
             default=True,
         )

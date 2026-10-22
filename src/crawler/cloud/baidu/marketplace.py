@@ -11,10 +11,29 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from classifier.software_classifier import SoftwareClassifier
+from crawler.cloud.baidu.enums import (
+    BaiduMarketplaceCategory,
+    BaiduMarketplaceCrumbField,
+    BaiduMarketplaceDelivery,
+    BaiduMarketplaceErrorCode,
+    BaiduMarketplaceInfoField,
+    BaiduMarketplaceKind,
+    BaiduMarketplaceListedField,
+    BaiduMarketplaceMeta,
+    BaiduMarketplaceProductField,
+    BaiduMarketplaceRelatedField,
+    BaiduMarketplaceResponseField,
+    BaiduMarketplaceResultField,
+    BaiduMarketplaceSitemapPath,
+    BaiduMarketplaceSubcategory,
+    BaiduMarketplaceTreeField,
+    BaiduMarketplaceVendorField,
+)
 from crawler.exception import CatalogueFormatError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_category import MarketplaceCategory
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -29,31 +48,37 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         RELATED_URL (ClassVar[str]): The related products API, formatted with the product identifier.
         PRODUCT_URL (ClassVar[str]): The product page, formatted with the product identifier.
         DETAILS_PER_PAGE (ClassVar[int]): The product details requested per page of the page limit.
-        KIND (ClassVar[str]): The meta key holding the kind of a response (`CATEGORIES`, `LIST`, `SITEMAP`,
-            `DETAIL` or `RELATED`).
-        PRODUCT (ClassVar[str]): The meta key holding the product identifier of a detail or related response.
-        SHARE (ClassVar[str]): The meta key holding how many products of a category page are requested, under a
-            page limit (the details are shared between the categories).
-        CATEGORIES (ClassVar[str]): The kind of the category tree.
-        LIST (ClassVar[str]): The kind of a category products page.
-        SITEMAP (ClassVar[str]): The kind of the sitemap.
-        DETAIL (ClassVar[str]): The kind of a product detail.
-        RELATED (ClassVar[str]): The kind of the related products of a product.
-        DELISTED (ClassVar[str]): The error code of the detail of a delisted product.
+        KIND (ClassVar[BaiduMarketplaceMeta]): The meta key holding the kind of a response (`CATEGORIES`, `LIST`,
+            `SITEMAP`, `DETAIL` or `RELATED`).
+        PRODUCT (ClassVar[BaiduMarketplaceMeta]): The meta key holding the product identifier of a detail or related
+            response.
+        SHARE (ClassVar[BaiduMarketplaceMeta]): The meta key holding how many products of a category page are
+            requested, under a page limit (the details are shared between the categories).
+        CATEGORIES (ClassVar[BaiduMarketplaceKind]): The kind of the category tree.
+        LIST (ClassVar[BaiduMarketplaceKind]): The kind of a category products page.
+        SITEMAP (ClassVar[BaiduMarketplaceKind]): The kind of the sitemap.
+        DETAIL (ClassVar[BaiduMarketplaceKind]): The kind of a product detail.
+        RELATED (ClassVar[BaiduMarketplaceKind]): The kind of the related products of a product.
+        DELISTED (ClassVar[BaiduMarketplaceErrorCode]): The error code of the detail of a delisted product.
         LIST_PRIORITY (ClassVar[int]): The priority of the category products pages.
         DETAIL_PRIORITY (ClassVar[int]): The priority of the details of the products found by the category pages and
             the related products.
         RELATED_PRIORITY (ClassVar[int]): The priority of the related products requests.
         SITEMAP_PRIORITY (ClassVar[int]): The priority of the sitemap and of the details of its products, read last.
-        EXCLUDED_CATEGORIES (ClassVar[FrozenSet[str]]): The top categories which hold no software (services and
-            hardware).
-        EXCLUDED_SUBCATEGORIES (ClassVar[FrozenSet[Tuple[str, str]]]): The (top category, sub-category) pairs which
-            hold no software (services, consulting and hardware).
-        API_CATEGORY (ClassVar[str]): The top category of the APIs, data lookups except its AI sub-category.
-        AI_API_SUBCATEGORY (ClassVar[str]): The sub-category of the AI APIs, the only APIs kept.
-        SECURITY_CATEGORY (ClassVar[str]): The top category of the security offers, whose manual ones are services.
-        MANUAL_DELIVERY (ClassVar[str]): The manual delivery method (人工交付), a service in the security category.
-        DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery method of each marketplace delivery method.
+        EXCLUDED_CATEGORIES (ClassVar[FrozenSet[BaiduMarketplaceCategory]]): The top categories which hold no
+            software (services and hardware).
+        EXCLUDED_SUBCATEGORIES (ClassVar[FrozenSet[Tuple[BaiduMarketplaceCategory, BaiduMarketplaceSubcategory]]]):
+            The (top category, sub-category) pairs which hold no software (services, consulting and hardware).
+        API_CATEGORY (ClassVar[BaiduMarketplaceCategory]): The top category of the APIs, data lookups except its AI
+            sub-category.
+        AI_API_SUBCATEGORY (ClassVar[BaiduMarketplaceSubcategory]): The sub-category of the AI APIs, the only APIs
+            kept.
+        SECURITY_CATEGORY (ClassVar[BaiduMarketplaceCategory]): The top category of the security offers, whose
+            manual ones are services.
+        MANUAL_DELIVERY (ClassVar[BaiduMarketplaceDelivery]): The manual delivery method (人工交付), a service in the
+            security category.
+        DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery method of each marketplace delivery method
+            (`BaiduMarketplaceDelivery`).
         name (str): The crawler name.
         catalogue_url (ClassVar[str]): The category tree API, the crawl starting point.
         complement_urls (ClassVar[Tuple[str, ...]]): The sitemap, read once the other sources are exhausted.
@@ -86,46 +111,54 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
     RELATED_URL: ClassVar[str] = SITE_URL + "/api/market/web/product/{}/related"
     PRODUCT_URL: ClassVar[str] = SITE_URL + "/detail/{}"
     DETAILS_PER_PAGE: ClassVar[int] = 50
-    KIND: ClassVar[str] = "kind"
-    PRODUCT: ClassVar[str] = "product"
-    SHARE: ClassVar[str] = "share"
-    CATEGORIES: ClassVar[str] = "categories"
-    LIST: ClassVar[str] = "list"
-    SITEMAP: ClassVar[str] = "sitemap"
-    DETAIL: ClassVar[str] = "detail"
-    RELATED: ClassVar[str] = "related"
-    DELISTED: ClassVar[str] = "OFFLINE"
+    KIND: ClassVar[BaiduMarketplaceMeta] = BaiduMarketplaceMeta.KIND
+    PRODUCT: ClassVar[BaiduMarketplaceMeta] = BaiduMarketplaceMeta.PRODUCT
+    SHARE: ClassVar[BaiduMarketplaceMeta] = BaiduMarketplaceMeta.SHARE
+    CATEGORIES: ClassVar[BaiduMarketplaceKind] = BaiduMarketplaceKind.CATEGORIES
+    LIST: ClassVar[BaiduMarketplaceKind] = BaiduMarketplaceKind.LIST
+    SITEMAP: ClassVar[BaiduMarketplaceKind] = BaiduMarketplaceKind.SITEMAP
+    DETAIL: ClassVar[BaiduMarketplaceKind] = BaiduMarketplaceKind.DETAIL
+    RELATED: ClassVar[BaiduMarketplaceKind] = BaiduMarketplaceKind.RELATED
+    DELISTED: ClassVar[BaiduMarketplaceErrorCode] = BaiduMarketplaceErrorCode.OFFLINE
     LIST_PRIORITY: ClassVar[int] = 8
     DETAIL_PRIORITY: ClassVar[int] = 6
     RELATED_PRIORITY: ClassVar[int] = 4
     SITEMAP_PRIORITY: ClassVar[int] = 0
-    EXCLUDED_CATEGORIES: ClassVar[FrozenSet[str]] = frozenset({"上云服务", "公司服务", "泛机器人"})
-    EXCLUDED_SUBCATEGORIES: ClassVar[FrozenSet[Tuple[str, str]]] = frozenset(
+    EXCLUDED_CATEGORIES: ClassVar[FrozenSet[BaiduMarketplaceCategory]] = frozenset(
         {
-            ("人工智能", "硬件产品"),
-            ("安全服务", "安全咨询"),
-            ("安全服务", "安全测试"),
-            ("安全服务", "安全处理"),
-            ("区块链", "安全服务"),
-            ("建站推广", "定制建站"),
-            ("建站推广", "内容维护"),
-            ("建站推广", "店铺运营"),
-            ("建站推广", "营销推广"),
-            ("建站推广", "建站主机"),
-            ("工业应用", "运维服务"),
+            BaiduMarketplaceCategory.CLOUD_SERVICES,
+            BaiduMarketplaceCategory.COMPANY_SERVICES,
+            BaiduMarketplaceCategory.ROBOTS,
         }
     )
-    API_CATEGORY: ClassVar[str] = "API服务"
-    AI_API_SUBCATEGORY: ClassVar[str] = "人工智能"
-    SECURITY_CATEGORY: ClassVar[str] = "安全服务"
-    MANUAL_DELIVERY: ClassVar[str] = "MAN_MADE"
+    EXCLUDED_SUBCATEGORIES: ClassVar[FrozenSet[Tuple[BaiduMarketplaceCategory, BaiduMarketplaceSubcategory]]] = (
+        frozenset(
+            {
+                (BaiduMarketplaceCategory.ARTIFICIAL_INTELLIGENCE, BaiduMarketplaceSubcategory.HARDWARE),
+                (BaiduMarketplaceCategory.SECURITY_SERVICES, BaiduMarketplaceSubcategory.SECURITY_CONSULTING),
+                (BaiduMarketplaceCategory.SECURITY_SERVICES, BaiduMarketplaceSubcategory.SECURITY_TESTING),
+                (BaiduMarketplaceCategory.SECURITY_SERVICES, BaiduMarketplaceSubcategory.INCIDENT_HANDLING),
+                (BaiduMarketplaceCategory.BLOCKCHAIN, BaiduMarketplaceSubcategory.SECURITY_SERVICES),
+                (BaiduMarketplaceCategory.WEBSITE_PROMOTION, BaiduMarketplaceSubcategory.CUSTOM_WEBSITE),
+                (BaiduMarketplaceCategory.WEBSITE_PROMOTION, BaiduMarketplaceSubcategory.CONTENT_MAINTENANCE),
+                (BaiduMarketplaceCategory.WEBSITE_PROMOTION, BaiduMarketplaceSubcategory.SHOP_OPERATION),
+                (BaiduMarketplaceCategory.WEBSITE_PROMOTION, BaiduMarketplaceSubcategory.MARKETING_PROMOTION),
+                (BaiduMarketplaceCategory.WEBSITE_PROMOTION, BaiduMarketplaceSubcategory.WEBSITE_HOSTING),
+                (BaiduMarketplaceCategory.INDUSTRIAL_APPLICATIONS, BaiduMarketplaceSubcategory.MAINTENANCE_SERVICES),
+            }
+        )
+    )
+    API_CATEGORY: ClassVar[BaiduMarketplaceCategory] = BaiduMarketplaceCategory.API_SERVICES
+    AI_API_SUBCATEGORY: ClassVar[BaiduMarketplaceSubcategory] = BaiduMarketplaceSubcategory.ARTIFICIAL_INTELLIGENCE
+    SECURITY_CATEGORY: ClassVar[BaiduMarketplaceCategory] = BaiduMarketplaceCategory.SECURITY_SERVICES
+    MANUAL_DELIVERY: ClassVar[BaiduMarketplaceDelivery] = BaiduMarketplaceDelivery.MAN_MADE
     DELIVERIES: ClassVar[Dict[str, DeliveryMethod]] = {
-        "SAAS_AUTO": DeliveryMethod.SAAS,
-        "SAAS": DeliveryMethod.SAAS,
-        "API": DeliveryMethod.API,
-        "MIRROR": DeliveryMethod.VIRTUAL_MACHINE,
-        "OFFLINE": DeliveryMethod.DOWNLOAD,
-        "MAN_MADE": DeliveryMethod.DOWNLOAD,
+        BaiduMarketplaceDelivery.SAAS_AUTO: DeliveryMethod.SAAS,
+        BaiduMarketplaceDelivery.SAAS: DeliveryMethod.SAAS,
+        BaiduMarketplaceDelivery.API: DeliveryMethod.API,
+        BaiduMarketplaceDelivery.MIRROR: DeliveryMethod.VIRTUAL_MACHINE,
+        BaiduMarketplaceDelivery.OFFLINE: DeliveryMethod.DOWNLOAD,
+        BaiduMarketplaceDelivery.MAN_MADE: DeliveryMethod.DOWNLOAD,
     }
 
     name = "baidu-marketplace"
@@ -183,7 +216,7 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the response is not JSON.
         """
-        return self._as_object(self._as_object(self._json_body(response)).get("result"))
+        return self._as_object(self._as_object(self._json_body(response)).get(BaiduMarketplaceResponseField.RESULT))
 
     def _excluded(self, category: str, subcategory: str) -> bool:
         """Tell whether a category holds no software (services, hardware, data lookup APIs).
@@ -235,16 +268,19 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the response is not JSON or holds no category.
         """
-        data = self._as_object(self._json_body(response)).get("result")
+        data = self._as_object(self._json_body(response)).get(BaiduMarketplaceResponseField.RESULT)
         if not isinstance(data, list) or not data:
             self.logger.error("The %s category tree %s holds no category.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the category tree holds no category")
         identifiers: List[int] = []
         for category in map(self._as_object, data):
-            name = self._clean_text(self._as_text(category.get("name")))
-            children = category.get("children")
+            name = self._clean_text(self._as_text(category.get(BaiduMarketplaceTreeField.NAME)))
+            children = category.get(BaiduMarketplaceTreeField.CHILDREN)
             for child in map(self._as_object, children if isinstance(children, list) else []):
-                subname, cid = self._clean_text(self._as_text(child.get("name"))), child.get("cid")
+                subname, cid = (
+                    self._clean_text(self._as_text(child.get(BaiduMarketplaceTreeField.NAME))),
+                    child.get(BaiduMarketplaceTreeField.CID),
+                )
                 if self._excluded(name, subname) or not isinstance(cid, int):
                     self.logger.debug("Not requesting the %s category %s/%s.", self.name, name, subname)
                     continue
@@ -267,11 +303,15 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the response is not JSON.
         """
-        products = self._json_result(response).get("result")
+        products = self._json_result(response).get(BaiduMarketplaceResultField.RESULT)
         products = products if isinstance(products, list) else []
         share = response.meta.get(self.SHARE)
         for product in map(self._as_object, products[:share] if isinstance(share, int) else products):
-            if (request := self._detail_request(self._as_text(product.get("pid")), self.DETAIL_PRIORITY)) is not None:
+            if (
+                request := self._detail_request(
+                    self._as_text(product.get(BaiduMarketplaceListedField.PID)), self.DETAIL_PRIORITY
+                )
+            ) is not None:
                 yield request
 
     def _sitemap_requests(self, response: Response) -> Iterator[Request]:
@@ -289,7 +329,7 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         pids = [
             path[1]
             for path in (urlparse(url).path.strip("/").split("/") for url in self._sitemap_urls(response))
-            if len(path) == 2 and path[0] == "detail"
+            if len(path) == 2 and path[0] == BaiduMarketplaceSitemapPath.DETAIL
         ]
         self.logger.info("%d product pages in the %s sitemap %s.", len(pids), self.name, response.url)
         for pid in pids:
@@ -310,7 +350,7 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         for related in self._json_result(response).values():
             for product in map(self._as_object, related if isinstance(related, list) else []):
-                pid = self._as_text(product.get("productId"))
+                pid = self._as_text(product.get(BaiduMarketplaceRelatedField.PRODUCT_ID))
                 if (request := self._detail_request(pid, self.DETAIL_PRIORITY)) is not None:
                     yield request
 
@@ -333,14 +373,17 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
                 "The %s %s response %s failed (HTTP %s).", self.name, kind, response.url, response.status
             )
             return
-        if kind == self.CATEGORIES:
-            yield from self._list_requests(response)
-        elif kind == self.LIST:
-            yield from self._listed_requests(response)
-        elif kind == self.SITEMAP:
-            yield from self._sitemap_requests(response)
-        elif kind == self.RELATED:
-            yield from self._related_requests(response)
+        match kind:
+            case self.CATEGORIES:
+                yield from self._list_requests(response)
+            case self.LIST:
+                yield from self._listed_requests(response)
+            case self.SITEMAP:
+                yield from self._sitemap_requests(response)
+            case self.RELATED:
+                yield from self._related_requests(response)
+            case _:
+                self.logger.debug("No follow-up request for the %s %s response %s.", self.name, kind, response.url)
 
     def _product(self, response: Response) -> Optional[Dict[str, JsonValue]]:
         """Read the product of a product detail.
@@ -360,9 +403,10 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
             self.logger.debug("Skipping the %s product %s (HTTP %s).", self.name, pid, response.status)
             return None
         result = self._json_result(response)
-        product = self._as_object(result.get("product"))
-        if not self._as_object(product.get("productInfo")):
-            reason = "delisted" if result.get("errCode") == self.DELISTED else f"no detail ({result.get('errCode')})"
+        product = self._as_object(result.get(BaiduMarketplaceResultField.PRODUCT))
+        if not self._as_object(product.get(BaiduMarketplaceProductField.PRODUCT_INFO)):
+            error_code = result.get(BaiduMarketplaceResultField.ERR_CODE)
+            reason = "delisted" if error_code == self.DELISTED else f"no detail ({error_code})"
             self.logger.debug("Skipping the %s product %s, %s.", self.name, pid, reason)
             return None
         return product
@@ -376,10 +420,38 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             List[str]: The top category then the sub-category names.
         """
-        crumbs = product.get("crumbInfo")
+        crumbs = product.get(BaiduMarketplaceProductField.CRUMB_INFO)
         crumbs = crumbs if isinstance(crumbs, list) else []
-        names = [self._clean_text(self._as_text(self._as_object(crumb).get("name"))) for crumb in crumbs]
+        names = [
+            self._clean_text(self._as_text(self._as_object(crumb).get(BaiduMarketplaceCrumbField.NAME)))
+            for crumb in crumbs
+        ]
         return [name for name in names if name]
+
+    def _category_path(self, product: Dict[str, JsonValue]) -> Optional[MarketplaceCategory]:
+        """Build the marketplace category path of a product, from its breadcrumb.
+
+        Args:
+            product (Dict[str, JsonValue]): The product.
+
+        Returns:
+            Optional[MarketplaceCategory]: The breadcrumb names from the top category to the leaf, identified by the
+                `cid` of the last named crumb, `None` without a named crumb.
+        """
+        crumbs = product.get(BaiduMarketplaceProductField.CRUMB_INFO)
+        named = [
+            crumb
+            for crumb in map(self._as_object, crumbs if isinstance(crumbs, list) else [])
+            if self._clean_text(self._as_text(crumb.get(BaiduMarketplaceCrumbField.NAME)))
+        ]
+        if not named:
+            self.logger.debug("No named crumb in the %s product breadcrumb %r.", self.name, crumbs)
+            return None
+        cid = named[-1].get(BaiduMarketplaceCrumbField.CID)
+        return self._category(
+            [self._as_text(crumb.get(BaiduMarketplaceCrumbField.NAME)) for crumb in named],
+            cid if isinstance(cid, (str, int)) else None,
+        )
 
     def _detail_software(self, response: Response) -> Optional[MarketplaceSoftware]:
         """Build the software of a product detail, unless the product is delisted or not a software.
@@ -396,8 +468,9 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         product = self._product(response)
         if product is None:
             return None
-        info = self._as_object(product.get("productInfo"))
-        name, delivery = self._as_text(info.get("title")), self._as_text(info.get("deliveryMethod")) or ""
+        info = self._as_object(product.get(BaiduMarketplaceProductField.PRODUCT_INFO))
+        name = self._as_text(info.get(BaiduMarketplaceInfoField.TITLE))
+        delivery = self._as_text(info.get(BaiduMarketplaceInfoField.DELIVERY_METHOD)) or ""
         categories = self._categories(product)
         category, subcategory = [*categories, "", ""][:2]
         if self._excluded(category, subcategory):
@@ -406,14 +479,19 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         if category == self.SECURITY_CATEGORY and delivery == self.MANUAL_DELIVERY:
             self.logger.debug("Skipping the %s product %r, a security service (manual delivery).", self.name, name)
             return None
-        pid = self._as_text(info.get("pid")) or str(response.meta.get(self.PRODUCT, ""))
+        pid = self._as_text(info.get(BaiduMarketplaceInfoField.PID)) or str(response.meta.get(self.PRODUCT, ""))
         return self._build_software(
             name,
-            self._as_text(info.get("digest")),
+            self._as_text(info.get(BaiduMarketplaceInfoField.DIGEST)),
             self.PRODUCT_URL.format(pid) if pid else None,
-            self._as_text(self._as_object(product.get("vendorInfo")).get("vendorName")),
+            self._as_text(
+                self._as_object(product.get(BaiduMarketplaceProductField.VENDOR_INFO)).get(
+                    BaiduMarketplaceVendorField.VENDOR_NAME
+                )
+            ),
             self.DELIVERIES.get(delivery, DeliveryMethod.OTHER),
             categories,
+            marketplace_category_paths=[self._category_path(product)],
         )
 
     def _related_request(self, response: Response) -> Optional[Request]:

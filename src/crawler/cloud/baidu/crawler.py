@@ -10,9 +10,17 @@ from pydantic import JsonValue
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
+from crawler.cloud.baidu.enums import (
+    BaiduCatalogueCategoryField,
+    BaiduCatalogueGroupField,
+    BaiduCatalogueProductField,
+    BaiduCatalogueSubCategoryField,
+    BaiduNextDataField,
+    BaiduPageTitle,
+)
 from crawler.cloud.base import BaseCloudCrawler
 from crawler.exception import CatalogueFormatError
-from models.cloud.product import CloudProduct
+from models.cloud.products.product import CloudProduct
 
 
 class BaiduAICloudCrawler(BaseCloudCrawler):
@@ -22,21 +30,22 @@ class BaiduAICloudCrawler(BaseCloudCrawler):
         NOT_PRODUCT_LINK (ClassVar[re.Pattern[str]]): The catalogue links which are not product pages: solutions,
             console pages and third-party marketplace offers.
         LINK_PADDING (ClassVar[re.Pattern[str]]): The spaces (raw or encoded) around some catalogue links.
-        TITLE_SUFFIX (ClassVar[str]): The brand suffix of the page titles.
+        TITLE_SUFFIX (ClassVar[BaiduPageTitle]): The brand suffix of the page titles.
 
     Notes:
         The main source is the Next.js data of the https://cloud.baidu.com/products/index.html page
         (`props.pageProps.newProductsList`): a tree of top groups, categories and sub-categories (`list`) holding
         the products (`name`, `desc`, `link`). The sub-categories without products but with a link are products
         themselves: their pages are requested, named after the sub-category, and described by their meta
-        description. The names and descriptions are in Chinese.
+        description. The names and descriptions are in Chinese. A product gets the labels of the top group, category
+        and sub-category (e.g. `云计算` > `计算`) of every sub-category it is listed under.
     """
 
     NOT_PRODUCT_LINK: ClassVar[re.Pattern[str]] = re.compile(
         r"/solution/|console\.bce\.baidu\.com|market\.baidu\.com", re.IGNORECASE
     )
     LINK_PADDING: ClassVar[re.Pattern[str]] = re.compile(r"^(?:\s|%20)+|(?:\s|%20)+$")
-    TITLE_SUFFIX: ClassVar[str] = "-百度智能云"
+    TITLE_SUFFIX: ClassVar[BaiduPageTitle] = BaiduPageTitle.BRAND_SUFFIX
 
     name = "baidu"
     catalogue_url: ClassVar[str] = "https://cloud.baidu.com/products/index.html"
@@ -94,30 +103,37 @@ class BaiduAICloudCrawler(BaseCloudCrawler):
             return False
         return True
 
-    def _sub_categories(self, response: Response) -> List[Dict[str, JsonValue]]:
+    def _sub_categories(self, response: Response) -> List[Tuple[List[str], Dict[str, JsonValue]]]:
         """Read the sub-categories of the catalogue, holding the products.
 
         Args:
             response (Response): The catalogue page.
 
         Returns:
-            List[Dict[str, JsonValue]]: The sub-categories (`list` items) of every category of every top group.
+            List[Tuple[List[str], Dict[str, JsonValue]]]: The sub-categories (`list` items) of every category of every
+                top group, each with the labels of its top group, category and itself.
 
         Raises:
             CatalogueFormatError: If the page has no Next.js data or no `newProductsList` list.
         """
-        groups = self._as_object(self._as_object(self._next_data(response).get("props")).get("pageProps")).get(
-            "newProductsList"
-        )
+        props = self._as_object(self._next_data(response).get(BaiduNextDataField.PROPS))
+        groups = self._as_object(props.get(BaiduNextDataField.PAGE_PROPS)).get(BaiduNextDataField.NEW_PRODUCTS_LIST)
         if not isinstance(groups, list) or not groups:
             self.logger.error("The %s page %s has no `newProductsList` catalogue.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the `newProductsList` catalogue is missing")
-        sub_categories = [
-            self._as_object(sub_category)
-            for group in groups
-            for category in self._as_list(self._as_object(group).get("categories"))
-            for sub_category in self._as_list(self._as_object(category).get("list"))
-        ]
+        sub_categories: List[Tuple[List[str], Dict[str, JsonValue]]] = []
+        for group in groups:
+            group_fields = self._as_object(group)
+            for category in self._as_list(group_fields.get(BaiduCatalogueGroupField.CATEGORIES)):
+                category_fields = self._as_object(category)
+                for sub_category in self._as_list(category_fields.get(BaiduCatalogueCategoryField.LIST)):
+                    sub_fields = self._as_object(sub_category)
+                    labels = [
+                        self._clean_text(self._as_text(group_fields.get(BaiduCatalogueGroupField.NAME))),
+                        self._clean_text(self._as_text(category_fields.get(BaiduCatalogueCategoryField.CATEGORY))),
+                        self._clean_text(self._as_text(sub_fields.get(BaiduCatalogueSubCategoryField.TYPE))),
+                    ]
+                    sub_categories.append((labels, sub_fields))
         self.logger.debug("%d sub-categories in the %s catalogue %s.", len(sub_categories), self.name, response.url)
         return sub_categories
 
@@ -132,16 +148,31 @@ class BaiduAICloudCrawler(BaseCloudCrawler):
 
         Raises:
             CatalogueFormatError: If the page has no Next.js data or no `newProductsList` list.
+
+        Notes:
+            A product listed in several sub-categories gets the labels of all of them.
         """
-        for sub_category in self._sub_categories(response):
-            for entry in self._as_list(sub_category.get("products")):
-                fields = self._as_object(entry)
-                name = self._as_text(fields.get("name"))
-                link = self._link(self._as_text(fields.get("link")))
-                if not self._is_product_link(name, link):
-                    continue
-                if product := self._build_product(name, self._as_text(fields.get("desc")), link):
-                    yield product
+        entries = [
+            (labels, self._as_object(entry))
+            for labels, sub_category in self._sub_categories(response)
+            for entry in self._as_list(sub_category.get(BaiduCatalogueSubCategoryField.PRODUCTS))
+        ]
+        categories: Dict[str, List[str]] = {}
+        for labels, fields in entries:
+            key = self._name_key(self._clean_text(self._as_text(fields.get(BaiduCatalogueProductField.NAME))))
+            categories.setdefault(key, []).extend(labels)
+        for _, fields in entries:
+            name = self._as_text(fields.get(BaiduCatalogueProductField.NAME))
+            link = self._link(self._as_text(fields.get(BaiduCatalogueProductField.LINK)))
+            if not self._is_product_link(name, link):
+                continue
+            if product := self._build_product(
+                name,
+                self._as_text(fields.get(BaiduCatalogueProductField.DESC)),
+                link,
+                categories=categories[self._name_key(self._clean_text(name))],
+            ):
+                yield product
 
     def _page_requests(self, response: Response) -> List[Request]:
         """Request the pages of the sub-categories which are products: without products, but with a link.
@@ -156,10 +187,14 @@ class BaiduAICloudCrawler(BaseCloudCrawler):
             CatalogueFormatError: If the page has no Next.js data or no `newProductsList` list.
         """
         requests: List[Request] = []
-        for sub_category in self._sub_categories(response):
-            name = self._as_text(sub_category.get("type"))
-            link = self._link(self._as_text(sub_category.get("link")))
-            if sub_category.get("products") or not link or not self._is_product_link(name, link):
+        for _, sub_category in self._sub_categories(response):
+            name = self._as_text(sub_category.get(BaiduCatalogueSubCategoryField.TYPE))
+            link = self._link(self._as_text(sub_category.get(BaiduCatalogueSubCategoryField.LINK)))
+            if (
+                sub_category.get(BaiduCatalogueSubCategoryField.PRODUCTS)
+                or not link
+                or not self._is_product_link(name, link)
+            ):
                 continue
             if urlparse(link).netloc not in self.allowed_domains:
                 self.logger.debug("Not requesting the product page %s of %r, outside of the website.", link, name)

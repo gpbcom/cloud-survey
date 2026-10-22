@@ -12,9 +12,25 @@ from pydantic import JsonValue
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
+from crawler.cloud.alibaba.enums import (
+    AlibabaCardField,
+    AlibabaCardsDataField,
+    AlibabaCardsGroupField,
+    AlibabaCardsSection,
+    AlibabaCardsSectionField,
+    AlibabaCrawlerMeta,
+    AlibabaHelpArticleSlug,
+    AlibabaHelpBlock,
+    AlibabaNavCategoryField,
+    AlibabaNavProductField,
+    AlibabaNavTreeField,
+    AlibabaPageNotice,
+    AlibabaPageSource,
+)
 from crawler.cloud.base import BaseCloudCrawler
+from crawler.enums import HtmlAttribute, PageMetaName, TextEncoding
 from crawler.exception import CatalogueFormatError
-from models.cloud.product import CloudProduct
+from models.cloud.products.product import CloudProduct
 
 
 class AlibabaCloudCrawler(BaseCloudCrawler):
@@ -29,8 +45,9 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         HELP_WAIT_SELECTOR (ClassVar[str]): The documentation entries, rendered by a script, which are waited for.
         HELP_PRIORITY (ClassVar[int]): The priority of the documentation home page, read before the "All products"
             cards so that its deprecated products are known first.
-        CARDS_EXCLUDED_SECTIONS (ClassVar[FrozenSet[str]]): The "All products" sections which are not products.
-        HELP_EXCLUDED_BLOCKS (ClassVar[FrozenSet[str]]): The documentation blocks which are not products.
+        CARDS_EXCLUDED_SECTIONS (ClassVar[FrozenSet[AlibabaCardsSection]]): The "All products" sections which are
+            not products.
+        HELP_EXCLUDED_BLOCKS (ClassVar[FrozenSet[AlibabaHelpBlock]]): The documentation blocks which are not products.
         HELP_NOT_PRODUCT (ClassVar[re.Pattern[str]]): The documentation entries which are tools, consoles or guides.
         DEPRECATED (ClassVar[re.Pattern[str]]): The deprecation mark of the documentation entries.
         PRODUCT_PAGE_URL (ClassVar[re.Pattern[str]]): A one-segment product page of the sitemap, capturing its slug.
@@ -39,7 +56,7 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         LOCALE (ClassVar[re.Pattern[str]]): The locale segment of the website paths, e.g. `/en/`.
         TITLE_SUFFIX (ClassVar[re.Pattern[str]]): The brand suffix of the product page titles.
         TITLE_TAGLINE (ClassVar[re.Pattern[str]]): The separators of the SEO taglines of the product page titles.
-        NOT_FOR_SALE (ClassVar[str]): The notice of the retired product pages.
+        NOT_FOR_SALE (ClassVar[AlibabaPageNotice]): The notice of the retired product pages.
         URL_ALIASES (ClassVar[Dict[str, str]]): The URL keys of the product pages which are aliases of another one.
         NAME_ALIASES (ClassVar[Dict[str, Tuple[str, ...]]]): The documentation names of products listed under
             another name, by listed name.
@@ -48,11 +65,16 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         HELP_GUESS_URL (ClassVar[str]): The usual "What is" article of a product, by slug, which the website resolves.
         HELP_ARTICLE_LINK (ClassVar[re.Pattern[str]]): The last path segment of an overview article link.
         HELP_BOILERPLATE (ClassVar[re.Pattern[str]]): The generic description of the documentation pages.
-        HELP_SLUG (ClassVar[str]): The meta key holding the documentation slug of a product page request.
-        HELP_LANDING (ClassVar[str]): The meta key marking a documentation landing page request, holding its slug.
-        HELP_ARTICLE (ClassVar[str]): The meta key marking an overview article request, holding the product URL.
+        HELP_SLUG (ClassVar[AlibabaCrawlerMeta]): The meta key holding the documentation slug of a product page
+            request.
+        HELP_LANDING (ClassVar[AlibabaCrawlerMeta]): The meta key marking a documentation landing page request,
+            holding its slug.
+        HELP_ARTICLE (ClassVar[AlibabaCrawlerMeta]): The meta key marking an overview article request, holding the
+            product URL.
         help_names (Dict[str, Tuple[str, str]]): The names and slugs of the documentation entries not streamed yet,
             by normalized slug.
+        help_categories (Dict[str, List[str]]): The documentation blocks listing each documentation entry not
+            streamed yet, by normalized name.
         deprecated_names (Set[str]): The normalized names of the products marked as deprecated by the documentation.
         category_urls (Set[str]): The URL keys of the navigation categories, whose pages are not product pages.
 
@@ -72,6 +94,10 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         products without a genuine description are skipped.
         The retired product pages ("no longer available for sale", or deprecated in the documentation) are
         skipped, as the unknown product pages which redirect to a "not found" page.
+        The categories of a product are the navigation category and subcategory names above it, the "All products"
+        section and group titles, or the documentation block titles (for the product pages and documentation
+        pages of the documentation entries), each occurrence counted: they are gathered over the whole listing
+        before the product is streamed.
     """
 
     NAV_URL: ClassVar[str] = (
@@ -83,10 +109,8 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
     SITE_URL: ClassVar[str] = "https://www.alibabacloud.com/en/"
     HELP_WAIT_SELECTOR: ClassVar[str] = '[class*="ProductList--subNodeContent"] a'
     HELP_PRIORITY: ClassVar[int] = 1
-    CARDS_EXCLUDED_SECTIONS: ClassVar[FrozenSet[str]] = frozenset({"alibaba cloud academy"})
-    HELP_EXCLUDED_BLOCKS: ClassVar[FrozenSet[str]] = frozenset(
-        {"getting started", "solutions", "membership service", "more"}
-    )
+    CARDS_EXCLUDED_SECTIONS: ClassVar[FrozenSet[AlibabaCardsSection]] = frozenset(AlibabaCardsSection)
+    HELP_EXCLUDED_BLOCKS: ClassVar[FrozenSet[AlibabaHelpBlock]] = frozenset(AlibabaHelpBlock)
     HELP_NOT_PRODUCT: ClassVar[re.Pattern[str]] = re.compile(
         r"\bSDK\b|\bCLI\b|BSS OpenAPI|Ticket System API|\bConsole\b|Overview|^Marketplace$|^Pulumi$|^Terraform$|"
         r"Well-architected|Guidelines",
@@ -104,7 +128,7 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
     LOCALE: ClassVar[re.Pattern[str]] = re.compile(r"^/[a-z]{2}(-[a-z]{2})?(?=/)")
     TITLE_SUFFIX: ClassVar[re.Pattern[str]] = re.compile(r"(\s*-\s*Alibaba Cloud)+$", re.IGNORECASE)
     TITLE_TAGLINE: ClassVar[re.Pattern[str]] = re.compile(r":|_|\s\|\s|\s-\s")
-    NOT_FOR_SALE: ClassVar[str] = "no longer available for sale"
+    NOT_FOR_SALE: ClassVar[AlibabaPageNotice] = AlibabaPageNotice.NOT_FOR_SALE
     URL_ALIASES: ClassVar[Dict[str, str]] = {
         "alibabacloud.com/product/polardb-for-xscale": "alibabacloud.com/product/polardb-x"
     }
@@ -121,9 +145,9 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         r"^what-is|product-introduction$|^(?P<overview>.+)-overview$"
     )
     HELP_BOILERPLATE: ClassVar[re.Pattern[str]] = re.compile(r"^Learn from Alibaba Cloud experts", re.IGNORECASE)
-    HELP_SLUG: ClassVar[str] = "help_slug"
-    HELP_LANDING: ClassVar[str] = "help_landing"
-    HELP_ARTICLE: ClassVar[str] = "help_article"
+    HELP_SLUG: ClassVar[AlibabaCrawlerMeta] = AlibabaCrawlerMeta.HELP_SLUG
+    HELP_LANDING: ClassVar[AlibabaCrawlerMeta] = AlibabaCrawlerMeta.HELP_LANDING
+    HELP_ARTICLE: ClassVar[AlibabaCrawlerMeta] = AlibabaCrawlerMeta.HELP_ARTICLE
 
     name = "alibaba"
     catalogue_url: ClassVar[str] = NAV_URL
@@ -139,6 +163,7 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         """
         super().__init__(crawldir=crawldir, interval=interval)
         self.help_names: Dict[str, Tuple[str, str]] = {}
+        self.help_categories: Dict[str, List[str]] = {}
         self.deprecated_names: Set[str] = set()
         self.category_urls: Set[str] = set()
 
@@ -188,23 +213,23 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             return Request(url, priority=self.HELP_PRIORITY, wait_selector=self.HELP_WAIT_SELECTOR)
         return Request(url)
 
-    def _source(self, url: str) -> str:
+    def _source(self, url: str) -> AlibabaPageSource:
         """Tell which source a page is.
 
         Args:
             url (str): The page URL.
 
         Returns:
-            str: `nav`, `help`, `sitemap` or `cards`.
+            AlibabaPageSource: `nav`, `help`, `sitemap` or `cards`.
         """
         link = urlparse(url)
         if link.netloc != urlparse(self.SITE_URL).netloc:
-            return "nav"
+            return AlibabaPageSource.NAV
         if link.path.startswith("/help/"):
-            return "help"
+            return AlibabaPageSource.HELP
         if link.path.startswith("/sitemaps/"):
-            return "sitemap"
-        return "cards"
+            return AlibabaPageSource.SITEMAP
+        return AlibabaPageSource.CARDS
 
     def _slug_key(self, slug: str) -> str:
         """Normalize a page slug to compare the documentation slugs with the product page ones.
@@ -217,28 +242,38 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         """
         return re.sub(r"[\W_]+", "", slug.casefold())
 
-    def _nav_category_products(self, category: Dict[str, JsonValue]) -> Iterator[CloudProduct]:
+    def _nav_category_products(
+        self, category: Dict[str, JsonValue], path: Tuple[Optional[str], ...] = ()
+    ) -> Iterator[CloudProduct]:
         """Extract the products of a navigation category and of its subcategories, depth first.
-
-        The category page, if any, is remembered as a category page.
 
         Args:
             category (Dict[str, JsonValue]): The navigation category.
+            path (Tuple[Optional[str], ...]): The names of the parent categories, top level first.
 
         Yields:
-            Iterator[CloudProduct]: Each valid product of the category.
+            Iterator[CloudProduct]: Each valid product of the category, filed under the category path.
+
+        Notes:
+            The category page, if any, is remembered as a category page.
         """
-        if link := self._as_text(category.get("url")):
+        if link := self._as_text(category.get(AlibabaNavCategoryField.URL)):
             self.category_urls.add(self._url_key(link))
-        products = category.get("products")
+        path = (*path, self._as_text(category.get(AlibabaNavCategoryField.NAME)))
+        products = category.get(AlibabaNavCategoryField.PRODUCTS)
         for entry in products if isinstance(products, list) else []:
             fields = self._as_object(entry)
-            name, url = self._as_text(fields.get("name")), self._as_text(fields.get("url"))
-            if product := self._build_product(name, self._as_text(fields.get("shortDesc")), url):
+            name, url = (
+                self._as_text(fields.get(AlibabaNavProductField.NAME)),
+                self._as_text(fields.get(AlibabaNavProductField.URL)),
+            )
+            if product := self._build_product(
+                name, self._as_text(fields.get(AlibabaNavProductField.SHORT_DESC)), url, categories=path
+            ):
                 yield product
-        subcategories = category.get("subCategories")
+        subcategories = category.get(AlibabaNavCategoryField.SUB_CATEGORIES)
         for subcategory in subcategories if isinstance(subcategories, list) else []:
-            yield from self._nav_category_products(self._as_object(subcategory))
+            yield from self._nav_category_products(self._as_object(subcategory), path)
 
     def _nav_products(self, response: Response) -> Iterator[CloudProduct]:
         """Extract the products of the navigation product tree, without its ad groups and featured category.
@@ -252,13 +287,15 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         Raises:
             CatalogueFormatError: If the document is not JSON or has no `detailedCategories` list.
         """
-        categories = self._as_object(self._json_body(response)).get("detailedCategories")
+        categories = self._as_object(self._json_body(response)).get(AlibabaNavTreeField.DETAILED_CATEGORIES)
         if not isinstance(categories, list):
             self.logger.error("The %s product tree %s has no `detailedCategories` list.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "`detailedCategories` is not a list")
         self.logger.debug("%d navigation categories in %s.", len(categories), response.url)
-        for category in categories:
-            yield from self._nav_category_products(self._as_object(category))
+        entries = (
+            product for category in categories for product in self._nav_category_products(self._as_object(category))
+        )
+        yield from self._merge_categories(entries)
 
     def _cards_data(self, response: Response) -> List[JsonValue]:
         """Read the sections of the product cards embedded in the "All products" page.
@@ -278,55 +315,72 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             except json.JSONDecodeError:
                 self.logger.debug("Skipping a render data block of %s, not JSON.", response.url)
                 continue
-            sections = self._as_object(data).get("content")
+            sections = self._as_object(data).get(AlibabaCardsDataField.CONTENT)
             if isinstance(sections, list):
                 return sections
         self.logger.error("The %s page %s embeds no product cards.", self.name, response.url)
         raise CatalogueFormatError(self.name, response.url, "the product cards (`render-container-data`) are missing")
 
-    def _card_products(self, response: Response) -> Iterator[CloudProduct]:
-        """Extract the products of the "All products" cards, without the Academy section and the solutions.
+    def _card_entries(self, response: Response) -> Iterator[CloudProduct]:
+        """Extract the "All products" cards, without the Academy section and the solutions.
 
         Args:
             response (Response): The "All products" page.
 
         Yields:
-            Iterator[CloudProduct]: Each valid product of the cards.
+            Iterator[CloudProduct]: Each valid card, filed under its section and group titles.
 
         Raises:
             CatalogueFormatError: If the page embeds no product cards.
         """
         for section in map(self._as_object, self._cards_data(response)):
-            title = self._clean_text(self._as_text(section.get("FirstLevelHead")))
+            title = self._clean_text(self._as_text(section.get(AlibabaCardsSectionField.FIRST_LEVEL_HEAD)))
             if title.casefold() in self.CARDS_EXCLUDED_SECTIONS:
                 self.logger.debug("Skipping the %r section of %s, not products.", title, response.url)
                 continue
-            groups = section.get("productCard")
-            for group in groups if isinstance(groups, list) else []:
-                cards = self._as_object(group).get("cardList")
+            groups = section.get(AlibabaCardsSectionField.PRODUCT_CARD)
+            for group in map(self._as_object, groups if isinstance(groups, list) else []):
+                categories = [title, self._as_text(group.get(AlibabaCardsGroupField.CARD_TITLE))]
+                cards = group.get(AlibabaCardsGroupField.CARD_LIST)
                 for card in map(self._as_object, cards if isinstance(cards, list) else []):
-                    name, link = self._as_text(card.get("title")), self._as_text(card.get("url")) or ""
+                    name = self._as_text(card.get(AlibabaCardField.TITLE))
+                    link = self._as_text(card.get(AlibabaCardField.URL)) or ""
                     if "solutions/" in link or self._name_key(name or "") in self.deprecated_names:
                         self.logger.debug("Skipping the card %r (%s), a solution or a deprecated product.", name, link)
                         continue
                     url = urljoin(self.SITE_URL, link) if link else None
-                    if product := self._build_product(name, self._as_text(card.get("desc")), url):
+                    description = self._as_text(card.get(AlibabaCardField.DESC))
+                    if product := self._build_product(name, description, url, categories=categories):
                         yield product
 
-    def _help_entries(self, response: Response) -> List[Tuple[str, str]]:
+    def _card_products(self, response: Response) -> Iterator[CloudProduct]:
+        """Extract the products of the "All products" cards.
+
+        Args:
+            response (Response): The "All products" page.
+
+        Yields:
+            Iterator[CloudProduct]: Each valid product of the cards, with the categories of all its cards.
+
+        Raises:
+            CatalogueFormatError: If the page embeds no product cards.
+        """
+        yield from self._merge_categories(self._card_entries(response))
+
+    def _help_entries(self, response: Response) -> List[Tuple[str, str, str]]:
         """Read the product entries of the documentation home page, without the guides, tools and deprecated ones.
 
         Args:
             response (Response): The documentation home page.
 
         Returns:
-            List[Tuple[str, str]]: The product names and documentation slugs.
+            List[Tuple[str, str, str]]: The product names, documentation slugs and block titles.
 
         Raises:
             CatalogueFormatError: If the page lists no documentation entry.
         """
         blocks = response.css('[class*="ProductList--allProductsBodyBlock"]')
-        entries: List[Tuple[str, str]] = []
+        entries: List[Tuple[str, str, str]] = []
         total = 0
         for block in blocks:
             heading = block.css("span").first
@@ -338,7 +392,7 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
                 continue
             for link in links:
                 name = self._clean_text(link.get_all_text(separator=" ", strip=True))
-                slug = urlparse(link.attrib.get("href", "")).path.strip("/").split("/")[-1]
+                slug = urlparse(link.attrib.get(HtmlAttribute.HREF, "")).path.strip("/").split("/")[-1]
                 if self.DEPRECATED.search(name):
                     self.logger.debug("Skipping the documentation entry %r, deprecated.", name)
                     self.deprecated_names.add(self._name_key(self.DEPRECATED.sub("", name)))
@@ -346,7 +400,7 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
                 if self.HELP_NOT_PRODUCT.search(name):
                     self.logger.debug("Skipping the documentation entry %r, not a product.", name)
                     continue
-                entries.append((name, slug))
+                entries.append((name, slug, title))
         if not total:
             self.logger.error("The %s documentation page %s lists no product.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the documentation lists no product")
@@ -365,11 +419,14 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         Raises:
             CatalogueFormatError: If the page lists no documentation entry.
         """
-        for name, slug in self._help_entries(response):
+        for name, slug, title in self._help_entries(response):
             if self._name_key(name) in self.seen_products:
                 self.logger.debug("Skipping the documentation entry %r, already streamed.", name)
                 continue
             self.help_names.setdefault(self._slug_key(slug), (name, slug))
+            blocks = self.help_categories.setdefault(self._name_key(name), [])
+            if title and title not in blocks:
+                blocks.append(title)
         self.logger.info(
             "%d %s documentation entries not streamed yet, requesting the sitemap %s.",
             len(self.help_names),
@@ -412,10 +469,10 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             if not path.startswith(prefix) or match is None:
                 continue
             if path.endswith("/"):
-                if segment == "product-introduction":
+                if segment == AlibabaHelpArticleSlug.PRODUCT_INTRODUCTION:
                     candidates.append((2, urljoin(self.SITE_URL, path)))
             elif match.group("overview") is None or match.group("overview") == slug:
-                rank = 0 if match.group(0).startswith("what-is") else 1
+                rank = 0 if match.group(0).startswith(AlibabaHelpArticleSlug.WHAT_IS) else 1
                 candidates.append((rank, urljoin(self.SITE_URL, path)))
         url = min(candidates)[1] if candidates else self.HELP_GUESS_URL.format(slug=slug)
         self.logger.debug("Requesting the overview article %s of %r.", url, response.meta[self.PRODUCT_NAME])
@@ -436,7 +493,7 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             Optional[str]: The meta description without its keywords prefix (e.g. `What is CloudSSO,CloudSSO:`),
                 else the first paragraph of the article, `None` when missing or generic.
         """
-        description = self._meta_content(response, "description") or ""
+        description = self._meta_content(response, PageMetaName.DESCRIPTION) or ""
         marker = f",{name}:".casefold()
         if (index := description.casefold().find(marker)) >= 0:
             description = self._clean_text(description[index + len(marker) :])
@@ -463,7 +520,8 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         if description is None:
             return None
         slug = str(response.meta[self.HELP_LANDING])
-        return self._build_product(name, description, self.HELP_LANDING_URL.format(slug=slug))
+        categories = self.help_categories.get(self._name_key(name))
+        return self._build_product(name, description, self.HELP_LANDING_URL.format(slug=slug), categories=categories)
 
     def _help_article_product(self, response: Response) -> Optional[CloudProduct]:
         """Extract the product described by its overview article.
@@ -480,7 +538,8 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         if description is None:
             self.logger.debug("Skipping %r, its overview article %s has no genuine description.", name, response.url)
             return None
-        return self._build_product(name, description, str(response.meta[self.HELP_ARTICLE]))
+        categories = self.help_categories.get(self._name_key(name))
+        return self._build_product(name, description, str(response.meta[self.HELP_ARTICLE]), categories=categories)
 
     def _sitemap_requests(self, response: Response) -> List[Request]:
         """Request the one-segment product pages of the sitemap not streamed yet, named after the documentation.
@@ -549,7 +608,7 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             Optional[str]: The product name, `None` when the page has none.
         """
         title = self._clean_text(response.css("head > title::text").get())
-        title = title or self._meta_content(response, "og:title") or ""
+        title = title or self._meta_content(response, PageMetaName.OG_TITLE) or ""
         return self._page_title(title) or None
 
     def _page_product(self, response: Response) -> Optional[CloudProduct]:
@@ -562,7 +621,7 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             Optional[CloudProduct]: The product with the requested URL (without the tracking query), `None` for a
                 retired, deprecated, unknown (redirected) or invalid product page.
         """
-        if self.NOT_FOR_SALE in response.body.decode("utf-8", errors="replace").casefold():
+        if self.NOT_FOR_SALE in response.body.decode(TextEncoding.UTF_8, errors=TextEncoding.REPLACE).casefold():
             self.logger.debug("Skipping %s, the product is no longer available for sale.", response.url)
             return None
         product = super()._page_product(response)
@@ -571,7 +630,9 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         if self._name_key(product.name) in self.deprecated_names:
             self.logger.debug("Skipping %s, %r is deprecated.", response.url, product.name)
             return None
-        return self._build_product(product.name, product.description, str(response.meta[self.PRODUCT_PAGE]))
+        categories = self.help_categories.get(self._name_key(product.name))
+        url = str(response.meta[self.PRODUCT_PAGE])
+        return self._build_product(product.name, product.description, url, categories=categories)
 
     ############################
     # Publicly Exposed Methods #
@@ -589,7 +650,7 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         Raises:
             CatalogueFormatError: If the product tree or the product cards are missing.
         """
-        if self._source(response.url) == "nav":
+        if self._source(response.url) == AlibabaPageSource.NAV:
             return self._nav_products(response)
         return self._card_products(response)
 
@@ -619,10 +680,10 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             yield self._help_landing_request(str(response.meta[self.PRODUCT_NAME]), str(response.meta[self.HELP_SLUG]))
             return
         source = self._source(response.url)
-        if self.PRODUCT_PAGE not in response.meta and source == "help":
+        if self.PRODUCT_PAGE not in response.meta and source == AlibabaPageSource.HELP:
             yield self._help_request(response)
             return
-        if self.PRODUCT_PAGE not in response.meta and source == "sitemap":
+        if self.PRODUCT_PAGE not in response.meta and source == AlibabaPageSource.SITEMAP:
             for request in self._sitemap_requests(response):
                 yield request
             return

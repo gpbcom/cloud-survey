@@ -1,0 +1,22 @@
+{
+ "items": [
+  {
+   "id": "Avensoft.nService",
+   "creationDate": null,
+   "bigCatLastModifiedDate": "2025-06-08T12:26:05.0338022+00:00"
+  },
+  {
+   "id": "canonical.ubuntu-24_04-lts",
+   "creationDate": "2024-04-25T11:49:02.894858Z",
+   "bigCatLastModifiedDate": "2026-09-18T23:28:02.1387948+00:00"
+  },
+  {
+   "id": "WA200000056",
+   "bigCatLastModifiedDate": "2024-06-05T21:32:41.587+00:00"
+  },
+  {
+   "creationDate": "2026-04-06T11:19:24.9257472Z"
+  }
+ ],
+ "nextPageLink": "https://catalogapi.azure.com/offers?api-version=2018-08-01-beta&$top=1000&$select=id%2CcreationDate%2CbigCatLastModifiedDate&$skiptoken=W3sidG9rZW4iOiIrUklEOn4yVk53QUxkRkVIeGJaUUlBQUFEQUNRPT0jUlQ6MSNUUkM6MjY1In1d"
+}

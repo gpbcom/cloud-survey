@@ -13,7 +13,9 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
-from models.cloud.product import CloudProduct
+from crawler.cloud.exoscale.enums import ExoscaleMenuMarkup
+from crawler.enums import HtmlAttribute, PageMetaName
+from models.cloud.products.product import CloudProduct
 
 
 class ExoscaleCrawler(BaseCloudCrawler):
@@ -33,8 +35,10 @@ class ExoscaleCrawler(BaseCloudCrawler):
         Exoscale has no catalogue page. The main source is the products mega menu embedded in every page
         (`#dropdown-products a.mega__item`, read from https://www.exoscale.com/products/): each entry gives a name
         (`b`), a description (`span`) and a product page, once the overviews and compliance entries are filtered
-        out. Some entries link the documentation website. The sitemap completes it: its top level product pages
-        missing from the menu are requested and read from their title and meta description.
+        out. Some entries link the documentation website. A product is filed under its menu tab (`.mega__rail`) and
+        its group (`.mega__group__title`), e.g. `Concrete AI` then `Inference`, and under those of every entry
+        listing it. The sitemap completes it: its top level product pages missing from the menu are requested and
+        read from their title and meta description (without categories).
     """
 
     SITEMAP_URL: ClassVar[str] = "https://www.exoscale.com/sitemap.xml"
@@ -94,7 +98,7 @@ class ExoscaleCrawler(BaseCloudCrawler):
             Optional[str]: The description, `None` when the page has none.
         """
         description = super()._page_description(response)
-        title = self._meta_content(response, "og:title") or ""
+        title = self._meta_content(response, PageMetaName.OG_TITLE) or ""
         if description and description.casefold() != title.casefold():
             return description
         header = [
@@ -115,18 +119,85 @@ class ExoscaleCrawler(BaseCloudCrawler):
         element = entry.css(selector).first
         return element.get_all_text(separator=" ", strip=True) if element is not None else None
 
-    def _menu_product(self, entry: Selector, page_url: str) -> Optional[CloudProduct]:
+    def _entry_categories(self, entry: Selector, tab: Optional[str]) -> List[str]:
+        """Get the categories of a products menu entry: its menu tab, then its group.
+
+        Args:
+            entry (Selector): The menu entry (`a.mega__item`).
+            tab (Optional[str]): The label of the menu tab listing it, if any.
+
+        Returns:
+            List[str]: The category labels, e.g. `["Concrete AI", "Inference"]`.
+        """
+        categories = [tab] if tab else []
+        group = entry.parent
+        if group is not None and group.has_class(ExoscaleMenuMarkup.GROUP):
+            title = group.css(".mega__group__title").first
+            if title is not None and (label := self._clean_text(title.get_all_text(separator=" ", strip=True))):
+                categories.append(label)
+        return categories
+
+    def _menu_entries(self, response: Response) -> List[Tuple[Selector, List[str]]]:
+        """Gather the products menu entries with all their categories, a product being listed in several tabs.
+
+        Args:
+            response (Response): A page of the website.
+
+        Returns:
+            List[Tuple[Selector, List[str]]]: The first entry of each product, by order of appearance, and the
+                categories of all its entries.
+
+        Notes:
+            Each menu tab (`.mega__rail label b`) has a grid of entries (`.mega__grid`), in the same order. A menu
+            without grids lists its entries without categories. The entries of a product are matched by name or
+            by link, as the streamed products are.
+        """
+        tabs = [
+            self._clean_text(label.get_all_text(separator=" ", strip=True))
+            for label in response.css("#dropdown-products .mega__rail label b")
+        ]
+        grids = response.css("#dropdown-products .mega__grid")
+        listed: List[Tuple[Optional[str], Selector]] = [
+            (tabs[index] if index < len(tabs) else None, entry)
+            for index, grid in enumerate(grids)
+            for entry in grid.css("a.mega__item")
+        ] or [(None, entry) for entry in response.css("#dropdown-products a.mega__item")]
+        self.logger.debug("%d products menu entries found on %s, in %d tabs.", len(listed), response.url, len(tabs))
+        entries: List[Tuple[Selector, List[str]]] = []
+        positions: Dict[str, int] = {}
+        for tab, entry in listed:
+            name = self._clean_text(self._text(entry, "b"))
+            href = entry.attrib.get(HtmlAttribute.HREF)
+            keys = ([f"name:{self._name_key(name)}"] if name else []) + (
+                [f"url:{self._url_key(urljoin(response.url, href))}"] if href else []
+            )
+            position = next((positions[key] for key in keys if key in positions), None)
+            if position is None:
+                position = len(entries)
+                entries.append((entry, []))
+            else:
+                self.logger.debug("Menu entry %r listed again, under %r.", name, tab)
+            entries[position][1].extend(self._entry_categories(entry, tab))
+            positions.update(dict.fromkeys(keys, position))
+        return entries
+
+    def _menu_product(self, entry: Selector, page_url: str, categories: List[str]) -> Optional[CloudProduct]:
         """Extract the product of a products menu entry.
 
         Args:
             entry (Selector): The menu entry (`a.mega__item`).
             page_url (str): The page URL, the menu links being relative to it.
+            categories (List[str]): The categories of all the entries of the product.
 
         Returns:
             Optional[CloudProduct]: The product, `None` for an overview, a compliance page or an invalid entry.
+
+        Notes:
+            A group named after the product (e.g. the `Object Storage` group of `Object Storage`) is not one of its
+            categories.
         """
         name = self._text(entry, "b")
-        href = entry.attrib.get("href")
+        href = entry.attrib.get(HtmlAttribute.HREF)
         link = urljoin(page_url, href) if href else None
         reasons = {
             "overview": bool(self.NOT_PRODUCT_NAME.search(name or "")),
@@ -137,21 +208,21 @@ class ExoscaleCrawler(BaseCloudCrawler):
             if link:
                 self.not_product_urls.add(self._url_key(link))
             return None
-        return self._build_product(name, self._text(entry, "span"), link)
+        own = self._clean_text(name).casefold()
+        categories = [category for category in categories if category.casefold() != own]
+        return self._build_product(name, self._text(entry, "span"), link, categories=categories)
 
     def _menu_products(self, response: Response) -> Iterator[CloudProduct]:
-        """Extract the products of the products menu.
+        """Extract the products of the products menu, with their categories.
 
         Args:
             response (Response): A page of the website.
 
         Yields:
-            Iterator[CloudProduct]: Each valid product of the menu, duplicates included.
+            Iterator[CloudProduct]: Each valid product of the menu, once.
         """
-        entries = response.css("#dropdown-products a.mega__item")
-        self.logger.debug("%d products menu entries found on %s.", len(entries), response.url)
-        for entry in entries:
-            if product := self._menu_product(entry, response.url):
+        for entry, categories in self._menu_entries(response):
+            if product := self._menu_product(entry, response.url, categories):
                 yield product
 
     def _is_product_page(self, url: str) -> bool:

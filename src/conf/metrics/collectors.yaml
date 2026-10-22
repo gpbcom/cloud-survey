@@ -1,0 +1,45 @@
+# Where the metric collectors (CRAWLER_SOURCE=metrics) find each provider.
+# - cik: the SEC EDGAR filer of the group (companyfacts holds no segment, so the capex is the group's).
+# - wikidata: the item of the provider (founding date P571, employees P1128).
+# - asns: its autonomous systems at PeeringDB (internet exchanges and facilities).
+# - repositories: its Terraform provider (and SDK) repositories at GitHub (stars).
+# Secrets are never written here: only the names of the environment variables holding them.
+user_agent: "poc-crawler/0.1 (cloud market research)"
+# SEC EDGAR asks for a user agent naming a contact, e.g. "Company Name admin@company.example".
+sec_user_agent_env: CRAWLER_SEC_USER_AGENT
+github_token_env: GITHUB_TOKEN
+# PeeringDB throttles the anonymous queries (HTTP 429): an API key (Api-Key header) lifts the limit.
+peeringdb_key_env: PEERINGDB_API_KEY
+capex_concepts:
+  - PaymentsToAcquirePropertyPlantAndEquipment
+  - PaymentsToAcquireProductiveAssets
+entries:
+  - {provider: amazon-web-services, cik: "1018724", wikidata: Q456157, asns: [16509], repositories: [hashicorp/terraform-provider-aws]}
+  - {provider: microsoft-azure, cik: "789019", wikidata: Q725967, asns: [8075], repositories: [hashicorp/terraform-provider-azurerm]}
+  - {provider: google-cloud-platform, cik: "1652044", wikidata: Q17054505, asns: [15169], repositories: [hashicorp/terraform-provider-google]}
+  - {provider: oracle-cloud, cik: "1341439", wikidata: Q43401211, asns: [31898], repositories: [oracle/terraform-provider-oci]}
+  - {provider: ibm-cloud, cik: "51143", wikidata: Q96381605, asns: [36351], repositories: [IBM-Cloud/terraform-provider-ibm]}
+  - {provider: ovh-cloud, wikidata: Q568183, asns: [16276], repositories: [ovh/terraform-provider-ovh]}
+  - {provider: scaleway, wikidata: Q3352745, asns: [12876], repositories: [scaleway/terraform-provider-scaleway]}
+  - {provider: combell, wikidata: Q109450229}
+  - {provider: proximus-nxt, wikidata: Q2005282}
+  - {provider: stackit, wikidata: Q140224984, repositories: [stackitcloud/terraform-provider-stackit]}
+  - {provider: t-cloud-public, wikidata: Q27926473, repositories: [opentelekomcloud/terraform-provider-opentelekomcloud]}
+  - {provider: aruba-cloud, wikidata: Q3624634, asns: [31034]}
+  - {provider: seeweb, asns: [12637]}
+  - {provider: gcore, wikidata: Q114616935, asns: [199524], repositories: [G-Core/terraform-provider-gcore]}
+  - {provider: arsys, wikidata: Q5706430}
+  - {provider: gigas, wikidata: Q17054308}
+  - {provider: exoscale, asns: [61098], repositories: [exoscale/terraform-provider-exoscale]}
+  - {provider: infomaniak, asns: [29222]}
+  - {provider: civo, repositories: [civo/terraform-provider-civo]}
+  - {provider: krystal, wikidata: Q135184583}
+  - {provider: alibaba-cloud, wikidata: Q17062154, asns: [45102], repositories: [aliyun/terraform-provider-alicloud]}
+  - {provider: huawei-cloud, asns: [136907], repositories: [huaweicloud/terraform-provider-huaweicloud]}
+  - {provider: tencent-cloud, wikidata: Q17500218, asns: [132203], repositories: [tencentcloudstack/terraform-provider-tencentcloud]}
+  - {provider: baidu-ai-cloud, wikidata: Q17150417, repositories: [baidubce/terraform-provider-baiducloud]}
+  - {provider: volcano-engine, repositories: [volcengine/terraform-provider-volcengine]}
+  - {provider: yandex-cloud, wikidata: Q109918390, asns: [13238], repositories: [yandex-cloud/terraform-provider-yandex]}
+  - {provider: vk-cloud, repositories: [vk-cs/terraform-provider-vkcs]}
+  - {provider: cloud-ru, wikidata: Q109320469}
+  - {provider: selectel, wikidata: Q16495806, asns: [49505], repositories: [selectel/terraform-provider-selectel]}

@@ -12,7 +12,7 @@ from scrapling.spiders import Response
 # First Party Imports.
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class ArubaCloudMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -30,7 +30,8 @@ class ArubaCloudMarketplaceCrawler(BaseMarketplaceCrawler):
         `article.card` gives a name (`h3[data-mh=title]`), a category badge (the `span` of the first paragraph,
         missing for some cards) and a description (the next paragraph), then an availability line (Linux or
         Windows). The few cards with a "Learn more" link get that application page as URL, the others the catalogue
-        page with an anchor made of their name. The page gives no publisher.
+        page with an anchor made of their name. The page gives no publisher. The marketplace taxonomy is flat: the
+        category path is the badge text, without identifier.
     """
 
     CARDS: ClassVar[str] = "section#catalogo article.card, section#catalogo ~ section article.card"
@@ -108,6 +109,7 @@ class ArubaCloudMarketplaceCrawler(BaseMarketplaceCrawler):
                 self._listing_url(card, name, response.url),
                 delivery=DeliveryMethod.VIRTUAL_MACHINE,
                 marketplace_categories=[category],
+                marketplace_category_paths=[self._category([category])],
             )
             if software is not None:
                 yield software

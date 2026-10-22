@@ -1,39 +1,59 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
-from collections.abc import Iterator
-from datetime import UTC, datetime
+import uuid
+from collections.abc import AsyncIterator, Iterator
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Awaitable, Callable, Dict, List, Tuple, Union
 from unittest.mock import MagicMock, patch
 
+import asyncpg
 import pytest
 from pydantic import JsonValue
 from scrapling.spiders import Request, Response
+from sqlalchemy import text
+from sqlalchemy.engine import make_url
 
 from crawler.cloud.base import BaseCloudCrawler
-from models.cloud.catalogue import CloudCatalogue
+from crawler.metrics.catalog_loader import CollectorCatalogLoader
+from crawler.tls.ca_bundle import CaBundle
+from gui.paging.identified_row import IdentifiedRow
+from gui.paging.page.paged_table_model import PagedTableModel
+from gui.storage_bridge.storage_loop import StorageLoop
+from models.cloud.dated_item import DatedItem
 from models.cloud.enums import (
     CloudProvider,
+    DateCaveat,
+    DateSource,
     DeliveryMethod,
     MarketPlayer,
     MarketRegion,
     MarketSegment,
     PricingPolicy,
     SoftwareCategory,
-    SoftwareType,
 )
-from models.cloud.marketplace import CloudMarketplace
-from models.cloud.marketplace_software import MarketplaceSoftware
-from models.cloud.product import CloudProduct
+from models.cloud.products.catalogue import CloudCatalogue
+from models.cloud.products.product import CloudProduct
+from models.cloud.software.marketplace import CloudMarketplace
+from models.cloud.software.marketplace_software import MarketplaceSoftware
+from models.configuration.storage.storage_settings import StorageSettings
+from models.drivers.collectors.collector_catalog import CollectorCatalog
 from models.stats.market_report import MarketReport
+from models.storage.enums import StorageTable
+from scripts.migrate_database import DatabaseMigrator
+from storage.storage import Storage
 
 # The GUI tests run headless.
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 CRAWLED_AT = datetime(2026, 10, 16, 7, 24, tzinfo=UTC)
+# The PostgreSQL server of the `db` tests (`uv run install-stack --test`): without it they are skipped.
+TEST_DATABASE_VARIABLE = "STORAGE_TEST_DATABASE_URL"
+STORAGE_TABLES = ", ".join(StorageTable)
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -47,6 +67,23 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
     for item in items:
         if item.get_closest_marker("live"):
             item.add_marker(skip_live)
+
+
+@pytest.fixture(autouse=True)
+def isolated_ca_bundle(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Write the merged CA bundle of the crawlers in the test folder, and restore the variables it installs."""
+    cache_file = tmp_path / "ca-bundle.pem"
+    monkeypatch.setattr(CaBundle, "CACHE_FILE", cache_file)
+    for variable in (*CaBundle.INSTALLED_VARIABLES, CaBundle.SOURCES_VARIABLE):
+        monkeypatch.setenv(variable, os.environ.get(variable, ""))
+    return cache_file
+
+
+@pytest.fixture(autouse=True)
+def no_language_model(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Unset the language model keys and settings: no test ever calls a paid model."""
+    for variable in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "CRAWLER_LLM_CONFIG"):
+        monkeypatch.delenv(variable, raising=False)
 
 
 @pytest.fixture(autouse=True)
@@ -66,6 +103,25 @@ def make_response() -> Callable[[str, str], Response]:
     def build(url: str, fixture: str) -> Response:
         content = (FIXTURES_DIR / "crawler" / fixture).read_bytes()
         return Response(url=url, content=content, status=200, reason="OK", cookies={}, headers={}, request_headers={})
+
+    return build
+
+
+@pytest.fixture(scope="session")
+def metric_catalog() -> CollectorCatalog:
+    """The shipped catalogue of where each provider is found at the metric sources (`conf/metrics/collectors.yaml`)."""
+    return CollectorCatalogLoader().load()
+
+
+@pytest.fixture
+def metric_page() -> Callable[[str, str, Dict[str, JsonValue]], Response]:
+    """Build an offline response from a recorded document of `tests/fixtures/metrics`, with its request meta."""
+
+    def build(url: str, fixture: str, meta: Dict[str, JsonValue]) -> Response:
+        content = (FIXTURES_DIR / "metrics" / fixture).read_bytes()
+        return Response(
+            url=url, content=content, status=200, reason="OK", cookies={}, headers={}, request_headers={}, meta=meta
+        )
 
     return build
 
@@ -196,7 +252,7 @@ def make_marketplace() -> Callable[[CloudProvider, List[MarketplaceSoftware]], C
 
 def build_software(
     name: str,
-    types: List[SoftwareType],
+    labels: List[str],
     categories: List[SoftwareCategory],
     delivery: DeliveryMethod = DeliveryMethod.SAAS,
     publisher: str = "ACME",
@@ -208,15 +264,14 @@ def build_software(
         publisher=publisher,
         url=f"https://marketplace.example.com/{name.casefold().replace(' ', '-')}",
         delivery=delivery,
-        marketplace_categories=[kind.value for kind in types],
+        marketplace_categories=labels,
         categories=categories,
-        types=types,
     )
 
 
 @pytest.fixture
 def make_software() -> Callable[..., MarketplaceSoftware]:
-    """Build a marketplace software: name, types, categories, then optionally the delivery and publisher."""
+    """Build a marketplace software: name, marketplace labels, audiences, then optionally the delivery and publisher."""
     return build_software
 
 
@@ -256,3 +311,92 @@ def make_catalogue() -> Callable[[CloudProvider, List[str]], CloudCatalogue]:
         return CloudCatalogue(provider=provider, crawled_at=CRAWLED_AT, products=products)
 
     return build
+
+
+async def run_on_server(url: str, statement: str) -> None:
+    """Run a statement on the maintenance database of the test server (creating or dropping a database)."""
+    server = make_url(url).set(drivername="postgresql", database="postgres")
+    connection = await asyncpg.connect(server.render_as_string(hide_password=False))
+    try:
+        await connection.execute(statement)
+    finally:
+        await connection.close()
+
+
+@pytest.fixture(scope="session")
+def database_url() -> Iterator[str]:
+    """Create a throw-away database migrated to the head revision, one per test worker, dropped at the end."""
+    base = os.getenv(TEST_DATABASE_VARIABLE, "").strip()
+    if not base:
+        pytest.skip(f"Database test: set {TEST_DATABASE_VARIABLE} (see `uv run install-stack --test`).")
+    name = f"poc_crawler_test_{uuid.uuid4().hex[:12]}"
+    # From template0, which no session uses: concurrent test runs never wait for each other.
+    asyncio.run(run_on_server(base, f'CREATE DATABASE "{name}" TEMPLATE template0'))
+    url = make_url(base).set(database=name).render_as_string(hide_password=False)
+    try:
+        DatabaseMigrator(StorageSettings(url=url)).upgrade()
+        yield url
+    finally:
+        asyncio.run(run_on_server(base, f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)'))
+
+
+@pytest.fixture
+def storage_settings(database_url: str) -> StorageSettings:
+    """The settings of the test database, with small batches so that the tests write several of them."""
+    return StorageSettings(url=database_url, pool_size=2, max_overflow=8, batch_size=3)
+
+
+@pytest.fixture
+async def storage(storage_settings: StorageSettings) -> AsyncIterator[Storage]:
+    """An open storage on an empty test database."""
+    async with Storage(storage_settings) as opened:
+        async with opened.database.connect() as connection:
+            await connection.execute(text(f"TRUNCATE {STORAGE_TABLES} RESTART IDENTITY CASCADE"))
+            await connection.commit()
+        yield opened
+
+
+@pytest.fixture
+def gui_loop(storage: Storage, storage_settings: StorageSettings) -> Iterator[StorageLoop]:
+    """The storage thread of the GUI, on the emptied test database (seeded through `storage`)."""
+    loop = StorageLoop(Storage(storage_settings))
+    yield loop
+    loop.stop()
+
+
+def build_product(name: str, deleted: bool = False, caveat: bool = False) -> CloudProduct:
+    """Build a product added a week before the crawl, optionally deleted or with an approximate date."""
+    return CloudProduct(
+        name=name,
+        description=f"{name} description",
+        url=f"https://cloud.example/{name.casefold().replace(' ', '-')}",
+        added_at=CRAWLED_AT - timedelta(days=7),
+        added_from=DateSource.WEBSITE,
+        added_caveat=DateCaveat.YEAR_ONLY if caveat else None,
+        deleted_at=CRAWLED_AT if deleted else None,
+    )
+
+
+async def seed_catalogue(storage: Storage, provider: CloudProvider, products: List[CloudProduct]) -> None:
+    """Store a catalogue as it is, with the dates of its products."""
+    await storage.catalogues.import_items(provider, CRAWLED_AT, products)
+
+
+async def seed_marketplace(storage: Storage, provider: CloudProvider, software: List[MarketplaceSoftware]) -> None:
+    """Store a marketplace as it is, with the dates of its software."""
+    await storage.marketplaces.import_items(provider, CRAWLED_AT, software)
+
+
+def fill_table[T: DatedItem, R: IdentifiedRow](table: PagedTableModel[T, R], rows: List[R]) -> None:
+    """Show rows in a paged table without the storage: they are put in its cache, as read."""
+    table._resize(len(rows))
+    for start in range(0, max(len(rows), 1), table.PAGE_SIZE):
+        table.cache.store(start // table.PAGE_SIZE, rows[start : start + table.PAGE_SIZE])
+
+
+@pytest.fixture
+def offline_loop() -> Iterator[StorageLoop]:
+    """A storage thread of the GUI which is never started: the tables are filled by `fill_table`."""
+    loop = StorageLoop(Storage(StorageSettings()))
+    yield loop
+    loop.stop()

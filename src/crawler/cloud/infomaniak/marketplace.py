@@ -8,10 +8,11 @@ from typing import ClassVar, Iterator, Optional
 from scrapling.spiders import Response
 
 # First Party Imports.
+from crawler.enums import HtmlAttribute
 from crawler.exception import CatalogueFormatError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class InfomaniakMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -34,7 +35,8 @@ class InfomaniakMarketplaceCrawler(BaseMarketplaceCrawler):
         stable prefixes are matched, never the hashed suffixes. There is no application page: each listing gets the
         page URL with an anchor made of its name. The page gives no publisher. Some descriptions of the page belong
         to other applications (e.g. Ghost, Drupal and Joomla described as database engines): they are kept as
-        published.
+        published. The marketplace taxonomy is flat: the category path is the tab label, identified by the `id` of
+        its tab panel (e.g. `ecommerce`).
     """
 
     TABS: ClassVar[str] = '[class*="Tabs-module--tabsTab--"] button'
@@ -90,6 +92,7 @@ class InfomaniakMarketplaceCrawler(BaseMarketplaceCrawler):
             )
             raise CatalogueFormatError(self.name, response.url, "the tabs do not match the tab panels")
         for tab, panel in zip(tabs, panels, strict=True):
+            path = self._category([tab], panel.attrib.get(HtmlAttribute.ID) or None)
             for item in panel.css(self.ITEMS):
                 title = item.css(self.NAME).first
                 description = item.css(self.DESCRIPTION).first
@@ -103,6 +106,7 @@ class InfomaniakMarketplaceCrawler(BaseMarketplaceCrawler):
                     self._listing_url(name),
                     delivery=DeliveryMethod.CONTAINER,
                     marketplace_categories=[tab],
+                    marketplace_category_paths=[path],
                 )
                 if software is not None:
                     yield software

@@ -21,6 +21,8 @@ from crawler.cloud.baidu.marketplace import BaiduMarketplaceCrawler
 from crawler.cloud.base import BaseCloudCrawler
 from crawler.cloud.civo.crawler import CivoCrawler
 from crawler.cloud.civo.marketplace import CivoMarketplaceCrawler
+from crawler.cloud.cloudru.crawler import CloudRuCrawler
+from crawler.cloud.cloudru.marketplace import CloudRuMarketplaceCrawler
 from crawler.cloud.combell.crawler import CombellCrawler
 from crawler.cloud.combell.marketplace import CombellMarketplaceCrawler
 from crawler.cloud.ctyun.crawler import ChinaTelecomCloudCrawler
@@ -50,19 +52,32 @@ from crawler.cloud.proximus.crawler import ProximusNXTCrawler
 from crawler.cloud.scaleway.crawler import ScalewayCrawler
 from crawler.cloud.scaleway.marketplace import ScalewayMarketplaceCrawler
 from crawler.cloud.seeweb.crawler import SeewebCrawler
+from crawler.cloud.selectel.crawler import SelectelCrawler
+from crawler.cloud.selectel.marketplace import SelectelMarketplaceCrawler
 from crawler.cloud.stackit.crawler import STACKITCrawler
 from crawler.cloud.stackit.marketplace import STACKITMarketplaceCrawler
 from crawler.cloud.tcloud.crawler import TCloudPublicCrawler
 from crawler.cloud.tcloud.marketplace import TCloudPublicMarketplaceCrawler
 from crawler.cloud.tencent.crawler import TencentCloudCrawler
 from crawler.cloud.tencent.marketplace import TencentMarketplaceCrawler
+from crawler.cloud.vkcloud.crawler import VKCloudCrawler
+from crawler.cloud.vkcloud.marketplace import VKCloudMarketplaceCrawler
 from crawler.cloud.volcengine.crawler import VolcanoEngineCrawler
 from crawler.cloud.volcengine.marketplace import VolcanoEngineMarketplaceCrawler
+from crawler.cloud.yandex.crawler import YandexCloudCrawler
+from crawler.cloud.yandex.marketplace import YandexMarketplaceCrawler
 from crawler.exception import NoMarketplaceError, UnknownCrawlerTargetError
 from crawler.marketplace.base import BaseMarketplaceCrawler
+from crawler.metrics.base import BaseMetricsCrawler
+from crawler.metrics.edgar.crawler import EdgarCrawler
+from crawler.metrics.github.crawler import GithubCrawler
+from crawler.metrics.peeringdb.crawler import PeeringdbCrawler
+from crawler.metrics.wikidata.crawler import WikidataCrawler
 from crawler.stats.base import BaseStatsCrawler
 from crawler.stats.synergy import SynergyResearchCrawler
 from models.cloud.enums import CloudProvider
+from models.drivers.collectors.collector_catalog import CollectorCatalog
+from models.drivers.enums import MetricSource
 
 
 class CrawlerFactory:
@@ -75,6 +90,7 @@ class CrawlerFactory:
             cloud provider having a marketplace (or a list of one-click applications).
         STATISTICS_MAP (Final[Dict[str, Type[BaseStatsCrawler]]]): The crawler of each market statistics source, by
             name (e.g. `synergy`).
+        METRICS_MAP (Final[Dict[MetricSource, Type[BaseMetricsCrawler]]]): The crawler of each metric source.
     """
 
     CRAWLER_MAP: Final[Dict[CloudProvider, Type[BaseCloudCrawler]]] = {
@@ -106,6 +122,10 @@ class CrawlerFactory:
         CloudProvider.VOLCENGINE: VolcanoEngineCrawler,
         CloudProvider.CTYUN: ChinaTelecomCloudCrawler,
         CloudProvider.ECLOUD: ChinaMobileCloudCrawler,
+        CloudProvider.YANDEX_CLOUD: YandexCloudCrawler,
+        CloudProvider.VK_CLOUD: VKCloudCrawler,
+        CloudProvider.CLOUD_RU: CloudRuCrawler,
+        CloudProvider.SELECTEL: SelectelCrawler,
     }
 
     MARKETPLACE_MAP: Final[Dict[CloudProvider, Type[BaseMarketplaceCrawler]]] = {
@@ -131,9 +151,19 @@ class CrawlerFactory:
         CloudProvider.BAIDU: BaiduMarketplaceCrawler,
         CloudProvider.VOLCENGINE: VolcanoEngineMarketplaceCrawler,
         CloudProvider.CTYUN: ChinaTelecomMarketplaceCrawler,
+        CloudProvider.YANDEX_CLOUD: YandexMarketplaceCrawler,
+        CloudProvider.VK_CLOUD: VKCloudMarketplaceCrawler,
+        CloudProvider.CLOUD_RU: CloudRuMarketplaceCrawler,
+        CloudProvider.SELECTEL: SelectelMarketplaceCrawler,
     }
 
     STATISTICS_MAP: Final[Dict[str, Type[BaseStatsCrawler]]] = {"synergy": SynergyResearchCrawler}
+    METRICS_MAP: Final[Dict[MetricSource, Type[BaseMetricsCrawler]]] = {
+        MetricSource.EDGAR: EdgarCrawler,
+        MetricSource.WIKIDATA: WikidataCrawler,
+        MetricSource.PEERINGDB: PeeringdbCrawler,
+        MetricSource.GITHUB: GithubCrawler,
+    }
 
     def __init__(self, logger: Optional[Logger] = None) -> None:
         """Crawler abstract factory.
@@ -240,3 +270,25 @@ class CrawlerFactory:
             raise UnknownCrawlerTargetError(name)
         self.logger.info("Instantiating %s for the %s statistics.", crawler.__name__, name)
         return crawler()
+
+    def get_metrics(self, source: MetricSource, catalog: Optional[CollectorCatalog] = None) -> BaseMetricsCrawler:
+        """Get the crawler instance of a metric source.
+
+        Args:
+            source (MetricSource): The source, e.g. SEC EDGAR.
+            catalog (Optional[CollectorCatalog]): Where each provider is found, `conf/metrics/collectors.yaml` by
+                default.
+
+        Returns:
+            BaseMetricsCrawler: The metrics crawler ready to run.
+
+        Raises:
+            UnknownCrawlerTargetError: If there is no crawler for the source.
+            CollectorCatalogError: If the default catalogue cannot be loaded.
+        """
+        crawler = self.METRICS_MAP.get(source)
+        if crawler is None:
+            self.logger.error("There is no metrics crawler for the source: %s", source.value)
+            raise UnknownCrawlerTargetError(source.value)
+        self.logger.info("Instantiating %s for the %s metrics.", crawler.__name__, source.value)
+        return crawler(catalog=catalog)

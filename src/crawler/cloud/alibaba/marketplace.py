@@ -16,10 +16,21 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from classifier.software_classifier import SoftwareClassifier
+from crawler.cloud.alibaba.enums import (
+    AlibabaCardDelivery,
+    AlibabaCardInfo,
+    AlibabaMarketplaceMeta,
+    AlibabaMarketplaceQuery,
+    AlibabaMarketplaceTop,
+    AlibabaMenuClass,
+    AlibabaProductCodePrefix,
+)
+from crawler.enums import HtmlAttribute
 from crawler.exception import CatalogueFormatError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_category import MarketplaceCategory
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -28,9 +39,10 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
     Attributes:
         HOST (ClassVar[str]): The international marketplace website.
         PAGE_SIZE (ClassVar[int]): The number of products per result page, the largest one the website offers.
-        TOP (ClassVar[str]): The meta key holding the identifier of the top category of a result page.
-        PAGE (ClassVar[str]): The meta key holding the number of a result page.
-        EXCLUDED_TOPS (ClassVar[FrozenSet[str]]): The top categories which are not software.
+        TOP (ClassVar[AlibabaMarketplaceMeta]): The meta key holding the identifier of the top category of a result
+            page.
+        PAGE (ClassVar[AlibabaMarketplaceMeta]): The meta key holding the number of a result page.
+        EXCLUDED_TOPS (ClassVar[FrozenSet[AlibabaMarketplaceTop]]): The top categories which are not software.
         MENU (ClassVar[str]): The category menu groups, a top category followed by its sub-categories.
         CARD (ClassVar[str]): The product cards of a result page, without the advertised one.
         TITLE (ClassVar[str]): The product link of a card.
@@ -42,10 +54,14 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
         SIZE_APPLIED (ClassVar[str]): The script telling whether a result page shows its products by `PAGE_SIZE`.
         PAGE_SHOWN (ClassVar[str]): The script telling whether a result page shows another page of products.
         PRODUCT_PATH (ClassVar[re.Pattern[str]]): The product page path: its leaf category and product code.
-        DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery of each card delivery method.
-        CODE_DELIVERIES (ClassVar[Tuple[Tuple[str, Optional[DeliveryMethod]], ...]]): The delivery given by the
-            product code prefix, when a card has no known delivery method, `None` for a service.
+        DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery of each card delivery method
+            (`AlibabaCardDelivery`).
+        CODE_DELIVERIES (ClassVar[Tuple[Tuple[AlibabaProductCodePrefix, Optional[DeliveryMethod]], ...]]): The
+            delivery given by the product code prefix, when a card has no known delivery method, `None` for a
+            service.
         category_names (Dict[str, str]): The category names, by category identifier.
+        category_parents (Dict[str, str]): The top category identifier of each sub-category of the menu, by
+            sub-category identifier.
 
     Notes:
         The product list API and the `?page=` URLs are disallowed by `robots.txt`, and the sitemap is broken: the
@@ -54,14 +70,15 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
         page of a top category is one browser request (`/products?categoryId=<top>`), whose page action shows 50
         products per page and goes to the requested page. A card gives the product name, description, publisher
         ("By ..."), delivery method (image, SaaS, API or service, the services being skipped) and its page, whose
-        path holds the leaf category, named after the menu.
+        path holds the leaf category, named after the menu. A product is given the path of its leaf category under
+        the menu top category of that leaf (which may not be the queried top category, then given as a path too).
     """
 
     HOST: ClassVar[str] = "https://marketplace.alibabacloud.com"
     PAGE_SIZE: ClassVar[int] = 50
-    TOP: ClassVar[str] = "top"
-    PAGE: ClassVar[str] = "page"
-    EXCLUDED_TOPS: ClassVar[FrozenSet[str]] = frozenset({"Professional Service"})
+    TOP: ClassVar[AlibabaMarketplaceMeta] = AlibabaMarketplaceMeta.TOP
+    PAGE: ClassVar[AlibabaMarketplaceMeta] = AlibabaMarketplaceMeta.PAGE
+    EXCLUDED_TOPS: ClassVar[FrozenSet[AlibabaMarketplaceTop]] = frozenset({AlibabaMarketplaceTop.PROFESSIONAL_SERVICE})
     MENU: ClassVar[str] = "ul.menu_item"
     CARD: ClassVar[str] = ".product-list-item:not(.advertising)"
     TITLE: ClassVar[str] = ".list-item-title a"
@@ -83,15 +100,15 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
     )
     PRODUCT_PATH: ClassVar[re.Pattern[str]] = re.compile(r"/products/(\d+)/([a-z]+)\d+\.html$")
     DELIVERIES: ClassVar[Dict[str, DeliveryMethod]] = {
-        "image": DeliveryMethod.VIRTUAL_MACHINE,
-        "saas": DeliveryMethod.SAAS,
-        "api": DeliveryMethod.API,
+        AlibabaCardDelivery.IMAGE: DeliveryMethod.VIRTUAL_MACHINE,
+        AlibabaCardDelivery.SAAS: DeliveryMethod.SAAS,
+        AlibabaCardDelivery.API: DeliveryMethod.API,
     }
-    CODE_DELIVERIES: ClassVar[Tuple[Tuple[str, Optional[DeliveryMethod]], ...]] = (
-        ("cmfw", None),
-        ("cmjj", DeliveryMethod.VIRTUAL_MACHINE),
-        ("cmgj", DeliveryMethod.SAAS),
-        ("cmapi", DeliveryMethod.API),
+    CODE_DELIVERIES: ClassVar[Tuple[Tuple[AlibabaProductCodePrefix, Optional[DeliveryMethod]], ...]] = (
+        (AlibabaProductCodePrefix.SERVICE, None),
+        (AlibabaProductCodePrefix.IMAGE, DeliveryMethod.VIRTUAL_MACHINE),
+        (AlibabaProductCodePrefix.SAAS, DeliveryMethod.SAAS),
+        (AlibabaProductCodePrefix.API, DeliveryMethod.API),
     )
 
     name = "alibaba-marketplace"
@@ -112,6 +129,7 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         super().__init__(crawldir=crawldir, interval=interval, classifier=classifier)
         self.category_names: Dict[str, str] = {}
+        self.category_parents: Dict[str, str] = {}
 
     ############################
     # Internal Helpers Methods #
@@ -179,7 +197,7 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             Optional[str]: The identifier, `None` when the link has none.
         """
-        values = parse_qs(urlparse(href or "").query).get("categoryId")
+        values = parse_qs(urlparse(href or "").query).get(AlibabaMarketplaceQuery.CATEGORY_ID)
         return values[0] if values else None
 
     def _read_menu(self, response: Response) -> List[Tuple[str, str]]:
@@ -193,15 +211,19 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         tops: List[Tuple[str, str]] = []
         for group in response.css(self.MENU):
+            parent: Optional[str] = None
             for item in group.css("li"):
                 link = item.css("a").first
-                identifier = self._category_id(link.attrib.get("href")) if link is not None else None
+                identifier = self._category_id(link.attrib.get(HtmlAttribute.HREF)) if link is not None else None
                 label = self._clean_text(link.get_all_text(separator=" ", strip=True)) if link is not None else ""
                 if identifier is None or not label:
                     continue
                 self.category_names[identifier] = label
-                if "title" in str(item.attrib.get("class", "")).split():
+                if AlibabaMenuClass.TITLE in str(item.attrib.get(HtmlAttribute.CLASS, "")).split():
                     tops.append((identifier, label))
+                    parent = identifier
+                elif parent is not None:
+                    self.category_parents[identifier] = parent
         self.logger.debug("%d categories in the menu of %s.", len(self.category_names), response.url)
         return tops
 
@@ -296,12 +318,34 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             Optional[DeliveryMethod]: The delivery, `None` for a service (`OTHER` when unknown).
         """
-        method = next((line.split(":", 1)[1].strip() for line in info if line.startswith("Delivery Method:")), "")
-        if method.casefold() == "service":
+        method = next(
+            (line.split(":", 1)[1].strip() for line in info if line.startswith(AlibabaCardInfo.DELIVERY_METHOD)), ""
+        )
+        if method.casefold() == AlibabaCardDelivery.SERVICE:
             return None
         if delivery := self.DELIVERIES.get(method.casefold()):
             return delivery
         return next((delivery for prefix, delivery in self.CODE_DELIVERIES if prefix in code), DeliveryMethod.OTHER)
+
+    def _category_paths(self, top: str, leaf: str) -> List[Optional[MarketplaceCategory]]:
+        """Get the category paths of a product, from its queried top category and its leaf category.
+
+        Args:
+            top (str): The top category identifier of the result page.
+            leaf (str): The leaf category identifier of the product page path, empty when unknown.
+
+        Returns:
+            List[Optional[MarketplaceCategory]]: The leaf category under its menu top category (identified by the
+                leaf), and the queried top category (identified by itself), dropped when above the leaf.
+        """
+        paths: List[Optional[MarketplaceCategory]] = [self._category([self.category_names.get(top)], top)]
+        if leaf and leaf in self.category_names:
+            parent = self.category_parents.get(leaf)
+            names = [self.category_names.get(parent) if parent else None, self.category_names[leaf]]
+            paths.append(self._category(names, leaf))
+        else:
+            self.logger.debug("No leaf category path for %r under the %s top category %s.", leaf, self.name, top)
+        return paths
 
     def _card_software(self, card: Selector, top: str) -> Optional[MarketplaceSoftware]:
         """Build the software of a product card.
@@ -318,7 +362,7 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
             self.logger.debug("Skipping a product card without link.")
             return None
         name = self._clean_text(link.get_all_text(separator=" ", strip=True))
-        url = urljoin(self.HOST, urlparse(link.attrib.get("href", "")).path)
+        url = urljoin(self.HOST, urlparse(link.attrib.get(HtmlAttribute.HREF, "")).path)
         leaf, code = match.groups() if (match := self.PRODUCT_PATH.search(url)) else ("", "")
         info = [
             self._clean_text(item.get_all_text(separator=" ", strip=True)) for item in card.css(".list-item-info li")
@@ -339,6 +383,7 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
             publisher=re.sub(r"^By\s+", "", self._clean_text(publisher)),
             delivery=delivery,
             marketplace_categories=[self.category_names.get(top), self.category_names.get(leaf)],
+            marketplace_category_paths=self._category_paths(top, leaf),
         )
 
     ############################

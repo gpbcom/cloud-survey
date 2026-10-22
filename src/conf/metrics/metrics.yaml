@@ -1,0 +1,44 @@
+# The criteria and the targets of the "Rise drivers" analysis (docs/analysis/rise-drivers.md).
+#
+# scale: count (log(1 + x)), amount (log x) or share (as it is). target: whether it measures the rise.
+# sources: where the value comes from (derived: computed from the crawled data), or where to find it.
+
+definitions:
+  # Economic: the targets of the economic rise.
+  - {metric: market-share, label: Market share, family: economic, scale: share, unit: "%", target: true, description: "Share of the world cloud infrastructure market.", sources: [Synergy Research Group]}
+  - {metric: revenue, label: Revenue (share × market), family: economic, scale: amount, unit: USD bn, target: true, description: "Market share times the world market size of the quarter.", sources: [Synergy Research Group]}
+  - {metric: cloud-revenue, label: Cloud revenue (reported), family: economic, scale: amount, unit: USD bn, target: true, description: "Cloud revenue of the quarter as an annual report or an analyst publishes it.", sources: [SEC EDGAR XBRL companyfacts, HKEX and SSE annual reports, Euronext reports, Canalys / IDC / Gartner press releases]}
+  # Breadth and mix of the catalogue.
+  - {metric: products, label: Catalogue products, family: breadth, scale: count, unit: products, target: true, description: "Listed products of the catalogue.", sources: [derived]}
+  - {metric: domains, label: Taxonomy domains, family: breadth, scale: count, unit: domains, description: "Domains of the unified taxonomy the catalogue covers.", sources: [derived]}
+  - {metric: categories, label: Taxonomy categories, family: breadth, scale: count, unit: categories, description: "Categories of the unified taxonomy the catalogue covers.", sources: [derived]}
+  - {metric: ai-share, label: AI share of the catalogue, family: mix, scale: share, unit: share, description: "Share of the products filed under AI and machine learning.", sources: [derived]}
+  - {metric: data-share, label: Data share of the catalogue, family: mix, scale: share, unit: share, description: "Share of the products filed under databases or data and analytics.", sources: [derived]}
+  - {metric: security-share, label: Security share of the catalogue, family: mix, scale: share, unit: share, description: "Share of the products filed under security or identity.", sources: [derived]}
+  - {metric: compute-share, label: Compute share of the catalogue, family: mix, scale: share, unit: share, description: "Share of the products filed under compute or containers.", sources: [derived]}
+  - {metric: developer-share, label: Developer tools share, family: mix, scale: share, unit: share, description: "Share of the products meant for developers.", sources: [derived]}
+  # Velocity.
+  - {metric: launches, label: Launches per quarter, family: velocity, scale: count, unit: products, target: true, description: "Products added in the quarter (website dates).", sources: [derived]}
+  - {metric: deletions, label: Deletions per quarter, family: velocity, scale: count, unit: products, description: "Products deleted in the quarter.", sources: [derived]}
+  # Ecosystem.
+  - {metric: marketplace-size, label: Marketplace listings, family: ecosystem, scale: count, unit: software, target: true, description: "Listed marketplace software.", sources: [derived]}
+  - {metric: publishers, label: Marketplace publishers, family: ecosystem, scale: count, unit: publishers, target: true, description: "Distinct publishers of the listed marketplace software.", sources: [derived]}
+  - {metric: new-listings, label: New listings per quarter, family: ecosystem, scale: count, unit: software, target: true, description: "Marketplace software added in the quarter.", sources: [derived]}
+  - {metric: saas-share, label: SaaS share of the marketplace, family: ecosystem, scale: share, unit: share, description: "Share of the marketplace software delivered as SaaS.", sources: [derived]}
+  - {metric: vm-share, label: VM share of the marketplace, family: ecosystem, scale: share, unit: share, description: "Share of the marketplace software delivered as virtual machine images.", sources: [derived]}
+  - {metric: ai-model-share, label: AI model share of the marketplace, family: ecosystem, scale: share, unit: share, description: "Share of the marketplace software delivered as AI models.", sources: [derived]}
+  # Parity and visibility.
+  - {metric: parity, label: Parity with the leaders, family: parity, scale: share, unit: share, description: "Share of the products with an equivalent at AWS, Azure or Google Cloud (AI matching).", sources: [derived]}
+  - {metric: mentions, label: Analyst mentions, family: visibility, scale: count, unit: articles, description: "Synergy Research Group articles of the quarter naming the provider.", sources: [Synergy Research Group]}
+  # Capacity, network, trust, adoption, company: collected or typed in (conf/metrics/manual-metrics.yaml).
+  - {metric: capex, label: Capital expenditure, family: capacity, scale: amount, unit: USD bn, description: "Capital expenditure of the quarter (data centres, servers).", sources: [SEC EDGAR XBRL PaymentsToAcquirePropertyPlantAndEquipment, annual reports]}
+  - {metric: regions, label: Cloud regions, family: capacity, scale: count, unit: regions, description: "Cloud regions open.", sources: [provider region pages]}
+  - {metric: availability-zones, label: Availability zones, family: capacity, scale: count, unit: zones, description: "Availability zones open.", sources: [provider region pages]}
+  - {metric: countries-served, label: Countries with a region, family: capacity, scale: count, unit: countries, description: "Countries holding a region of the provider.", sources: [provider region pages, PeeringDB facilities]}
+  - {metric: gpu-clusters, label: Large GPU clusters, family: capacity, scale: count, unit: clusters, description: "Large GPU clusters the provider operates.", sources: [Epoch AI GPU clusters dataset, TOP500, MLPerf]}
+  - {metric: network-exchanges, label: Internet exchanges, family: network, scale: count, unit: exchanges, description: "Internet exchanges the provider peers at.", sources: [PeeringDB API]}
+  - {metric: facilities, label: Interconnection facilities, family: network, scale: count, unit: facilities, description: "Interconnection facilities the provider is present at.", sources: [PeeringDB API]}
+  - {metric: certifications, label: Sovereignty certifications, family: trust, scale: count, unit: certifications, description: "Sovereignty and compliance certifications held (FedRAMP, SecNumCloud, C5, Gaia-X…).", sources: [FedRAMP marketplace, ANSSI SecNumCloud list, BSI C5, Gaia-X, CSA STAR]}
+  - {metric: sdk-stars, label: SDK GitHub stars, family: adoption, scale: count, unit: stars, description: "GitHub stars of the provider's SDKs and Terraform provider.", sources: [GitHub API, Terraform Registry, PyPI statistics]}
+  - {metric: employees, label: Employees, family: company, scale: amount, unit: people, description: "Employees of the provider (or of its group).", sources: [Wikidata, annual reports]}
+  - {metric: age, label: Age, family: company, scale: amount, unit: years, description: "Years since the provider was founded.", sources: [Wikidata]}

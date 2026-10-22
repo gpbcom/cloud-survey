@@ -12,10 +12,18 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from classifier.software_classifier import SoftwareClassifier
+from crawler.cloud.tcloud.enums import (
+    TCloudApiField,
+    TCloudProductType,
+    TCloudRequestMeta,
+    TCloudServiceCategory,
+    TCloudServiceSeller,
+)
 from crawler.exception import CatalogueFormatError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_category import MarketplaceCategory
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class TCloudPublicMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -23,10 +31,10 @@ class TCloudPublicMarketplaceCrawler(BaseMarketplaceCrawler):
 
     Attributes:
         CATEGORIES_URL (ClassVar[str]): The marketplace categories API.
-        CATEGORIES (ClassVar[str]): The meta key marking the categories request.
         PRODUCT_URL (ClassVar[str]): The product page URL template, filled with the product identifier.
-        SERVICE_CATEGORIES (ClassVar[FrozenSet[str]]): The categories of the professional services offers.
-        SERVICE_SELLERS (ClassVar[FrozenSet[str]]): The sellers of professional services only.
+        SERVICE_CATEGORIES (ClassVar[FrozenSet[TCloudServiceCategory]]): The categories of the professional
+            services offers.
+        SERVICE_SELLERS (ClassVar[FrozenSet[TCloudServiceSeller]]): The sellers of professional services only.
         NOT_SOFTWARE (ClassVar[re.Pattern[str]]): The names of the consulting offers listed in software categories.
         DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery method of each marketplace product type.
         category_names (Dict[str, str]): The name of each marketplace category, by identifier.
@@ -40,19 +48,24 @@ class TCloudPublicMarketplaceCrawler(BaseMarketplaceCrawler):
     """
 
     CATEGORIES_URL: ClassVar[str] = "https://marketplace.t-cloud-public.com/api/v1/client/categories"
-    CATEGORIES: ClassVar[str] = "categories"
     PRODUCT_URL: ClassVar[str] = "https://marketplace.t-cloud-public.com/product-offering/{product}"
-    SERVICE_CATEGORIES: ClassVar[FrozenSet[str]] = frozenset(
-        {"Advisory & Assessment", "Build & Migrate", "Optimize & Secure"}
+    SERVICE_CATEGORIES: ClassVar[FrozenSet[TCloudServiceCategory]] = frozenset(
+        {
+            TCloudServiceCategory.ADVISORY_ASSESSMENT,
+            TCloudServiceCategory.BUILD_MIGRATE,
+            TCloudServiceCategory.OPTIMIZE_SECURE,
+        }
     )
-    SERVICE_SELLERS: ClassVar[FrozenSet[str]] = frozenset({"T-Systems | Cloud Professional Services"})
+    SERVICE_SELLERS: ClassVar[FrozenSet[TCloudServiceSeller]] = frozenset(
+        {TCloudServiceSeller.T_SYSTEMS_PROFESSIONAL_SERVICES}
+    )
     NOT_SOFTWARE: ClassVar[re.Pattern[str]] = re.compile(
         r"\b(assessment|advisory|consulting)\b|transformation services", re.IGNORECASE
     )
     DELIVERIES: ClassVar[Dict[str, DeliveryMethod]] = {
-        "lead-generation": DeliveryMethod.SAAS,
-        "container": DeliveryMethod.CONTAINER,
-        "llm-tpm": DeliveryMethod.AI_MODEL,
+        TCloudProductType.LEAD_GENERATION: DeliveryMethod.SAAS,
+        TCloudProductType.CONTAINER: DeliveryMethod.CONTAINER,
+        TCloudProductType.LLM_TPM: DeliveryMethod.AI_MODEL,
     }
 
     name = "tcloud-marketplace"
@@ -104,7 +117,10 @@ class TCloudPublicMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         for entry in self._json_list(response):
             fields = self._as_object(entry)
-            identifier, label = self._as_text(fields.get("id")), self._as_text(fields.get("name"))
+            identifier, label = (
+                self._as_text(fields.get(TCloudApiField.ID)),
+                self._as_text(fields.get(TCloudApiField.NAME)),
+            )
             if identifier and label:
                 self.category_names[identifier] = label
         self.logger.info("%d %s categories read.", len(self.category_names), self.name)
@@ -118,11 +134,34 @@ class TCloudPublicMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             List[str]: The names of its known categories.
         """
-        identifiers = product.get("categories")
+        identifiers = product.get(TCloudApiField.CATEGORIES)
         if not isinstance(identifiers, list):
             return []
         names = (self.category_names.get(self._as_text(identifier) or "") for identifier in identifiers)
         return [label for label in names if label]
+
+    def _category_paths(self, product: Dict[str, JsonValue]) -> List[Optional[MarketplaceCategory]]:
+        """Build the marketplace category paths of a product.
+
+        Args:
+            product (Dict[str, JsonValue]): The product data.
+
+        Returns:
+            List[Optional[MarketplaceCategory]]: One single-level path per known category, identified by its
+                identifier (the categories API gives no parent category).
+        """
+        identifiers = product.get(TCloudApiField.CATEGORIES)
+        known = [
+            text
+            for text in (
+                self._as_text(identifier) for identifier in (identifiers if isinstance(identifiers, list) else [])
+            )
+            if text and text in self.category_names
+        ]
+        self.logger.debug(
+            "%d known %s categories of the product %r.", len(known), self.name, product.get(TCloudApiField.NAME)
+        )
+        return [self._category([self.category_names[identifier]], identifier) for identifier in known]
 
     def _excluded(self, name: Optional[str], seller: Optional[str], categories: List[str]) -> Optional[str]:
         """Tell why a product is not a software, if it is not.
@@ -152,10 +191,10 @@ class TCloudPublicMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             Optional[str]: The description, `None` when the product has none.
         """
-        short = self._as_text(product.get("description_short"))
+        short = self._as_text(product.get(TCloudApiField.DESCRIPTION_SHORT))
         if short and short.strip():
             return short
-        description = self._as_text(product.get("description"))
+        description = self._as_text(product.get(TCloudApiField.DESCRIPTION))
         return html.unescape(re.sub(r"<[^>]+>", " ", description)) if description else None
 
     ############################
@@ -169,7 +208,7 @@ class TCloudPublicMarketplaceCrawler(BaseMarketplaceCrawler):
             Request: The categories request, the products being requested once the categories are read.
         """
         self.logger.debug("Requesting the %s categories %s.", self.name, self.CATEGORIES_URL)
-        yield Request(self.CATEGORIES_URL, priority=self.PRIMARY_PRIORITY, meta={self.CATEGORIES: True})
+        yield Request(self.CATEGORIES_URL, priority=self.PRIMARY_PRIORITY, meta={TCloudRequestMeta.CATEGORIES: True})
 
     def extract_software(self, response: Response) -> Iterator[MarketplaceSoftware]:
         """Extract the software of the products API response, the professional services excluded.
@@ -185,8 +224,11 @@ class TCloudPublicMarketplaceCrawler(BaseMarketplaceCrawler):
         self.logger.info("%d products listed by the %s API %s.", len(products), self.name, response.url)
         for entry in products:
             product = self._as_object(entry)
-            name, identifier = self._as_text(product.get("name")), self._as_text(product.get("id"))
-            seller = self._as_text(self._as_object(product.get("seller")).get("name"))
+            name, identifier = (
+                self._as_text(product.get(TCloudApiField.NAME)),
+                self._as_text(product.get(TCloudApiField.ID)),
+            )
+            seller = self._as_text(self._as_object(product.get(TCloudApiField.SELLER)).get(TCloudApiField.NAME))
             categories = self._categories(product)
             if reason := self._excluded(name, seller, categories):
                 self.logger.debug("Skipping the %s product %r, not a software (%s).", self.name, name, reason)
@@ -196,9 +238,10 @@ class TCloudPublicMarketplaceCrawler(BaseMarketplaceCrawler):
                 self._description(product),
                 self.PRODUCT_URL.format(product=identifier) if identifier else None,
                 seller,
-                self.DELIVERIES.get(self._as_text(product.get("type")) or "", DeliveryMethod.OTHER),
+                self.DELIVERIES.get(self._as_text(product.get(TCloudApiField.TYPE)) or "", DeliveryMethod.OTHER),
                 categories,
-                added_at=self._parse_date(product.get("created_at"), name),
+                marketplace_category_paths=self._category_paths(product),
+                added_at=self._parse_date(product.get(TCloudApiField.CREATED_AT), name),
             )
             if software is not None:
                 yield software
@@ -207,12 +250,12 @@ class TCloudPublicMarketplaceCrawler(BaseMarketplaceCrawler):
         """Read the categories then request the products, or stream the software of the products.
 
         Args:
-            response (Response): The categories (`CATEGORIES` meta) or the products API response.
+            response (Response): The categories (`TCloudRequestMeta.CATEGORIES` meta) or the products API response.
 
         Yields:
             Union[Dict[str, JsonValue], Request]: The products request, or each software not streamed yet.
         """
-        if response.meta.get(self.CATEGORIES):
+        if response.meta.get(TCloudRequestMeta.CATEGORIES):
             self._read_categories(response)
             self.logger.debug("Requesting the %s products %s.", self.name, self.catalogue_url)
             yield self._catalogue_request()

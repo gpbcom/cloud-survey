@@ -12,7 +12,8 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
-from models.cloud.product import CloudProduct
+from crawler.enums import HtmlAttribute
+from models.cloud.products.product import CloudProduct
 
 
 class TCloudPublicCrawler(BaseCloudCrawler):
@@ -24,13 +25,16 @@ class TCloudPublicCrawler(BaseCloudCrawler):
         NOT_PRODUCT_SLUG (ClassVar[re.Pattern[str]]): The core services pages which are not products: dashboards,
             price display, documentation, certifications and professional services.
         TITLE_SUFFIX (ClassVar[re.Pattern[str]]): The brand suffix of the page titles.
+        SERVICE_LINK (ClassVar[str]): The CSS selector of the core service link of a table row.
 
     Notes:
         The main source is the https://www.t-cloud-public.com/en/products-services/core-services page: a table
         per category whose rows link a core service page and describe it in a tooltip
         (`scale-tooltip div[slot=content]`). The sitemap completes it: its core services pages missing from the
         tables are requested and read from their first heading (the page titles are marketing taglines) and meta
-        description, dated by their sitemap last modification (`lastmod`). The table products are undated.
+        description, dated by their sitemap last modification (`lastmod`). The table products are undated. The
+        heading row of each table names its category (e.g. `Computing`): a table product gets the category of every
+        table it is listed in, a sitemap product none.
     """
 
     SITEMAP_URL: ClassVar[str] = "https://www.t-cloud-public.com/en/sitemap.xml"
@@ -41,10 +45,12 @@ class TCloudPublicCrawler(BaseCloudCrawler):
         r"dashboard|price|pricing|documentation|certification|professional-services", re.IGNORECASE
     )
     TITLE_SUFFIX: ClassVar[re.Pattern[str]] = re.compile(r"\s*\|\s*(?:T Cloud Public|Open Telekom Cloud)\s*$")
+    SERVICE_LINK: ClassVar[str] = 'a[href*="/core-services/"]'
 
     name = "tcloud"
     catalogue_url: ClassVar[str] = "https://www.t-cloud-public.com/en/products-services/core-services"
     complement_urls: ClassVar[Tuple[str, ...]] = (SITEMAP_URL,)
+    dates_sitemaps: ClassVar[Tuple[str, ...]] = (SITEMAP_URL,)
     name_prefixes: ClassVar[Tuple[str, ...]] = ("T Cloud Public ", "Open Telekom Cloud ")
 
     ############################
@@ -79,24 +85,59 @@ class TCloudPublicCrawler(BaseCloudCrawler):
             return self._page_title(title)
         return super()._page_name(response)
 
-    def _row_product(self, row: Selector, page_url: str) -> Optional[CloudProduct]:
+    def _table_category(self, table: Selector) -> str:
+        """Read the category of a services table: the first cell of its first row without core service link.
+
+        Args:
+            table (Selector): The services table.
+
+        Returns:
+            str: The category, e.g. `Computing`, empty when the table has no heading row.
+        """
+        for row in table.css("tr"):
+            if row.css(self.SERVICE_LINK).first is None:
+                cell = row.css("td, th").first
+                return self._clean_text(cell.get_all_text(separator=" ", strip=True)) if cell is not None else ""
+        return ""
+
+    def _table_categories(self, response: Response) -> Dict[str, List[str]]:
+        """Gather the categories of the services table rows, by core service page (`_url_key`).
+
+        Args:
+            response (Response): The core services page.
+
+        Returns:
+            Dict[str, List[str]]: The categories of each core service page, in page order.
+        """
+        categories: Dict[str, List[str]] = {}
+        for table in response.css("table"):
+            category = self._table_category(table)
+            for link in table.css(self.SERVICE_LINK):
+                key = self._url_key(urljoin(response.url, str(link.attrib[HtmlAttribute.HREF])))
+                categories.setdefault(key, []).append(category)
+        self.logger.debug("%d categorized core services on %s.", len(categories), response.url)
+        return categories
+
+    def _row_product(self, row: Selector, page_url: str, categories: Dict[str, List[str]]) -> Optional[CloudProduct]:
         """Extract the product of a services table row.
 
         Args:
             row (Selector): The table row.
             page_url (str): The catalogue page URL, the row links being relative to it.
+            categories (Dict[str, List[str]]): The categories of each core service page, by `_url_key`.
 
         Returns:
             Optional[CloudProduct]: The product, `None` for a row without core service link or an invalid one.
         """
-        link = next(iter(row.css('a[href*="/core-services/"]')), None)
+        link = next(iter(row.css(self.SERVICE_LINK)), None)
         if link is None:
             self.logger.debug("Skipping a services table row without core service link.")
             return None
         tooltip = row.css("scale-tooltip div[slot=content]").first
         description = tooltip.get_all_text(separator=" ", strip=True) if tooltip is not None else None
         name = link.get_all_text(separator=" ", strip=True)
-        return self._build_product(name, description, urljoin(page_url, str(link.attrib["href"])))
+        url = urljoin(page_url, str(link.attrib[HtmlAttribute.HREF]))
+        return self._build_product(name, description, url, categories=categories.get(self._url_key(url), []))
 
     def _table_products(self, response: Response) -> Iterator[CloudProduct]:
         """Extract the products of the services tables.
@@ -109,8 +150,9 @@ class TCloudPublicCrawler(BaseCloudCrawler):
         """
         rows = response.css("tr")
         self.logger.debug("%d services table rows found on %s.", len(rows), response.url)
+        categories = self._table_categories(response)
         for row in rows:
-            if product := self._row_product(row, response.url):
+            if product := self._row_product(row, response.url, categories):
                 yield product
 
     def _is_product_page(self, url: str) -> bool:
@@ -184,7 +226,7 @@ class TCloudPublicCrawler(BaseCloudCrawler):
             EmptyCatalogueError: If the core services page holds no valid product.
             CatalogueFormatError: If the sitemap lists no page.
         """
-        if response.url == self.SITEMAP_URL:
+        if response.url == self.SITEMAP_URL and self.PAGE_DATES not in response.meta:
             for request in self._sitemap_requests(response):
                 yield request
             return

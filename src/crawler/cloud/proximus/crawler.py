@@ -11,7 +11,9 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
-from models.cloud.product import CloudProduct
+from crawler.cloud.proximus.enums import ProximusPageKind
+from crawler.enums import HtmlAttribute
+from models.cloud.products.product import CloudProduct
 
 
 class ProximusNXTCrawler(BaseCloudCrawler):
@@ -26,6 +28,7 @@ class ProximusNXTCrawler(BaseCloudCrawler):
         HEADINGS (ClassVar[str]): The CSS selector of a card heading.
         PAGE_ID (ClassVar[re.Pattern[str]]): The language and page identifier segments of the website paths, e.g.
             `/en/id_cl_privatecloud/`, the `id_catl_` identifiers marking the category pages.
+        BREADCRUMB (ClassVar[str]): The CSS selector of the breadcrumb items of a page, but the home one.
 
     Notes:
         The main source is the cards of the cloud solutions page of Proximus NXT (the ICT offer for large companies):
@@ -35,6 +38,8 @@ class ProximusNXTCrawler(BaseCloudCrawler):
         is a product when its link leads to a product page under the page path (`id_cl_` identifier), a category
         when it leads to a category page under the page path (`id_catl_`), requested in turn. The other cards (news,
         experts, sectors, newsletter, links to other websites) and the rate pages are skipped.
+        The catalogue categories of a product are the breadcrumb of the category page listing it, home excluded
+        (e.g. `ICT for large companies`, `Cloud solutions for large companies`).
     """
 
     ICT_URL: ClassVar[str] = (
@@ -51,6 +56,7 @@ class ProximusNXTCrawler(BaseCloudCrawler):
     CARDS: ClassVar[str] = ".rs-mediabox"
     HEADINGS: ClassVar[str] = "h1, h2, h3, h4, h5, h6"
     PAGE_ID: ClassVar[re.Pattern[str]] = re.compile(r"^/[a-z]{2}/id_([a-z]+)_[^/]*/")
+    BREADCRUMB: ClassVar[str] = "ul.breadcrumbs > li:not(.rs-breadcrumb-item-home)"
 
     name = "proximus"
     catalogue_url: ClassVar[str] = (
@@ -102,7 +108,7 @@ class ProximusNXTCrawler(BaseCloudCrawler):
                 continue
             name = self._clean_text(heading.get_all_text(separator=" ", strip=True))
             description = self._clean_text(text.get_all_text(separator=" ", strip=True))
-            url = urljoin(response.url, link.attrib.get("href", ""))
+            url = urljoin(response.url, link.attrib.get(HtmlAttribute.HREF, ""))
             if not (name and description):
                 self.logger.debug("Skipping the card %r of %s, without name or description.", name, response.url)
                 continue
@@ -118,6 +124,22 @@ class ProximusNXTCrawler(BaseCloudCrawler):
                 best[key] = (level, position, (name, description, url))
         return [card for _, _, card in sorted(best.values(), key=lambda entry: entry[1])]
 
+    def _breadcrumb(self, response: Response) -> List[str]:
+        """Read the breadcrumb of a category page, without its home item.
+
+        Args:
+            response (Response): The category page.
+
+        Returns:
+            List[str]: The breadcrumb labels, the broadest first, e.g. `["ICT for large companies", "Cloud
+                solutions for large companies"]`, empty when the page has none.
+        """
+        labels = [
+            self._clean_text(item.get_all_text(separator=" ", strip=True)) for item in response.css(self.BREADCRUMB)
+        ]
+        self.logger.debug("Breadcrumb of %s: %s.", response.url, labels)
+        return [label for label in labels if label]
+
     def _card_products(self, response: Response) -> Iterator[CloudProduct]:
         """Extract the products of the cards of a page, skipping the category cards.
 
@@ -125,13 +147,14 @@ class ProximusNXTCrawler(BaseCloudCrawler):
             response (Response): The category page.
 
         Yields:
-            Iterator[CloudProduct]: Each valid product card.
+            Iterator[CloudProduct]: Each valid product card, filed under the breadcrumb of the page.
         """
+        categories = self._breadcrumb(response)
         for name, description, url in self._cards(response):
-            if self._section(url)[0] == "catl":
+            if self._section(url)[0] == ProximusPageKind.CATEGORY:
                 self.logger.debug("Skipping the card %r (%s), a category.", name, url)
                 continue
-            if product := self._build_product(name, description, url):
+            if product := self._build_product(name, description, url, categories=categories):
                 yield product
 
     ############################
@@ -162,7 +185,7 @@ class ProximusNXTCrawler(BaseCloudCrawler):
             EmptyCatalogueError: If a page holds neither product nor category.
         """
         links = [url for _, _, url in self._cards(response)]
-        categories = [url for url in links if self._section(url)[0] == "catl"]
+        categories = [url for url in links if self._section(url)[0] == ProximusPageKind.CATEGORY]
         self.logger.info("%d %s category pages to read from %s.", len(categories), self.name, response.url)
         for url in categories:
             yield Request(url)

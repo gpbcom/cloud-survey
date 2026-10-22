@@ -45,6 +45,7 @@ class LogPanel(QWidget):
         self.level_box.setCurrentText("INFO")
         self.clear_button = QPushButton("Clear")
         self.view = QPlainTextEdit()
+        self.view.setMinimumHeight(60)
         self.view.setReadOnly(True)
         self.view.setMaximumBlockCount(self.MAX_LINES)
         self.view.setStyleSheet("font-family: monospace; font-size: 12px;")

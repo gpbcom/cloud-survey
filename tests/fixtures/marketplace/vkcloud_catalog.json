@@ -1,0 +1,627 @@
+{
+ "data": [
+  {
+   "id": "922f6fab-1a46-4ffb-948e-47618c8172ea",
+   "title": "AW BI",
+   "text": "Универсальная BI-экосистема «из коробки»: встроенное аналитическое хранилище, ETL, ML-прогнозирование, большое количество визуализаций, кастомные визуализации, рассылки отчетов.\n",
+   "logo": {
+    "src": "https://msk.cloud.vk.ru/marketplace/api/files/f2c37578-56b1-41fa-830f-4530ee43ddde.svg",
+    "alt": "AW BI"
+   },
+   "provider": "",
+   "developer": "",
+   "company": "АО ОСТ",
+   "labels": [
+    {
+     "id": "category-ai_ml",
+     "title": "AI/ML",
+     "tag": "ai_ml",
+     "type": "category"
+    },
+    {
+     "id": "category-analytics",
+     "title": "Аналитика",
+     "tag": "analytics",
+     "type": "category"
+    },
+    {
+     "id": "solution_developer-aw",
+     "title": "АО ОСТ",
+     "tag": "aw",
+     "type": "solution_developer"
+    },
+    {
+     "id": "product_type-image_based",
+     "title": "Image Based",
+     "tag": "image_based",
+     "type": "product_type"
+    },
+    {
+     "id": "billing_type-pay_as_you_go",
+     "title": "Pay-as-you-go",
+     "tag": "pay_as_you_go",
+     "type": "billing_type"
+    }
+   ],
+   "tags": [
+    {
+     "id": "category-ai_ml",
+     "title": "AI/ML",
+     "tag": "ai_ml",
+     "type": "category"
+    },
+    {
+     "id": "category-analytics",
+     "title": "Аналитика",
+     "tag": "analytics",
+     "type": "category"
+    },
+    {
+     "id": "solution_developer-aw",
+     "title": "АО ОСТ",
+     "tag": "aw",
+     "type": "solution_developer"
+    },
+    {
+     "id": "product_type-image_based",
+     "title": "Image Based",
+     "tag": "image_based",
+     "type": "product_type"
+    },
+    {
+     "id": "billing_type-pay_as_you_go",
+     "title": "Pay-as-you-go",
+     "tag": "pay_as_you_go",
+     "type": "billing_type"
+    }
+   ],
+   "isNew": true,
+   "href": "/marketplace/922f6fab-1a46-4ffb-948e-47618c8172ea",
+   "priority": 1,
+   "releaseDate": "2026-03-18T11:24:59+0000"
+  },
+  {
+   "id": "1f258019-7984-4274-84ad-03b4d3657cd6",
+   "title": "Tracer",
+   "text": "Сервис для сбора и анализа ошибок работы приложений на облачной инфраструктуре. Находите причины инцидентов, а не просто фиксируйте их\n",
+   "logo": {
+    "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMjEiIHZpZXdCb3g9IjAgMCAxOCAyMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB4PSI3LjUiIHk9IjIwLjQ5OTkiIHdpZHRoPSIyMCIgaGVpZ2h0PSIzIiB0cmFuc2Zvcm09InJvdGF0ZSgtOTAgNy41IDIwLjQ5OTkpIiBmaWxsPSIjMDA3N0ZGIi8+PHJlY3QgeD0iMC41IiB5PSIxNi40OTk5IiB3aWR0aD0iMTIiIGhlaWdodD0iMyIgdHJhbnNmb3JtPSJyb3RhdGUoLTkwIDAuNSAxNi40OTk5KSIgZmlsbD0iIzAwNzdGRiIvPjxyZWN0IHg9IjE0LjUiIHk9IjE2LjQ5OTkiIHdpZHRoPSIxMiIgaGVpZ2h0PSIzIiB0cmFuc2Zvcm09InJvdGF0ZSgtOTAgMTQuNSAxNi40OTk5KSIgZmlsbD0iIzAwNzdGRiIvPjwvc3ZnPg==",
+    "alt": "Tracer"
+   },
+   "provider": "",
+   "developer": "",
+   "company": "",
+   "labels": [
+    {
+     "id": "category-analytics",
+     "title": "Аналитика",
+     "tag": "analytics",
+     "type": "category"
+    },
+    {
+     "id": "category-developer_tools",
+     "title": "Инструменты для разработки",
+     "tag": "developer_tools",
+     "type": "category"
+    },
+    {
+     "id": "category-monitoring",
+     "title": "Мониторинг",
+     "tag": "monitoring",
+     "type": "category"
+    },
+    {
+     "id": "product_type-saas",
+     "title": "SaaS",
+     "tag": "saas",
+     "type": "product_type"
+    },
+    {
+     "id": "billing_type-upfront_commitment",
+     "title": "Предоплата",
+     "tag": "upfront_commitment",
+     "type": "billing_type"
+    }
+   ],
+   "tags": [
+    {
+     "id": "category-analytics",
+     "title": "Аналитика",
+     "tag": "analytics",
+     "type": "category"
+    },
+    {
+     "id": "category-developer_tools",
+     "title": "Инструменты для разработки",
+     "tag": "developer_tools",
+     "type": "category"
+    },
+    {
+     "id": "category-monitoring",
+     "title": "Мониторинг",
+     "tag": "monitoring",
+     "type": "category"
+    },
+    {
+     "id": "product_type-saas",
+     "title": "SaaS",
+     "tag": "saas",
+     "type": "product_type"
+    },
+    {
+     "id": "billing_type-upfront_commitment",
+     "title": "Предоплата",
+     "tag": "upfront_commitment",
+     "type": "billing_type"
+    }
+   ],
+   "isNew": true,
+   "href": "/marketplace/1f258019-7984-4274-84ad-03b4d3657cd6",
+   "priority": 1,
+   "releaseDate": "2026-08-12T12:11:12+0000"
+  },
+  {
+   "id": "afac27bb-2ef4-4e5f-8bd2-037f558523d3",
+   "title": "Valkey",
+   "text": "Valkey от команды Professional Services",
+   "logo": {
+    "src": "https://msk.cloud.vk.ru/marketplace/api/files/659396e2-dbd1-48e9-9107-4ff577dbb132.png",
+    "alt": "Valkey"
+   },
+   "provider": "",
+   "developer": "",
+   "company": "VK Cloud",
+   "labels": [
+    {
+     "id": "category-database",
+     "title": "Базы данных",
+     "tag": "database",
+     "type": "category"
+    },
+    {
+     "id": "billing_type-free",
+     "title": "Бесплатно",
+     "tag": "free",
+     "type": "billing_type"
+    },
+    {
+     "id": "product_type-image_based",
+     "title": "Image Based",
+     "tag": "image_based",
+     "type": "product_type"
+    },
+    {
+     "id": "solution_developer-vk_cloud",
+     "title": "VK Cloud",
+     "tag": "vk_cloud",
+     "type": "solution_developer"
+    }
+   ],
+   "tags": [
+    {
+     "id": "category-database",
+     "title": "Базы данных",
+     "tag": "database",
+     "type": "category"
+    },
+    {
+     "id": "billing_type-free",
+     "title": "Бесплатно",
+     "tag": "free",
+     "type": "billing_type"
+    },
+    {
+     "id": "product_type-image_based",
+     "title": "Image Based",
+     "tag": "image_based",
+     "type": "product_type"
+    },
+    {
+     "id": "solution_developer-vk_cloud",
+     "title": "VK Cloud",
+     "tag": "vk_cloud",
+     "type": "solution_developer"
+    }
+   ],
+   "isNew": true,
+   "href": "/marketplace/afac27bb-2ef4-4e5f-8bd2-037f558523d3",
+   "priority": 1,
+   "releaseDate": "2026-09-29T12:48:55+0000"
+  },
+  {
+   "id": "0b076dde-1dcb-418c-99c5-f6f406cc1d1d",
+   "title": "Test IT",
+   "text": "Платформа управления тестированием ПО. Объединяет работу с ручными и автотестами, помогает выстроить QA-процессы и ускорить релизный цикл. ",
+   "logo": {
+    "src": "https://msk.cloud.vk.ru/marketplace/api/files/5fdd741f-74fa-4d4e-90e8-ff59833f26b8.svg",
+    "alt": "Test IT"
+   },
+   "provider": "",
+   "developer": "",
+   "company": "Test IT",
+   "labels": [
+    {
+     "id": "product_type-application",
+     "title": "Заявка",
+     "tag": "application",
+     "type": "product_type"
+    },
+    {
+     "id": "category-application_software",
+     "title": "Прикладное ПО",
+     "tag": "application_software",
+     "type": "category"
+    },
+    {
+     "id": "solution_developer-testit",
+     "title": "Test IT",
+     "tag": "testit",
+     "type": "solution_developer"
+    },
+    {
+     "id": "billing_type-upfront_commitment",
+     "title": "Предоплата",
+     "tag": "upfront_commitment",
+     "type": "billing_type"
+    }
+   ],
+   "tags": [
+    {
+     "id": "product_type-application",
+     "title": "Заявка",
+     "tag": "application",
+     "type": "product_type"
+    },
+    {
+     "id": "category-application_software",
+     "title": "Прикладное ПО",
+     "tag": "application_software",
+     "type": "category"
+    },
+    {
+     "id": "solution_developer-testit",
+     "title": "Test IT",
+     "tag": "testit",
+     "type": "solution_developer"
+    },
+    {
+     "id": "billing_type-upfront_commitment",
+     "title": "Предоплата",
+     "tag": "upfront_commitment",
+     "type": "billing_type"
+    }
+   ],
+   "isNew": false,
+   "href": "/marketplace/0b076dde-1dcb-418c-99c5-f6f406cc1d1d",
+   "priority": 1,
+   "releaseDate": "2025-11-18T13:19:10+0000"
+  },
+  {
+   "id": "64",
+   "title": "«Альт СП Сервер»",
+   "text": "Российская серверная ОС со встроенными программными СЗИ, сертифицирована ФСТЭК России.",
+   "logo": {
+    "src": "https://vkcloud-cms-prod.s3.prodcloud.vk.team/base_alt_logo_main_RGB_f255ba52ac.svg",
+    "alt": "«Альт СП Сервер»"
+   },
+   "provider": null,
+   "developer": "Базальт СПО",
+   "company": "Базальт СПО",
+   "tags": [
+    {
+     "id": "45",
+     "title": "Операционные системы",
+     "tag": "os",
+     "type": "category"
+    },
+    {
+     "id": "46",
+     "title": "Pay-as-you-go",
+     "tag": "pay_as_you_go",
+     "type": "billing_type"
+    },
+    {
+     "id": "47",
+     "title": "Image Based",
+     "tag": "image_based",
+     "type": "product_type"
+    },
+    {
+     "id": "48",
+     "title": "Базальт СПО",
+     "tag": "basealt",
+     "type": "solution_developer"
+    }
+   ],
+   "labels": [
+    {
+     "id": "45",
+     "title": "Операционные системы",
+     "tag": "os",
+     "type": "category"
+    },
+    {
+     "id": "46",
+     "title": "Pay-as-you-go",
+     "tag": "pay_as_you_go",
+     "type": "billing_type"
+    },
+    {
+     "id": "47",
+     "title": "Image Based",
+     "tag": "image_based",
+     "type": "product_type"
+    },
+    {
+     "id": "48",
+     "title": "Базальт СПО",
+     "tag": "basealt",
+     "type": "solution_developer"
+    }
+   ],
+   "isNew": false,
+   "priority": 1,
+   "releaseDate": "2025-07-21T21:00:00.000Z",
+   "href": "/marketplace/os/basealt-serversp8"
+  },
+  {
+   "id": "630008e7-a649-4111-a21f-6d8461cd5f7a",
+   "title": "Кибер Бэкап Облачный",
+   "text": "Готовое решение для предоставления услуги «резервное копирование как сервис»",
+   "logo": {
+    "src": "https://msk.cloud.vk.ru/marketplace/api/static/cyberbackup_backup_cloud.svg",
+    "alt": "Кибер Бэкап Облачный"
+   },
+   "provider": "",
+   "developer": "",
+   "company": "Киберпротект",
+   "labels": [
+    {
+     "id": "category-backup",
+     "title": "Бэкап",
+     "tag": "backup",
+     "type": "category"
+    },
+    {
+     "id": "solution_developer-ciber_protect",
+     "title": "Киберпротект",
+     "tag": "ciber_protect",
+     "type": "solution_developer"
+    },
+    {
+     "id": "billing_type-pay_as_you_go",
+     "title": "Pay-as-you-go",
+     "tag": "pay_as_you_go",
+     "type": "billing_type"
+    },
+    {
+     "id": "product_type-saas",
+     "title": "SaaS",
+     "tag": "saas",
+     "type": "product_type"
+    }
+   ],
+   "tags": [
+    {
+     "id": "category-backup",
+     "title": "Бэкап",
+     "tag": "backup",
+     "type": "category"
+    },
+    {
+     "id": "solution_developer-ciber_protect",
+     "title": "Киберпротект",
+     "tag": "ciber_protect",
+     "type": "solution_developer"
+    },
+    {
+     "id": "undefined-home-service-databases",
+     "title": "",
+     "tag": "home-service-databases"
+    },
+    {
+     "id": "undefined-home-service-infra",
+     "title": "",
+     "tag": "home-service-infra"
+    },
+    {
+     "id": "billing_type-pay_as_you_go",
+     "title": "Pay-as-you-go",
+     "tag": "pay_as_you_go",
+     "type": "billing_type"
+    },
+    {
+     "id": "product_type-saas",
+     "title": "SaaS",
+     "tag": "saas",
+     "type": "product_type"
+    }
+   ],
+   "isNew": false,
+   "href": "/marketplace/630008e7-a649-4111-a21f-6d8461cd5f7a",
+   "priority": 1,
+   "releaseDate": "2026-01-20T09:25:37+0000"
+  },
+  {
+   "id": "324b25f8-eab4-4161-bf2f-642067cfb1c9",
+   "title": "Check Point CloudGuard Network R82 - Security Gateway BYOL",
+   "text": "Межсетевой экран нового поколения (NGFW)",
+   "logo": {
+    "src": "https://msk.cloud.vk.ru/marketplace/api/files/ef96547c-1930-471f-9de8-3506193b2c3a.png",
+    "alt": "Check Point CloudGuard Network R82 - Security Gateway BYOL"
+   },
+   "company": "",
+   "labels": [
+    {
+     "id": "billing_type-byol",
+     "title": "BYOL",
+     "tag": "byol",
+     "type": "billing_type"
+    },
+    {
+     "id": "product_type-image_based",
+     "title": "Image Based",
+     "tag": "image_based",
+     "type": "product_type"
+    },
+    {
+     "id": "category-network_infrastructure",
+     "title": "Сетевая инфраструктура",
+     "tag": "network_infrastructure",
+     "type": "category"
+    },
+    {
+     "id": "category-security",
+     "title": "Безопасность",
+     "tag": "security",
+     "type": "category"
+    }
+   ],
+   "tags": [
+    {
+     "id": "billing_type-byol",
+     "title": "BYOL",
+     "tag": "byol",
+     "type": "billing_type"
+    },
+    {
+     "id": "undefined-home-service-cloud-networks",
+     "title": "",
+     "tag": "home-service-cloud-networks"
+    },
+    {
+     "id": "product_type-image_based",
+     "title": "Image Based",
+     "tag": "image_based",
+     "type": "product_type"
+    },
+    {
+     "id": "category-network_infrastructure",
+     "title": "Сетевая инфраструктура",
+     "tag": "network_infrastructure",
+     "type": "category"
+    },
+    {
+     "id": "category-security",
+     "title": "Безопасность",
+     "tag": "security",
+     "type": "category"
+    }
+   ],
+   "isNew": false,
+   "href": "/marketplace/324b25f8-eab4-4161-bf2f-642067cfb1c9",
+   "priority": 1,
+   "releaseDate": "2025-05-30T11:25:21+0000"
+  }
+ ],
+ "filterValues": {
+  "billing_type": {
+   "title": "Тип тарификации",
+   "values": {
+    "upfront_commitment": {
+     "title": "Предоплата",
+     "count": 23
+    },
+    "free": {
+     "title": "Бесплатно",
+     "count": 25
+    },
+    "byol": {
+     "title": "BYOL",
+     "count": 10
+    },
+    "pay_as_you_go": {
+     "title": "Pay-as-you-go",
+     "count": 8
+    }
+   }
+  },
+  "category": {
+   "title": "Категория",
+   "values": {
+    "application_software": {
+     "title": "Прикладное ПО",
+     "count": 5
+    },
+    "network_infrastructure": {
+     "title": "Сетевая инфраструктура",
+     "count": 14
+    },
+    "security": {
+     "title": "Безопасность",
+     "count": 18
+    },
+    "analytics": {
+     "title": "Аналитика",
+     "count": 9
+    },
+    "developer_tools": {
+     "title": "Инструменты для разработки",
+     "count": 12
+    },
+    "monitoring": {
+     "title": "Мониторинг",
+     "count": 6
+    },
+    "database": {
+     "title": "Базы данных",
+     "count": 13
+    },
+    "ai_ml": {
+     "title": "AI/ML",
+     "count": 6
+    },
+    "backup": {
+     "title": "Бэкап",
+     "count": 1
+    },
+    "os": {
+     "title": "Операционные системы",
+     "count": 6
+    }
+   }
+  },
+  "product_type": {
+   "title": "Тип продукта",
+   "values": {
+    "application": {
+     "title": "Заявка",
+     "count": 4
+    },
+    "image_based": {
+     "title": "Image Based",
+     "count": 57
+    },
+    "saas": {
+     "title": "SaaS",
+     "count": 7
+    }
+   }
+  },
+  "solution_developer": {
+   "title": "Разработчик решения",
+   "values": {
+    "testit": {
+     "title": "Test IT",
+     "count": 1
+    },
+    "vk_cloud": {
+     "title": "VK Cloud",
+     "count": 24
+    },
+    "ciber_protect": {
+     "title": "Киберпротект",
+     "count": 1
+    },
+    "aw": {
+     "title": "АО ОСТ",
+     "count": 1
+    },
+    "basealt": {
+     "title": "Базальт СПО",
+     "count": 2
+    }
+   }
+  }
+ }
+}

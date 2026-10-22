@@ -1,0 +1,231 @@
+{
+ "entities": {
+  "Q568183": {
+   "id": "Q568183",
+   "claims": {
+    "P571": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P571",
+       "hash": "4f4811d27f16d53a62f15d4e594db9b8df1bd635",
+       "datavalue": {
+        "value": {
+         "time": "+1999-10-15T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       },
+       "datatype": "time"
+      },
+      "type": "statement",
+      "id": "Q568183$270d8fe4-4cc4-4005-ddda-9773856e3ae8",
+      "rank": "normal",
+      "references": [
+       {
+        "hash": "51dad03ea13323247ce74e1b720b9293ebbb0da9",
+        "snaks": {
+         "P248": [
+          {
+           "snaktype": "value",
+           "property": "P248",
+           "hash": "edd6a048cc3c96bc5b21a4cf77977f233b26ab76",
+           "datavalue": {
+            "value": {
+             "entity-type": "item",
+             "numeric-id": 3509449,
+             "id": "Q3509449"
+            },
+            "type": "wikibase-entityid"
+           },
+           "datatype": "wikibase-item"
+          }
+         ],
+         "P5017": [
+          {
+           "snaktype": "value",
+           "property": "P5017",
+           "hash": "0148600c9fa15fc5e00b671955c91cb66489ed21",
+           "datavalue": {
+            "value": {
+             "time": "+2025-06-02T00:00:00Z",
+             "timezone": 0,
+             "before": 0,
+             "after": 0,
+             "precision": 11,
+             "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+            },
+            "type": "time"
+           },
+           "datatype": "time"
+          }
+         ]
+        },
+        "snaks-order": [
+         "P248",
+         "P5017"
+        ]
+       }
+      ]
+     }
+    ],
+    "P1128": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P1128",
+       "hash": "4a9c25594705f3345f597008a3fa99aac6a2f800",
+       "datavalue": {
+        "value": {
+         "amount": "+3074",
+         "unit": "1"
+        },
+        "type": "quantity"
+       },
+       "datatype": "quantity"
+      },
+      "type": "statement",
+      "qualifiers": {
+       "P585": [
+        {
+         "snaktype": "value",
+         "property": "P585",
+         "hash": "19a836627b9922c505cb632668d73a7eacfd2f2e",
+         "datavalue": {
+          "value": {
+           "time": "+2025-08-31T00:00:00Z",
+           "timezone": 0,
+           "before": 0,
+           "after": 0,
+           "precision": 11,
+           "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+          },
+          "type": "time"
+         },
+         "datatype": "time"
+        }
+       ]
+      },
+      "qualifiers-order": [
+       "P585"
+      ],
+      "id": "Q568183$01a06554-4b90-ee5e-82aa-183a853d0fa3",
+      "rank": "normal",
+      "references": [
+       {
+        "hash": "320ec0f90ce088438cba0a5dde35a0f2a22ea70c",
+        "snaks": {
+         "P1476": [
+          {
+           "snaktype": "value",
+           "property": "P1476",
+           "hash": "1c80984c01b910fcf9f261782845453346669098",
+           "datavalue": {
+            "value": {
+             "text": "Etats Financiers Consolid\u00e9s",
+             "language": "fr"
+            },
+            "type": "monolingualtext"
+           },
+           "datatype": "monolingualtext"
+          }
+         ],
+         "P854": [
+          {
+           "snaktype": "value",
+           "property": "P854",
+           "hash": "c9c835106c36775d37e5615a18e0fb33319fe661",
+           "datavalue": {
+            "value": "https://corporate.ovhcloud.com/sites/default/files/external_files/2025.08-ovh-groupe-plaquette-fr-20251021_0.pdf",
+            "type": "string"
+           },
+           "datatype": "url"
+          }
+         ],
+         "P2701": [
+          {
+           "snaktype": "value",
+           "property": "P2701",
+           "hash": "af6610346b1aac0a1b026309e0c489b8b9bd5a88",
+           "datavalue": {
+            "value": {
+             "entity-type": "item",
+             "numeric-id": 42332,
+             "id": "Q42332"
+            },
+            "type": "wikibase-entityid"
+           },
+           "datatype": "wikibase-item"
+          }
+         ],
+         "P577": [
+          {
+           "snaktype": "value",
+           "property": "P577",
+           "hash": "8a0a929c6d881558bfff1c99b6893e918e1ce58b",
+           "datavalue": {
+            "value": {
+             "time": "+2024-10-20T00:00:00Z",
+             "timezone": 0,
+             "before": 0,
+             "after": 0,
+             "precision": 11,
+             "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+            },
+            "type": "time"
+           },
+           "datatype": "time"
+          }
+         ],
+         "P813": [
+          {
+           "snaktype": "value",
+           "property": "P813",
+           "hash": "48e80eba6f075ab64291b47f47235f0a03e282c8",
+           "datavalue": {
+            "value": {
+             "time": "+2025-10-22T00:00:00Z",
+             "timezone": 0,
+             "before": 0,
+             "after": 0,
+             "precision": 11,
+             "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+            },
+            "type": "time"
+           },
+           "datatype": "time"
+          }
+         ],
+         "P304": [
+          {
+           "snaktype": "value",
+           "property": "P304",
+           "hash": "9ff23c1811bf935b5e4d6a238fd9ea3762f8efbf",
+           "datavalue": {
+            "value": "27",
+            "type": "string"
+           },
+           "datatype": "string"
+          }
+         ]
+        },
+        "snaks-order": [
+         "P1476",
+         "P854",
+         "P2701",
+         "P577",
+         "P813",
+         "P304"
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

@@ -8,10 +8,22 @@ from pydantic import JsonValue
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
+from crawler.cloud.huawei.enums import (
+    HuaweiDelivery,
+    HuaweiListingField,
+    HuaweiMarketplaceCategory,
+    HuaweiMarketplaceHeader,
+    HuaweiMarketplaceLanguage,
+    HuaweiMarketplaceMeta,
+    HuaweiSearchFlow,
+    HuaweiSearchPageField,
+    HuaweiSearchParameter,
+)
+from crawler.enums import HttpMethod
 from crawler.exception import CatalogueFormatError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class HuaweiMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -21,14 +33,17 @@ class HuaweiMarketplaceCrawler(BaseMarketplaceCrawler):
         API_URL (ClassVar[str]): The search API of the marketplace pages (`POST`).
         SITE_URL (ClassVar[str]): The marketplace website, the listing links being relative to it.
         PAGE_SIZE (ClassVar[int]): The listings read per page, the API maximum.
-        HEADERS (ClassVar[Dict[str, str]]): The request headers, asking for the English texts.
-        PAGE (ClassVar[str]): The meta key holding the page number, from 1.
-        EXCLUDED_CATEGORIES (ClassVar[FrozenSet[str]]): The top categories which hold no software (services, data
-            products and hardware), casefolded.
-        EXCLUDED_DELIVERIES (ClassVar[FrozenSet[str]]): The delivery methods of the offers which are not software
-            (services, hardware), casefolded.
+        HEADERS (ClassVar[Dict[str, str]]): The request headers (`HuaweiMarketplaceHeader`), asking for the English
+            texts.
+        PAGE (ClassVar[HuaweiMarketplaceMeta]): The meta key holding the page number, from 1.
+        EXCLUDED_CATEGORIES (ClassVar[FrozenSet[HuaweiMarketplaceCategory]]): The top categories which hold no
+            software (services, data products and hardware), casefolded.
+        EXCLUDED_DELIVERIES (ClassVar[FrozenSet[HuaweiDelivery]]): The delivery methods of the offers which are not
+            software (services, hardware), casefolded.
         DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery method of each marketplace delivery code or
-            English label, casefolded.
+            English label (`HuaweiDelivery`), casefolded.
+        DELIVERY_FIELDS (ClassVar[Tuple[HuaweiListingField, ...]]): The listing fields giving the delivery, the
+            code first.
         name (str): The crawler name.
         catalogue_url (ClassVar[str]): The search API, the first page being requested with a `POST` body.
 
@@ -37,6 +52,8 @@ class HuaweiMarketplaceCrawler(BaseMarketplaceCrawler):
         each page (`offset`, `limit` 100) gives the `total` and the listings (`pagination.items`). A listing gives
         its English title, abstract, publisher (`corporation_name`), top category (`type_name_en`), sub-category
         (`content_type_desc_en`), delivery (`delivery_code`, else `delivery_code_en`) and relative page link (`url`).
+        The category path is the sub-category under the top category, without identifier: the listing gives no
+        category code.
         The professional services, hardware and data categories are skipped, so are the service and hardware
         deliveries (a few services are filed under a software category). The API host has no `robots.txt`.
     """
@@ -46,19 +63,28 @@ class HuaweiMarketplaceCrawler(BaseMarketplaceCrawler):
     )
     SITE_URL: ClassVar[str] = "https://marketplace.huaweicloud.com"
     PAGE_SIZE: ClassVar[int] = 100
-    HEADERS: ClassVar[Dict[str, str]] = {"x-language": "en-us"}
-    PAGE: ClassVar[str] = "page"
-    EXCLUDED_CATEGORIES: ClassVar[FrozenSet[str]] = frozenset({"professional services", "hardware", "data"})
-    EXCLUDED_DELIVERIES: ClassVar[FrozenSet[str]] = frozenset(
-        {"manual.service", "service", "professional services", "hardware"}
+    HEADERS: ClassVar[Dict[str, str]] = {HuaweiMarketplaceHeader.LANGUAGE: HuaweiMarketplaceLanguage.ENGLISH}
+    PAGE: ClassVar[HuaweiMarketplaceMeta] = HuaweiMarketplaceMeta.PAGE
+    EXCLUDED_CATEGORIES: ClassVar[FrozenSet[HuaweiMarketplaceCategory]] = frozenset(HuaweiMarketplaceCategory)
+    EXCLUDED_DELIVERIES: ClassVar[FrozenSet[HuaweiDelivery]] = frozenset(
+        {
+            HuaweiDelivery.MANUAL_SERVICE,
+            HuaweiDelivery.SERVICE,
+            HuaweiDelivery.PROFESSIONAL_SERVICES,
+            HuaweiDelivery.HARDWARE,
+        }
     )
     DELIVERIES: ClassVar[Dict[str, DeliveryMethod]] = {
-        "license": DeliveryMethod.DOWNLOAD,
-        "vm.image": DeliveryMethod.VIRTUAL_MACHINE,
-        "image": DeliveryMethod.VIRTUAL_MACHINE,
-        "cloud server": DeliveryMethod.VIRTUAL_MACHINE,
-        "saas": DeliveryMethod.SAAS,
+        HuaweiDelivery.LICENSE: DeliveryMethod.DOWNLOAD,
+        HuaweiDelivery.VM_IMAGE: DeliveryMethod.VIRTUAL_MACHINE,
+        HuaweiDelivery.IMAGE: DeliveryMethod.VIRTUAL_MACHINE,
+        HuaweiDelivery.CLOUD_SERVER: DeliveryMethod.VIRTUAL_MACHINE,
+        HuaweiDelivery.SAAS: DeliveryMethod.SAAS,
     }
+    DELIVERY_FIELDS: ClassVar[Tuple[HuaweiListingField, ...]] = (
+        HuaweiListingField.DELIVERY_CODE,
+        HuaweiListingField.DELIVERY_CODE_EN,
+    )
 
     name = "huawei-marketplace"
     catalogue_url: ClassVar[str] = API_URL
@@ -77,18 +103,23 @@ class HuaweiMarketplaceCrawler(BaseMarketplaceCrawler):
             Request: The `POST` request, whose page may be empty after the first one.
         """
         body: Dict[str, JsonValue] = {
-            "aggs": {},
-            "filter": {},
-            "flow_id": "101002",
-            "keyword": "",
-            "limit": self.PAGE_SIZE,
-            "offset": (page - 1) * self.PAGE_SIZE,
+            HuaweiSearchParameter.AGGREGATIONS: {},
+            HuaweiSearchParameter.FILTER: {},
+            HuaweiSearchParameter.FLOW_ID: HuaweiSearchFlow.MARKETPLACE,
+            HuaweiSearchParameter.KEYWORD: "",
+            HuaweiSearchParameter.LIMIT: self.PAGE_SIZE,
+            HuaweiSearchParameter.OFFSET: (page - 1) * self.PAGE_SIZE,
         }
         meta: Dict[str, JsonValue] = {self.PAGE: page}
         if page > 1:
             meta[self.MAY_BE_EMPTY] = True
         return self._api_request(
-            self.API_URL, "POST", json=body, headers=dict(self.HEADERS), meta=meta, priority=self.PRIMARY_PRIORITY
+            self.API_URL,
+            HttpMethod.POST,
+            json=body,
+            headers=dict(self.HEADERS),
+            meta=meta,
+            priority=self.PRIMARY_PRIORITY,
         )
 
     def _catalogue_request(self) -> Request:
@@ -112,11 +143,11 @@ class HuaweiMarketplaceCrawler(BaseMarketplaceCrawler):
             CatalogueFormatError: If the page is not a JSON object or has no total.
         """
         data = self._as_object(self._json_body(response))
-        total = data.get("total")
+        total = data.get(HuaweiSearchPageField.TOTAL)
         if not isinstance(total, int):
             self.logger.error("The %s search page %s has no listings total.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the search page has no listings total")
-        listings = self._as_object(data.get("pagination")).get("items")
+        listings = self._as_object(data.get(HuaweiSearchPageField.PAGINATION)).get(HuaweiSearchPageField.ITEMS)
         return (listings if isinstance(listings, list) else []), total
 
     def _delivery(self, listing: Dict[str, JsonValue]) -> Optional[DeliveryMethod]:
@@ -128,10 +159,7 @@ class HuaweiMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             Optional[DeliveryMethod]: The delivery method, `None` for a service or hardware (not a software).
         """
-        codes = [
-            self._clean_text(self._as_text(listing.get(field))).casefold()
-            for field in ("delivery_code", "delivery_code_en")
-        ]
+        codes = [self._clean_text(self._as_text(listing.get(field))).casefold() for field in self.DELIVERY_FIELDS]
         if any(code in self.EXCLUDED_DELIVERIES for code in codes):
             return None
         return next((self.DELIVERIES[code] for code in codes if code in self.DELIVERIES), DeliveryMethod.OTHER)
@@ -146,8 +174,8 @@ class HuaweiMarketplaceCrawler(BaseMarketplaceCrawler):
             Optional[MarketplaceSoftware]: The software, with its listing (`onshelf_time`) and update (`update_time`)
                 dates in epoch milliseconds, `None` for a skipped (logged) or invalid listing.
         """
-        name = self._as_text(listing.get("title"))
-        category = self._as_text(listing.get("type_name_en"))
+        name = self._as_text(listing.get(HuaweiListingField.TITLE))
+        category = self._as_text(listing.get(HuaweiListingField.CATEGORY))
         if self._clean_text(category).casefold() in self.EXCLUDED_CATEGORIES:
             self.logger.debug("Skipping the %s listing %r, not a software (category %s).", self.name, name, category)
             return None
@@ -157,19 +185,21 @@ class HuaweiMarketplaceCrawler(BaseMarketplaceCrawler):
                 "Skipping the %s listing %r, not a software (delivery %s).",
                 self.name,
                 name,
-                listing.get("delivery_code_en"),
+                listing.get(HuaweiListingField.DELIVERY_CODE_EN),
             )
             return None
-        link = self._as_text(listing.get("url"))
+        link = self._as_text(listing.get(HuaweiListingField.URL))
+        subcategory = self._as_text(listing.get(HuaweiListingField.SUBCATEGORY))
         return self._build_software(
             name,
-            self._as_text(listing.get("content_abstract")),
+            self._as_text(listing.get(HuaweiListingField.ABSTRACT)),
             f"{self.SITE_URL}/{link.lstrip('/')}" if link else None,
-            self._as_text(listing.get("corporation_name")),
+            self._as_text(listing.get(HuaweiListingField.PUBLISHER)),
             delivery,
-            [category, self._as_text(listing.get("content_type_desc_en"))],
-            added_at=self._parse_date(listing.get("onshelf_time"), name),
-            updated_at=self._parse_date(listing.get("update_time"), name),
+            [category, subcategory],
+            marketplace_category_paths=[self._category([category, subcategory])],
+            added_at=self._parse_date(listing.get(HuaweiListingField.LISTED_AT), name),
+            updated_at=self._parse_date(listing.get(HuaweiListingField.UPDATED_AT), name),
         )
 
     def _next_request(self, response: Response) -> Optional[Request]:

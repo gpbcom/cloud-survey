@@ -8,11 +8,14 @@ from urllib.parse import urljoin, urlparse
 
 # Third Party Imports.
 from pydantic import JsonValue
+from scrapling.parser import Selector
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
+from crawler.cloud.aruba.enums import ArubaMenuMarkup, ArubaPricingCardName
 from crawler.cloud.base import BaseCloudCrawler
-from models.cloud.product import CloudProduct
+from crawler.enums import HtmlAttribute
+from models.cloud.products.product import CloudProduct
 
 
 class ArubaCloudCrawler(BaseCloudCrawler):
@@ -20,11 +23,13 @@ class ArubaCloudCrawler(BaseCloudCrawler):
 
     Attributes:
         PRICING_URL (ClassVar[str]): The pricing page, listing the products by family.
-        PRICING_ALIASES (ClassVar[Dict[str, str]]): The pricing card names of the products the menu names otherwise.
+        PRICING_ALIASES (ClassVar[Dict[str, str]]): The menu name of each pricing card (`ArubaPricingCardName`)
+            naming a product otherwise.
         ITALIAN_WORDS (ClassVar[re.Pattern[str]]): Common Italian words, revealing an untranslated menu description.
         HTML_TAG (ClassVar[re.Pattern[str]]): An HTML tag left in a meta description, e.g. `<br/>`.
-        untranslated (List[Tuple[str, str]]): The product pages (URL and menu name) of the menu entries described in
-            Italian, to read for their English description.
+        MENU_ITEM (ClassVar[ArubaMenuMarkup]): The class of the menu items, whose links label the menu groups.
+        untranslated (List[Tuple[str, str, List[str]]]): The product pages (URL, menu name and menu categories) of
+            the menu entries described in Italian, to read for their English description.
 
     Notes:
         The main source is the products menu of the https://www.arubacloud.com/ home page: its links holding a
@@ -34,22 +39,26 @@ class ArubaCloudCrawler(BaseCloudCrawler):
         `Dedicated Servers`): they are renamed after the menu product, so that they are recognized as duplicates.
         A few menu descriptions are left in Italian: those products are read from their (English) product page
         instead, named after the menu label, with the page meta description.
+        The catalogue categories of a menu product are the labels of the menu items holding it: its top menu (e.g.
+        `Public Cloud`), then its menu group (e.g. `Container`), gathered over all the menu entries of the product.
+        Those of a pricing card are the title of its pricing family section (e.g. `Public Cloud`).
     """
 
     PRICING_URL: ClassVar[str] = "https://www.arubacloud.com/pricing"
     PRICING_ALIASES: ClassVar[Dict[str, str]] = {
-        "Server Bare Metal": "Dedicated Servers",
-        "VPS - Virtual Private Servers": "VPS - Virtual Private Server",
-        "Backup Agentless": "Agentless Backup",
-        "Disaster Recovery (DRaaS)": "Disaster Recovery for VMware",
-        "Cloud Bare Metal Backup": "Backup for VMware",
-        "AI Tools - Text Management": "AI Tools",
+        ArubaPricingCardName.SERVER_BARE_METAL: "Dedicated Servers",
+        ArubaPricingCardName.VIRTUAL_PRIVATE_SERVERS: "VPS - Virtual Private Server",
+        ArubaPricingCardName.BACKUP_AGENTLESS: "Agentless Backup",
+        ArubaPricingCardName.DISASTER_RECOVERY: "Disaster Recovery for VMware",
+        ArubaPricingCardName.CLOUD_BARE_METAL_BACKUP: "Backup for VMware",
+        ArubaPricingCardName.AI_TOOLS_TEXT_MANAGEMENT: "AI Tools",
     }
     ITALIAN_WORDS: ClassVar[re.Pattern[str]] = re.compile(
         r"\b(?:il|della|delle|dei|degli|con|e|sviluppato|privato|connetti|ambienti|infrastrutture|semplice|modo)\b",
         re.IGNORECASE,
     )
     HTML_TAG: ClassVar[re.Pattern[str]] = re.compile(r"<[^>]*>")
+    MENU_ITEM: ClassVar[ArubaMenuMarkup] = ArubaMenuMarkup.NAV_ITEM
 
     name = "aruba"
     catalogue_url: ClassVar[str] = "https://www.arubacloud.com/"
@@ -64,7 +73,7 @@ class ArubaCloudCrawler(BaseCloudCrawler):
             interval (float): Seconds between periodic checkpoint saves.
         """
         super().__init__(crawldir=crawldir, interval=interval)
-        self.untranslated: List[Tuple[str, str]] = []
+        self.untranslated: List[Tuple[str, str, List[str]]] = []
 
     ############################
     # Internal Helpers Methods #
@@ -93,6 +102,30 @@ class ArubaCloudCrawler(BaseCloudCrawler):
         """
         return len(self.ITALIAN_WORDS.findall(text)) >= 2
 
+    def _menu_categories(self, link: Selector) -> List[str]:
+        """Read the menu categories of a menu link: the labels of the menu items holding its own item.
+
+        Args:
+            link (Selector): The menu link.
+
+        Returns:
+            List[str]: The labels, the top menu first, e.g. `["Public Cloud", "Container"]`, empty out of a menu.
+        """
+        labels: List[str] = []
+        node = link.parent
+        own_item = True
+        while node is not None:
+            if (
+                node.tag == ArubaMenuMarkup.LIST_ITEM
+                and self.MENU_ITEM in node.attrib.get(HtmlAttribute.CLASS, "").split()
+            ):
+                label = node.css(":scope > a").first
+                if not own_item and label is not None:
+                    labels.insert(0, self._clean_text(label.get_all_text(separator=" ", strip=True)))
+                own_item = False
+            node = node.parent
+        return labels
+
     def _menu_products(self, response: Response) -> Iterator[CloudProduct]:
         """Extract the products of the home page menu: the links with a description, except the solutions.
 
@@ -100,36 +133,51 @@ class ArubaCloudCrawler(BaseCloudCrawler):
             response (Response): The home page.
 
         Yields:
-            Iterator[CloudProduct]: Each valid product of the menu, duplicates included.
+            Iterator[CloudProduct]: Each valid product of the menu, once, with the menu categories of all its entries.
+
+        Notes:
+            A product listed by several menu groups (e.g. `Hybrid Connect`) is read from its first entry.
         """
         links = response.css("a.nav-link")
         self.logger.debug("%d menu links in %s.", len(links), response.url)
+        entries: Dict[str, Tuple[Optional[str], str, str, List[str]]] = {}
         for link in links:
             description = link.css("span.description").first
             if description is None:
                 continue
             heading = link.css("strong").first
-            name = heading.get_all_text(separator=" ", strip=True) if heading is not None else None
-            url = urljoin(response.url, link.attrib.get("href", ""))
+            name = str(heading.get_all_text(separator=" ", strip=True)) if heading is not None else None
+            url = urljoin(response.url, link.attrib.get(HtmlAttribute.HREF, ""))
             if "/solutions/" in urlparse(url).path:
                 self.logger.debug("Skipping the menu entry %r (%s), a solution page.", name, url)
                 continue
             text = self._clean_text(description.get_all_text(separator=" ", strip=True))
+            key = self._name_key(name) if name and self._clean_text(name) else url
+            categories = self._menu_categories(link)
+            if key in entries:
+                self.logger.debug("The menu entry %r is listed again, under %s.", name, categories)
+                entries[key][3].extend(categories)
+                continue
+            entries[key] = (name, text, url, categories)
+        for name, text, url, categories in entries.values():
             if name and self._is_italian(text):
                 self.logger.debug("The menu entry %r is described in Italian, reading its page %s.", name, url)
-                self.untranslated.append((url, self._clean_text(name)))
+                self.untranslated.append((url, self._clean_text(name), categories))
                 continue
-            if product := self._build_product(name, text, url):
+            if product := self._build_product(name, text, url, categories=categories):
                 yield product
 
     def _untranslated_requests(self) -> List[Request]:
         """Request the product pages of the menu entries described in Italian, once.
 
         Returns:
-            List[Request]: The product page requests, named after the menu labels.
+            List[Request]: The product page requests, named after the menu labels, with their menu categories.
         """
         pages, self.untranslated = self.untranslated, []
-        requests = [request for url, name in pages if (request := self._product_page_request(url, name)) is not None]
+        requests: List[Request] = []
+        for url, name, categories in pages:
+            if (request := self._product_page_request(url, name, categories=categories)) is not None:
+                requests.append(request)
         if requests:
             self.logger.info("%d %s product pages to read for an English description.", len(requests), self.name)
         return requests
@@ -141,23 +189,34 @@ class ArubaCloudCrawler(BaseCloudCrawler):
             response (Response): The pricing page.
 
         Yields:
-            Iterator[CloudProduct]: Each valid product card, renamed after the menu product when aliased.
+            Iterator[CloudProduct]: Each valid product card, renamed after the menu product when aliased, once, with
+                the pricing families of all its cards.
         """
-        cards = response.css("section div.card-body")
-        self.logger.debug("%d pricing card bodies in %s.", len(cards), response.url)
-        for card in cards:
-            heading = card.css(":scope > h3").first
-            if heading is None:
-                continue
-            name = self._clean_text(heading.get_all_text(separator=" ", strip=True))
-            if alias := self.PRICING_ALIASES.get(name):
-                self.logger.debug("The pricing card %r is the menu product %r.", name, alias)
-                name = alias
-            description = card.css("p").first
-            link = card.css("a[href]").first
-            url = urljoin(response.url, link.attrib.get("href", "")) if link is not None else None
-            text = description.get_all_text(separator=" ", strip=True) if description is not None else None
-            if product := self._build_product(name, text, url):
+        entries: Dict[str, Tuple[str, Optional[str], Optional[str], List[str]]] = {}
+        for section in response.css("section"):
+            title = section.css("h2").first
+            family = self._clean_text(title.get_all_text(separator=" ", strip=True)) if title is not None else ""
+            cards = section.css("div.card-body")
+            self.logger.debug("%d pricing card bodies in the family %r of %s.", len(cards), family, response.url)
+            for card in cards:
+                heading = card.css(":scope > h3").first
+                if heading is None:
+                    continue
+                name = self._clean_text(heading.get_all_text(separator=" ", strip=True))
+                if alias := self.PRICING_ALIASES.get(name):
+                    self.logger.debug("The pricing card %r is the menu product %r.", name, alias)
+                    name = alias
+                key = self._name_key(name) if name else ""
+                if key in entries:
+                    entries[key][3].append(family)
+                    continue
+                description = card.css("p").first
+                link = card.css("a[href]").first
+                url = urljoin(response.url, link.attrib.get(HtmlAttribute.HREF, "")) if link is not None else None
+                text = str(description.get_all_text(separator=" ", strip=True)) if description is not None else None
+                entries[key] = (name, text, url, [family])
+        for name, text, url, families in entries.values():
+            if product := self._build_product(name, text, url, categories=families):
                 yield product
 
     ############################

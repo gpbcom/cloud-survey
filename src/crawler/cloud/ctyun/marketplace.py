@@ -10,10 +10,24 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from classifier.software_classifier import SoftwareClassifier
+from crawler.cloud.ctyun.enums import (
+    ChinaTelecomClass,
+    ChinaTelecomClassField,
+    ChinaTelecomDataField,
+    ChinaTelecomDeliverMode,
+    ChinaTelecomMarketplaceMeta,
+    ChinaTelecomOfferDisplay,
+    ChinaTelecomOfferField,
+    ChinaTelecomOfferState,
+    ChinaTelecomOwnerField,
+    ChinaTelecomResponseField,
+    ChinaTelecomSubclass,
+)
 from crawler.exception import CatalogueFormatError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_category import MarketplaceCategory
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class ChinaTelecomMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -24,16 +38,19 @@ class ChinaTelecomMarketplaceCrawler(BaseMarketplaceCrawler):
         LIST_URL (ClassVar[str]): The offer catalog API, formatted with the offset and the page size.
         CLASS_URL (ClassVar[str]): The class tree API: the classes and their sub-classes.
         PAGE_SIZE (ClassVar[int]): The offers read per page.
-        PAGE (ClassVar[str]): The meta key holding the page number, from 1.
-        CLASSES (ClassVar[str]): The meta key marking the class tree response.
-        CLASS_NAMES (ClassVar[Dict[str, str]]): The names of the classes of the marketplace menu, used when the class
-            tree is not read.
-        EXCLUDED_CLASSES (ClassVar[FrozenSet[str]]): The classes which hold no software (courses).
-        EXCLUDED_SUBCLASSES (ClassVar[FrozenSet[str]]): The sub-classes which hold no software (professional
-            services, hardware).
-        EXCLUDED_DELIVERIES (ClassVar[FrozenSet[str]]): The delivery modes of the offers which are not software
-            (offline delivered services).
-        DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery method of each delivery mode.
+        PAGE (ClassVar[ChinaTelecomMarketplaceMeta]): The meta key holding the page number, from 1.
+        CLASSES (ClassVar[ChinaTelecomMarketplaceMeta]): The meta key marking the class tree response.
+        CLASS_NAMES (ClassVar[Dict[str, str]]): The names of the classes (`ChinaTelecomClass`) of the marketplace
+            menu, used when the class tree is not read.
+        EXCLUDED_CLASSES (ClassVar[FrozenSet[ChinaTelecomClass]]): The classes which hold no software (courses).
+        EXCLUDED_SUBCLASSES (ClassVar[FrozenSet[ChinaTelecomSubclass]]): The sub-classes which hold no software
+            (professional services, hardware).
+        EXCLUDED_DELIVERIES (ClassVar[FrozenSet[ChinaTelecomDeliverMode]]): The delivery modes of the offers which
+            are not software (offline delivered services).
+        DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery method of each delivery mode
+            (`ChinaTelecomDeliverMode`).
+        CLASS_FIELDS (ClassVar[Tuple[ChinaTelecomOfferField, ...]]): The offer fields of the class then the
+            sub-class identifiers.
         name (str): The crawler name.
         catalogue_url (ClassVar[str]): The first page of the offer catalog.
         class_names (Dict[str, str]): The name of each class and sub-class, by identifier.
@@ -52,27 +69,31 @@ class ChinaTelecomMarketplaceCrawler(BaseMarketplaceCrawler):
     LIST_URL: ClassVar[str] = SITE_URL + "/gw/offer/catalog/Query?offset={offset}&limit={limit}"
     CLASS_URL: ClassVar[str] = f"{SITE_URL}/gw/util/class/GetDetail"
     PAGE_SIZE: ClassVar[int] = 50
-    PAGE: ClassVar[str] = "page"
-    CLASSES: ClassVar[str] = "classes"
+    PAGE: ClassVar[ChinaTelecomMarketplaceMeta] = ChinaTelecomMarketplaceMeta.PAGE
+    CLASSES: ClassVar[ChinaTelecomMarketplaceMeta] = ChinaTelecomMarketplaceMeta.CLASSES
     CLASS_NAMES: ClassVar[Dict[str, str]] = {
-        "application": "企业应用",
-        "industry": "行业应用",
-        "basic": "基础软件",
-        "site_build": "建站工具",
-        "devops": "开发运维",
-        "course": "精品课程",
+        ChinaTelecomClass.APPLICATION: "企业应用",
+        ChinaTelecomClass.INDUSTRY: "行业应用",
+        ChinaTelecomClass.BASIC: "基础软件",
+        ChinaTelecomClass.SITE_BUILD: "建站工具",
+        ChinaTelecomClass.DEVOPS: "开发运维",
+        ChinaTelecomClass.COURSE: "精品课程",
     }
-    EXCLUDED_CLASSES: ClassVar[FrozenSet[str]] = frozenset({"course"})
-    EXCLUDED_SUBCLASSES: ClassVar[FrozenSet[str]] = frozenset({"10060", "3030"})
-    EXCLUDED_DELIVERIES: ClassVar[FrozenSet[str]] = frozenset({"service"})
+    EXCLUDED_CLASSES: ClassVar[FrozenSet[ChinaTelecomClass]] = frozenset({ChinaTelecomClass.COURSE})
+    EXCLUDED_SUBCLASSES: ClassVar[FrozenSet[ChinaTelecomSubclass]] = frozenset(ChinaTelecomSubclass)
+    EXCLUDED_DELIVERIES: ClassVar[FrozenSet[ChinaTelecomDeliverMode]] = frozenset({ChinaTelecomDeliverMode.SERVICE})
     DELIVERIES: ClassVar[Dict[str, DeliveryMethod]] = {
-        "saas": DeliveryMethod.SAAS,
-        "image": DeliveryMethod.VIRTUAL_MACHINE,
-        "mirror": DeliveryMethod.VIRTUAL_MACHINE,
-        "api": DeliveryMethod.API,
-        "license": DeliveryMethod.DOWNLOAD,
-        "software": DeliveryMethod.DOWNLOAD,
+        ChinaTelecomDeliverMode.SAAS: DeliveryMethod.SAAS,
+        ChinaTelecomDeliverMode.IMAGE: DeliveryMethod.VIRTUAL_MACHINE,
+        ChinaTelecomDeliverMode.MIRROR: DeliveryMethod.VIRTUAL_MACHINE,
+        ChinaTelecomDeliverMode.API: DeliveryMethod.API,
+        ChinaTelecomDeliverMode.LICENSE: DeliveryMethod.DOWNLOAD,
+        ChinaTelecomDeliverMode.SOFTWARE: DeliveryMethod.DOWNLOAD,
     }
+    CLASS_FIELDS: ClassVar[Tuple[ChinaTelecomOfferField, ...]] = (
+        ChinaTelecomOfferField.CLASS,
+        ChinaTelecomOfferField.SUBCLASS,
+    )
 
     name = "ctyun-marketplace"
     catalogue_url: ClassVar[str] = LIST_URL.format(offset=0, limit=PAGE_SIZE)
@@ -120,12 +141,12 @@ class ChinaTelecomMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         return self._list_request(1)
 
-    def _data(self, response: Response, field: str) -> Tuple[Dict[str, JsonValue], List[JsonValue]]:
+    def _data(self, response: Response, field: ChinaTelecomDataField) -> Tuple[Dict[str, JsonValue], List[JsonValue]]:
         """Read the `data` of an API response and its list.
 
         Args:
             response (Response): The API response.
-            field (str): The field of the list in `data`, e.g. `item`.
+            field (ChinaTelecomDataField): The field of the list in `data`, e.g. `item`.
 
         Returns:
             Tuple[Dict[str, JsonValue], List[JsonValue]]: The data and its list.
@@ -133,7 +154,7 @@ class ChinaTelecomMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the response is not JSON or has no such list.
         """
-        data = self._as_object(self._as_object(self._json_body(response)).get("data"))
+        data = self._as_object(self._as_object(self._json_body(response)).get(ChinaTelecomResponseField.DATA))
         entries = data.get(field)
         if not isinstance(entries, list):
             self.logger.error("The %s API response %s has no `data.%s` list.", self.name, response.url, field)
@@ -149,13 +170,31 @@ class ChinaTelecomMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the response is not JSON or has no class list.
         """
-        _, classes = self._data(response, "list")
+        _, classes = self._data(response, ChinaTelecomDataField.LIST)
         for entry in self._walk_objects(classes):
-            identifier = self._as_text(entry.get("subclassId")) or self._as_text(entry.get("classId"))
-            label = self._clean_text(self._as_text(entry.get("name")))
+            identifier = self._as_text(entry.get(ChinaTelecomClassField.SUBCLASS_ID)) or self._as_text(
+                entry.get(ChinaTelecomClassField.CLASS_ID)
+            )
+            label = self._clean_text(self._as_text(entry.get(ChinaTelecomClassField.NAME)))
             if identifier and label:
                 self.class_names[identifier] = label
         self.logger.info("%d %s class names read from %s.", len(self.class_names), self.name, response.url)
+
+    def _category_path(self, identifiers: List[str]) -> Optional[MarketplaceCategory]:
+        """Build the marketplace category path of an offer, from its class and sub-class.
+
+        Args:
+            identifiers (List[str]): The class then the sub-class identifiers of the offer, empty when missing.
+
+        Returns:
+            Optional[MarketplaceCategory]: The class then the sub-class names, identified by the deepest named one
+                (the sub-class, else the class), `None` when none is named.
+        """
+        named = [identifier for identifier in identifiers if identifier and self.class_names.get(identifier)]
+        if not named:
+            self.logger.debug("No %s class name known for the classes %s.", self.name, "/".join(identifiers))
+            return None
+        return self._category([self.class_names[identifier] for identifier in named], named[-1])
 
     def _offer_software(self, offer: Dict[str, JsonValue]) -> Optional[MarketplaceSoftware]:
         """Build the software of an offer, unless it is a course, a service, hardware or not online.
@@ -166,27 +205,36 @@ class ChinaTelecomMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             Optional[MarketplaceSoftware]: The software, `None` for a skipped (logged) or invalid offer.
         """
-        name = self._as_text(offer.get("name"))
-        identifiers = [self._clean_text(self._as_text(offer.get(field))) for field in ("class", "subclass")]
-        delivery = self._clean_text(self._as_text(offer.get("deliverMode"))).casefold()
-        state = self._as_text(offer.get("state"))
-        if state != "online" or offer.get("display") == "false":
+        name = self._as_text(offer.get(ChinaTelecomOfferField.NAME))
+        identifiers = [self._clean_text(self._as_text(offer.get(field))) for field in self.CLASS_FIELDS]
+        delivery = self._clean_text(self._as_text(offer.get(ChinaTelecomOfferField.DELIVER_MODE))).casefold()
+        state = self._as_text(offer.get(ChinaTelecomOfferField.STATE))
+        if (
+            state != ChinaTelecomOfferState.ONLINE
+            or offer.get(ChinaTelecomOfferField.DISPLAY) == ChinaTelecomOfferDisplay.HIDDEN
+        ):
             self.logger.debug("Skipping the %s offer %r, not online (%s).", self.name, name, state)
             return None
         if identifiers[0] in self.EXCLUDED_CLASSES or identifiers[1] in self.EXCLUDED_SUBCLASSES:
             self.logger.debug("Skipping the %s offer %r, not a software (%s).", self.name, name, "/".join(identifiers))
             return None
         if delivery in self.EXCLUDED_DELIVERIES:
-            self.logger.debug("Skipping the %s offer %r, a service (%s).", self.name, name, offer.get("deliverName"))
+            self.logger.debug(
+                "Skipping the %s offer %r, a service (%s).",
+                self.name,
+                name,
+                offer.get(ChinaTelecomOfferField.DELIVER_NAME),
+            )
             return None
-        link = self._as_text(offer.get("detailUrl"))
+        link = self._as_text(offer.get(ChinaTelecomOfferField.DETAIL_URL))
         return self._build_software(
             name,
-            self._as_text(offer.get("note")),
+            self._as_text(offer.get(ChinaTelecomOfferField.NOTE)),
             link.rstrip("?").replace("http://", "https://", 1) if link else None,
-            self._as_text(self._as_object(offer.get("owner")).get("name")),
+            self._as_text(self._as_object(offer.get(ChinaTelecomOfferField.OWNER)).get(ChinaTelecomOwnerField.NAME)),
             self.DELIVERIES.get(delivery, DeliveryMethod.OTHER),
             [self.class_names.get(identifier, "") for identifier in identifiers if identifier],
+            marketplace_category_paths=[self._category_path(identifiers)],
         )
 
     def _next_request(self, response: Response) -> Optional[Request]:
@@ -201,8 +249,8 @@ class ChinaTelecomMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the response is not JSON or has no offer list.
         """
-        data, offers = self._data(response, "item")
-        total = data.get("total")
+        data, offers = self._data(response, ChinaTelecomDataField.ITEM)
+        total = data.get(ChinaTelecomDataField.TOTAL)
         total = int(total) if isinstance(total, str) and total.isdigit() else total
         page = response.meta.get(self.PAGE)
         number = page if isinstance(page, int) else 1
@@ -253,9 +301,13 @@ class ChinaTelecomMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the response is not JSON or has no offer list.
         """
-        data, offers = self._data(response, "item")
+        data, offers = self._data(response, ChinaTelecomDataField.ITEM)
         self.logger.info(
-            "%s page %s: %d offers (%s in total).", self.name, response.url, len(offers), data.get("total")
+            "%s page %s: %d offers (%s in total).",
+            self.name,
+            response.url,
+            len(offers),
+            data.get(ChinaTelecomDataField.TOTAL),
         )
         for offer in map(self._as_object, offers):
             if (software := self._offer_software(offer)) is not None:

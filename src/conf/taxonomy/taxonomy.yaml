@@ -1,0 +1,442 @@
+# The unified taxonomy of the cloud catalogue products and of the marketplace software: domains, then categories.
+#
+# It is the seed of the `taxonomy_nodes` table (see `storage.repositories.taxonomy`): the database is the source of
+# truth, edited in the Categories manager, and a node edited there is never overwritten by this file.
+#
+# Every node has a slug (kebab-case, unique across domains and categories, never changed), English, Russian and Chinese
+# names, a one-line English description (shown in the pickers and given to the language model) and the audiences of its
+# items (`developer-tool`, `end-user-software`). A category inherits the audiences of its domain unless it names its own.
+# `umbrella` marks the generic category of a domain, dropped next to a more specific one of the same domain.
+# An item may belong to several categories, of several domains.
+#
+# `unclassified > other` is the last resort, when neither the source labels, the rules, the delivery method nor the
+# language model give a category: it is hidden from the pickers by default.
+
+domains:
+  - slug: compute
+    en: Compute
+    ru: Вычисления
+    zh: 计算
+    description: Virtual servers, bare metal, GPUs and every other kind of compute capacity.
+    audiences: [developer-tool]
+    categories:
+      - {slug: virtual-machines, en: Virtual machines, ru: Виртуальные машины, zh: 云服务器, description: "Virtual servers and instances (VMs, VPS, elastic compute)."}
+      - {slug: bare-metal, en: Bare metal servers, ru: Выделенные серверы, zh: 裸金属服务器, description: "Dedicated physical servers rented in the cloud."}
+      - {slug: gpu, en: GPU & accelerators, ru: GPU и ускорители, zh: GPU与加速器, description: "GPU, TPU, FPGA and other accelerated compute instances."}
+      - {slug: hpc, en: High-performance computing, ru: Высокопроизводительные вычисления, zh: 高性能计算, description: "HPC clusters, supercomputing and parallel scientific computing."}
+      - {slug: serverless, en: Serverless functions, ru: Бессерверные функции, zh: 函数计算, description: "Functions as a service and event-driven serverless runtimes."}
+      - {slug: batch-computing, en: Batch computing, ru: Пакетные вычисления, zh: 批量计算, description: "Managed batch jobs and job schedulers."}
+      - {slug: edge-computing, en: Edge computing, ru: Граничные вычисления, zh: 边缘计算, description: "Compute close to users or devices (edge zones, edge nodes)."}
+      - {slug: machine-images, en: Machine images & templates, ru: Образы и шаблоны машин, zh: 镜像与模板, description: "Pre-configured VM images, AMIs, appliances and server templates."}
+      - {slug: spot-instances, en: Spot & preemptible capacity, ru: Прерываемые инстансы, zh: 抢占式实例, description: "Discounted interruptible compute capacity."}
+      - {slug: mainframe, en: Mainframe & legacy systems, ru: Мейнфреймы и унаследованные системы, zh: 大型机与遗留系统, description: "Mainframe hosting, modernization and legacy platforms (AS/400, z/OS)."}
+
+  - slug: containers-kubernetes
+    en: Containers & Kubernetes
+    ru: Контейнеры и Kubernetes
+    zh: 容器与Kubernetes
+    description: Container runtimes, Kubernetes services, registries and service meshes.
+    audiences: [developer-tool]
+    categories:
+      - {slug: container, en: Container platforms, ru: Контейнерные платформы, zh: 容器平台, description: "Container runtimes, container instances and container platforms.", umbrella: true}
+      - {slug: kubernetes, en: Managed Kubernetes, ru: Управляемый Kubernetes, zh: 容器服务Kubernetes版, description: "Managed Kubernetes clusters and Kubernetes applications (Helm charts, operators)."}
+      - {slug: container-registry, en: Container registries, ru: Реестры контейнеров, zh: 容器镜像仓库, description: "Private registries for container images and artifacts."}
+      - {slug: service-mesh, en: Service mesh, ru: Сервисная сетка, zh: 服务网格, description: "Service meshes and microservice traffic management (Istio, Linkerd)."}
+
+  - slug: operating-systems
+    en: Operating Systems & Desktops
+    ru: Операционные системы и рабочие столы
+    zh: 操作系统与桌面
+    description: Server operating systems, Linux distributions and virtual desktops.
+    audiences: [developer-tool]
+    categories:
+      - {slug: operating-system, en: Operating systems, ru: Операционные системы, zh: 操作系统, description: "Server and workstation operating systems.", umbrella: true}
+      - {slug: linux-distributions, en: Linux distributions, ru: Дистрибутивы Linux, zh: Linux发行版, description: "Ubuntu, Debian, RHEL, Rocky, SUSE and other Linux distributions."}
+      - {slug: windows-server, en: Windows Server, ru: Windows Server, zh: Windows Server, description: "Microsoft Windows Server images and licenses."}
+      - {slug: virtual-desktops, en: Virtual desktops, ru: Виртуальные рабочие столы, zh: 云桌面, description: "VDI, desktop as a service and remote desktops.", audiences: [developer-tool, end-user-software]}
+      - {slug: secure-domestic-os, en: Certified domestic operating systems, ru: Отечественные защищённые ОС, zh: 国产操作系统, description: "Nationally certified operating systems (Astra Linux, RED OS, Kylin, UOS)."}
+
+  - slug: virtualization-private-cloud
+    en: Virtualization & Private Cloud
+    ru: Виртуализация и частное облако
+    zh: 虚拟化与私有云
+    description: Hypervisors, VMware environments, private, sovereign and hybrid clouds.
+    audiences: [developer-tool]
+    categories:
+      - {slug: virtualization, en: Virtualization, ru: Виртуализация, zh: 虚拟化, description: "Hypervisors and virtualization platforms (KVM, Proxmox, Hyper-V)."}
+      - {slug: vmware, en: VMware environments, ru: Среды VMware, zh: VMware环境, description: "VMware vSphere, VCF and VMware-based clouds."}
+      - {slug: private-cloud, en: Private cloud, ru: Частное облако, zh: 私有云, description: "Dedicated private cloud platforms and on-premises cloud stacks."}
+      - {slug: sovereign-cloud, en: Sovereign & certified cloud, ru: Суверенное и аттестованное облако, zh: 主权云与合规云, description: "Clouds certified for sovereignty, data residency or government security levels."}
+      - {slug: hybrid-multicloud, en: Hybrid & multi-cloud, ru: Гибридное и мультиоблако, zh: 混合云与多云, description: "Hybrid cloud platforms and multi-cloud management."}
+
+  - slug: storage-services
+    en: Storage
+    ru: Хранение данных
+    zh: 存储
+    description: Object, block, file and archive storage, and data transfer.
+    audiences: [developer-tool]
+    categories:
+      - {slug: storage, en: Storage solutions, ru: Решения для хранения, zh: 存储解决方案, description: "Storage software and appliances (NAS, SAN, software-defined storage).", umbrella: true}
+      - {slug: object-storage, en: Object storage, ru: Объектное хранилище, zh: 对象存储, description: "S3-compatible object storage and buckets."}
+      - {slug: block-storage, en: Block storage, ru: Блочное хранилище, zh: 块存储, description: "Volumes and disks attached to servers."}
+      - {slug: file-storage, en: File storage, ru: Файловое хранилище, zh: 文件存储, description: "Managed network file systems (NFS, SMB, parallel file systems)."}
+      - {slug: archive-storage, en: Archive storage, ru: Архивное хранилище, zh: 归档存储, description: "Cold and archive storage tiers."}
+      - {slug: data-transfer, en: Data transfer & migration appliances, ru: Перенос данных, zh: 数据传输, description: "Bulk data transfer services and appliances."}
+      - {slug: storage-management, en: Storage management, ru: Управление хранением, zh: 存储管理, description: "Storage gateways, tiering and storage management tools."}
+
+  - slug: backup-resilience
+    en: Backup & Resilience
+    ru: Резервное копирование и отказоустойчивость
+    zh: 备份与容灾
+    description: Backup, disaster recovery, replication and high availability.
+    audiences: [developer-tool]
+    categories:
+      - {slug: backup, en: Backup, ru: Резервное копирование, zh: 备份, description: "Backup of servers, databases, SaaS data and endpoints.", umbrella: true}
+      - {slug: disaster-recovery, en: Disaster recovery, ru: Аварийное восстановление, zh: 容灾, description: "Disaster recovery as a service and failover sites."}
+      - {slug: replication, en: Replication, ru: Репликация, zh: 数据复制, description: "Data and server replication between sites or clouds."}
+      - {slug: high-availability, en: High availability, ru: Высокая доступность, zh: 高可用, description: "Clustering and high-availability software."}
+
+  - slug: networking-services
+    en: Networking
+    ru: Сети
+    zh: 网络
+    description: Virtual networks, load balancing, VPNs, CDN and connectivity.
+    audiences: [developer-tool]
+    categories:
+      - {slug: networking, en: Network appliances & tools, ru: Сетевые решения, zh: 网络设备与工具, description: "Virtual routers, network appliances and network tools.", umbrella: true}
+      - {slug: virtual-networks, en: Virtual networks, ru: Виртуальные сети, zh: 私有网络, description: "VPC, subnets, NAT and private networking."}
+      - {slug: load-balancing, en: Load balancing, ru: Балансировка нагрузки, zh: 负载均衡, description: "Layer 4 and layer 7 load balancers and application delivery controllers."}
+      - {slug: vpn-interconnect, en: VPN & interconnect, ru: VPN и выделенные каналы, zh: VPN与专线, description: "Site-to-site VPN, direct connect and dedicated interconnects."}
+      - {slug: sd-wan, en: SD-WAN, ru: SD-WAN, zh: SD-WAN, description: "Software-defined wide area networks."}
+      - {slug: cdn, en: CDN & content delivery, ru: CDN и доставка контента, zh: CDN与内容分发, description: "Content delivery networks and edge caching."}
+      - {slug: network-monitoring, en: Network monitoring, ru: Мониторинг сети, zh: 网络监控, description: "Network performance and traffic monitoring."}
+      - {slug: telecom-5g, en: Telecom & 5G, ru: Телеком и 5G, zh: 电信与5G, description: "Mobile networks, 5G, private LTE and telecom services."}
+      - {slug: satellite-connectivity, en: Satellite connectivity, ru: Спутниковая связь, zh: 卫星通信, description: "Satellite ground stations and satellite internet."}
+
+  - slug: domains-web-hosting
+    en: Domains, Web & Hosting
+    ru: Домены, веб и хостинг
+    zh: 域名、网站与托管
+    description: Domain names, certificates, web hosting, website builders and email hosting.
+    audiences: [developer-tool, end-user-software]
+    categories:
+      - {slug: dns-domains, en: Domains & DNS, ru: Домены и DNS, zh: 域名与DNS, description: "Domain registration and DNS hosting.", audiences: [developer-tool]}
+      - {slug: ssl-certificates, en: SSL/TLS certificates, ru: SSL-сертификаты, zh: SSL证书, description: "TLS certificates and certificate management.", audiences: [developer-tool]}
+      - {slug: web-hosting, en: Web hosting, ru: Веб-хостинг, zh: 虚拟主机, description: "Shared, managed and application web hosting."}
+      - {slug: website-builders, en: Website builders, ru: Конструкторы сайтов, zh: 建站工具, description: "Website and landing page builders.", audiences: [end-user-software]}
+      - {slug: one-click-apps, en: One-click applications, ru: Приложения в один клик, zh: 一键部署应用, description: "Applications installed in one click on a hosting or server offer."}
+      - {slug: email, en: Email hosting & delivery, ru: Почтовый хостинг и рассылки, zh: 企业邮箱与邮件推送, description: "Mailboxes, transactional email and email delivery services."}
+
+  - slug: databases
+    en: Databases
+    ru: Базы данных
+    zh: 数据库
+    description: Relational, NoSQL, in-memory, graph, time-series and vector databases.
+    audiences: [developer-tool]
+    categories:
+      - {slug: database, en: Databases (multi-model), ru: Базы данных (мультимодельные), zh: 数据库（多模）, description: "Database engines and database services not specific to one model.", umbrella: true}
+      - {slug: relational-database, en: Relational databases, ru: Реляционные СУБД, zh: 关系型数据库, description: "PostgreSQL, MySQL, SQL Server, Oracle and other SQL databases."}
+      - {slug: nosql-database, en: NoSQL databases, ru: NoSQL-базы данных, zh: NoSQL数据库, description: "Document, key-value and wide-column databases (MongoDB, Cassandra)."}
+      - {slug: in-memory-cache, en: In-memory caches, ru: Кеши в памяти, zh: 内存缓存, description: "Redis, Memcached and other in-memory data stores."}
+      - {slug: graph-database, en: Graph databases, ru: Графовые базы данных, zh: 图数据库, description: "Graph databases and knowledge graphs (Neo4j)."}
+      - {slug: time-series-database, en: Time-series databases, ru: Базы временных рядов, zh: 时序数据库, description: "Time-series databases (InfluxDB, TimescaleDB)."}
+      - {slug: vector-database, en: Vector databases, ru: Векторные базы данных, zh: 向量数据库, description: "Vector stores for embeddings and semantic search."}
+      - {slug: database-tools, en: Database tools, ru: Инструменты для баз данных, zh: 数据库工具, description: "Database administration, migration and development tools."}
+
+  - slug: data-analytics
+    en: Data Platforms & Analytics
+    ru: Платформы данных и аналитика
+    zh: 数据平台与分析
+    description: Data warehouses, data lakes, big data, ETL, BI, search and data governance.
+    audiences: [developer-tool]
+    categories:
+      - {slug: data-warehouse, en: Data warehouses, ru: Хранилища данных, zh: 数据仓库, description: "Cloud data warehouses (BigQuery, Redshift, Snowflake, ClickHouse)."}
+      - {slug: data-lake, en: Data lakes & lakehouses, ru: Озёра данных, zh: 数据湖, description: "Data lakes, lakehouses and table formats."}
+      - {slug: big-data, en: Big data processing, ru: Обработка больших данных, zh: 大数据处理, description: "Hadoop, Spark and distributed data processing."}
+      - {slug: data-integration, en: Data integration & ETL, ru: Интеграция данных и ETL, zh: 数据集成与ETL, description: "ETL/ELT, data pipelines and change data capture."}
+      - {slug: streaming-analytics, en: Streaming analytics, ru: Потоковая аналитика, zh: 实时计算, description: "Real-time stream processing (Flink, Kinesis analytics)."}
+      - {slug: business-intelligence, en: Business intelligence & dashboards, ru: Бизнес-аналитика и дашборды, zh: 商业智能与报表, description: "BI, reporting, dashboards and data visualization.", audiences: [end-user-software]}
+      - {slug: data-governance, en: Data governance & quality, ru: Управление данными и качество, zh: 数据治理与质量, description: "Data catalogs, lineage, quality and master data management."}
+      - {slug: search-engines, en: Search engines, ru: Поисковые движки, zh: 搜索引擎, description: "Enterprise and application search (Elasticsearch, OpenSearch)."}
+      - {slug: geospatial, en: Geospatial & maps, ru: Геоданные и карты, zh: 地理空间与地图, description: "Maps, geolocation, GIS and location data."}
+      - {slug: data-science-notebooks, en: Data science notebooks, ru: Ноутбуки для анализа данных, zh: 数据科学笔记本, description: "Jupyter, RStudio and collaborative data science environments."}
+      - {slug: open-data-datasets, en: Datasets & data products, ru: Наборы данных, zh: 数据集与数据产品, description: "Datasets, data feeds and data marketplaces."}
+
+  - slug: application-integration
+    en: Application Integration
+    ru: Интеграция приложений
+    zh: 应用集成
+    description: Message queues, event streaming, workflow orchestration, iPaaS and API management.
+    audiences: [developer-tool]
+    categories:
+      - {slug: messaging, en: Message queues, ru: Очереди сообщений, zh: 消息队列, description: "Message brokers and queues (RabbitMQ, SQS)."}
+      - {slug: event-streaming, en: Event streaming, ru: Потоки событий, zh: 事件流, description: "Event streaming platforms and event buses (Kafka, Pulsar)."}
+      - {slug: workflow-orchestration, en: Workflow orchestration, ru: Оркестрация процессов, zh: 工作流编排, description: "Workflow engines and job orchestration (Airflow, Step Functions)."}
+      - {slug: ipaas, en: Integration platforms (iPaaS), ru: Платформы интеграции (iPaaS), zh: 集成平台iPaaS, description: "Integration platforms, connectors and enterprise service buses."}
+      - {slug: api-management, en: API management & gateways, ru: Управление API и шлюзы, zh: API管理与网关, description: "API gateways, API management and developer portals."}
+
+  - slug: ai-machine-learning
+    en: AI & Machine Learning
+    ru: Искусственный интеллект и машинное обучение
+    zh: 人工智能与机器学习
+    description: ML platforms, generative AI, agents, AI models and AI APIs.
+    audiences: [developer-tool, end-user-software]
+    categories:
+      - {slug: ai-ml, en: Machine learning platforms, ru: Платформы машинного обучения, zh: 机器学习平台, description: "Platforms to build, train and deploy ML models (MLOps).", umbrella: true}
+      - {slug: generative-ai, en: Generative AI & LLMs, ru: Генеративный ИИ и LLM, zh: 生成式AI与大模型, description: "Large language models, foundation models and generative AI services."}
+      - {slug: ai-agents, en: AI agents & assistants, ru: ИИ-агенты и ассистенты, zh: 智能体与助手, description: "AI agents, copilots and assistants."}
+      - {slug: mcp-servers, en: MCP servers & AI tools, ru: MCP-серверы и инструменты ИИ, zh: MCP服务器与AI工具, description: "Model Context Protocol servers and tools for AI agents.", audiences: [developer-tool]}
+      - {slug: ai-models, en: AI models & algorithms, ru: Модели и алгоритмы ИИ, zh: AI模型与算法, description: "Pre-trained models and algorithms ready to deploy.", audiences: [developer-tool]}
+      - {slug: computer-vision, en: Computer vision, ru: Компьютерное зрение, zh: 计算机视觉, description: "Image and video recognition, OCR-free vision APIs."}
+      - {slug: speech, en: Speech recognition & synthesis, ru: Распознавание и синтез речи, zh: 语音识别与合成, description: "Speech to text, text to speech and voice AI."}
+      - {slug: language-translation, en: Language & translation AI, ru: Обработка языка и перевод, zh: 自然语言与机器翻译, description: "NLP, machine translation and text analytics."}
+      - {slug: document-ai, en: Document AI & OCR, ru: Распознавание документов, zh: 文档智能与OCR, description: "OCR, document understanding and intelligent document processing."}
+      - {slug: recommendation, en: Recommendation & personalization, ru: Рекомендации и персонализация, zh: 推荐与个性化, description: "Recommender systems and personalization engines."}
+      - {slug: data-labeling, en: Data labeling, ru: Разметка данных, zh: 数据标注, description: "Data annotation and labeling for model training."}
+      - {slug: ai-infrastructure, en: AI infrastructure, ru: Инфраструктура для ИИ, zh: AI基础设施, description: "AI training clusters, inference platforms and model serving.", audiences: [developer-tool]}
+
+  - slug: security-services
+    en: Security
+    ru: Безопасность
+    zh: 安全
+    description: Threat protection, network and application security, keys, SIEM and vulnerability management.
+    audiences: [developer-tool]
+    categories:
+      - {slug: security, en: Security suites, ru: Комплексная безопасность, zh: 综合安全, description: "Security platforms and suites covering several protections.", umbrella: true}
+      - {slug: endpoint-protection, en: Endpoint protection, ru: Защита конечных точек, zh: 终端安全, description: "Antivirus, EDR and endpoint protection."}
+      - {slug: network-security, en: Firewalls & network security, ru: Межсетевые экраны и сетевая безопасность, zh: 防火墙与网络安全, description: "Firewalls, IDS/IPS, NGFW and secure web gateways."}
+      - {slug: application-security, en: Application security, ru: Безопасность приложений, zh: 应用安全, description: "WAF, code scanning, SAST/DAST and runtime application protection."}
+      - {slug: cloud-security-posture, en: Cloud security posture, ru: Защита облачной инфраструктуры, zh: 云安全态势管理, description: "CSPM, CNAPP and cloud workload protection."}
+      - {slug: data-security, en: Data security & DLP, ru: Защита данных и DLP, zh: 数据安全与防泄漏, description: "Data loss prevention, data masking and data protection."}
+      - {slug: key-management, en: "Keys, secrets & encryption", ru: "Ключи, секреты и шифрование", zh: 密钥与加密, description: "KMS, HSM, secrets managers and encryption."}
+      - {slug: siem-soc, en: SIEM & security operations, ru: SIEM и центры мониторинга безопасности, zh: SIEM与安全运营, description: "SIEM, SOAR and security operations centers."}
+      - {slug: vulnerability-management, en: Vulnerability management, ru: Управление уязвимостями, zh: 漏洞管理, description: "Vulnerability scanning, penetration testing and attack surface management."}
+      - {slug: email-security, en: Email security, ru: Защита почты, zh: 邮件安全, description: "Anti-spam, anti-phishing and email encryption."}
+      - {slug: ddos-protection, en: DDoS protection, ru: Защита от DDoS, zh: DDoS防护, description: "DDoS mitigation and anti-bot services."}
+
+  - slug: identity-access
+    en: Identity & Access
+    ru: Идентификация и доступ
+    zh: 身份与访问
+    description: Identity and access management, single sign-on, privileged access and directories.
+    audiences: [developer-tool]
+    categories:
+      - {slug: identity, en: Identity & access management, ru: Управление идентификацией и доступом, zh: 身份与访问管理, description: "IAM, MFA and authentication services.", umbrella: true}
+      - {slug: single-sign-on, en: Single sign-on, ru: Единый вход, zh: 单点登录, description: "SSO, federation and identity providers."}
+      - {slug: privileged-access, en: Privileged access management, ru: Управление привилегированным доступом, zh: 特权访问管理, description: "PAM, bastions and password vaults for administrators."}
+      - {slug: directory-services, en: Directory services, ru: Службы каталогов, zh: 目录服务, description: "Active Directory, LDAP and directory services."}
+      - {slug: customer-identity, en: Customer identity (CIAM), ru: Идентификация клиентов, zh: 客户身份管理, description: "Customer identity and consumer authentication."}
+
+  - slug: developer-tools
+    en: Developer Tools
+    ru: Инструменты разработчика
+    zh: 开发者工具
+    description: Development environments, frameworks, SDKs, source control, testing and low-code.
+    audiences: [developer-tool]
+    categories:
+      - {slug: development, en: Development stacks, ru: Стеки разработки, zh: 开发环境与技术栈, description: "Application stacks and pre-configured development environments (LAMP, Node.js).", umbrella: true}
+      - {slug: ides-editors, en: IDEs & code editors, ru: Среды разработки, zh: 集成开发环境, description: "IDEs, cloud IDEs and code editors."}
+      - {slug: frameworks-runtimes, en: "Frameworks, runtimes & middleware", ru: "Фреймворки, среды выполнения и middleware", zh: 框架、运行时与中间件, description: "Application servers, runtimes, frameworks and middleware."}
+      - {slug: sdks-apis, en: SDKs & APIs, ru: SDK и API, zh: SDK与API, description: "Software development kits and ready-to-use APIs."}
+      - {slug: source-control, en: Source control & artifacts, ru: Системы контроля версий и артефакты, zh: 代码托管与制品库, description: "Git hosting, code repositories and artifact repositories."}
+      - {slug: testing, en: Testing & QA, ru: Тестирование и контроль качества, zh: 测试与质量, description: "Test automation, load testing and quality assurance."}
+      - {slug: low-code, en: Low-code & no-code, ru: Low-code и no-code, zh: 低代码与零代码, description: "Low-code, no-code and RPA platforms.", audiences: [developer-tool, end-user-software]}
+      - {slug: application-platforms, en: Application platforms (PaaS), ru: Платформы приложений (PaaS), zh: 应用平台PaaS, description: "Managed platforms to deploy and run applications."}
+
+  - slug: devops-automation
+    en: DevOps & Automation
+    ru: DevOps и автоматизация
+    zh: DevOps与自动化
+    description: CI/CD, infrastructure as code, configuration management and release management.
+    audiences: [developer-tool]
+    categories:
+      - {slug: devops, en: DevOps platforms, ru: DevOps-платформы, zh: DevOps平台, description: "DevOps toolchains and platforms.", umbrella: true}
+      - {slug: ci-cd, en: CI/CD pipelines, ru: CI/CD, zh: 持续集成与交付, description: "Continuous integration and delivery services."}
+      - {slug: infrastructure-as-code, en: Infrastructure as code, ru: Инфраструктура как код, zh: 基础设施即代码, description: "Terraform, templates and infrastructure provisioning."}
+      - {slug: configuration-management, en: Configuration management, ru: Управление конфигурациями, zh: 配置管理, description: "Ansible, Puppet, Chef and server configuration."}
+      - {slug: release-management, en: Release & feature management, ru: Управление релизами, zh: 发布与特性管理, description: "Release orchestration, feature flags and deployment management."}
+
+  - slug: management-observability
+    en: Management & Observability
+    ru: Управление и наблюдаемость
+    zh: 管理与可观测性
+    description: Monitoring, logging, APM, IT service management, cloud management and FinOps.
+    audiences: [developer-tool]
+    categories:
+      - {slug: monitoring, en: Monitoring & alerting, ru: Мониторинг и оповещения, zh: 监控与告警, description: "Infrastructure monitoring, metrics and alerting.", umbrella: true}
+      - {slug: logging, en: Log management, ru: Управление журналами, zh: 日志管理, description: "Log collection, search and analysis."}
+      - {slug: apm, en: Application performance monitoring, ru: Мониторинг производительности приложений, zh: 应用性能监控, description: "APM, tracing and real user monitoring."}
+      - {slug: itsm, en: IT service management, ru: Управление ИТ-услугами, zh: IT服务管理, description: "Service desks, ITIL processes and IT asset management."}
+      - {slug: cloud-management, en: Cloud management & operations, ru: Управление облаком, zh: 云管理与运维, description: "Cloud consoles, resource management and server control panels."}
+      - {slug: finops, en: FinOps & cost management, ru: Управление затратами на облако, zh: 成本管理, description: "Cloud cost analysis, billing and optimization."}
+      - {slug: governance-policy, en: Cloud governance & policy, ru: Политики и управление облаком, zh: 云治理与策略, description: "Policies, tagging, quotas and landing zones."}
+
+  - slug: iot-edge
+    en: IoT & Edge
+    ru: Интернет вещей
+    zh: 物联网与边缘
+    description: Internet of things platforms, industrial IoT, digital twins and robotics.
+    audiences: [developer-tool]
+    categories:
+      - {slug: iot, en: IoT platforms, ru: Платформы интернета вещей, zh: 物联网平台, description: "Device connectivity, device management and IoT data.", umbrella: true}
+      - {slug: industrial-iot, en: Industrial IoT, ru: Промышленный интернет вещей, zh: 工业物联网, description: "Industrial IoT, SCADA and connected factories."}
+      - {slug: digital-twins, en: Digital twins, ru: Цифровые двойники, zh: 数字孪生, description: "Digital twins and simulation."}
+      - {slug: robotics, en: Robotics & drones, ru: Робототехника и дроны, zh: 机器人与无人机, description: "Robotics platforms, drones and autonomous systems."}
+
+  - slug: emerging-technologies
+    en: Emerging Technologies
+    ru: Новые технологии
+    zh: 新兴技术
+    description: Blockchain, quantum computing, AR/VR and Web3.
+    audiences: [developer-tool]
+    categories:
+      - {slug: blockchain, en: Blockchain, ru: Блокчейн, zh: 区块链, description: "Blockchain platforms, ledgers and smart contracts."}
+      - {slug: quantum, en: Quantum computing, ru: Квантовые вычисления, zh: 量子计算, description: "Quantum computers, simulators and quantum-safe cryptography."}
+      - {slug: ar-vr, en: "AR, VR & metaverse", ru: "AR, VR и метавселенные", zh: AR、VR与元宇宙, description: "Augmented and virtual reality, 3D and metaverse platforms."}
+      - {slug: web3, en: Web3 & digital assets, ru: Web3 и цифровые активы, zh: Web3与数字资产, description: "Web3 infrastructure, NFTs and digital assets."}
+
+  - slug: business-applications
+    en: Business Applications
+    ru: Бизнес-приложения
+    zh: 企业应用
+    description: ERP, accounting, procurement, supply chain, compliance and project management.
+    audiences: [end-user-software]
+    categories:
+      - {slug: erp, en: ERP, ru: ERP-системы, zh: ERP, description: "Enterprise resource planning suites."}
+      - {slug: accounting, en: Accounting & finance, ru: Бухгалтерия и финансы, zh: 财务与会计, description: "Accounting, invoicing, expenses and financial planning."}
+      - {slug: procurement, en: Procurement & spend, ru: Закупки, zh: 采购管理, description: "Procurement, sourcing and spend management."}
+      - {slug: supply-chain, en: Supply chain & logistics, ru: Цепочки поставок и логистика, zh: 供应链与物流, description: "Supply chain, inventory, warehouse and logistics management."}
+      - {slug: asset-management, en: Asset & maintenance management, ru: Управление активами и ТОиР, zh: 资产与运维管理, description: "Enterprise asset management, maintenance and facilities."}
+      - {slug: legal-compliance, en: "Legal, risk & compliance", ru: "Право, риски и соответствие", zh: 法务、风控与合规, description: "GRC, contract management, audit and regulatory compliance."}
+      - {slug: project-management, en: Project & work management, ru: Управление проектами, zh: 项目与任务管理, description: "Project, portfolio and task management."}
+      - {slug: esg-sustainability, en: ESG & sustainability, ru: ESG и устойчивое развитие, zh: ESG与可持续发展, description: "Carbon accounting, ESG reporting and sustainability."}
+      - {slug: bpm, en: Business process management, ru: Управление бизнес-процессами, zh: 业务流程管理, description: "BPM suites, process mining and business process automation."}
+
+  - slug: human-capital
+    en: Human Capital
+    ru: Управление персоналом
+    zh: 人力资本
+    description: HR, recruiting, payroll, workforce management and employee experience.
+    audiences: [end-user-software]
+    categories:
+      - {slug: hris, en: HR management (HRIS), ru: Управление персоналом (HRIS), zh: 人力资源管理, description: "Core HR, HRIS and human capital management."}
+      - {slug: ats, en: Recruiting & applicant tracking, ru: Подбор персонала, zh: 招聘与人才获取, description: "Applicant tracking systems and recruitment."}
+      - {slug: payroll, en: Payroll, ru: Расчёт заработной платы, zh: 薪酬管理, description: "Payroll and compensation."}
+      - {slug: workforce-management, en: Workforce management, ru: Управление рабочим временем, zh: 劳动力管理, description: "Scheduling, time tracking and workforce planning."}
+      - {slug: employee-experience, en: Employee experience & engagement, ru: Вовлечённость сотрудников, zh: 员工体验, description: "Engagement, performance, learning and employee portals."}
+
+  - slug: sales-marketing
+    en: Sales & Marketing
+    ru: Продажи и маркетинг
+    zh: 销售与营销
+    description: CRM, marketing automation, advertising, social media and customer data.
+    audiences: [end-user-software]
+    categories:
+      - {slug: crm, en: CRM, ru: CRM-системы, zh: 客户关系管理, description: "Customer relationship management and sales pipelines."}
+      - {slug: marketing, en: Marketing automation, ru: Автоматизация маркетинга, zh: 营销自动化, description: "Marketing automation, campaigns, newsletters and SEO."}
+      - {slug: advertising, en: Advertising & ad tech, ru: Реклама, zh: 广告与广告技术, description: "Ad servers, programmatic advertising and ad analytics."}
+      - {slug: social-media, en: Social media management, ru: Управление соцсетями, zh: 社交媒体管理, description: "Social media publishing, listening and influencer tools."}
+      - {slug: customer-data-platform, en: Customer data platforms, ru: Платформы клиентских данных, zh: 客户数据平台, description: "CDP, customer analytics and audience segmentation."}
+      - {slug: surveys-feedback, en: Surveys & feedback, ru: Опросы и обратная связь, zh: 问卷与反馈, description: "Surveys, forms and customer feedback."}
+      - {slug: sales-enablement, en: Sales enablement & CPQ, ru: Поддержка продаж, zh: 销售赋能, description: "CPQ, proposals, sales content and sales intelligence."}
+
+  - slug: commerce-payments
+    en: Commerce & Payments
+    ru: Коммерция и платежи
+    zh: 商务与支付
+    description: E-commerce, payments, point of sale, bookings and loyalty.
+    audiences: [end-user-software]
+    categories:
+      - {slug: ecommerce, en: E-commerce, ru: Электронная коммерция, zh: 电子商务, description: "Online stores and e-commerce platforms."}
+      - {slug: payments, en: Payments, ru: Платежи, zh: 支付, description: "Payment processing, gateways and billing of customers."}
+      - {slug: point-of-sale, en: Point of sale, ru: Кассовые системы, zh: 收银系统, description: "POS and in-store retail systems."}
+      - {slug: booking-reservations, en: Booking & reservations, ru: Бронирование, zh: 预订与预约, description: "Booking engines, reservations and scheduling of customers."}
+      - {slug: loyalty, en: Loyalty & rewards, ru: Программы лояльности, zh: 会员与积分, description: "Loyalty programs, coupons and rewards."}
+
+  - slug: customer-engagement
+    en: Customer Service & Engagement
+    ru: Обслуживание клиентов
+    zh: 客户服务与互动
+    description: Help desks, contact centers, chatbots and field service.
+    audiences: [end-user-software]
+    categories:
+      - {slug: customer-service, en: Help desk & ticketing, ru: Служба поддержки, zh: 客服工单, description: "Help desks, ticketing and customer support."}
+      - {slug: contact-center, en: Contact centers, ru: Контакт-центры, zh: 呼叫中心, description: "Cloud contact centers, call centers and telephony for support."}
+      - {slug: chatbots, en: Chatbots & conversational AI, ru: Чат-боты, zh: 聊天机器人, description: "Chatbots, virtual agents and conversational interfaces."}
+      - {slug: field-service, en: Field service management, ru: Управление выездным обслуживанием, zh: 现场服务管理, description: "Field service scheduling and mobile workforce."}
+
+  - slug: collaboration-productivity
+    en: Collaboration & Productivity
+    ru: Совместная работа и продуктивность
+    zh: 协作与办公
+    description: Office suites, communication, video conferencing, documents, e-signature and CMS.
+    audiences: [end-user-software]
+    categories:
+      - {slug: collaboration, en: Office suites & collaboration, ru: Офисные пакеты и совместная работа, zh: 办公套件与协同, description: "Office suites, whiteboards and team collaboration."}
+      - {slug: communication, en: Messaging & telephony, ru: Мессенджеры и телефония, zh: 即时通讯与电话, description: "Team chat, messaging apps, VoIP and telephony."}
+      - {slug: video-conferencing, en: Video conferencing, ru: Видеоконференции, zh: 视频会议, description: "Video meetings, webinars and virtual events."}
+      - {slug: document-management, en: Document management, ru: Документооборот, zh: 文档管理, description: "Document management, ECM and archives."}
+      - {slug: e-signature, en: E-signature, ru: Электронная подпись, zh: 电子签名, description: "Electronic signatures and digital signing."}
+      - {slug: file-sharing, en: File sharing & sync, ru: Обмен файлами, zh: 文件共享与同步, description: "File sharing, sync and cloud drives."}
+      - {slug: knowledge-management, en: Knowledge management & wikis, ru: Базы знаний и вики, zh: 知识管理与维基, description: "Wikis, knowledge bases and intranets."}
+      - {slug: cms, en: Content management (CMS), ru: Системы управления контентом, zh: 内容管理系统, description: "Content management systems, blogs and portals."}
+
+  - slug: education-training
+    en: Education & Training
+    ru: Образование и обучение
+    zh: 教育与培训
+    description: E-learning, school management and professional training.
+    audiences: [end-user-software]
+    categories:
+      - {slug: e-learning, en: E-learning & LMS, ru: Электронное обучение и LMS, zh: 在线学习与LMS, description: "Learning management systems and online courses."}
+      - {slug: education-management, en: Education management, ru: Управление образованием, zh: 教务管理, description: "School and university management systems."}
+      - {slug: training-certification, en: Training & certification, ru: Обучение и сертификация, zh: 培训与认证, description: "Professional training, labs and certifications."}
+
+  - slug: industry-solutions
+    en: Industry Solutions
+    ru: Отраслевые решения
+    zh: 行业解决方案
+    description: Software made for one industry, from healthcare and finance to hospitality and agriculture.
+    audiences: [end-user-software]
+    categories:
+      - {slug: healthcare, en: Healthcare, ru: Здравоохранение, zh: 医疗健康, description: "EHR, hospital systems, telemedicine and medical imaging."}
+      - {slug: life-sciences, en: Life sciences & pharma, ru: Науки о жизни и фармацевтика, zh: 生命科学与制药, description: "Pharma, biotech, genomics and clinical research."}
+      - {slug: financial-services, en: Banking & financial services, ru: Банки и финансовые услуги, zh: 银行与金融服务, description: "Core banking, trading, wealth management and fintech."}
+      - {slug: insurance, en: Insurance, ru: Страхование, zh: 保险, description: "Policy, claims and insurance platforms."}
+      - {slug: public-sector, en: Government & public sector, ru: Госсектор, zh: 政务与公共部门, description: "E-government, smart cities and public services."}
+      - {slug: retail, en: Retail & consumer goods, ru: Ритейл и товары народного потребления, zh: 零售与消费品, description: "Retail operations, merchandising and consumer goods."}
+      - {slug: manufacturing, en: Manufacturing, ru: Производство, zh: 制造业, description: "MES, PLM, factory and production management."}
+      - {slug: energy-utilities, en: Energy & utilities, ru: Энергетика и ЖКХ, zh: 能源与公用事业, description: "Energy, oil and gas, utilities and smart grids."}
+      - {slug: telecommunications, en: Telecommunications, ru: Телекоммуникации, zh: 电信行业, description: "BSS/OSS and software for telecom operators."}
+      - {slug: hospitality, en: Hospitality & travel, ru: Гостиничный бизнес и туризм, zh: 酒店与旅游, description: "Hotels, restaurants, food service and travel."}
+      - {slug: transportation-logistics, en: Transportation & mobility, ru: Транспорт и мобильность, zh: 交通与出行, description: "Fleet, transport, mobility and aviation software."}
+      - {slug: automotive, en: Automotive, ru: Автомобильная отрасль, zh: 汽车, description: "Connected cars, dealerships and automotive engineering."}
+      - {slug: real-estate, en: Real estate & construction, ru: Недвижимость и строительство, zh: 房地产与建筑, description: "Property management, BIM and construction."}
+      - {slug: agriculture, en: Agriculture, ru: Сельское хозяйство, zh: 农业, description: "Precision agriculture and farm management."}
+      - {slug: media, en: Media & entertainment, ru: Медиа и развлечения, zh: 媒体与娱乐, description: "Video, streaming, broadcasting, audio and image processing."}
+      - {slug: gaming, en: Gaming, ru: Игры, zh: 游戏, description: "Game servers, game engines and game backends."}
+      - {slug: legal-services, en: Legal services, ru: Юридические услуги, zh: 法律服务, description: "Law firm and legal practice software."}
+      - {slug: nonprofit, en: Nonprofit & NGO, ru: Некоммерческие организации, zh: 非营利组织, description: "Fundraising and nonprofit management."}
+
+  - slug: professional-managed-services
+    en: Professional & Managed Services
+    ru: Профессиональные и управляемые услуги
+    zh: 专业与托管服务
+    description: Consulting, managed services, support, migration and software licenses.
+    audiences: [developer-tool, end-user-software]
+    categories:
+      - {slug: professional-services, en: Consulting & implementation, ru: Консалтинг и внедрение, zh: 咨询与实施, description: "Consulting, implementation and integration services."}
+      - {slug: managed-services, en: Managed services, ru: Управляемые услуги, zh: 托管服务, description: "Managed infrastructure, managed operations and outsourcing."}
+      - {slug: technical-support, en: Technical support, ru: Техническая поддержка, zh: 技术支持, description: "Support plans and technical assistance."}
+      - {slug: migration, en: Cloud migration, ru: Миграция в облако, zh: 上云迁移, description: "Migration of servers, databases and applications to the cloud.", audiences: [developer-tool]}
+      - {slug: software-licenses, en: Software licenses, ru: Лицензии на ПО, zh: 软件许可, description: "Licenses and subscriptions of installable software."}
+
+  - slug: unclassified
+    en: Unclassified
+    ru: Без категории
+    zh: 未分类
+    description: Items no source label, rule, delivery method or language model could classify.
+    audiences: []
+    hidden: true
+    categories:
+      - {slug: other, en: Other, ru: Другое, zh: 其他, description: "Not classified yet.", hidden: true}

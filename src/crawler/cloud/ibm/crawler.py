@@ -10,10 +10,21 @@ from urllib.parse import urljoin, urlparse
 from pydantic import JsonValue
 from scrapling.spiders import Response
 
-# First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
+from crawler.cloud.ibm.enums import (
+    IbmCatalogueTag,
+    IbmCategoryField,
+    IbmOfferField,
+    IbmOfferType,
+    IbmScriptVariable,
+    IbmStateField,
+)
+from crawler.enums import HtmlAttribute, TextEncoding
 from crawler.exception import CatalogueFormatError
-from models.cloud.product import CloudProduct
+
+# First Party Imports.
+from models.cloud.enums import DateCaveat
+from models.cloud.products.product import CloudProduct
 
 
 class IBMCloudCrawler(BaseCloudCrawler):
@@ -22,10 +33,11 @@ class IBMCloudCrawler(BaseCloudCrawler):
     Attributes:
         CATALOG_HOST (ClassVar[str]): The IBM Cloud console, which serves the catalogue and the product pages.
         PRODUCTS_URL (ClassVar[str]): The "IBM Cloud" product search fragment of the ibm.com products page.
-        STATE_MARKER (ClassVar[str]): The script variable holding the catalogue data.
-        KEPT_TAG (ClassVar[str]): The catalogue tag of the offers created by IBM (not third party or community).
-        KEPT_TYPES (ClassVar[FrozenSet[str]]): The catalogue types of the services (not content or pillars).
-        EXCLUDED_TAGS (ClassVar[FrozenSet[str]]): The catalogue tags of the deprecated and beta services.
+        STATE_MARKER (ClassVar[IbmScriptVariable]): The script variable holding the catalogue data.
+        KEPT_TAG (ClassVar[IbmCatalogueTag]): The catalogue tag of the offers created by IBM (not third party or
+            community).
+        KEPT_TYPES (ClassVar[FrozenSet[IbmOfferType]]): The catalogue types of the services (not content or pillars).
+        EXCLUDED_TAGS (ClassVar[FrozenSet[IbmCatalogueTag]]): The catalogue tags of the deprecated and beta services.
         TEST_HOST (ClassVar[re.Pattern[str]]): The hosts of the IBM test environments, whose links are dropped.
         NOT_PRODUCT_CARD (ClassVar[re.Pattern[str]]): The product search cards which are overviews, not products.
         CARD_ALIASES (ClassVar[Dict[str, str]]): The catalogue names of the products named otherwise on ibm.com.
@@ -37,6 +49,8 @@ class IBMCloudCrawler(BaseCloudCrawler):
         beta and consulting ones. An offer is dated by its last modification (`lastModified`), the catalogue giving
         no creation date. The "IBM Cloud" product search of ibm.com completes it with the products missing from the
         catalogue (e.g. the Cloud Paks), undated.
+        The categories of an offer are the names of all the catalogue categories listing it. The product search
+        cards give no category, only commercial tags ("Buy Now", "Free Trial").
     """
 
     CATALOG_HOST: ClassVar[str] = "https://cloud.ibm.com"
@@ -44,10 +58,10 @@ class IBMCloudCrawler(BaseCloudCrawler):
         "https://www.ibm.com/content/adobe-cms/us/en/products/jcr:content/root/table_of_contents/"
         "product_search_1183165654.search-full.html?field_hierarchy_07[0][0]=IBM%20Cloud&size=100&page=1"
     )
-    STATE_MARKER: ClassVar[str] = "window.__PRELOADED_STATE__"
-    KEPT_TAG: ClassVar[str] = "ibm_created"
-    KEPT_TYPES: ClassVar[FrozenSet[str]] = frozenset({"service", "iaas"})
-    EXCLUDED_TAGS: ClassVar[FrozenSet[str]] = frozenset({"ibm_deprecated", "ibm_beta"})
+    STATE_MARKER: ClassVar[IbmScriptVariable] = IbmScriptVariable.PRELOADED_STATE
+    KEPT_TAG: ClassVar[IbmCatalogueTag] = IbmCatalogueTag.CREATED
+    KEPT_TYPES: ClassVar[FrozenSet[IbmOfferType]] = frozenset({IbmOfferType.SERVICE, IbmOfferType.IAAS})
+    EXCLUDED_TAGS: ClassVar[FrozenSet[IbmCatalogueTag]] = frozenset({IbmCatalogueTag.DEPRECATED, IbmCatalogueTag.BETA})
     TEST_HOST: ClassVar[re.Pattern[str]] = re.compile(r"(^|\.)test\.")
     NOT_PRODUCT_CARD: ClassVar[re.Pattern[str]] = re.compile(r"\bproducts$", re.IGNORECASE)
     CARD_ALIASES: ClassVar[Dict[str, str]] = {
@@ -97,7 +111,7 @@ class IBMCloudCrawler(BaseCloudCrawler):
         Raises:
             CatalogueFormatError: If the page has no catalogue data, or if it is not a JSON object.
         """
-        text = response.body.decode("utf-8", errors="replace")
+        text = response.body.decode(TextEncoding.UTF_8, errors=TextEncoding.REPLACE)
         marker = text.find(self.STATE_MARKER)
         equal = text.find("=", marker) if marker >= 0 else -1
         if equal < 0:
@@ -115,29 +129,34 @@ class IBMCloudCrawler(BaseCloudCrawler):
         self.logger.debug("Catalogue data of %s read, with the keys %s.", response.url, ", ".join(data))
         return data
 
-    def _catalog_items(self, response: Response) -> List[Dict[str, JsonValue]]:
+    def _catalog_items(self, response: Response) -> List[Tuple[Dict[str, JsonValue], List[str]]]:
         """Read the catalogue offers, once each, as an offer is listed in each of its categories.
 
         Args:
             response (Response): The catalogue page.
 
         Returns:
-            List[Dict[str, JsonValue]]: The offers, in catalogue order.
+            List[Tuple[Dict[str, JsonValue], List[str]]]: The offers, in catalogue order, with the names of the
+                categories listing them.
 
         Raises:
             CatalogueFormatError: If the page has no catalogue data, or no `model.categories` list.
         """
-        categories = self._as_object(self._state(response).get("model")).get("categories")
+        categories = self._as_object(self._state(response).get(IbmStateField.MODEL)).get(IbmStateField.CATEGORIES)
         if not isinstance(categories, list):
             self.logger.error("The %s catalogue data of %s has no `model.categories` list.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "`model.categories` is not a list")
-        items: Dict[str, Dict[str, JsonValue]] = {}
+        items: Dict[str, Tuple[Dict[str, JsonValue], List[str]]] = {}
         for category in categories:
-            entries = self._as_object(category).get("items")
+            fields = self._as_object(category)
+            label = self._as_text(fields.get(IbmCategoryField.NAME))
+            entries = fields.get(IbmCategoryField.ITEMS)
             for entry in entries if isinstance(entries, list) else []:
                 item = self._as_object(entry)
-                key = self._as_text(item.get("id")) or self._as_text(item.get("name")) or ""
-                items.setdefault(key, item)
+                key = self._as_text(item.get(IbmOfferField.ID)) or self._as_text(item.get(IbmOfferField.NAME)) or ""
+                labels = items.setdefault(key, (item, []))[1]
+                if label and label not in labels:
+                    labels.append(label)
         self.logger.debug("%d catalogue offers in %d categories of %s.", len(items), len(categories), response.url)
         return list(items.values())
 
@@ -151,13 +170,13 @@ class IBMCloudCrawler(BaseCloudCrawler):
             Optional[str]: The reason (third party, content, deprecated, beta or consulting offer), `None` for a
                 product.
         """
-        tags = item.get("allTags")
+        tags = item.get(IbmOfferField.ALL_TAGS)
         tag_set = {tag for tag in tags if isinstance(tag, str)} if isinstance(tags, list) else set()
         reasons = {
-            f"tag {item.get('tag')!r}": item.get("tag") != self.KEPT_TAG,
-            f"type {item.get('type')!r}": item.get("type") not in self.KEPT_TYPES,
+            f"tag {item.get(IbmOfferField.TAG)!r}": item.get(IbmOfferField.TAG) != self.KEPT_TAG,
+            f"type {item.get(IbmOfferField.TYPE)!r}": item.get(IbmOfferField.TYPE) not in self.KEPT_TYPES,
             "deprecated or beta": bool(tag_set & self.EXCLUDED_TAGS),
-            "consulting offer": item.get("isConsulting") is True,
+            "consulting offer": item.get(IbmOfferField.IS_CONSULTING) is True,
         }
         failed = [reason for reason, matched in reasons.items() if matched]
         return ", ".join(failed) if failed else None
@@ -198,20 +217,27 @@ class IBMCloudCrawler(BaseCloudCrawler):
             others are not taken for duplicates.
         """
         links: Set[str] = set()
-        for item in self._catalog_items(response):
-            name = self._as_text(item.get("name"))
+        for item, categories in self._catalog_items(response):
+            name = self._as_text(item.get(IbmOfferField.NAME))
             if reason := self._skip_reason(item):
                 self.logger.debug("Skipping the catalogue offer %r (%s).", name, reason)
                 continue
-            link = self._catalog_link(self._as_text(item.get("catalogUrl")))
+            link = self._catalog_link(self._as_text(item.get(IbmOfferField.CATALOG_URL)))
             if link is not None and self._url_key(link) in links:
                 self.logger.debug("Ignoring the link %s of %r, shared with a previous catalogue offer.", link, name)
                 link = None
             if link is not None:
                 links.add(self._url_key(link))
-            description = self._as_text(item.get("description"))
-            updated_at = self._parse_date(item.get("lastModified"), name)
-            if product := self._build_product(name, description, link, updated_at=updated_at):
+            description = self._as_text(item.get(IbmOfferField.DESCRIPTION))
+            updated_at = self._parse_date(item.get(IbmOfferField.LAST_MODIFIED), name)
+            if product := self._build_product(
+                name,
+                description,
+                link,
+                updated_at=updated_at,
+                updated_caveat=DateCaveat.CATALOGUE_ENTRY,
+                categories=categories,
+            ):
                 yield product
 
     def _card_products(self, response: Response) -> Iterator[CloudProduct]:
@@ -238,7 +264,7 @@ class IBMCloudCrawler(BaseCloudCrawler):
                 self.logger.debug("Skipping the product search card %r (catalogue product %r).", name, alias)
                 continue
             description = copy.get_all_text(separator=" ", strip=True) if copy is not None else None
-            href = link.first.attrib.get("href") if link.first is not None else None
+            href = link.first.attrib.get(HtmlAttribute.HREF) if link.first is not None else None
             if product := self._build_product(name, description, urljoin(response.url, href) if href else None):
                 yield product
 

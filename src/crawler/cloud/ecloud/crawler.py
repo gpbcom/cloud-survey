@@ -2,20 +2,35 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import re
-from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Set, Tuple, Union
+from typing import AsyncGenerator, ClassVar, Dict, FrozenSet, Iterator, List, Optional, Set, Tuple, Union
 from urllib.parse import quote, urljoin, urlparse
 
 # Third Party Imports.
 from pydantic import JsonValue
 from scrapling.spiders import Request, Response
 
-# First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
+from crawler.cloud.ecloud.enums import (
+    ChinaMobileEntryField,
+    ChinaMobileEntryKey,
+    ChinaMobileMeta,
+    ChinaMobileNodeField,
+    ChinaMobileNodeName,
+    ChinaMobileNodeType,
+    ChinaMobileResponseField,
+    ChinaMobileSituation,
+    ChinaMobileSituationField,
+    ChinaMobileTemplateField,
+)
 from crawler.exception import CatalogueFormatError
-from models.cloud.product import CloudProduct
 
-# A menu product: its name, description (`None` for a placeholder), page URL and type (page template slug).
-MenuEntry = Tuple[Optional[str], Optional[str], str, Optional[str]]
+# First Party Imports.
+from models.cloud.enums import DateCaveat
+from models.cloud.products.product import CloudProduct
+
+# A menu product: its name, description (`None` for a placeholder), page URL, type (page template slug) and menu
+# categories.
+MenuEntry = Tuple[Optional[str], Optional[str], str, Optional[str], List[str]]
 
 
 class ChinaMobileCloudCrawler(BaseCloudCrawler):
@@ -25,9 +40,14 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
         SITE_URL (ClassVar[str]): The website root, the relative product links being relative to it.
         PRODUCT_URL (ClassVar[str]): The product page of a product type, when the menu gives no link.
         TEMPLATE_URL (ClassVar[str]): The JSON template of a product page, holding its SEO description.
-        TEMPLATE_PRODUCT (ClassVar[str]): The meta key of a template request, holding the product page URL.
-        PROMO_NODE (ClassVar[str]): The type of the menu nodes holding promotions, not products.
-        CO_BRANDED_NODE (ClassVar[str]): The name of the co-branded menu node, processed last.
+        TEMPLATE_PRODUCT (ClassVar[ChinaMobileMeta]): The meta key of a template request, holding the product page
+            URL.
+        PROMO_NODE (ClassVar[ChinaMobileNodeType]): The type of the menu nodes holding promotions, not products.
+        CO_BRANDED_NODE (ClassVar[ChinaMobileNodeName]): The name of the co-branded menu node, processed last.
+        MARKETING_NODES (ClassVar[FrozenSet[ChinaMobileNodeName]]): The names of the menu nodes which are not
+            categories (their children still are).
+        DESCRIPTION_FIELDS (ClassVar[Tuple[ChinaMobileEntryField, ...]]): The menu entry fields describing a product,
+            the short description first.
         PLACEHOLDER (ClassVar[re.Pattern[str]]): The placeholder descriptions of some menu entries.
         PARENTHESES (ClassVar[re.Pattern[str]]): The parentheses (ASCII or fullwidth) around the edition of a product.
         fetch_retries (ClassVar[int]): How many times a failed fetch is attempted: the website drops connections.
@@ -46,7 +66,9 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
         (one more JSON request). Products only differ by their edition between parentheses, e.g. `云电脑(办公型)`
         and `云电脑(行业型)`: the edition is kept when comparing names. The website drops the connections and bans
         the clients above about one request per second: the crawler is slow and only reads JSON documents. The names
-        and descriptions are in Chinese.
+        and descriptions are in Chinese. A product gets the names of the menu nodes above it (e.g. `弹性计算` >
+        `云服务器`), of every place it is listed in, the recommendation nodes (`推荐产品`, `热门产品`, `精选AI产品`)
+        excepted.
     """
 
     SITE_URL: ClassVar[str] = "https://ecloud.10086.cn/"
@@ -54,9 +76,16 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
     TEMPLATE_URL: ClassVar[str] = (
         "https://ecloud.10086.cn/api/query/template-delivery/application/detail?group=product-gray&type={slug}"
     )
-    TEMPLATE_PRODUCT: ClassVar[str] = "template_product"
-    PROMO_NODE: ClassVar[str] = "card"
-    CO_BRANDED_NODE: ClassVar[str] = "和云"
+    TEMPLATE_PRODUCT: ClassVar[ChinaMobileMeta] = ChinaMobileMeta.TEMPLATE_PRODUCT
+    PROMO_NODE: ClassVar[ChinaMobileNodeType] = ChinaMobileNodeType.CARD
+    CO_BRANDED_NODE: ClassVar[ChinaMobileNodeName] = ChinaMobileNodeName.CO_BRANDED
+    MARKETING_NODES: ClassVar[FrozenSet[ChinaMobileNodeName]] = frozenset(
+        {ChinaMobileNodeName.RECOMMENDED, ChinaMobileNodeName.POPULAR, ChinaMobileNodeName.FEATURED_AI}
+    )
+    DESCRIPTION_FIELDS: ClassVar[Tuple[ChinaMobileEntryField, ...]] = (
+        ChinaMobileEntryField.S_DESC,
+        ChinaMobileEntryField.BRIEF,
+    )
     PLACEHOLDER: ClassVar[re.Pattern[str]] = re.compile(r"介绍页|菜单")
     PARENTHESES: ClassVar[re.Pattern[str]] = re.compile(r"[()\uff08\uff09]")
 
@@ -125,39 +154,63 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
         Raises:
             CatalogueFormatError: If the response is not a JSON object, or has no product menu nodes.
         """
-        situations = self._json_object(response).get("body")
+        situations = self._json_object(response).get(ChinaMobileResponseField.BODY)
         menu = next(
             (
                 self._as_object(situation)
                 for situation in (situations if isinstance(situations, list) else [])
-                if self._as_object(situation).get("situationCode") == "product"
+                if self._as_object(situation).get(ChinaMobileSituationField.SITUATION_CODE)
+                == ChinaMobileSituation.PRODUCT
             ),
             {},
         )
-        nodes = menu.get("bindData")
+        nodes = menu.get(ChinaMobileSituationField.BIND_DATA)
         if not isinstance(nodes, list) or not nodes:
             self.logger.error("The %s menu %s has no product nodes (`bindData`).", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the product menu nodes (`bindData`) are missing")
         self.logger.debug("%d top nodes in the %s menu %s.", len(nodes), self.name, response.url)
-        return sorted(nodes, key=lambda node: self._as_object(node).get("name") == self.CO_BRANDED_NODE)
+        return sorted(
+            nodes, key=lambda node: self._as_object(node).get(ChinaMobileNodeField.NAME) == self.CO_BRANDED_NODE
+        )
 
-    def _menu_metadata(self, nodes: List[JsonValue]) -> Iterator[Dict[str, JsonValue]]:
+    def _menu_metadata(
+        self, nodes: List[JsonValue], path: Tuple[str, ...] = ()
+    ) -> Iterator[Tuple[Tuple[str, ...], Dict[str, JsonValue]]]:
         """Walk the products (`bindMetadatas`) of every menu level, skipping the promotion nodes.
 
         Args:
             nodes (List[JsonValue]): The menu nodes.
+            path (Tuple[str, ...]): The names of the category nodes above the nodes.
 
         Yields:
-            Dict[str, JsonValue]: Each product entry of the nodes and of their children, depth first.
+            Tuple[Tuple[str, ...], Dict[str, JsonValue]]: Each product entry of the nodes and of their children,
+                depth first, with the names of the category nodes above it (the marketing nodes excepted).
         """
         for node in map(self._as_object, nodes):
-            if node.get("type") == self.PROMO_NODE:
-                self.logger.debug("Skipping the menu node %r, a promotion.", node.get("name"))
+            if node.get(ChinaMobileNodeField.TYPE) == self.PROMO_NODE:
+                self.logger.debug("Skipping the menu node %r, a promotion.", node.get(ChinaMobileNodeField.NAME))
                 continue
-            metadata = node.get("bindMetadatas")
-            yield from (self._as_object(entry) for entry in (metadata if isinstance(metadata, list) else []))
-            children = node.get("children")
-            yield from self._menu_metadata(children if isinstance(children, list) else [])
+            label = self._clean_text(self._as_text(node.get(ChinaMobileNodeField.NAME)))
+            labels = path if label in self.MARKETING_NODES else (*path, label)
+            metadata = node.get(ChinaMobileNodeField.BIND_METADATAS)
+            yield from ((labels, self._as_object(entry)) for entry in (metadata if isinstance(metadata, list) else []))
+            children = node.get(ChinaMobileNodeField.CHILDREN)
+            yield from self._menu_metadata(children if isinstance(children, list) else [], labels)
+
+    def _entry_key(self, metadata: Dict[str, JsonValue]) -> str:
+        """Identify a menu entry listed in several places: by its identifier, else by its name.
+
+        Args:
+            metadata (Dict[str, JsonValue]): The menu entry.
+
+        Returns:
+            str: The identifier key, e.g. `id:72d13a40362b4d41a56d7f34190a61e6`, else the name one (`name:...`).
+        """
+        identifier = self._as_text(metadata.get(ChinaMobileEntryField.ID))
+        if identifier is not None:
+            return f"{ChinaMobileEntryKey.ID}:{identifier}"
+        name = self._name_key(self._clean_text(self._as_text(metadata.get(ChinaMobileEntryField.NAME))))
+        return f"{ChinaMobileEntryKey.NAME}:{name}"
 
     def _description(self, metadata: Dict[str, JsonValue]) -> Optional[str]:
         """Read the description of a menu entry: its `sDesc`, else its `brief` when `sDesc` is a placeholder.
@@ -168,7 +221,7 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
         Returns:
             Optional[str]: The description, `None` when the entry only holds placeholders.
         """
-        for field in ("sDesc", "brief"):
+        for field in self.DESCRIPTION_FIELDS:
             text = self._clean_text(self._as_text(metadata.get(field)))
             if text and not self.PLACEHOLDER.search(text):
                 return text
@@ -181,17 +234,25 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
             response (Response): The products menu.
 
         Returns:
-            List[MenuEntry]: The products, the co-branded ones last.
+            List[MenuEntry]: The products, the co-branded ones last, each with the categories of every place it is
+                listed in.
 
         Raises:
             CatalogueFormatError: If the response is not a JSON object, or has no product menu nodes.
         """
+        listed = list(self._menu_metadata(self._menu_nodes(response)))
+        categories: Dict[str, List[str]] = {}
+        for labels, metadata in listed:
+            categories.setdefault(self._entry_key(metadata), []).extend(labels)
         entries: List[MenuEntry] = []
         identifiers: Set[str] = set()
-        for metadata in self._menu_metadata(self._menu_nodes(response)):
-            name, identifier = self._as_text(metadata.get("name")), self._as_text(metadata.get("id"))
-            slug = self._clean_text(self._as_text(metadata.get("type"))) or None
-            link = self._clean_text(self._as_text(metadata.get("introduceUrl")))
+        for _, metadata in listed:
+            name, identifier = (
+                self._as_text(metadata.get(ChinaMobileEntryField.NAME)),
+                self._as_text(metadata.get(ChinaMobileEntryField.ID)),
+            )
+            slug = self._clean_text(self._as_text(metadata.get(ChinaMobileEntryField.TYPE))) or None
+            link = self._clean_text(self._as_text(metadata.get(ChinaMobileEntryField.INTRODUCE_URL)))
             if identifier is not None and identifier in identifiers:
                 self.logger.debug("Skipping the menu entry %r, already listed.", name)
                 continue
@@ -201,7 +262,7 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
             if identifier is not None:
                 identifiers.add(identifier)
             url = urljoin(self.SITE_URL, link) if link else self.PRODUCT_URL.format(slug=slug)
-            entries.append((name, self._description(metadata), url, slug))
+            entries.append((name, self._description(metadata), url, slug, categories[self._entry_key(metadata)]))
         self.logger.debug("%d product entries in the %s menu %s.", len(entries), self.name, response.url)
         return entries
 
@@ -217,8 +278,10 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
         Raises:
             CatalogueFormatError: If the response is not a JSON object, or has no product menu nodes.
         """
-        for name, description, url, _ in self._menu_entries(response):
-            if description is not None and (product := self._build_product(name, description, url)):
+        for name, description, url, _, categories in self._menu_entries(response):
+            if description is not None and (
+                product := self._build_product(name, description, url, categories=categories)
+            ):
                 yield product
 
     def _template_requests(self, response: Response) -> List[Request]:
@@ -228,14 +291,14 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
             response (Response): The products menu.
 
         Returns:
-            List[Request]: The template requests.
+            List[Request]: The template requests, filed under the menu categories (`PRODUCT_CATEGORIES` meta).
 
         Raises:
             CatalogueFormatError: If the response is not a JSON object, or has no product menu nodes.
         """
         requests: List[Request] = []
         requested: Set[str] = set()
-        for name, description, url, slug in self._menu_entries(response):
+        for name, description, url, slug, categories in self._menu_entries(response):
             if description is not None:
                 continue
             if slug is None or not name or not self._clean_text(name):
@@ -246,13 +309,17 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
                 self.logger.debug("Not requesting the page template of %r, its product is already listed.", name)
                 continue
             requested.add(self._url_key(url))
-            meta: Dict[str, str] = {self.TEMPLATE_PRODUCT: url, self.PRODUCT_NAME: self._clean_text(name)}
+            meta: Dict[str, JsonValue] = {
+                self.TEMPLATE_PRODUCT: url,
+                self.PRODUCT_NAME: self._clean_text(name),
+                self.PRODUCT_CATEGORIES: [*categories],
+            }
             requests.append(Request(self.TEMPLATE_URL.format(slug=quote(slug)), meta=meta))
         self.logger.info("%d %s page templates to read for the products without description.", len(requests), self.name)
         return requests
 
     def _template_product(self, response: Response) -> Optional[CloudProduct]:
-        """Extract the product of a page template: the menu name and link, and the template SEO description.
+        """Extract the product of a page template: the menu name, link and categories, and the template SEO description.
 
         Args:
             response (Response): The page template, requested with the `TEMPLATE_PRODUCT` meta.
@@ -264,11 +331,20 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
             CatalogueFormatError: If the response is empty (dropped connection), not JSON or not a JSON object.
         """
         name, url = str(response.meta.get(self.PRODUCT_NAME, "")), str(response.meta[self.TEMPLATE_PRODUCT])
-        template = self._json_object(response).get("body")
+        template = self._json_object(response).get(ChinaMobileResponseField.BODY)
         if not isinstance(template, dict):
             self.logger.debug("Skipping the product %r, its page template %s is unknown.", name, response.url)
             return None
-        return self._build_product(name, self._as_text(template.get("seoDescription")), url)
+        return self._build_product(
+            name,
+            self._as_text(template.get(ChinaMobileTemplateField.SEO_DESCRIPTION)),
+            url,
+            self._parse_date(template.get(ChinaMobileTemplateField.CREATE_DATE), name),
+            self._parse_date(template.get(ChinaMobileTemplateField.UPDATE_DATE), name),
+            DateCaveat.PAGE_PUBLISHED,
+            DateCaveat.PAGE_MODIFIED,
+            categories=self._page_categories(response),
+        )
 
     ############################
     # Publicly Exposed Methods #

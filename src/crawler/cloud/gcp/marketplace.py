@@ -9,10 +9,25 @@ from scrapling.parser import Selector
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
+from crawler.cloud.gcp.enums import (
+    GcpBrowseRequestField,
+    GcpBrowseRequestValue,
+    GcpBrowseResultField,
+    GcpCardField,
+    GcpCategoryFacetValue,
+    GcpFacet,
+    GcpHeader,
+    GcpMarketplaceMeta,
+    GcpMediaType,
+    GcpProductFamily,
+    GcpProductType,
+)
+from crawler.enums import HttpMethod
 from crawler.exception import CatalogueFormatError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_category import MarketplaceCategory
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -23,17 +38,20 @@ class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
         HEADERS (ClassVar[Dict[str, str]]): The request headers the entity service expects: its origin and referer
             must match (the HTTP session would otherwise send a search engine referer).
         PRODUCT_URL (ClassVar[str]): The product page, formatted with the product display name.
-        CATEGORY_FACET (ClassVar[str]): The facet of the product categories.
-        SKIPPED_CATEGORIES (ClassVar[FrozenSet[str]]): The category facet values not queried: the managed services
-            and the catch-all category, whose labels say nothing of the software.
-        EXCLUDED_TYPES (ClassVar[FrozenSet[str]]): The product types which are not software: professional services,
-            datasets, Google Cloud services and provisioned model throughput.
-        EXCLUDED_FAMILIES (ClassVar[FrozenSet[str]]): The product families of the same kinds, in case a type is
-            renamed.
-        DELIVERIES (ClassVar[Dict[str, DeliveryMethod]]): The delivery of each product type.
-        PAGE (ClassVar[str]): The meta key holding the page number within a query, from 1.
-        FACET (ClassVar[str]): The meta key holding the facet value of a category query.
-        LABEL (ClassVar[str]): The meta key holding the category label of a category query.
+        CATEGORY_FACET (ClassVar[GcpFacet]): The facet of the product categories.
+        PATH_ONLY_CATEGORIES (ClassVar[FrozenSet[GcpCategoryFacetValue]]): The category facet values queried for their
+            category path only: the managed services and the catch-all category, whose labels say nothing of the
+            software, are not given as marketplace categories (the classifier reads those).
+        EXCLUDED_TYPES (ClassVar[FrozenSet[GcpProductType]]): The product types which are not software: professional
+            services, datasets, Google Cloud services and provisioned model throughput.
+        EXCLUDED_FAMILIES (ClassVar[FrozenSet[GcpProductFamily]]): The product families of the same kinds, in case a
+            type is renamed.
+        DELIVERIES (ClassVar[Dict[GcpProductType, DeliveryMethod]]): The delivery of each product type.
+        PAGE (ClassVar[GcpMarketplaceMeta]): The meta key holding the page number within a query, from 1.
+        FACET (ClassVar[GcpMarketplaceMeta]): The meta key holding the facet value of a category query.
+        LABEL (ClassVar[GcpMarketplaceMeta]): The meta key holding the category label of a category query.
+        PATHS_ONLY (ClassVar[GcpMarketplaceMeta]): The meta key of the category queries giving their products the
+            category path only.
         name (str): The crawler name.
         catalogue_url (ClassVar[str]): The entity service, queried for every product first.
 
@@ -41,7 +59,8 @@ class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
         The console browse page reads its product cards from a JSON entity service (`POST`, 40 cards per page, with a
         `nextPageToken` cursor). Every product is read first, then each category facet value listed by the first
         page is queried to give the products their category, since the cards carry none: the products are streamed
-        again with it. The page limit applies to each query.
+        again with it. The managed services and catch-all categories give their category path only. The page limit
+        applies to each query.
     """
 
     API_URL: ClassVar[str] = (
@@ -49,30 +68,45 @@ class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
         "MARKETPLACE_BROWSE_PRODUCTS:get?key=AIzaSyCI-zsRP85UVOi0DjtiCwWBwQ1djDy741g&alt=json&prettyPrint=false"
     )
     HEADERS: ClassVar[Dict[str, str]] = {
-        "content-type": "application/json",
-        "origin": "https://console.cloud.google.com",
-        "referer": "https://console.cloud.google.com/marketplace/browse",
+        GcpHeader.CONTENT_TYPE: GcpMediaType.JSON,
+        GcpHeader.ORIGIN: "https://console.cloud.google.com",
+        GcpHeader.REFERER: "https://console.cloud.google.com/marketplace/browse",
     }
     PRODUCT_URL: ClassVar[str] = "https://console.cloud.google.com/marketplace/product/{}"
-    CATEGORY_FACET: ClassVar[str] = "category"
-    SKIPPED_CATEGORIES: ClassVar[FrozenSet[str]] = frozenset({"managed-services", "others"})
-    EXCLUDED_TYPES: ClassVar[FrozenSet[str]] = frozenset(
-        {"Professional Services", "Data", "Datasets", "Google Cloud Platform", "Provisioned Throughput"}
+    CATEGORY_FACET: ClassVar[GcpFacet] = GcpFacet.CATEGORY
+    PATH_ONLY_CATEGORIES: ClassVar[FrozenSet[GcpCategoryFacetValue]] = frozenset(
+        {GcpCategoryFacetValue.MANAGED_SERVICES, GcpCategoryFacetValue.OTHERS}
     )
-    EXCLUDED_FAMILIES: ClassVar[FrozenSet[str]] = frozenset(
-        {"ProfessionalServicesProduct", "Dataset", "AnalyticsHubListing", "GCP", "ProvisionedThroughputProduct"}
+    EXCLUDED_TYPES: ClassVar[FrozenSet[GcpProductType]] = frozenset(
+        {
+            GcpProductType.PROFESSIONAL_SERVICES,
+            GcpProductType.DATA,
+            GcpProductType.DATASETS,
+            GcpProductType.GOOGLE_CLOUD_PLATFORM,
+            GcpProductType.PROVISIONED_THROUGHPUT,
+        }
     )
-    DELIVERIES: ClassVar[Dict[str, DeliveryMethod]] = {
-        "SaaS & APIs": DeliveryMethod.SAAS,
-        "AI Agent as a Service": DeliveryMethod.SAAS,
-        "Virtual machines": DeliveryMethod.VIRTUAL_MACHINE,
-        "Kubernetes apps": DeliveryMethod.KUBERNETES,
-        "Container images": DeliveryMethod.CONTAINER,
-        "Vertex AI": DeliveryMethod.AI_MODEL,
+    EXCLUDED_FAMILIES: ClassVar[FrozenSet[GcpProductFamily]] = frozenset(
+        {
+            GcpProductFamily.PROFESSIONAL_SERVICES_PRODUCT,
+            GcpProductFamily.DATASET,
+            GcpProductFamily.ANALYTICS_HUB_LISTING,
+            GcpProductFamily.GCP,
+            GcpProductFamily.PROVISIONED_THROUGHPUT_PRODUCT,
+        }
+    )
+    DELIVERIES: ClassVar[Dict[GcpProductType, DeliveryMethod]] = {
+        GcpProductType.SAAS_AND_APIS: DeliveryMethod.SAAS,
+        GcpProductType.AI_AGENT_AS_A_SERVICE: DeliveryMethod.SAAS,
+        GcpProductType.VIRTUAL_MACHINES: DeliveryMethod.VIRTUAL_MACHINE,
+        GcpProductType.KUBERNETES_APPS: DeliveryMethod.KUBERNETES,
+        GcpProductType.CONTAINER_IMAGES: DeliveryMethod.CONTAINER,
+        GcpProductType.VERTEX_AI: DeliveryMethod.AI_MODEL,
     }
-    PAGE: ClassVar[str] = "page"
-    FACET: ClassVar[str] = "facet"
-    LABEL: ClassVar[str] = "label"
+    PAGE: ClassVar[GcpMarketplaceMeta] = GcpMarketplaceMeta.PAGE
+    FACET: ClassVar[GcpMarketplaceMeta] = GcpMarketplaceMeta.FACET
+    LABEL: ClassVar[GcpMarketplaceMeta] = GcpMarketplaceMeta.LABEL
+    PATHS_ONLY: ClassVar[GcpMarketplaceMeta] = GcpMarketplaceMeta.PATHS_ONLY
 
     name = "gcp-marketplace"
     catalogue_url: ClassVar[str] = API_URL
@@ -82,7 +116,12 @@ class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
     ############################
 
     def _browse_request(
-        self, page: int, token: str = "", facet: Optional[str] = None, label: Optional[str] = None
+        self,
+        page: int,
+        token: str = "",
+        facet: Optional[str] = None,
+        label: Optional[str] = None,
+        paths_only: bool = False,
     ) -> Request:
         """Build the request of a page of browse results.
 
@@ -91,37 +130,44 @@ class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
             token (str): The cursor of the page, empty for the first page.
             facet (Optional[str]): The category facet value of the query, `None` for every product.
             label (Optional[str]): The category label of the query, given to its products.
+            paths_only (bool): Whether the products are given the category path of the query only, not its label.
 
         Returns:
             Request: The `POST` request. Every product is read first (primary priority), the first page of a category
                 query may list nothing.
         """
-        selected: List[JsonValue] = [{"facetId": self.CATEGORY_FACET, "facetValueId": facet}] if facet else []
+        selected: List[JsonValue] = (
+            [{GcpBrowseRequestField.FACET_ID: self.CATEGORY_FACET, GcpBrowseRequestField.FACET_VALUE_ID: facet}]
+            if facet
+            else []
+        )
         body: Dict[str, JsonValue] = {
-            "entityRequest": {
-                "entityName": "MARKETPLACE_BROWSE_PRODUCTS",
-                "requestPayload": {
-                    "parameters": {
-                        "locale": "en_US",
-                        "solutionScopeId": "LAUNCHER",
-                        "selectedFacetValues": selected,
-                        "query": "*",
-                        "pageToken": token,
-                        "isPrivateCatalog": False,
-                        "responseType": "SEARCH_RESULTS",
+            GcpBrowseRequestField.ENTITY_REQUEST: {
+                GcpBrowseRequestField.ENTITY_NAME: GcpBrowseRequestValue.BROWSE_PRODUCTS,
+                GcpBrowseRequestField.REQUEST_PAYLOAD: {
+                    GcpBrowseRequestField.PARAMETERS: {
+                        GcpBrowseRequestField.LOCALE: GcpBrowseRequestValue.ENGLISH,
+                        GcpBrowseRequestField.SOLUTION_SCOPE_ID: GcpBrowseRequestValue.LAUNCHER,
+                        GcpBrowseRequestField.SELECTED_FACET_VALUES: selected,
+                        GcpBrowseRequestField.QUERY: GcpBrowseRequestValue.EVERYTHING,
+                        GcpBrowseRequestField.PAGE_TOKEN: token,
+                        GcpBrowseRequestField.IS_PRIVATE_CATALOG: False,
+                        GcpBrowseRequestField.RESPONSE_TYPE: GcpBrowseRequestValue.SEARCH_RESULTS,
                     },
-                    "@type": "type.googleapis.com/google.internal.cloud.console.clientapi.marketplace."
-                    "BrowseProductsRequest",
+                    GcpBrowseRequestField.TYPE: "type.googleapis.com/google.internal.cloud.console.clientapi."
+                    "marketplace.BrowseProductsRequest",
                 },
             },
-            "requestContext": {"pagePath": "/marketplace/browse"},
+            GcpBrowseRequestField.REQUEST_CONTEXT: {GcpBrowseRequestField.PAGE_PATH: "/marketplace/browse"},
         }
         meta: Dict[str, JsonValue] = {self.PAGE: page, self.FACET: facet, self.LABEL: label}
         if facet and page == 1:
             meta[self.MAY_BE_EMPTY] = True
+        if paths_only:
+            meta[self.PATHS_ONLY] = True
         return self._api_request(
             self.API_URL,
-            method="POST",
+            method=HttpMethod.POST,
             json=body,
             headers=dict(self.HEADERS),
             meta=meta,
@@ -150,9 +196,10 @@ class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         data = self._json_body(response)
         first = self._as_object(data[0] if isinstance(data, list) and data else None)
-        result = self._as_object(self._as_object(first.get("successfulResult")).get("resultData"))
-        browse = self._as_object(result.get("marketplaceBrowseProducts"))
-        cards = self._as_object(browse.get("searchResult")).get("cards")
+        successful = self._as_object(first.get(GcpBrowseResultField.SUCCESSFUL_RESULT))
+        result = self._as_object(successful.get(GcpBrowseResultField.RESULT_DATA))
+        browse = self._as_object(result.get(GcpBrowseResultField.MARKETPLACE_BROWSE_PRODUCTS))
+        cards = self._as_object(browse.get(GcpBrowseResultField.SEARCH_RESULT)).get(GcpBrowseResultField.CARDS)
         if not isinstance(cards, list):
             self.logger.error("The %s page %s has no `searchResult.cards` list.", self.name, response.url)
             raise CatalogueFormatError(
@@ -169,18 +216,22 @@ class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
         Yields:
             Request: The first page request of each category query.
         """
-        facets = browse.get("facetValueLinkLists")
+        facets = browse.get(GcpBrowseResultField.FACET_VALUE_LINK_LISTS)
         for facet in facets if isinstance(facets, list) else []:
-            if self._as_object(facet).get("facetId") != self.CATEGORY_FACET:
+            if self._as_object(facet).get(GcpBrowseResultField.FACET_ID) != self.CATEGORY_FACET:
                 continue
-            links = self._as_object(facet).get("facetValueLinks")
+            links = self._as_object(facet).get(GcpBrowseResultField.FACET_VALUE_LINKS)
             for link in links if isinstance(links, list) else []:
-                value = self._as_text(self._as_object(self._as_object(link).get("facetBinding")).get("facetValueId"))
-                label = self._as_text(self._as_object(link).get("displayName"))
-                if not value or value in self.SKIPPED_CATEGORIES:
-                    self.logger.debug("Skipping the %s category %r (%s).", self.name, label, value)
+                binding = self._as_object(self._as_object(link).get(GcpBrowseResultField.FACET_BINDING))
+                value = self._as_text(binding.get(GcpBrowseResultField.FACET_VALUE_ID))
+                label = self._as_text(self._as_object(link).get(GcpBrowseResultField.DISPLAY_NAME))
+                if not value:
+                    self.logger.debug("Skipping the %s category %r without a facet value.", self.name, label)
                     continue
-                yield self._browse_request(1, facet=value, label=label or value)
+                paths_only = value in self.PATH_ONLY_CATEGORIES
+                if paths_only:
+                    self.logger.debug("The %s category %r (%s) gives category paths only.", self.name, label, value)
+                yield self._browse_request(1, facet=value, label=label or value, paths_only=paths_only)
 
     def _html_to_text(self, fragment: Optional[str]) -> Optional[str]:
         """Get the text of an HTML fragment, such as a long description.
@@ -195,19 +246,38 @@ class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
             return None
         return Selector(f"<div>{fragment}</div>").get_all_text(separator=" ", strip=True)
 
-    def _card_software(self, card: Dict[str, JsonValue], label: Optional[str]) -> Optional[MarketplaceSoftware]:
+    def _query_path(self, response: Response) -> Optional[MarketplaceCategory]:
+        """Get the category path of the query of a page of browse results.
+
+        Args:
+            response (Response): The entity service response.
+
+        Returns:
+            Optional[MarketplaceCategory]: The queried category facet value (a top category of the marketplace),
+                identified by its facet value identifier. `None` for every product.
+        """
+        facet = self._as_text(response.meta.get(self.FACET))
+        if not facet:
+            self.logger.debug("No category queried by the %s page %s.", self.name, response.url)
+            return None
+        return self._category([self._as_text(response.meta.get(self.LABEL)) or facet], facet)
+
+    def _card_software(
+        self, card: Dict[str, JsonValue], label: Optional[str], query_path: Optional[MarketplaceCategory]
+    ) -> Optional[MarketplaceSoftware]:
         """Build the software of a product card.
 
         Args:
             card (Dict[str, JsonValue]): The product card.
             label (Optional[str]): The category label of the query, if any.
+            query_path (Optional[MarketplaceCategory]): The category path of the query, if any.
 
         Returns:
             Optional[MarketplaceSoftware]: The software, `None` when the product is not software or is invalid.
         """
-        title = self._as_text(card.get("title"))
-        product_type = self._as_text(card.get("productType")) or ""
-        family = self._as_text(card.get("familyType")) or ""
+        title = self._as_text(card.get(GcpCardField.TITLE))
+        product_type = self._as_text(card.get(GcpCardField.PRODUCT_TYPE)) or ""
+        family = self._as_text(card.get(GcpCardField.FAMILY_TYPE)) or ""
         if product_type in self.EXCLUDED_TYPES or family in self.EXCLUDED_FAMILIES:
             self.logger.debug(
                 "Skipping the %s product %r, not software (%s, %s).", self.name, title, product_type, family
@@ -217,14 +287,16 @@ class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
             self.logger.debug(
                 "Unknown %s product type %r of %r: delivery %s.", self.name, product_type, title, DeliveryMethod.OTHER
             )
-        display_name = self._as_text(card.get("productDisplayName"))
+        display_name = self._as_text(card.get(GcpCardField.PRODUCT_DISPLAY_NAME))
         return self._build_software(
             title,
-            self._as_text(card.get("description")) or self._html_to_text(self._as_text(card.get("longDescription"))),
+            self._as_text(card.get(GcpCardField.DESCRIPTION))
+            or self._html_to_text(self._as_text(card.get(GcpCardField.LONG_DESCRIPTION))),
             self.PRODUCT_URL.format(display_name) if display_name else None,
-            self._as_text(card.get("subtitle")),
-            self.DELIVERIES.get(product_type, DeliveryMethod.OTHER),
+            self._as_text(card.get(GcpCardField.SUBTITLE)),
+            self.DELIVERIES[GcpProductType(product_type)] if product_type in self.DELIVERIES else DeliveryMethod.OTHER,
             [label] if label else [],
+            marketplace_category_paths=[query_path],
         )
 
     ############################
@@ -244,10 +316,11 @@ class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
             CatalogueFormatError: If the page has no `searchResult.cards` list.
         """
         cards, _ = self._browse_result(response)
-        label = self._as_text(response.meta.get(self.LABEL))
+        label = None if response.meta.get(self.PATHS_ONLY) else self._as_text(response.meta.get(self.LABEL))
+        query_path = self._query_path(response)
         self.logger.debug("%d %s cards in the %s page.", len(cards), self.name, label or "every product")
         for card in cards:
-            if software := self._card_software(self._as_object(card), label):
+            if software := self._card_software(self._as_object(card), label, query_path):
                 yield software
 
     async def parse(self, response: Response) -> AsyncGenerator[Union[Dict[str, JsonValue], Request]]:
@@ -266,18 +339,24 @@ class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
         page = response.meta.get(self.PAGE)
         page = page if isinstance(page, int) else 1
         facet = self._as_text(response.meta.get(self.FACET))
-        token = self._as_text(browse.get("nextPageToken"))
+        token = self._as_text(browse.get(GcpBrowseResultField.NEXT_PAGE_TOKEN))
         if not token or not cards:
             self.logger.info(
                 "Last %s page %d of %s (%s products).",
                 self.name,
                 page,
                 facet or "every product",
-                browse.get("totalCount"),
+                browse.get(GcpBrowseResultField.TOTAL_COUNT),
             )
         elif self._within_page_limit(page + 1):
             self.logger.info("Requesting the %s page %d of %s.", self.name, page + 1, facet or "every product")
-            yield self._browse_request(page + 1, token, facet, self._as_text(response.meta.get(self.LABEL)))
+            yield self._browse_request(
+                page + 1,
+                token,
+                facet,
+                self._as_text(response.meta.get(self.LABEL)),
+                bool(response.meta.get(self.PATHS_ONLY)),
+            )
         if facet is None and page == 1:
             requests = list(self._category_requests(browse))
             self.logger.info("Requesting the %d %s category queries.", len(requests), self.name)

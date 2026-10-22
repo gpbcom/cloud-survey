@@ -11,8 +11,8 @@ from PyQt6.QtWidgets import QListWidget, QListWidgetItem
 
 # First Party Imports.
 from gui.theme import Theme
-from models.cloud.catalogue import CloudCatalogue
 from models.cloud.enums import CloudProvider, Country
+from models.storage.dataset_stamp import DatasetStamp
 
 
 class ProviderSidebar(QListWidget):
@@ -113,12 +113,12 @@ class ProviderSidebar(QListWidget):
         self.country_changed.emit(country.value if country else "")
         self.provider_changed.emit(provider.value if provider else "")
 
-    def _update_country(self, country: Country, catalogues: Dict[CloudProvider, CloudCatalogue]) -> None:
+    def _update_country(self, country: Country, catalogues: Dict[CloudProvider, DatasetStamp]) -> None:
         """Show the catalogue state of a country header.
 
         Args:
             country (Country): The country.
-            catalogues (Dict[CloudProvider, CloudCatalogue]): The loaded catalogues, by cloud provider.
+            catalogues (Dict[CloudProvider, DatasetStamp]): The state of the stored catalogues, by cloud provider.
         """
         providers = [provider for provider in CloudProvider if provider.country is country]
         loaded = [catalogues[provider] for provider in providers if provider in catalogues]
@@ -163,13 +163,13 @@ class ProviderSidebar(QListWidget):
             self.setCurrentItem(self.country_items[country])
 
     def update_catalogues(
-        self, catalogues: Dict[CloudProvider, CloudCatalogue], errors: Dict[CloudProvider, str]
+        self, catalogues: Dict[CloudProvider, DatasetStamp], errors: Dict[CloudProvider, str]
     ) -> None:
         """Show the catalogue state of each country and provider.
 
         Args:
-            catalogues (Dict[CloudProvider, CloudCatalogue]): The loaded catalogues, by cloud provider.
-            errors (Dict[CloudProvider, str]): Why the unusable catalogue files could not be loaded.
+            catalogues (Dict[CloudProvider, DatasetStamp]): The state of the stored catalogues, by cloud provider.
+            errors (Dict[CloudProvider, str]): Why some catalogues could not be read.
         """
         total = sum(catalogue.size for catalogue in catalogues.values())
         self.all_item.setText(f"All providers\n{total} products · {len(catalogues)}/{len(CloudProvider)} crawled")
@@ -178,7 +178,7 @@ class ProviderSidebar(QListWidget):
         for provider, item in self.provider_items.items():
             label = self.theme.provider_label(provider)
             if provider in errors:
-                item.setText(f"{label}\n⚠ Unusable catalogue file")
+                item.setText(f"{label}\n⚠ Unreadable catalogue")
                 item.setToolTip(errors[provider])
                 item.setForeground(QColor(self.theme.LEVEL_COLORS[40]))
             elif catalogue := catalogues.get(provider):

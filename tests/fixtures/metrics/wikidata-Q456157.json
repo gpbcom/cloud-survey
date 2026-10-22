@@ -1,0 +1,33 @@
+{
+ "entities": {
+  "Q456157": {
+   "id": "Q456157",
+   "claims": {
+    "P571": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P571",
+       "hash": "73c19816ca83991ecd8e17a67d76a1d653c52750",
+       "datavalue": {
+        "value": {
+         "time": "+2006-03-00T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 10,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       },
+       "datatype": "time"
+      },
+      "type": "statement",
+      "id": "Q456157$1b0c44dd-4f0e-33a6-22d5-848233abdeef",
+      "rank": "normal"
+     }
+    ]
+   }
+  }
+ }
+}

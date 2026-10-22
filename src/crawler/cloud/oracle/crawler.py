@@ -2,15 +2,18 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import re
-from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Set, Tuple, Union
+from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Tuple, Union
 from urllib.parse import urljoin, urlparse
 
 # Third Party Imports.
 from pydantic import JsonValue
+from scrapling.parser import Selector
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
+from crawler.cloud.oracle.enums import OracleDocsSection, OracleHtmlTag, OraclePanelClass, OracleTocField
+from crawler.enums import HtmlAttribute
 from crawler.exception import CatalogueFormatError
 
 
@@ -27,10 +30,13 @@ class OracleCloudCrawler(BaseCloudCrawler):
             compliance, regions, solutions and category overviews).
         DESCRIPTION_FALLBACKS (ClassVar[Tuple[str, ...]]): The CSS selectors of the documentation page paragraphs
             read when the page has no meta description: the short description, then the first article paragraph.
-        DOCS_SECTION (ClassVar[str]): The table of contents section listing the services.
+        DOCS_SECTION (ClassVar[OracleDocsSection]): The table of contents section listing the services.
         DOCS_NOT_SERVICE (ClassVar[re.Pattern[str]]): The documentation entries which are not services (document
             lists, essentials, billing, and the EPM and Fusion SaaS applications).
         DOCS_ALIASES (ClassVar[Dict[str, str]]): The panel names of the services named otherwise in the docs.
+        PANEL_CATEGORIES (ClassVar[Tuple[Tuple[OraclePanelClass, OracleHtmlTag], ...]]): The classes of the services
+            panel blocks naming a category, with the tag of their heading: the drawer (e.g. `AI and Machine Learning`),
+            then its group (e.g. `Generative AI`).
 
     Notes:
         The main source is the services panel of https://www.oracle.com/cloud/ (behind Akamai, which only lets a
@@ -40,6 +46,9 @@ class OracleCloudCrawler(BaseCloudCrawler):
         same way (the short description or the first paragraph of the page as fallback). It is read after the
         product pages, so that the services already found are not requested again. Missing product pages (HTTP 404)
         are skipped, the documentation then providing the service.
+        The categories of a product are the drawer and group headings of the services panel listing it (each of
+        them, a product being listed in several drawers), carried by its product page request. The documentation
+        table of contents lists the services flat, without category.
     """
 
     HOME_URL: ClassVar[str] = "https://www.oracle.com"
@@ -53,7 +62,7 @@ class OracleCloudCrawler(BaseCloudCrawler):
         re.IGNORECASE,
     )
     DESCRIPTION_FALLBACKS: ClassVar[Tuple[str, ...]] = ("p.shortdesc", "article > p")
-    DOCS_SECTION: ClassVar[str] = "Infrastructure Services"
+    DOCS_SECTION: ClassVar[OracleDocsSection] = OracleDocsSection.INFRASTRUCTURE_SERVICES
     DOCS_NOT_SERVICE: ClassVar[re.Pattern[str]] = re.compile(
         r"all doc|documents?$|documentation$|^service essentials$|^billing|\bepm\b|^fusion ", re.IGNORECASE
     )
@@ -78,6 +87,11 @@ class OracleCloudCrawler(BaseCloudCrawler):
         "Vault": "Key Management",
         "VMware Solution": "VMware",
     }
+
+    PANEL_CATEGORIES: ClassVar[Tuple[Tuple[OraclePanelClass, OracleHtmlTag], ...]] = (
+        (OraclePanelClass.DRAWER, OracleHtmlTag.H3),
+        (OraclePanelClass.GROUP, OracleHtmlTag.H4),
+    )
 
     name = "oracle"
     catalogue_url: ClassVar[str] = f"{HOME_URL}/cloud/"
@@ -117,32 +131,32 @@ class OracleCloudCrawler(BaseCloudCrawler):
                 description = self._clean_text(paragraph.get_all_text(separator=" ", strip=True)) or None
         return description
 
-    def _is_listed(self, name: str, url: str, listed: Tuple[Set[str], Set[str]]) -> bool:
-        """Tell whether a product was already listed, by its name or its URL, and list it otherwise.
+    def _panel_categories(self, anchor: Selector) -> List[str]:
+        """Get the categories of a services panel link: the headings of the drawer and group holding it.
 
         Args:
-            name (str): The product name.
-            url (str): The product page.
-            listed (Tuple[Set[str], Set[str]]): The name and URL keys listed so far, updated.
+            anchor (Selector): The panel link.
 
         Returns:
-            bool: Whether the name or the URL was already listed.
+            List[str]: The drawer heading then the group heading, those present.
         """
-        name_key, url_key = self._name_key(name), self._url_key(url)
-        if name_key in listed[0] or url_key in listed[1]:
-            return True
-        listed[0].add(name_key)
-        listed[1].add(url_key)
-        return False
+        headings: Dict[str, str] = {}
+        for ancestor in anchor.iterancestors():
+            classes = ancestor.attrib.get(HtmlAttribute.CLASS, "").split()
+            for block, tag in self.PANEL_CATEGORIES:
+                heading = ancestor.css(tag).first if block in classes else None
+                if heading is not None and block not in headings:
+                    headings[block] = self._clean_text(heading.get_all_text(separator=" ", strip=True))
+        return [headings[block] for block, _ in self.PANEL_CATEGORIES if headings.get(block)]
 
-    def _panel_links(self, response: Response) -> List[Tuple[str, str]]:
+    def _panel_links(self, response: Response) -> List[Tuple[str, str, List[str]]]:
         """Read the product links of the services panel of the cloud home page.
 
         Args:
             response (Response): The cloud home page.
 
         Returns:
-            List[Tuple[str, str]]: The product names and absolute page URLs, in panel order.
+            List[Tuple[str, str, List[str]]]: The product names, absolute page URLs and categories, in panel order.
 
         Raises:
             CatalogueFormatError: If the page has no services panel, or if the panel lists no link.
@@ -153,11 +167,11 @@ class OracleCloudCrawler(BaseCloudCrawler):
         if not anchors:
             self.logger.error("The %s catalogue page %s has no services panel links.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the services panel lists no link")
-        links: List[Tuple[str, str]] = []
+        links: List[Tuple[str, str, List[str]]] = []
         for anchor in anchors:
             name = self._clean_text(anchor.get_all_text(separator=" ", strip=True))
-            href = re.sub(r"(%20)+$", "", anchor.attrib.get("href", "").strip())
-            links.append((name, urljoin(response.url, href)))
+            href = re.sub(r"(%20)+$", "", anchor.attrib.get(HtmlAttribute.HREF, "").strip())
+            links.append((name, urljoin(response.url, href), self._panel_categories(anchor)))
         self.logger.debug("%d links in the services panel of %s.", len(links), response.url)
         return links
 
@@ -168,22 +182,36 @@ class OracleCloudCrawler(BaseCloudCrawler):
             response (Response): The cloud home page.
 
         Returns:
-            List[Request]: The product page requests, once per product.
+            List[Request]: The product page requests, once per product, with the categories of all its links.
 
         Raises:
             CatalogueFormatError: If the page has no services panel, or if the panel lists no link.
+
+        Notes:
+            The links of a product share one categories list (by name and URL key), completed by its later links:
+            the requests are built once the whole panel is read, filed under these lists (`PRODUCT_CATEGORIES`
+            meta).
         """
-        listed: Tuple[Set[str], Set[str]] = (set(), set())
-        requests: List[Request] = []
-        for name, url in self._panel_links(response):
+        listed: Dict[str, List[str]] = {}
+        pages: List[Tuple[str, str, List[str]]] = []
+        for name, url, categories in self._panel_links(response):
+            keys = (self._name_key(name), self._url_key(url))
+            known = next((listed[key] for key in keys if key in listed), None)
             if urlparse(url).netloc != urlparse(self.HOME_URL).netloc:
                 self.logger.debug("Skipping the panel link %r (%s), not a product page.", name, url)
             elif self.NOT_PRODUCT_NAME.search(name):
                 self.logger.debug("Skipping the panel link %r (%s), not a product.", name, url)
-            elif self._is_listed(name, url, listed):
+            elif known is not None:
                 self.logger.debug("Skipping the panel link %r (%s), already listed.", name, url)
-            elif request := self._product_page_request(url, name):
-                requests.append(request)
+                known.extend(category for category in categories if category not in known)
+            else:
+                listed.update(dict.fromkeys(keys, categories))
+                pages.append((url, name, categories))
+        requests = [
+            request
+            for url, name, categories in pages
+            if (request := self._product_page_request(url, name, categories=categories)) is not None
+        ]
         self.logger.info("%d %s product pages to read from the services panel.", len(requests), self.name)
         return requests
 
@@ -200,15 +228,20 @@ class OracleCloudCrawler(BaseCloudCrawler):
             CatalogueFormatError: If the response is not JSON, or if it has no services section.
         """
         data = self._as_object(self._json_body(response))
-        pages = self._as_object(data.get("pages"))
-        bases = self._as_object(data.get("sourceBasepaths"))
-        tree = data.get("tree")
+        pages = self._as_object(data.get(OracleTocField.PAGES))
+        bases = self._as_object(data.get(OracleTocField.SOURCE_BASEPATHS))
+        tree = data.get(OracleTocField.TREE)
         nodes = [self._as_object(node) for node in tree] if isinstance(tree, list) else []
         section = next(
-            (node for node in nodes if self._as_object(pages.get(str(node.get("i")))).get("t") == self.DOCS_SECTION),
+            (
+                node
+                for node in nodes
+                if self._as_object(pages.get(str(node.get(OracleTocField.PAGE_ID)))).get(OracleTocField.TITLE)
+                == self.DOCS_SECTION
+            ),
             None,
         )
-        children = section.get("c") if section is not None else None
+        children = section.get(OracleTocField.CHILDREN) if section is not None else None
         if not isinstance(children, list):
             self.logger.error(
                 "The %s table of contents %s has no %r section.", self.name, response.url, self.DOCS_SECTION
@@ -216,9 +249,10 @@ class OracleCloudCrawler(BaseCloudCrawler):
             raise CatalogueFormatError(self.name, response.url, f"the {self.DOCS_SECTION!r} section is missing")
         self.logger.debug("%d entries in the %r section of %s.", len(children), self.DOCS_SECTION, response.url)
         for child in children:
-            page = self._as_object(pages.get(str(self._as_object(child).get("i"))))
-            name, path = self._clean_text(self._as_text(page.get("t"))), self._as_text(page.get("p"))
-            base = self._as_text(bases.get(str(page.get("s"))))
+            page = self._as_object(pages.get(str(self._as_object(child).get(OracleTocField.PAGE_ID))))
+            name = self._clean_text(self._as_text(page.get(OracleTocField.TITLE)))
+            path = self._as_text(page.get(OracleTocField.PATH))
+            base = self._as_text(bases.get(str(page.get(OracleTocField.SOURCE))))
             if not name or not path or base is None:
                 self.logger.debug("Skipping the documentation entry %r, without a page.", name)
                 continue

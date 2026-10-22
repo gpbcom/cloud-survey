@@ -58,6 +58,7 @@ class FlagPainter:
             cross_inner_width=0.2,
         ),
         Country.CHINA: FlagDesign(bands=["#ee1c25"], stars="#ffff00"),
+        Country.RUSSIA: FlagDesign(bands=["#ffffff", "#0039a6", "#d52b1e"]),
     }
 
     def __init__(self, logger: Optional[Logger] = None) -> None:

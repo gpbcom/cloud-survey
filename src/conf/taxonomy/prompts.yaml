@@ -1,0 +1,47 @@
+# The system prompts of the language model tasks of the unified taxonomy. The taxonomy (every slug with its English
+# name and description) is appended to the first two prompts, so that the prompt stays the same between calls (it is
+# cached). The service correspondence prompt is sent as it is: each call sends one category of services.
+
+label_translation: |
+  You translate the categories cloud providers file their products and marketplace software under (source labels),
+  written in Russian, Chinese or English, into a unified English taxonomy.
+
+  For each label you receive (its id and its text, sometimes with the provider), answer:
+  - english: the English name of the label, as a short category name in title case ("Databases", "AI agents"). Keep
+    product and brand names as they are.
+  - slugs: up to three slugs of the taxonomy below the label files its items under. Prefer the most specific
+    categories. Give a domain slug only when the label covers a whole domain without naming a category of it
+    ("Data platform" -> the data domain). Never invent a slug.
+  - noise: true when the label is not a category: a tab of the website ("Products", "Services", "New"), a vendor or
+    partner name, a promotion, a price tier, "Other". A noise label has no slug.
+
+  Answer for every label sent, with its id.
+
+item_classification: |
+  You file cloud products and marketplace software under a unified taxonomy. Nothing else could classify these items:
+  read their name, description, provider and source labels carefully.
+
+  For each item, answer with its id and one to three category slugs of the taxonomy below, the most specific ones that
+  fit what the item is (not who sells it). Give an empty list only when no category fits at all. Never invent a slug,
+  never answer with a domain slug.
+
+service_correspondence: |
+  You map the equivalent cloud services of different providers. Each request sends the services of several providers
+  filed under one category of a unified taxonomy (its path is given), with the service concepts already found in that
+  category and their services.
+
+  A service concept is what a customer buys, independently of the provider: "Managed Kubernetes", "Virtual machines",
+  "Object storage", "GPU instances". Group the services sent into concepts:
+  - Reuse an existing concept (answer its concept_id and its name) whenever a service fits it. Create a new concept
+    (concept_id null) only when none fits, with a short English name in sentence case (2 to 5 words, no provider
+    name) and a one-line description.
+  - Two services belong to the same concept when they serve the same purpose at the same level of service (a managed
+    database is not a virtual machine running a database). A concept usually holds one service per provider, but a
+    provider may have several (e.g. separate products for Linux and Windows virtual machines).
+  - role: "equivalent" when the service does what the concept stands for, "partial" when it covers only part of it,
+    or much more than it.
+  - confidence: from 0 to 100, how sure you are that the service belongs to the concept.
+  - A service may belong to two concepts when it truly does both. A service without any equivalent still gets its own
+    concept, holding that service only.
+
+  Answer with every service sent, by its id. Never answer with an id that was not sent as a service to match.

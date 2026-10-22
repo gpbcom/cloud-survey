@@ -12,7 +12,7 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
-from models.cloud.product import CloudProduct
+from models.cloud.products.product import CloudProduct
 
 
 class STACKITCrawler(BaseCloudCrawler):
@@ -26,7 +26,8 @@ class STACKITCrawler(BaseCloudCrawler):
 
     Notes:
         The main source is the https://stackit.com/en/products page: a grid of product tiles
-        (`article.digits-base-tile`), each with a name, a short description and a product page link. The English
+        (`article.digits-base-tile`), each with a name, a short description and a product page link, shown in
+        category tabs (e.g. `Compute Engine`, `Data & AI`) which file the products. The English
         sitemap completes it: its product pages missing from the grid (e.g. the products without category) are
         requested and read from their title and meta description, dated by their sitemap last modification
         (`lastmod`). The grid products are undated. The `www.` host redirects to `stackit.com`.
@@ -41,6 +42,7 @@ class STACKITCrawler(BaseCloudCrawler):
     name = "stackit"
     catalogue_url: ClassVar[str] = "https://stackit.com/en/products"
     complement_urls: ClassVar[Tuple[str, ...]] = (SITEMAP_URL,)
+    dates_sitemaps: ClassVar[Tuple[str, ...]] = (SITEMAP_URL,)
     name_prefixes: ClassVar[Tuple[str, ...]] = ("STACKIT ",)
 
     ############################
@@ -58,15 +60,16 @@ class STACKITCrawler(BaseCloudCrawler):
         """
         return self._clean_text(self.TITLE_TAGLINE.sub("", self._clean_text(title)))
 
-    def _tile_product(self, tile: Selector, page_url: str) -> Optional[CloudProduct]:
-        """Extract the product of a product tile.
+    def _tile_fields(self, tile: Selector, page_url: str) -> Optional[Tuple[str, Optional[str], Optional[str]]]:
+        """Read the product of a product tile.
 
         Args:
             tile (Selector): The product tile (`article.digits-base-tile`).
             page_url (str): The catalogue page URL, the tile links being relative to it.
 
         Returns:
-            Optional[CloudProduct]: The product, `None` when the tile has no name or is invalid.
+            Optional[Tuple[str, Optional[str], Optional[str]]]: The name, description and URL of the product, `None`
+                when the tile has no name.
         """
         name = " ".join(line.get_all_text(separator=" ", strip=True) for line in tile.css(".digits-tile__title-line"))
         if not self._clean_text(name):
@@ -75,21 +78,79 @@ class STACKITCrawler(BaseCloudCrawler):
         details = tile.css("p.digits-tile__details").first
         description = details.get_all_text(separator=" ", strip=True) if details is not None else None
         link = tile.css("a.digits-base-tile__link::attr(href)").get()
-        return self._build_product(name, description, urljoin(page_url, link) if link else None)
+        return name, description, urljoin(page_url, link) if link else None
+
+    def _tabbed_tiles(self, response: Response) -> List[Tuple[Selector, Optional[str]]]:
+        """List the product tiles with the label of the tab showing them.
+
+        Args:
+            response (Response): The products page.
+
+        Returns:
+            List[Tuple[Selector, Optional[str]]]: Each product tile and its tab, `None` when the page has no tabs.
+
+        Notes:
+            Each tabs container (`.digits-tile-tabs__container`) lists its tab labels (`.digits-tabs__pill`) and, in
+            the same order, one panel of tiles per tab (`.digits-tabs__content`).
+        """
+        tiles: List[Tuple[Selector, Optional[str]]] = []
+        for container in response.css(".digits-tile-tabs__container"):
+            tabs = [
+                self._clean_text(pill.get_all_text(separator=" ", strip=True))
+                for pill in container.css(".digits-tabs__pill")
+            ]
+            for index, panel in enumerate(container.css(".digits-tabs__content")):
+                tab = tabs[index] if index < len(tabs) else None
+                tiles.extend((tile, tab) for tile in panel.css("article.digits-base-tile"))
+        if not tiles:
+            self.logger.debug("No product tabs on %s, its tiles are not categorized.", response.url)
+            tiles = [(tile, None) for tile in response.css("article.digits-base-tile")]
+        return tiles
+
+    def _tile_entries(self, response: Response) -> List[Tuple[str, Optional[str], Optional[str], List[str]]]:
+        """Gather the products of the tiles with all their tabs, a product being shown in several tabs.
+
+        Args:
+            response (Response): The products page.
+
+        Returns:
+            List[Tuple[str, Optional[str], Optional[str], List[str]]]: The name, description and URL of the first
+                tile of each product, by order of appearance, and the tabs of all its tiles.
+
+        Notes:
+            The tiles of a product are matched by name or by URL, as the streamed products are.
+        """
+        tiles = self._tabbed_tiles(response)
+        self.logger.debug("%d product tiles found on %s.", len(tiles), response.url)
+        entries: List[Tuple[str, Optional[str], Optional[str], List[str]]] = []
+        positions: Dict[str, int] = {}
+        for tile, tab in tiles:
+            if (fields := self._tile_fields(tile, response.url)) is None:
+                continue
+            name, description, url = fields
+            keys = [f"name:{self._name_key(name)}"] + ([f"url:{self._url_key(url)}"] if url else [])
+            position = next((positions[key] for key in keys if key in positions), None)
+            if position is None:
+                position = len(entries)
+                entries.append((name, description, url, []))
+            else:
+                self.logger.debug("Product tile %r shown again, in the tab %r.", name, tab)
+            if tab:
+                entries[position][3].append(tab)
+            positions.update(dict.fromkeys(keys, position))
+        return entries
 
     def _tiles_products(self, response: Response) -> Iterator[CloudProduct]:
-        """Extract the products of the product tiles grid.
+        """Extract the products of the product tiles grid, filed under their tabs.
 
         Args:
             response (Response): The products page.
 
         Yields:
-            Iterator[CloudProduct]: Each valid product of the grid.
+            Iterator[CloudProduct]: Each valid product of the grid, once.
         """
-        tiles = response.css("article.digits-base-tile")
-        self.logger.debug("%d product tiles found on %s.", len(tiles), response.url)
-        for tile in tiles:
-            if product := self._tile_product(tile, response.url):
+        for name, description, url, tabs in self._tile_entries(response):
+            if product := self._build_product(name, description, url, categories=tabs):
                 yield product
 
     def _sitemap_requests(self, response: Response) -> List[Request]:
@@ -146,7 +207,7 @@ class STACKITCrawler(BaseCloudCrawler):
             EmptyCatalogueError: If the products page holds no valid product.
             CatalogueFormatError: If the sitemap lists no page.
         """
-        if response.url == self.SITEMAP_URL:
+        if response.url == self.SITEMAP_URL and self.PAGE_DATES not in response.meta:
             for request in self._sitemap_requests(response):
                 yield request
             return

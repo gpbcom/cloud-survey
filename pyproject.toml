@@ -2,30 +2,59 @@
 name = "poc-crawler"
 version = "0.1.0"
 description = "Add your description here"
+authors = [
+    { name = "Guillaume Paupard", email = "devlangjcpp@gmail.com" }
+]
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "alembic>=1.16",
+    "anthropic>=0.97.0,<1.0.0",
+    "asyncpg>=0.31",
     "beautifulsoup4>=4.15.0",
+    "certifi>=2026.7.22",
     "colorlog>=6.12.0",
     "fastapi>=0.142.2",
     "langchain>=1.4.3",
+    "langchain-anthropic>=1.4.3",
+    "langchain-openai>=1.2.1",
     "langgraph>=1.2.12",
+    "numpy>=2.5.4",
     "pydantic>=2.13.5",
     "pyqt6>=6.11.0",
     "pyyaml>=6.0.3",
+    "scipy>=1.18.1",
     "scrapling[fetchers]>=0.4.15",
+    "sqlalchemy[asyncio]>=2.0.40",
 ]
 
 [project.scripts]
 poc-crawler = "crawler:main"
-poc-crawler-gui = "gui.app:main"
+poc-crawler-gui = "gui.window.app:main"
+install-stack = "scripts.install_stack:main"
+migrate-db = "scripts.migrate_database:main"
 
 [build-system]
-requires = ["uv_build>=0.12.21,<0.13.0"]
-build-backend = "uv_build"
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
 
-[tool.uv.build-backend]
-module-name = ["catalogue", "classifier", "conf", "crawler", "gui", "logger", "models"]
+# The application packages live in `src/`, the install and migration scripts in `scripts/` (with the Alembic
+# migrations): both folders are on the import path of the editable install.
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/analytics",
+    "src/catalogue",
+    "src/classifier",
+    "src/conf",
+    "src/crawler",
+    "src/gui",
+    "src/logger",
+    "src/models",
+    "src/storage",
+    "src/taxonomy",
+    "src/llm",
+    "scripts",
+]
 
 [dependency-groups]
 dev = [
@@ -35,13 +64,14 @@ dev = [
     "pytest-cov>=7.1.0",
     "pytest-qt>=4.5.0",
     "ruff>=0.17.0",
+    "scipy-stubs>=1.18.1.1",
     "types-pyyaml>=6.0.12.20260906",
 ]
 
 [tool.ruff]
 line-length = 120
 target-version = "py314"
-src = ["src", "tests"]
+src = ["src", "scripts", "tests"]
 
 [tool.ruff.lint]
 select = [
@@ -59,6 +89,8 @@ select = [
     "RUF", # ruff-specific rules
     "ANN401", # `Any` is not allowed in signatures (except `*args` / `**kwargs`, see below)
 ]
+# The chart titles multiply rows by columns with the multiplication sign.
+allowed-confusables = ["×"]
 ignore = [
     "D100",  # Missing docstring in public module
     "D104",  # Missing docstring in public package
@@ -76,7 +108,7 @@ allow-star-arg-any = true
 
 [tool.ruff.lint.pep8-naming]
 # Pydantic turns `field_validator` methods into classmethods: their first argument is `cls`.
-classmethod-decorators = ["pydantic.field_validator"]
+classmethod-decorators = ["pydantic.field_validator", "sqlalchemy.orm.declared_attr"]
 # Qt virtual methods overridden by the GUI keep their Qt (camelCase) names.
 extend-ignore-names = [
     "rowCount",
@@ -88,28 +120,51 @@ extend-ignore-names = [
     "minimumSizeHint",
     "closeEvent",
     "mouseReleaseEvent",
+    "resizeEvent",
+    "addItem",
+    "itemAt",
+    "takeAt",
+    "expandingDirections",
+    "hasHeightForWidth",
+    "heightForWidth",
+    "setGeometry",
+    "minimumSize",
+    "showPopup",
+    "viewportEvent",
+    "eventFilter",
+    "wheelEvent",
+    "enterEvent",
+    "leaveEvent",
 ]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [tool.ruff.lint.isort]
-known-first-party = ["catalogue", "conf", "crawler", "gui", "logger", "models"]
+known-first-party = ["analytics", "catalogue", "classifier", "conf", "crawler", "gui", "llm", "logger", "models", "scripts", "storage", "taxonomy"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 asyncio_mode = "auto"
 addopts = "--strict-markers"
-markers = ["live: crawls the real websites (skipped unless `pytest --live`)"]
+markers = [
+    "live: crawls the real websites (skipped unless `pytest --live`)",
+    "db: needs a PostgreSQL server (skipped unless `STORAGE_TEST_DATABASE_URL` is set)",
+]
 # Raised inside scrapling's lxml parser configuration, not by this project.
 filterwarnings = ["ignore:The 'strip_cdata' option of HTMLParser:DeprecationWarning:lxml"]
 
 [tool.mypy]
-mypy_path = "src"
-files = ["src", "tests"]
+mypy_path = "src,.,tests"
+files = ["src", "scripts", "tests"]
 explicit_package_bases = true
 python_version = "3.14"
 plugins = ["pydantic.mypy"]
 warn_unused_ignores = true
 disallow_any_generics = true
+
+[[tool.mypy.overrides]]
+# asyncpg ships no type information: it is only used through SQLAlchemy (and by the test database fixture).
+module = ["asyncpg", "asyncpg.*"]
+ignore_missing_imports = true

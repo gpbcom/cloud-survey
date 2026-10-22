@@ -61,3 +61,20 @@ class IncompleteRulesError(ClassificationModelError):
         self.field = field
         self.missing = missing
         super().__init__(f"The `{field}` rules have no entry for: {', '.join(missing)}.")
+
+
+class InvalidRuleSlugError(ClassificationModelError):
+    """Raised when a rule names a taxonomy slug which is not a kebab-case identifier.
+
+    Attributes:
+        slug (str): The rejected slug.
+    """
+
+    def __init__(self, slug: str) -> None:
+        """Initialize the error.
+
+        Args:
+            slug (str): The rejected slug.
+        """
+        self.slug = slug
+        super().__init__(f"The rule slug {slug!r} is not a kebab-case taxonomy slug (e.g. `object-storage`).")

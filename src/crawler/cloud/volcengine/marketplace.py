@@ -12,10 +12,25 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from classifier.software_classifier import SoftwareClassifier
+from crawler.cloud.volcengine.enums import (
+    VolcanoEngineApiAction,
+    VolcanoEngineCategoryField,
+    VolcanoEngineListParameter,
+    VolcanoEngineMarketplaceMeta,
+    VolcanoEngineProductBasicField,
+    VolcanoEngineProductField,
+    VolcanoEngineProductInfoField,
+    VolcanoEngineProductTypeKeyword,
+    VolcanoEngineResponseField,
+    VolcanoEngineResultField,
+    VolcanoEngineShopField,
+)
+from crawler.enums import HttpMethod
 from crawler.exception import CatalogueFormatError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_category import MarketplaceCategory
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -25,13 +40,18 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
         API_URL (ClassVar[str]): The marketplace portal API, formatted with the action.
         PRODUCT_URL (ClassVar[str]): The product page, formatted with the product identifier.
         PAGE_SIZE (ClassVar[int]): The products read per page.
-        PAGE (ClassVar[str]): The meta key holding the page number, from 1.
-        CATEGORIES (ClassVar[str]): The meta key marking the category tree response.
+        PAGE (ClassVar[VolcanoEngineMarketplaceMeta]): The meta key holding the page number, from 1.
+        CATEGORIES (ClassVar[VolcanoEngineMarketplaceMeta]): The meta key marking the category tree response.
         SERVICE (ClassVar[re.Pattern[str]]): The titles of the services (deployment, migration, consulting...).
         API_TITLE (ClassVar[re.Pattern[str]]): The titles of the APIs, MCP servers and agent plugins.
-        CHILD_DELIVERIES (ClassVar[Tuple[Tuple[str, DeliveryMethod], ...]]): The delivery method given by a keyword
-            of the product type (`ChildProductName`, e.g. 云市场生态镜像产品), casefolded.
+        CHILD_DELIVERIES (ClassVar[Tuple[Tuple[VolcanoEngineProductTypeKeyword, DeliveryMethod], ...]]): The
+            delivery method given by a keyword of the product type (`ChildProductName`, e.g. 云市场生态镜像产品),
+            casefolded.
         DELIVERIES (ClassVar[Dict[int, DeliveryMethod]]): The delivery method of each delivery type (`DeliverType`).
+        CATEGORY_LEVELS (ClassVar[Tuple[Tuple[VolcanoEngineProductBasicField, VolcanoEngineProductBasicField], ...]]):
+            The name and identifier fields of the front categories of a product, the top category first.
+        PUBLISHER_FIELDS (ClassVar[Tuple[VolcanoEngineShopField, ...]]): The shop fields naming the publisher, the
+            verified company name first.
         name (str): The crawler name.
         catalogue_url (ClassVar[str]): The product list API, the first page being requested with a `POST` body.
         category_names (Dict[int, str]): The name of each front category, by identifier.
@@ -52,16 +72,16 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
     )
     PRODUCT_URL: ClassVar[str] = "https://market.volcengine.com/goods/detail?goodsId={}"
     PAGE_SIZE: ClassVar[int] = 100
-    PAGE: ClassVar[str] = "page"
-    CATEGORIES: ClassVar[str] = "categories"
+    PAGE: ClassVar[VolcanoEngineMarketplaceMeta] = VolcanoEngineMarketplaceMeta.PAGE
+    CATEGORIES: ClassVar[VolcanoEngineMarketplaceMeta] = VolcanoEngineMarketplaceMeta.CATEGORIES
     SERVICE: ClassVar[re.Pattern[str]] = re.compile(
         r"(?:部署|配置|迁移|代维|运维|实施|咨询)(?:[与和及、](?:部署|配置|迁移|代维|运维|实施|咨询))*服务"
     )
     API_TITLE: ClassVar[re.Pattern[str]] = re.compile(r"(?<![a-z])(?:api|mcp)(?![a-z])|插件", re.IGNORECASE)
-    CHILD_DELIVERIES: ClassVar[Tuple[Tuple[str, DeliveryMethod], ...]] = (
-        ("镜像", DeliveryMethod.VIRTUAL_MACHINE),
-        ("mcp", DeliveryMethod.API),
-        ("saas", DeliveryMethod.SAAS),
+    CHILD_DELIVERIES: ClassVar[Tuple[Tuple[VolcanoEngineProductTypeKeyword, DeliveryMethod], ...]] = (
+        (VolcanoEngineProductTypeKeyword.IMAGE, DeliveryMethod.VIRTUAL_MACHINE),
+        (VolcanoEngineProductTypeKeyword.MCP, DeliveryMethod.API),
+        (VolcanoEngineProductTypeKeyword.SAAS, DeliveryMethod.SAAS),
     )
     DELIVERIES: ClassVar[Dict[int, DeliveryMethod]] = {
         1: DeliveryMethod.SAAS,
@@ -69,9 +89,17 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
         4: DeliveryMethod.DOWNLOAD,
         5: DeliveryMethod.VIRTUAL_MACHINE,
     }
+    CATEGORY_LEVELS: ClassVar[Tuple[Tuple[VolcanoEngineProductBasicField, VolcanoEngineProductBasicField], ...]] = (
+        (VolcanoEngineProductBasicField.FRONTEND_CATEGORY_L1_NAME, VolcanoEngineProductBasicField.FRONTEND_CATEGORY_L1),
+        (VolcanoEngineProductBasicField.FRONTEND_CATEGORY_L2_NAME, VolcanoEngineProductBasicField.FRONTEND_CATEGORY_L2),
+    )
+    PUBLISHER_FIELDS: ClassVar[Tuple[VolcanoEngineShopField, ...]] = (
+        VolcanoEngineShopField.SRV_ACCOUNT_VERIFY_NAME,
+        VolcanoEngineShopField.SHOP,
+    )
 
     name = "volcengine-marketplace"
-    catalogue_url: ClassVar[str] = API_URL.format(action="ListProduct")
+    catalogue_url: ClassVar[str] = API_URL.format(action=VolcanoEngineApiAction.LIST_PRODUCT)
 
     def __init__(
         self,
@@ -105,8 +133,13 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
         meta: Dict[str, JsonValue] = {self.PAGE: page}
         if page > 1:
             meta[self.MAY_BE_EMPTY] = True
-        body: Dict[str, JsonValue] = {"Offset": (page - 1) * self.PAGE_SIZE, "Limit": self.PAGE_SIZE}
-        return self._api_request(self.catalogue_url, "POST", json=body, meta=meta, priority=self.PRIMARY_PRIORITY)
+        body: Dict[str, JsonValue] = {
+            VolcanoEngineListParameter.OFFSET: (page - 1) * self.PAGE_SIZE,
+            VolcanoEngineListParameter.LIMIT: self.PAGE_SIZE,
+        }
+        return self._api_request(
+            self.catalogue_url, HttpMethod.POST, json=body, meta=meta, priority=self.PRIMARY_PRIORITY
+        )
 
     def _catalogue_request(self) -> Request:
         """Build the request of the first page of products.
@@ -123,8 +156,8 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
             Request: The `POST` request of the category tree.
         """
         return self._api_request(
-            self.API_URL.format(action="QueryFrontCategory"),
-            "POST",
+            self.API_URL.format(action=VolcanoEngineApiAction.QUERY_FRONT_CATEGORY),
+            HttpMethod.POST,
             json={},
             meta={self.CATEGORIES: True, self.MAY_BE_EMPTY: True},
             priority=self.PRIMARY_PRIORITY + 1,
@@ -142,8 +175,8 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the response is not JSON or has no `List`.
         """
-        result = self._as_object(self._as_object(self._json_body(response)).get("Result"))
-        if not isinstance(result.get("List"), list):
+        result = self._as_object(self._as_object(self._json_body(response)).get(VolcanoEngineResponseField.RESULT))
+        if not isinstance(result.get(VolcanoEngineResultField.LIST), list):
             self.logger.error("The %s API response %s has no `Result.List`.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "the response has no `Result.List`")
         return result
@@ -157,9 +190,12 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             CatalogueFormatError: If the response is not JSON or has no `List`.
         """
-        categories = self._result(response).get("List")
+        categories = self._result(response).get(VolcanoEngineResultField.LIST)
         for category in self._walk_objects(categories):
-            identifier, label = category.get("ID"), self._as_text(category.get("CategoryNameCN"))
+            identifier, label = (
+                category.get(VolcanoEngineCategoryField.ID),
+                self._as_text(category.get(VolcanoEngineCategoryField.CATEGORY_NAME_CN)),
+            )
             if isinstance(identifier, int) and label and self._clean_text(label):
                 self.category_names[identifier] = self._clean_text(label)
         self.logger.info("%d %s front categories read from %s.", len(self.category_names), self.name, response.url)
@@ -174,14 +210,43 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
             List[str]: The top category then the sub-category names, when known.
         """
         labels: List[str] = []
-        for level in ("L1", "L2"):
-            label = self._clean_text(self._as_text(basic.get(f"FrontendCategory{level}Name")))
-            identifier = basic.get(f"FrontendCategory{level}")
+        for name_field, identifier_field in self.CATEGORY_LEVELS:
+            label = self._clean_text(self._as_text(basic.get(name_field)))
+            identifier = basic.get(identifier_field)
             if not label and isinstance(identifier, int):
                 label = self.category_names.get(identifier, "")
             if label:
                 labels.append(label)
         return labels
+
+    def _category_path(self, basic: Dict[str, JsonValue]) -> Optional[MarketplaceCategory]:
+        """Build the marketplace category path of a product, from its front categories.
+
+        Args:
+            basic (Dict[str, JsonValue]): The product basic information (`ProductBasic`).
+
+        Returns:
+            Optional[MarketplaceCategory]: The top category then the sub-category (named by the category tree when
+                only their identifiers are given), identified by the deepest named one, `None` without a named one.
+        """
+        labels: List[str] = []
+        category_id: Optional[int] = None
+        for name_field, identifier_field in self.CATEGORY_LEVELS:
+            label = self._clean_text(self._as_text(basic.get(name_field)))
+            identifier = basic.get(identifier_field)
+            if not label and isinstance(identifier, int):
+                label = self.category_names.get(identifier, "")
+            if label:
+                labels.append(label)
+                category_id = identifier if isinstance(identifier, int) else None
+        if not labels:
+            self.logger.debug(
+                "No named front category for the %s product %r.",
+                self.name,
+                basic.get(VolcanoEngineProductBasicField.PRODUCT),
+            )
+            return None
+        return self._category(labels, category_id)
 
     def _delivery(self, title: str, product_type: str, deliver_type: JsonValue) -> DeliveryMethod:
         """Get the delivery method of a product.
@@ -215,29 +280,46 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
             Optional[MarketplaceSoftware]: The software, with its listing date (the `CreatedTime` epoch seconds of
                 its `ProductBasic`, else of its `ProductInfo`), `None` for a skipped (logged) or invalid product.
         """
-        basic, info = self._as_object(product.get("ProductBasic")), self._as_object(product.get("ProductInfo"))
-        title = self._clean_text(self._as_text(basic.get("ProductTitle")) or self._as_text(basic.get("ZhName")))
+        basic, info = (
+            self._as_object(product.get(VolcanoEngineProductField.PRODUCT_BASIC)),
+            self._as_object(product.get(VolcanoEngineProductField.PRODUCT_INFO)),
+        )
+        title = self._clean_text(
+            self._as_text(basic.get(VolcanoEngineProductBasicField.PRODUCT_TITLE))
+            or self._as_text(basic.get(VolcanoEngineProductBasicField.ZH_NAME))
+        )
         if self.SERVICE.search(title):
             self.logger.debug("Skipping the %s product %r, a service.", self.name, title)
             return None
-        shop = self._as_object(info.get("Shop"))
+        shop = self._as_object(info.get(VolcanoEngineProductInfoField.SHOP))
         publisher = next(
             (
                 text
-                for text in (self._as_text(shop.get(field)) for field in ("SrvAccountVerifyName", "Shop"))
+                for text in (self._as_text(shop.get(field)) for field in self.PUBLISHER_FIELDS)
                 if text and text.strip()
             ),
             None,
         )
-        identifier = self._as_text(basic.get("Product")) or self._as_text(info.get("Product"))
+        identifier = self._as_text(basic.get(VolcanoEngineProductBasicField.PRODUCT)) or self._as_text(
+            info.get(VolcanoEngineProductInfoField.PRODUCT)
+        )
         return self._build_software(
             title,
-            self._as_text(basic.get("ProductDesc")),
+            self._as_text(basic.get(VolcanoEngineProductBasicField.PRODUCT_DESC)),
             self.PRODUCT_URL.format(quote(identifier, safe="")) if identifier else None,
             publisher,
-            self._delivery(title, self._as_text(info.get("ChildProductName")) or "", basic.get("DeliverType")),
+            self._delivery(
+                title,
+                self._as_text(info.get(VolcanoEngineProductInfoField.CHILD_PRODUCT_NAME)) or "",
+                basic.get(VolcanoEngineProductBasicField.DELIVER_TYPE),
+            ),
             self._categories(basic),
-            added_at=self._parse_date(basic.get("CreatedTime") or info.get("CreatedTime"), title),
+            marketplace_category_paths=[self._category_path(basic)],
+            added_at=self._parse_date(
+                basic.get(VolcanoEngineProductBasicField.CREATED_TIME)
+                or info.get(VolcanoEngineProductInfoField.CREATED_TIME),
+                title,
+            ),
         )
 
     def _next_request(self, response: Response) -> Optional[Request]:
@@ -253,7 +335,7 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
             CatalogueFormatError: If the response is not JSON or has no `List`.
         """
         result = self._result(response)
-        products, total = result.get("List"), result.get("Total")
+        products, total = result.get(VolcanoEngineResultField.LIST), result.get(VolcanoEngineResultField.TOTAL)
         page = response.meta.get(self.PAGE)
         number = page if isinstance(page, int) else 1
         if not products or not isinstance(total, int) or number * self.PAGE_SIZE >= total:
@@ -302,10 +384,14 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
             CatalogueFormatError: If the response is not JSON or has no `List`.
         """
         result = self._result(response)
-        products = result.get("List")
+        products = result.get(VolcanoEngineResultField.LIST)
         products = products if isinstance(products, list) else []
         self.logger.info(
-            "%s page %s: %d products (%s in total).", self.name, response.url, len(products), result.get("Total")
+            "%s page %s: %d products (%s in total).",
+            self.name,
+            response.url,
+            len(products),
+            result.get(VolcanoEngineResultField.TOTAL),
         )
         for product in map(self._as_object, products):
             if (software := self._product_software(product)) is not None:

@@ -13,8 +13,10 @@ from scrapling.parser import Selector
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
+from crawler.enums import HtmlAttribute
 from crawler.exception import CatalogueFormatError
 from crawler.stats.base import BaseStatsCrawler
+from crawler.stats.enums import SynergyCurrency, SynergyOrdinal, SynergyPatternGroup, SynergyPlayerName
 from models.cloud.enums import MarketPlayer, MarketRegion, MarketSegment
 from models.stats.market_report import MarketReport
 from models.stats.market_share import MarketShare
@@ -34,10 +36,14 @@ class SynergyResearchCrawler(BaseStatsCrawler):
             perimeter (the shares are given on public IaaS and PaaS only).
         SHARE_TOTAL (ClassVar[Tuple[float, float]]): The plausible range of the Amazon, Microsoft and Google shares
             summed, in percent.
-        ORDINALS (ClassVar[Dict[str, int]]): The ordinal words of the ranks and of the quarters or half-years.
-        KNOWN_PROVIDERS (ClassVar[Tuple[str, ...]]): The provider names reported as mentions when an article names
-            them without a market share.
-        NAMED_PLAYERS (ClassVar[Dict[str, MarketPlayer]]): The names of the players which may have a market share.
+        ORDINALS (ClassVar[Dict[str, int]]): The number of each ordinal word (`SynergyOrdinal`) of the ranks and of
+            the quarters or half-years.
+        KNOWN_PROVIDERS (ClassVar[Tuple[SynergyPlayerName, ...]]): The provider names reported as mentions when an
+            article names them without a market share.
+        NAMED_PLAYERS (ClassVar[Dict[str, MarketPlayer]]): The player of each name (`SynergyPlayerName`) which may
+            have a market share.
+        EUROPE_LEADER_NAMES (ClassVar[Tuple[SynergyPlayerName, ...]]): The names of the leading European providers
+            whose share may be given.
         CLOUD_WORDING (ClassVar[re.Pattern[str]]): The titles (or slug words) of the cloud market articles.
         ARTICLE_PATH (ClassVar[re.Pattern[str]]): The path of an article, giving its slug.
         DATELINE (ClassVar[re.Pattern[str]]): The dateline of a press release, giving its publication date.
@@ -98,58 +104,63 @@ class SynergyResearchCrawler(BaseStatsCrawler):
     FIRST_YEAR: ClassVar[int] = 2021
     SHARE_TOTAL: ClassVar[Tuple[float, float]] = (55.0, 75.0)
     ORDINALS: ClassVar[Dict[str, int]] = {
-        "first": 1,
-        "second": 2,
-        "third": 3,
-        "fourth": 4,
-        "fifth": 5,
-        "sixth": 6,
-        "seventh": 7,
-        "eighth": 8,
-        "ninth": 9,
-        "tenth": 10,
+        SynergyOrdinal.FIRST: 1,
+        SynergyOrdinal.SECOND: 2,
+        SynergyOrdinal.THIRD: 3,
+        SynergyOrdinal.FOURTH: 4,
+        SynergyOrdinal.FIFTH: 5,
+        SynergyOrdinal.SIXTH: 6,
+        SynergyOrdinal.SEVENTH: 7,
+        SynergyOrdinal.EIGHTH: 8,
+        SynergyOrdinal.NINTH: 9,
+        SynergyOrdinal.TENTH: 10,
     }
-    KNOWN_PROVIDERS: ClassVar[Tuple[str, ...]] = (
-        "Alibaba",
-        "Oracle",
-        "Salesforce",
-        "IBM",
-        "Huawei",
-        "Tencent",
-        "Baidu",
-        "China Telecom",
-        "China Mobile",
-        "China Unicom",
-        "Rackspace",
-        "Snowflake",
-        "MongoDB",
-        "VMware",
-        "CoreWeave",
-        "Nebius",
-        "Crusoe",
-        "Lambda",
-        "OpenAI",
-        "Anthropic",
-        "Databricks",
-        "Nscale",
-        "OVHcloud",
-        "Orange",
-        "Telecom Italia",
-        "Deutsche Telekom",
-        "SAP",
-        "IONOS",
-        "Scaleway",
-        "Hetzner",
+    KNOWN_PROVIDERS: ClassVar[Tuple[SynergyPlayerName, ...]] = (
+        SynergyPlayerName.ALIBABA,
+        SynergyPlayerName.ORACLE,
+        SynergyPlayerName.SALESFORCE,
+        SynergyPlayerName.IBM,
+        SynergyPlayerName.HUAWEI,
+        SynergyPlayerName.TENCENT,
+        SynergyPlayerName.BAIDU,
+        SynergyPlayerName.CHINA_TELECOM,
+        SynergyPlayerName.CHINA_MOBILE,
+        SynergyPlayerName.CHINA_UNICOM,
+        SynergyPlayerName.RACKSPACE,
+        SynergyPlayerName.SNOWFLAKE,
+        SynergyPlayerName.MONGODB,
+        SynergyPlayerName.VMWARE,
+        SynergyPlayerName.COREWEAVE,
+        SynergyPlayerName.NEBIUS,
+        SynergyPlayerName.CRUSOE,
+        SynergyPlayerName.LAMBDA,
+        SynergyPlayerName.OPENAI,
+        SynergyPlayerName.ANTHROPIC,
+        SynergyPlayerName.DATABRICKS,
+        SynergyPlayerName.NSCALE,
+        SynergyPlayerName.OVHCLOUD,
+        SynergyPlayerName.ORANGE,
+        SynergyPlayerName.TELECOM_ITALIA,
+        SynergyPlayerName.DEUTSCHE_TELEKOM,
+        SynergyPlayerName.SAP,
+        SynergyPlayerName.IONOS,
+        SynergyPlayerName.SCALEWAY,
+        SynergyPlayerName.HETZNER,
+        SynergyPlayerName.YANDEX,
     )
     NAMED_PLAYERS: ClassVar[Dict[str, MarketPlayer]] = {
-        "Amazon": MarketPlayer.AMAZON,
-        "AWS": MarketPlayer.AMAZON,
-        "Microsoft": MarketPlayer.MICROSOFT,
-        "Azure": MarketPlayer.MICROSOFT,
-        "Google": MarketPlayer.GOOGLE,
-        "SAP": MarketPlayer.SAP,
-        "Deutsche Telekom": MarketPlayer.DEUTSCHE_TELEKOM,
+        SynergyPlayerName.AMAZON: MarketPlayer.AMAZON,
+        SynergyPlayerName.AWS: MarketPlayer.AMAZON,
+        SynergyPlayerName.MICROSOFT: MarketPlayer.MICROSOFT,
+        SynergyPlayerName.AZURE: MarketPlayer.MICROSOFT,
+        SynergyPlayerName.GOOGLE: MarketPlayer.GOOGLE,
+        SynergyPlayerName.SAP: MarketPlayer.SAP,
+        SynergyPlayerName.DEUTSCHE_TELEKOM: MarketPlayer.DEUTSCHE_TELEKOM,
     }
+    EUROPE_LEADER_NAMES: ClassVar[Tuple[SynergyPlayerName, ...]] = (
+        SynergyPlayerName.SAP,
+        SynergyPlayerName.DEUTSCHE_TELEKOM,
+    )
     CLOUD_WORDING: ClassVar[re.Pattern[str]] = re.compile(
         r"\bcloud (?:market|spending|revenues)\b|\bQ[1-4]\b.*\bcloud\b|\bcloud\b.*\bQ[1-4]\b|\bcloud\b.*\bmarket share"
         r"|\beuropean cloud\b|\b(?:amazon|aws)\b.*\bmicrosoft\b.*\bmarket\b",
@@ -297,7 +308,7 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         requested = 0
         for link in links:
             title = self._clean_text(link.get_all_text(separator=" ", strip=True))
-            slug = self._slug(urljoin(response.url, link.attrib.get("href") or ""))
+            slug = self._slug(urljoin(response.url, link.attrib.get(HtmlAttribute.HREF) or ""))
             if slug is None or not self.CLOUD_WORDING.search(title):
                 self.logger.debug("Skipping the %s link %r, not a cloud market article.", self.name, title)
                 continue
@@ -424,11 +435,11 @@ class SynergyResearchCrawler(BaseStatsCrawler):
             MarketShare: The share, approximate when it is qualified (e.g. "around 15%").
         """
         groups = match.groupdict()
-        approximate = groups.get("qualifier") is not None
-        low = float(match.group("low"))
-        if groups.get("high") is None:
+        approximate = groups.get(SynergyPatternGroup.QUALIFIER) is not None
+        low = float(match.group(SynergyPatternGroup.LOW))
+        if groups.get(SynergyPatternGroup.HIGH) is None:
             return MarketShare(player=player, share_pct=low, approximate=approximate, part_of=part_of)
-        low, high = sorted((low, float(match.group("high"))))
+        low, high = sorted((low, float(match.group(SynergyPatternGroup.HIGH))))
         return MarketShare(
             player=player,
             share_pct=(low + high) / 2,
@@ -473,7 +484,13 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         part_of = MarketPlayer.BIG_THREE if big_three else None
         by_position: Dict[MarketPlayer, MarketShare] = {}
         if (listed := self.SHARES.search(text)) is not None:
-            values = [value for value in listed.group("first", "second", "third") if value is not None]
+            values = [
+                value
+                for value in listed.group(
+                    SynergyPatternGroup.FIRST, SynergyPatternGroup.SECOND, SynergyPatternGroup.THIRD
+                )
+                if value is not None
+            ]
             players = (MarketPlayer.AMAZON, MarketPlayer.MICROSOFT, MarketPlayer.GOOGLE)[-len(values) :]
             for player, value in zip(players, values, strict=True):
                 by_position[player] = MarketShare(player=player, share_pct=float(value), part_of=part_of)
@@ -505,13 +522,13 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         part_of: Optional[MarketPlayer] = None
         if (providers := self.EUROPE_PROVIDERS.search(text)) is not None:
             part_of = MarketPlayer.EUROPEAN_PROVIDERS
-            value, qualifier = providers.group("low", "qualifier")
-            if providers.group("later") is not None:
-                value, qualifier = providers.group("later", "later_qualifier")
+            value, qualifier = providers.group(SynergyPatternGroup.LOW, SynergyPatternGroup.QUALIFIER)
+            if providers.group(SynergyPatternGroup.LATER) is not None:
+                value, qualifier = providers.group(SynergyPatternGroup.LATER, SynergyPatternGroup.LATER_QUALIFIER)
             shares.append(MarketShare(player=part_of, share_pct=float(value), approximate=qualifier is not None))
         if (leaders := self.EUROPE_LEADERS.search(text)) is not None:
-            for name in ("SAP", "Deutsche Telekom"):
-                if re.search(rf"\b{name}\b", leaders.group("names")):
+            for name in self.EUROPE_LEADER_NAMES:
+                if re.search(rf"\b{name}\b", leaders.group(SynergyPatternGroup.NAMES)):
                     shares.append(self._share(self.NAMED_PLAYERS[name], leaders, part_of))
         return shares
 
@@ -603,7 +620,7 @@ class SynergyResearchCrawler(BaseStatsCrawler):
             {
                 **world,
                 "segment": MarketSegment.CLOUD_INFRASTRUCTURE,
-                "market_size_bn": float(size.group("value")),
+                "market_size_bn": float(size.group(SynergyPatternGroup.VALUE)),
                 "twelve_month_bn": float(twelve_month.group(1)) if twelve_month else None,
                 "growth_pct": self._growth(text),
             },
@@ -643,17 +660,17 @@ class SynergyResearchCrawler(BaseStatsCrawler):
             **fields,
             "region": MarketRegion.EUROPE,
             "segment": MarketSegment.CLOUD_INFRASTRUCTURE,
-            "currency": "EUR",
+            "currency": SynergyCurrency.EURO,
         }
         if (market := self.EUROPE_MARKET.search(text)) is not None:
-            quarter = market.group("quarter")
+            quarter = market.group(SynergyPatternGroup.QUARTER)
             twelve_month = self.EUROPE_TWELVE_MONTH.search(text)
-            period = market.group("year") + (f"Q{self.ORDINALS[quarter]}" if quarter else "")
+            period = market.group(SynergyPatternGroup.YEAR) + (f"Q{self.ORDINALS[quarter]}" if quarter else "")
             yield from self._report(
                 {
                     **europe,
                     "period": period,
-                    "market_size_bn": float(market.group("value")),
+                    "market_size_bn": float(market.group(SynergyPatternGroup.VALUE)),
                     "twelve_month_bn": float(twelve_month.group(1)) if twelve_month else None,
                 },
                 shares,
@@ -661,9 +678,11 @@ class SynergyResearchCrawler(BaseStatsCrawler):
             )
             shares, mentions = [], []
         if (half := self.EUROPE_HALF.search(text)) is not None:
-            period = f"{half.group('year')}H{self.ORDINALS[half.group('half')]}"
+            period = f"{half.group(SynergyPatternGroup.YEAR)}H{self.ORDINALS[half.group(SynergyPatternGroup.HALF)]}"
             yield from self._report(
-                {**europe, "period": period, "market_size_bn": float(half.group("value"))}, shares, mentions
+                {**europe, "period": period, "market_size_bn": float(half.group(SynergyPatternGroup.VALUE))},
+                shares,
+                mentions,
             )
 
     def _enriched(self, report: MarketReport) -> MarketReport:

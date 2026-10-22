@@ -6,6 +6,25 @@ from typing import Dict, Final, Optional
 
 
 @unique
+class GeoBloc(StrEnum):
+    """Enums representing the geopolitical blocs the cloud providers and market players belong to.
+
+    Attributes:
+        UNITED_STATES (str): The United States.
+        EUROPEAN_UNION (str): The European Union member states.
+        CHINA (str): China.
+        RUSSIA (str): Russia.
+        OTHER (str): Every other country, e.g. the United Kingdom and Switzerland, and the unattributed aggregates.
+    """
+
+    UNITED_STATES = "us"
+    EUROPEAN_UNION = "eu"
+    CHINA = "cn"
+    RUSSIA = "ru"
+    OTHER = "other"
+
+
+@unique
 class Country(StrEnum):
     """Enums representing the countries of the cloud providers, as ISO 3166-1 alpha-2 codes.
 
@@ -20,6 +39,7 @@ class Country(StrEnum):
         SWITZERLAND (str): Switzerland.
         UNITED_KINGDOM (str): United Kingdom.
         CHINA (str): China.
+        RUSSIA (str): Russia.
     """
 
     UNITED_STATES = "us"
@@ -32,6 +52,17 @@ class Country(StrEnum):
     SWITZERLAND = "ch"
     UNITED_KINGDOM = "gb"
     CHINA = "cn"
+    RUSSIA = "ru"
+
+    @property
+    def bloc(self) -> GeoBloc:
+        """Get the geopolitical bloc of the country.
+
+        Returns:
+            GeoBloc: The bloc, `OTHER` for a country outside the United States, the European Union, China and
+                Russia.
+        """
+        return COUNTRY_BLOCS[self]
 
 
 @unique
@@ -67,6 +98,10 @@ class CloudProvider(StrEnum):
         VOLCENGINE (str): Volcano Engine (ByteDance).
         CTYUN (str): China Telecom Cloud (Tianyi Cloud).
         ECLOUD (str): China Mobile Cloud (ecloud).
+        YANDEX_CLOUD (str): Yandex Cloud (Russia).
+        VK_CLOUD (str): VK Cloud, formerly Mail.ru Cloud Solutions (Russia).
+        CLOUD_RU (str): Cloud.ru, formerly SberCloud (Russia).
+        SELECTEL (str): Selectel (Russia).
     """
 
     AWS = "amazon-web-services"
@@ -97,6 +132,10 @@ class CloudProvider(StrEnum):
     VOLCENGINE = "volcano-engine"
     CTYUN = "china-telecom-cloud"
     ECLOUD = "china-mobile-cloud"
+    YANDEX_CLOUD = "yandex-cloud"
+    VK_CLOUD = "vk-cloud"
+    CLOUD_RU = "cloud-ru"
+    SELECTEL = "selectel"
 
     @property
     def country(self) -> Country:
@@ -106,6 +145,15 @@ class CloudProvider(StrEnum):
             Country: The country.
         """
         return PROVIDER_COUNTRIES[self]
+
+    @property
+    def bloc(self) -> GeoBloc:
+        """Get the geopolitical bloc of the cloud provider: the bloc of its country.
+
+        Returns:
+            GeoBloc: The bloc.
+        """
+        return self.country.bloc
 
 
 @unique
@@ -135,92 +183,18 @@ class SoftwareCategory(StrEnum):
 
 
 @unique
-class SoftwareType(StrEnum):
-    """Enums representing the kind of a marketplace software.
+class SoftwareAudience(StrEnum):
+    """Enums representing who a marketplace software is meant for, a software of both categories counted apart.
 
     Attributes:
-        ATS (str): Applicant tracking systems: recruitment, talent acquisition.
-        CRM (str): Customer relationship management.
-        ERP (str): Enterprise resource planning.
-        HRIS (str): Human resources: HR management, payroll, talent management.
-        ACCOUNTING (str): Accounting and finance: billing, invoicing, expenses, tax.
-        ECOMMERCE (str): E-commerce: online stores, payments, point of sale.
-        CMS (str): Content management: website builders, blogs, portals.
-        MARKETING (str): Marketing: automation, advertising, SEO, social media.
-        CUSTOMER_SERVICE (str): Customer service: help desks, contact centers, chatbots.
-        COLLABORATION (str): Collaboration and productivity: office suites, file sharing, whiteboards.
-        COMMUNICATION (str): Communication: email, chat, video conferencing, telephony.
-        PROJECT_MANAGEMENT (str): Project and task management.
-        DOCUMENT_MANAGEMENT (str): Document management: content repositories, e-signature, OCR.
-        BUSINESS_INTELLIGENCE (str): Business intelligence: analytics, reporting, dashboards.
-        SUPPLY_CHAIN (str): Supply chain: procurement, logistics, inventory, manufacturing.
-        LEGAL_COMPLIANCE (str): Legal, governance, risk and compliance.
-        E_LEARNING (str): E-learning: learning management systems, education.
-        HEALTHCARE (str): Healthcare and life sciences.
-        MEDIA (str): Media: video, streaming, image and audio processing.
-        ITSM (str): IT service management: service desks, asset management.
-        AI_ML (str): Artificial intelligence and machine learning: platforms, models, agents.
-        DATABASE (str): Databases and caches.
-        DATA_INTEGRATION (str): Data integration: ETL, pipelines, data platforms.
-        DEVOPS (str): DevOps: CI/CD, source control, infrastructure as code.
-        DEVELOPMENT (str): Development: IDEs, frameworks, runtimes, application stacks.
-        LOW_CODE (str): Low-code and no-code application platforms, workflow automation.
-        TESTING (str): Testing and quality assurance.
-        MONITORING (str): Monitoring: observability, logs, APM.
-        SECURITY (str): Security: firewalls, threat protection, vulnerability management.
-        IDENTITY (str): Identity and access management, single sign-on.
-        BACKUP (str): Backup and disaster recovery.
-        STORAGE (str): Storage: file, object and block storage.
-        NETWORKING (str): Networking: VPN, load balancing, SD-WAN, CDN.
-        OPERATING_SYSTEM (str): Operating systems and virtual desktops.
-        CONTAINER (str): Containers and Kubernetes management.
-        MESSAGING (str): Messaging: queues, event streaming.
-        API_MANAGEMENT (str): API management and gateways.
-        IOT (str): Internet of things.
-        BLOCKCHAIN (str): Blockchain.
-        OTHER (str): Software of no recognized type.
+        DEVELOPER_TOOL (str): Software for the developers and IT teams only.
+        END_USER_SOFTWARE (str): Software for the business users only.
+        BOTH (str): Software for both: developer tool and end-user software.
     """
 
-    ATS = "ats"
-    CRM = "crm"
-    ERP = "erp"
-    HRIS = "hris"
-    ACCOUNTING = "accounting"
-    ECOMMERCE = "ecommerce"
-    CMS = "cms"
-    MARKETING = "marketing"
-    CUSTOMER_SERVICE = "customer-service"
-    COLLABORATION = "collaboration"
-    COMMUNICATION = "communication"
-    PROJECT_MANAGEMENT = "project-management"
-    DOCUMENT_MANAGEMENT = "document-management"
-    BUSINESS_INTELLIGENCE = "business-intelligence"
-    SUPPLY_CHAIN = "supply-chain"
-    LEGAL_COMPLIANCE = "legal-compliance"
-    E_LEARNING = "e-learning"
-    HEALTHCARE = "healthcare"
-    MEDIA = "media"
-    ITSM = "itsm"
-    AI_ML = "ai-ml"
-    DATABASE = "database"
-    DATA_INTEGRATION = "data-integration"
-    DEVOPS = "devops"
-    DEVELOPMENT = "development"
-    LOW_CODE = "low-code"
-    TESTING = "testing"
-    MONITORING = "monitoring"
-    SECURITY = "security"
-    IDENTITY = "identity"
-    BACKUP = "backup"
-    STORAGE = "storage"
-    NETWORKING = "networking"
-    OPERATING_SYSTEM = "operating-system"
-    CONTAINER = "container"
-    MESSAGING = "messaging"
-    API_MANAGEMENT = "api-management"
-    IOT = "iot"
-    BLOCKCHAIN = "blockchain"
-    OTHER = "other"
+    DEVELOPER_TOOL = "developer-tool"
+    END_USER_SOFTWARE = "end-user-software"
+    BOTH = "both"
 
 
 @unique
@@ -261,6 +235,32 @@ class DateSource(StrEnum):
 
     WEBSITE = "website"
     CRAWL = "crawl"
+
+
+@unique
+class DateCaveat(StrEnum):
+    """Enums representing why a date published by a website may not be the date of the product or software itself.
+
+    Attributes:
+        PAGE_MODIFIED (str): When the web page was last modified, which may be a change of the page only.
+        PAGE_PUBLISHED (str): When the web page was published, which may differ from the launch.
+        CATALOGUE_ENTRY (str): When the entry of the provider's catalogue or directory was published or edited, which
+            may differ from the launch or from a change of the product.
+        WEBSITE_RECORD (str): When the page record was created in the provider's website, often by a website
+            migration, long after the launch.
+        ASSUMED_TIMEZONE (str): Read from an identifier without timezone, China's timezone is assumed (a few hours
+            of uncertainty).
+        YEAR_ONLY (str): Only the year is published, the date is the 1st of January of that year.
+        OLDEST_VERSION (str): The release of the oldest version still listed, older versions may have been removed.
+    """
+
+    PAGE_MODIFIED = "page-modified"
+    PAGE_PUBLISHED = "page-published"
+    CATALOGUE_ENTRY = "catalogue-entry"
+    WEBSITE_RECORD = "website-record"
+    ASSUMED_TIMEZONE = "assumed-timezone"
+    YEAR_ONLY = "year-only"
+    OLDEST_VERSION = "oldest-version"
 
 
 @unique
@@ -324,6 +324,28 @@ class MarketPlayer(StrEnum):
         """
         return PLAYER_PROVIDERS.get(self)
 
+    @property
+    def bloc(self) -> GeoBloc:
+        """Get the geopolitical bloc of the player, `OTHER` for the aggregates spanning several blocs.
+
+        Returns:
+            GeoBloc: The bloc.
+        """
+        return PLAYER_BLOCS[self]
+
+
+@unique
+class UrlScheme(StrEnum):
+    """Enums representing the schemes of the page addresses kept for the products and software.
+
+    Attributes:
+        HTTP (str): A plain HTTP page.
+        HTTPS (str): A secure HTTP page.
+    """
+
+    HTTP = "http"
+    HTTPS = "https"
+
 
 PROVIDER_COUNTRIES: Final[Dict[CloudProvider, Country]] = {
     CloudProvider.AWS: Country.UNITED_STATES,
@@ -354,6 +376,10 @@ PROVIDER_COUNTRIES: Final[Dict[CloudProvider, Country]] = {
     CloudProvider.VOLCENGINE: Country.CHINA,
     CloudProvider.CTYUN: Country.CHINA,
     CloudProvider.ECLOUD: Country.CHINA,
+    CloudProvider.YANDEX_CLOUD: Country.RUSSIA,
+    CloudProvider.VK_CLOUD: Country.RUSSIA,
+    CloudProvider.CLOUD_RU: Country.RUSSIA,
+    CloudProvider.SELECTEL: Country.RUSSIA,
 }
 
 PLAYER_PROVIDERS: Final[Dict[MarketPlayer, CloudProvider]] = {
@@ -361,4 +387,30 @@ PLAYER_PROVIDERS: Final[Dict[MarketPlayer, CloudProvider]] = {
     MarketPlayer.MICROSOFT: CloudProvider.AZURE,
     MarketPlayer.GOOGLE: CloudProvider.GCP,
     MarketPlayer.DEUTSCHE_TELEKOM: CloudProvider.TCLOUD,
+}
+
+COUNTRY_BLOCS: Final[Dict[Country, GeoBloc]] = {
+    Country.UNITED_STATES: GeoBloc.UNITED_STATES,
+    Country.FRANCE: GeoBloc.EUROPEAN_UNION,
+    Country.BELGIUM: GeoBloc.EUROPEAN_UNION,
+    Country.GERMANY: GeoBloc.EUROPEAN_UNION,
+    Country.ITALY: GeoBloc.EUROPEAN_UNION,
+    Country.LUXEMBOURG: GeoBloc.EUROPEAN_UNION,
+    Country.SPAIN: GeoBloc.EUROPEAN_UNION,
+    Country.SWITZERLAND: GeoBloc.OTHER,
+    Country.UNITED_KINGDOM: GeoBloc.OTHER,
+    Country.CHINA: GeoBloc.CHINA,
+    Country.RUSSIA: GeoBloc.RUSSIA,
+}
+
+PLAYER_BLOCS: Final[Dict[MarketPlayer, GeoBloc]] = {
+    MarketPlayer.AMAZON: GeoBloc.UNITED_STATES,
+    MarketPlayer.MICROSOFT: GeoBloc.UNITED_STATES,
+    MarketPlayer.GOOGLE: GeoBloc.UNITED_STATES,
+    MarketPlayer.BIG_THREE: GeoBloc.UNITED_STATES,
+    MarketPlayer.EUROPEAN_PROVIDERS: GeoBloc.EUROPEAN_UNION,
+    MarketPlayer.SAP: GeoBloc.EUROPEAN_UNION,
+    MarketPlayer.DEUTSCHE_TELEKOM: GeoBloc.EUROPEAN_UNION,
+    MarketPlayer.NEOCLOUDS: GeoBloc.OTHER,
+    MarketPlayer.OTHERS: GeoBloc.OTHER,
 }

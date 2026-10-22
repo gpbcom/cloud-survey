@@ -1,0 +1,9 @@
+# Measures typed in from annual reports and analyst publications, loaded into `provider_metrics` (source: manual)
+# by `migrate-db seed`. Every value needs the document it was read from. Example:
+#
+#   values:
+#     - {provider: ovh-cloud, period: 2025Q4, metric: cloud-revenue, value: 0.28, source_url: "https://corporate.ovhcloud.com/…"}
+#
+# The periods are quarters (YYYYQn): a yearly figure goes on the last quarter of its year.
+
+values: []

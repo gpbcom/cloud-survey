@@ -78,7 +78,7 @@ def test_crawler_configurations_run_the_entrypoint_with_a_picked_target(launch: 
 def test_module_configurations_run_pytest_or_the_gui(launch: LaunchFile) -> None:
     modules = {configuration.module for configuration in launch.configurations if configuration.module is not None}
 
-    assert modules == {"pytest", "gui.app"}
+    assert modules == {"pytest", "gui.window.app"}
 
 
 def test_source_picker_lists_every_crawl_source(launch: LaunchFile) -> None:

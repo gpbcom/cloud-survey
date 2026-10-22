@@ -33,7 +33,7 @@
             "name": "GUI: catalogue explorer",
             "type": "debugpy",
             "request": "launch",
-            "module": "gui.app",
+            "module": "gui.window.app",
             "python": "${workspaceFolder}/.venv/bin/python",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
@@ -123,6 +123,10 @@
                 "volcano-engine",
                 "china-telecom-cloud",
                 "china-mobile-cloud",
+                "yandex-cloud",
+                "vk-cloud",
+                "cloud-ru",
+                "selectel",
                 "all"
             ],
             "default": "scaleway"
@@ -130,13 +134,17 @@
         {
             "id": "crawlerSource",
             "type": "pickString",
-            "description": "What to crawl (`CRAWLER_SOURCE`): the product catalogue, the marketplace software, both, reclassify the stored marketplace software without crawling, or the cloud market statistics (Synergy Research Group).",
+            "description": "What to crawl (`CRAWLER_SOURCE`): the product catalogue, the marketplace software, both, reclassify the stored marketplace software without crawling, the cloud market statistics (Synergy Research Group), import the JSON files of the former file storage (`output/`) into the database, translate the pending labels, categorize the unclassified items and match the equivalent services with the language model (`src/conf/llm.yaml`), match the equivalent catalogue services only, or compute the measures of the providers for the driver analysis.",
             "options": [
                 "catalogue",
                 "marketplace",
                 "both",
                 "reclassify",
-                "statistics"
+                "statistics",
+                "import-json",
+                "translate",
+                "correspond",
+                "metrics"
             ],
             "default": "catalogue"
         }

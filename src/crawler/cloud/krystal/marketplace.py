@@ -11,10 +11,12 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from classifier.software_classifier import SoftwareClassifier
+from crawler.cloud.krystal.enums import KrystalListingField, KrystalNextDataField, KrystalRequestMeta
 from crawler.exception import EmptyCatalogueError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_category import MarketplaceCategory
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class KrystalMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -22,8 +24,6 @@ class KrystalMarketplaceCrawler(BaseMarketplaceCrawler):
 
     Attributes:
         HOSTING_URL (ClassVar[str]): The prefix of the category and application pages, followed by their slug.
-        LISTING (ClassVar[str]): The meta key of an application page request, holding its listing (requested URL,
-            name and categories).
         SLUG (ClassVar[re.Pattern[str]]): A valid category or application slug.
         requested_urls (Set[str]): The category and application pages already requested.
 
@@ -37,11 +37,10 @@ class KrystalMarketplaceCrawler(BaseMarketplaceCrawler):
         (e.g. WooCommerce) giving only the description: the listing gives the name and categories. An application
         page redirected elsewhere (e.g. Mahara to the hosting home page) is skipped, it would describe another page.
         The category slugs given by the listings which are not known yet are requested too. The pages give no
-        publisher.
+        publisher. The marketplace taxonomy is flat: each category path is a category name, identified by its slug.
     """
 
     HOSTING_URL: ClassVar[str] = "https://krystal.io/hosting/"
-    LISTING: ClassVar[str] = "krystal_listing"
     SLUG: ClassVar[re.Pattern[str]] = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
     name = "krystal-marketplace"
@@ -84,7 +83,11 @@ class KrystalMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             Dict[str, JsonValue]: The `props.pageProps` object, empty when missing.
         """
-        return self._as_object(self._as_object(self._next_data(response).get("props")).get("pageProps"))
+        return self._as_object(
+            self._as_object(self._next_data(response).get(KrystalNextDataField.PROPS)).get(
+                KrystalNextDataField.PAGE_PROPS
+            )
+        )
 
     def _category_labels(self, categories: JsonValue) -> List[str]:
         """Read the labels of a list of categories.
@@ -96,7 +99,31 @@ class KrystalMarketplaceCrawler(BaseMarketplaceCrawler):
             List[str]: The category names, e.g. `["CMS"]`.
         """
         items = categories if isinstance(categories, list) else []
-        return [name for name in (self._as_text(self._as_object(item).get("name")) for item in items) if name]
+        return [
+            name
+            for name in (self._as_text(self._as_object(item).get(KrystalNextDataField.NAME)) for item in items)
+            if name
+        ]
+
+    def _category_paths(self, categories: JsonValue) -> List[Optional[MarketplaceCategory]]:
+        """Build the marketplace taxonomy categories of a list of categories.
+
+        Args:
+            categories (JsonValue): The categories, e.g. `[{"name": "CMS", "slug": "cms"}]`.
+
+        Returns:
+            List[Optional[MarketplaceCategory]]: One single level category per category, identified by its slug (else
+                its identifier), `None` for the categories without a usable name.
+        """
+        items = categories if isinstance(categories, list) else []
+        paths: List[Optional[MarketplaceCategory]] = []
+        for category in map(self._as_object, items):
+            identifier = self._as_text(category.get(KrystalNextDataField.SLUG)) or self._as_text(
+                category.get(KrystalNextDataField.ID)
+            )
+            paths.append(self._category([self._as_text(category.get(KrystalNextDataField.NAME))], identifier))
+        self.logger.debug("%d %s category paths read from %d categories.", len(paths), self.name, len(items))
+        return paths
 
     def _page_url(self, slug: Optional[str], kind: str) -> Optional[str]:
         """Get the URL of a category or application page not requested yet, and remember it.
@@ -129,19 +156,23 @@ class KrystalMarketplaceCrawler(BaseMarketplaceCrawler):
         Raises:
             EmptyCatalogueError: If the category page lists no application.
         """
-        frameworks = self._page_props(response).get("frameworks")
+        frameworks = self._page_props(response).get(KrystalNextDataField.FRAMEWORKS)
         if not isinstance(frameworks, list) or not frameworks:
             self.logger.error("The %s category page %s lists no application.", self.name, response.url)
             raise EmptyCatalogueError(self.name, response.url)
         requests: List[Request] = []
         for framework in map(self._as_object, frameworks):
-            categories = framework.get("categories")
+            categories = framework.get(KrystalNextDataField.CATEGORIES)
             for category in map(self._as_object, categories if isinstance(categories, list) else []):
-                if url := self._page_url(self._as_text(category.get("slug")), "category"):
+                if url := self._page_url(self._as_text(category.get(KrystalNextDataField.SLUG)), "category"):
                     requests.append(Request(url))
-            if url := self._page_url(self._as_text(framework.get("slug")), "application"):
-                listing: Dict[str, JsonValue] = {"url": url, "name": framework.get("name"), "categories": categories}
-                requests.append(Request(url, meta={self.LISTING: listing, self.MAY_BE_EMPTY: True}))
+            if url := self._page_url(self._as_text(framework.get(KrystalNextDataField.SLUG)), "application"):
+                listing: Dict[str, JsonValue] = {
+                    KrystalListingField.URL: url,
+                    KrystalListingField.NAME: framework.get(KrystalNextDataField.NAME),
+                    KrystalListingField.CATEGORIES: categories,
+                }
+                requests.append(Request(url, meta={KrystalRequestMeta.LISTING: listing, self.MAY_BE_EMPTY: True}))
         self.logger.info(
             "%s category page %s: %d applications listed, %d new pages requested.",
             self.name,
@@ -164,26 +195,34 @@ class KrystalMarketplaceCrawler(BaseMarketplaceCrawler):
         Yields:
             Iterator[MarketplaceSoftware]: The application, if valid and the page was not redirected.
         """
-        listing = self._as_object(response.meta.get(self.LISTING))
-        url = self._as_text(listing.get("url")) or response.url
+        listing = self._as_object(response.meta.get(KrystalRequestMeta.LISTING))
+        url = self._as_text(listing.get(KrystalListingField.URL)) or response.url
         if response.url.rstrip("/") != url.rstrip("/"):
             self.logger.warning(
                 "Skipping the %s application %r: its page %s is redirected to %s.",
                 self.name,
-                listing.get("name"),
+                listing.get(KrystalListingField.NAME),
                 url,
                 response.url,
             )
             return
         props = self._page_props(response)
-        labels = self._category_labels(props.get("categories")) + self._category_labels(listing.get("categories"))
-        description = self._as_text(self._as_object(props.get("meta")).get("description"))
+        labels = self._category_labels(props.get(KrystalNextDataField.CATEGORIES)) + self._category_labels(
+            listing.get(KrystalListingField.CATEGORIES)
+        )
+        paths = self._category_paths(props.get(KrystalNextDataField.CATEGORIES)) + self._category_paths(
+            listing.get(KrystalListingField.CATEGORIES)
+        )
+        description = self._as_text(
+            self._as_object(props.get(KrystalNextDataField.META)).get(KrystalNextDataField.DESCRIPTION)
+        )
         software = self._build_software(
-            self._as_text(props.get("name")) or self._as_text(listing.get("name")),
+            self._as_text(props.get(KrystalNextDataField.NAME)) or self._as_text(listing.get(KrystalListingField.NAME)),
             description or self._page_description(response),
             url,
             delivery=DeliveryMethod.ONE_CLICK_APP,
             marketplace_categories=labels,
+            marketplace_category_paths=paths,
         )
         if software is not None:
             yield software
@@ -197,7 +236,7 @@ class KrystalMarketplaceCrawler(BaseMarketplaceCrawler):
         Yields:
             Union[Dict[str, JsonValue], Request]: The application, else the page requests of a category page.
         """
-        if self.LISTING in response.meta:
+        if KrystalRequestMeta.LISTING in response.meta:
             async for item in super().parse(response):
                 yield item
             return

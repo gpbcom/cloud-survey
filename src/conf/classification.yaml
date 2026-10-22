@@ -1,63 +1,28 @@
-# Rules classifying the marketplace software into categories and types (see `classifier.software_classifier`).
+# Rules classifying the catalogue products and the marketplace software into the unified taxonomy
+# (`conf/taxonomy/taxonomy.yaml`, see `classifier.software_classifier`).
 #
-# The types of a software are, in this order of precedence:
-#   1. `name_rules`: well-known products, matched on the software name (e.g. Odoo is an ERP whatever its category).
-#   2. When the marketplace categories give more than 2 types (`category_rules`, over-ticked listings), the ones
-#      confirmed by `keyword_rules` (matched on the name, else on the description).
-#   3. The `category_rules` types together with the `keyword_rules` types of the name: when they disagree, both are
-#      usually partly right (e.g. an observability tool filed under development).
-#   4. The `keyword_rules` types of the description.
-#   5. Otherwise `other`.
-# The names are matched without their packaging suffix (`packaging_suffix`), e.g. `Grafana on Ubuntu 24.04` is
-# matched as `Grafana`: the operating system it is packaged on does not make it an operating system.
-# Its categories are those of its types (`type_categories`), plus the `category_hints` matched on the marketplace
-# categories. A software of type `other` only gets the category of its delivery method (`delivery_categories`).
+# The categories of an item are, in this order of precedence:
+#   1. `name_rules`: well-known products, matched on the name (e.g. Odoo is an ERP whatever its labels).
+#   2. When the source labels give more than 2 categories (over-ticked listings), the ones confirmed by
+#      `keyword_rules` (matched on the name, else on the description), a keyword confirming a label category of the same
+#      domain.
+#   3. The categories of the source labels together with the `keyword_rules` categories of the name.
+#   4. The `keyword_rules` categories of the description (within the domains of the labels when they only tell domains).
+#   5. `delivery_categories`, for a software (e.g. a virtual machine image), then `other`.
+# The categories of a source label are the links stored in the database: `category_rules` create them when a label is
+# first seen, and a person (or the language model) may change them. A rule may give a domain instead of a category, when
+# the label only tells the domain (e.g. `Compute`).
+# The names are matched without their packaging suffix (`packaging_suffix`), e.g. `Grafana on Ubuntu 24.04` is matched
+# as `Grafana`: the operating system (or hypervisor) it is packaged on does not make it an operating system, and
+# `CVAT Virtual Machine` as `CVAT`.
+# The audiences are those of the categories and domains (in the taxonomy), plus the `audience_hints` matched on the
+# labels, else `delivery_audiences` (software) or `product_audiences` (catalogue products).
+# The labels matching `noise_labels` (whole label) are not categories: they are ignored.
 # Patterns are case-insensitive Python regular expressions. `\\b` does not separate Latin words from Chinese characters
-# (both are word characters): `(?<![a-z])...(?![a-z])` is used instead around the short Latin words.
+# (both are word characters): `(?<![a-z])...(?![a-z])` is used instead around the short Latin words. Russian words are
+# matched by their stem (`[а-я]*` for the endings).
 
-type_categories:
-  ats: [end-user-software]
-  crm: [end-user-software]
-  erp: [end-user-software]
-  hris: [end-user-software]
-  accounting: [end-user-software]
-  ecommerce: [end-user-software]
-  cms: [end-user-software]
-  marketing: [end-user-software]
-  customer-service: [end-user-software]
-  collaboration: [end-user-software]
-  communication: [end-user-software]
-  project-management: [end-user-software]
-  document-management: [end-user-software]
-  business-intelligence: [end-user-software]
-  supply-chain: [end-user-software]
-  legal-compliance: [end-user-software]
-  e-learning: [end-user-software]
-  healthcare: [end-user-software]
-  media: [end-user-software]
-  itsm: [developer-tool]
-  ai-ml: [developer-tool, end-user-software]
-  database: [developer-tool]
-  data-integration: [developer-tool]
-  devops: [developer-tool]
-  development: [developer-tool]
-  low-code: [developer-tool, end-user-software]
-  testing: [developer-tool]
-  monitoring: [developer-tool]
-  security: [developer-tool]
-  identity: [developer-tool]
-  backup: [developer-tool]
-  storage: [developer-tool]
-  networking: [developer-tool]
-  operating-system: [developer-tool]
-  container: [developer-tool]
-  messaging: [developer-tool]
-  api-management: [developer-tool]
-  iot: [developer-tool]
-  blockchain: [developer-tool]
-  other: []
-
-delivery_categories:
+delivery_audiences:
   saas: [end-user-software]
   one-click-app: [end-user-software]
   download: [end-user-software]
@@ -68,226 +33,536 @@ delivery_categories:
   ai-model: [developer-tool]
   other: [end-user-software]
 
-packaging_suffix: "\\s*(?:\\bon\\b|\\bover\\b|\\bwith\\b|\\||-|_)\\s*(?:ubuntu|debian|centos|windows|rhel|red hat|rocky|alma ?linux|suse|amazon linux|oracle linux)(?![a-z]).*$"
+# A cloud catalogue product (compute, storage, databases...) of unknown audience is meant for the developers and IT teams.
+product_audiences: [developer-tool]
 
-category_hints:
-  - pattern: "developer|devops|development|开发|研发|运维"
-    categories: [developer-tool]
-  - pattern: "business (software|applications?)|enterprise app|企业应用|企业经营|企业管理|企业服务"
-    categories: [end-user-software]
+# The categories of a software nothing else classifies, by how it is delivered.
+delivery_categories:
+  virtual-machine: [machine-images]
+  container: [container]
+  kubernetes: [kubernetes]
+  one-click-app: [one-click-apps]
+  ai-model: [ai-models]
+  api: [sdks-apis]
+  download: [software-licenses]
+
+noise_labels:
+  - "products?|services?|solutions?|offers?|other|others|misc(ellaneous)?|all|featured|popular|new|more|general|categories|catalog(ue)?"
+  - "public cloud|cloud|cloud services|cloud products|cloud solutions|platform|platforms|infrastructure|enterprise"
+  - "powered by .*|partner solutions|partner products|partners?|marketplace|free trial|free tier|top sellers|best sellers"
+  - "in the russian software register|in the russian register.*|oracle cloud infrastructure|saas on oracle cloud platform"
+  - "продукты|услуги|решения|другое|прочее|все|популярное|новинки|партн[её]рские решения|индивидуальные решения|базовые сервисы"
+  - "其他|其它|全部|热门|推荐|产品|服务|解决方案|云产品|云服务"
+
+packaging_suffix: "(?:\\s*(?:\\bon\\b|\\bover\\b|\\bwith\\b|\\||-|_)\\s*(?:ubuntu|debian|centos|windows|rhel|red hat|rocky|alma ?linux|suse|amazon linux|oracle linux|vmware)(?![a-z]).*|\\s+virtual machine)$"
+
+audience_hints:
+  - pattern: "developer|devops|development|开发|研发|运维|инструменты для разработки|разработчик"
+    audiences: [developer-tool]
+  - pattern: "business (software|applications?)|enterprise app|企业应用|企业经营|企业管理|企业服务|прикладное по|бизнес-приложен"
+    audiences: [end-user-software]
 
 name_rules:
-  - pattern: "woocommerce|magento|prestashop|shopify|shopware|oscommerce|opencart|bigcommerce|sylius"
-    types: [ecommerce]
-  - pattern: "moodle|chamilo|canvas lms|open edx|totara"
-    types: [e-learning]
-  - pattern: "odoo|dolibarr|erpnext|netsuite|sap s/?4|sap business one|business central|用友|金蝶"
-    types: [erp]
-  - pattern: "matomo|metabase|superset|tableau|power bi|looker|redash|quick ?bi"
-    types: [business-intelligence]
-  - pattern: "orangehrm|bamboohr|workday|personio|sap successfactors"
-    types: [hris]
-  - pattern: "greenhouse|smartrecruiters|workable|recruitee|icims|lever ats"
-    types: [ats]
-  - pattern: "suitecrm|vtiger|espocrm|salesforce|hubspot|zoho crm|sugarcrm|dynamics 365 sales|纷享销客|销售易"
-    types: [crm]
-  - pattern: "osticket|zendesk|freshdesk|zammad|uvdesk|livechat"
-    types: [customer-service]
-  - pattern: "(?<![a-z])glpi(?![a-z])|(?<![a-z])itop(?![a-z])|servicenow|jira service management"
-    types: [itsm]
-  - pattern: "phplist|mautic|mailchimp|sendinblue|brevo|stape"
-    types: [marketing]
-  - pattern: "mantis|redmine|openproject|taiga|(?<![a-z])jira(?![a-z])|asana|trello|monday\\.com"
-    types: [project-management]
-  - pattern: "nextcloud|owncloud|onlyoffice|collabora|xwiki|confluence|wps|钉钉|飞书|企业微信"
-    types: [collaboration]
-  - pattern: "mattermost|rocket\\.?chat|jitsi|zulip|(?<![a-z])zoom(?![a-z])|microsoft teams|webex"
-    types: [communication]
-  - pattern: "wordpress|drupal|joomla|(?<![a-z])ghost(?![a-z])|typo3|concrete ?cms|umbraco|strapi|contao"
-    types: [cms]
-  - pattern: "gitlab|jenkins|argo ?cd|artifactory|sonatype nexus|sonarqube|gitea|(?<![a-z])gogs(?![a-z])|flux ?cd"
-    types: [devops]
-  - pattern: "grafana|prometheus|alertmanager|zabbix|icinga|nagios|datadog|(?<![a-z])loki(?![a-z])|new relic|dynatrace|splunk"
-    types: [monitoring]
-  - pattern: "postgres(ql)?|mysql|mariadb|mongodb|(?<![a-z])redis(?![a-z])|neo4j|cassandra|clickhouse|couchbase|cockroachdb|oceanbase|(?<![a-z])tidb(?![a-z])|polardb|gaussdb|opengauss|达梦|人大金仓"
-    types: [database]
-  - pattern: "keycloak|(?<![a-z])okta(?![a-z])|authentik|(?<![a-z])auth0(?![a-z])"
-    types: [identity]
-  - pattern: "passbolt|bitwarden|hashicorp vault|1password|keeper security"
-    types: [security, identity]
-  - pattern: "rabbitmq|apache kafka|(?<![a-z])kafka(?![a-z])|(?<![a-z])nats(?![a-z])|activemq|pulsar"
-    types: [messaging]
-  - pattern: "(?<![a-z])n8n(?![a-z])|uipath|(?<![a-z])pega(?![a-z])|power automate|zapier|node-red"
-    types: [low-code]
-  - pattern: "(?<![a-z])plesk(?![a-z])|cpanel|cyberpanel|webmin|virtualmin|宝塔"
-    types: [devops]
-  - pattern: "veeam|acronis|commvault|rubrik|cohesity"
-    types: [backup]
-  - pattern: "wireguard|openvpn|pfsense|opnsense|vyos"
-    types: [networking]
-  - pattern: "fortigate|palo alto|check point|crowdstrike|sophos|trend micro|kaspersky|zscaler"
-    types: [security]
-  - pattern: "ubuntu|debian|centos|red hat enterprise linux|(?<![a-z])rhel(?![a-z])|windows server|rocky linux|almalinux|opensuse|suse linux|oracle linux|amazon linux|麒麟|统信"
-    types: [operating-system]
-  - pattern: "docker|kubernetes|openshift|rancher|(?<![a-z])k3s(?![a-z])"
-    types: [container]
+  - {pattern: "woocommerce|magento|prestashop|shopify|shopware|oscommerce|opencart|bigcommerce|sylius", categories: [ecommerce]}
+  - {pattern: "moodle|chamilo|canvas lms|open edx|totara", categories: [e-learning]}
+  - {pattern: "odoo|dolibarr|erpnext|netsuite|sap s/?4|sap business one|business central|1[сc]:предприятие|1[сc]:erp|мойсклад|moysklad|用友|金蝶", categories: [erp]}
+  - {pattern: "matomo|metabase|superset|tableau|power bi|looker|redash|quick ?bi", categories: [business-intelligence]}
+  - {pattern: "orangehrm|bamboohr|workday|personio|sap successfactors", categories: [hris]}
+  - {pattern: "greenhouse|smartrecruiters|workable|recruitee|icims|lever ats", categories: [ats]}
+  - {pattern: "suitecrm|vtiger|espocrm|salesforce|hubspot|zoho crm|sugarcrm|dynamics 365 sales|纷享销客|销售易", categories: [crm]}
+  - {pattern: "osticket|zendesk|freshdesk|zammad|uvdesk|livechat", categories: [customer-service]}
+  - {pattern: "(?<![a-z])glpi(?![a-z])|(?<![a-z])itop(?![a-z])|servicenow|jira service management", categories: [itsm]}
+  - {pattern: "phplist|mautic|mailchimp|sendinblue|brevo|stape", categories: [marketing]}
+  - {pattern: "mantis|redmine|openproject|taiga|(?<![a-z])jira(?![a-z])|asana|trello|monday\\.com", categories: [project-management]}
+  - {pattern: "nextcloud|owncloud|onlyoffice|collabora|wps|钉钉|飞书|企业微信", categories: [collaboration]}
+  - {pattern: "xwiki|confluence|mediawiki|bookstack|dokuwiki", categories: [knowledge-management]}
+  - {pattern: "mattermost|rocket\\.?chat|zulip|microsoft teams", categories: [communication]}
+  - {pattern: "jitsi|(?<![a-z])zoom(?![a-z])|webex|bigbluebutton|телемост", categories: [video-conferencing]}
+  - {pattern: "wordpress|drupal|joomla|(?<![a-z])ghost(?![a-z])|typo3|concrete ?cms|umbraco|strapi|contao|bitrix|битрикс", categories: [cms]}
+  - {pattern: "jenkins|argo ?cd|flux ?cd|tekton|teamcity|circleci|github actions", categories: [ci-cd]}
+  - {pattern: "gitlab|gitea|(?<![a-z])gogs(?![a-z])|bitbucket|artifactory|sonatype nexus", categories: [source-control]}
+  - {pattern: "sonarqube|snyk|checkmarx|veracode|fortify", categories: [application-security]}
+  - {pattern: "terraform|pulumi|opentofu|cloudformation", categories: [infrastructure-as-code]}
+  - {pattern: "ansible|puppet|(?<![a-z])chef(?![a-z])|saltstack", categories: [configuration-management]}
+  - {pattern: "grafana|prometheus|alertmanager|zabbix|icinga|nagios|datadog|new relic|dynatrace", categories: [monitoring]}
+  - {pattern: "(?<![a-z])loki(?![a-z])|splunk|graylog|fluentd|logstash|(?<![a-z])elk(?![a-z])", categories: [logging]}
+  - {pattern: "postgres(ql)?|mysql|mariadb|sql server|oracle database|cockroachdb|oceanbase|(?<![a-z])tidb(?![a-z])|polardb|gaussdb|opengauss|达梦|人大金仓|(?<![a-z])rds(?![a-z])|aurora|cloud sql|alloydb", categories: [relational-database]}
+  - {pattern: "mongodb|cassandra|couchbase|couchdb|dynamodb|cosmos ?db|scylladb|firestore|tablestore", categories: [nosql-database]}
+  - {pattern: "(?<![a-z])redis(?![a-z])|memcached|valkey|keydb|elasticache|memorystore", categories: [in-memory-cache]}
+  - {pattern: "neo4j|arangodb|janusgraph|nebula ?graph|neptune|tigergraph", categories: [graph-database]}
+  - {pattern: "influxdb|timescaledb|victoriametrics|questdb|opentsdb|tdengine", categories: [time-series-database]}
+  - {pattern: "milvus|qdrant|weaviate|pinecone|chroma ?db|pgvector|zilliz", categories: [vector-database]}
+  - {pattern: "clickhouse|snowflake|bigquery|redshift|greenplum|vertica|maxcompute|starrocks|databend|synapse", categories: [data-warehouse]}
+  - {pattern: "elasticsearch|opensearch|(?<![a-z])solr(?![a-z])|meilisearch|typesense|manticore", categories: [search-engines]}
+  - {pattern: "hadoop|(?<![a-z])spark(?![a-z])|databricks|dataproc|(?<![a-z])emr(?![a-z])|(?<![a-z])hive(?![a-z])|presto|trino", categories: [big-data]}
+  - {pattern: "(?<![a-z])flink(?![a-z])|kinesis data analytics|stream analytics", categories: [streaming-analytics]}
+  - {pattern: "airflow|prefect|dagster|step functions|camunda|argo workflows", categories: [workflow-orchestration]}
+  - {pattern: "keycloak|(?<![a-z])okta(?![a-z])|authentik|(?<![a-z])auth0(?![a-z])|entra id|azure ad", categories: [single-sign-on]}
+  - {pattern: "freeipa|openldap|active directory|389 directory", categories: [directory-services]}
+  - {pattern: "cyberark|beyondtrust|delinea|thycotic", categories: [privileged-access]}
+  - {pattern: "passbolt|bitwarden|hashicorp vault|1password|keeper security|key vault|secrets manager|lockbox", categories: [key-management]}
+  - {pattern: "rabbitmq|activemq|(?<![a-z])sqs(?![a-z])|zeromq", categories: [messaging]}
+  - {pattern: "apache kafka|(?<![a-z])kafka(?![a-z])|pulsar|event ?hubs|redpanda", categories: [event-streaming]}
+  - {pattern: "(?<![a-z])n8n(?![a-z])|uipath|(?<![a-z])pega(?![a-z])|power automate|zapier|node-red|appsmith|budibase|retool", categories: [low-code]}
+  - {pattern: "(?<![a-z])plesk(?![a-z])|cpanel|cyberpanel|webmin|virtualmin|宝塔|ispmanager", categories: [cloud-management]}
+  - {pattern: "veeam|acronis|commvault|rubrik|cohesity|bacula|kopia|restic", categories: [backup]}
+  - {pattern: "zerto|site recovery", categories: [disaster-recovery]}
+  - {pattern: "wireguard|openvpn|direct connect|expressroute|cloud interconnect", categories: [vpn-interconnect]}
+  - {pattern: "pfsense|opnsense|fortigate|palo alto|check point|usergate|zscaler|netskope", categories: [network-security]}
+  - {pattern: "vyos|mikrotik", categories: [networking]}
+  - {pattern: "haproxy|big-?ip|traefik", categories: [load-balancing]}
+  - {pattern: "cloudflare|akamai|fastly|cloudfront", categories: [cdn]}
+  - {pattern: "crowdstrike|sophos|trend micro|kaspersky|касперск|(?<![a-z])eset(?![a-z])|bitdefender|sentinelone|dr\\.? ?web", categories: [endpoint-protection]}
+  - {pattern: "wazuh|qradar|microsoft sentinel|max ?patrol siem", categories: [siem-soc]}
+  - {pattern: "nessus|qualys|tenable|openvas|rapid7|acunetix", categories: [vulnerability-management]}
+  - {pattern: "astra linux|астра линукс|red os|ред ос|alt linux|альт линукс|麒麟|统信|kylin", categories: [secure-domestic-os]}
+  - {pattern: "ubuntu|debian|centos|red hat enterprise linux|(?<![a-z])rhel(?![a-z])|rocky linux|almalinux|opensuse|suse linux|oracle linux|amazon linux|fedora|alpine linux", categories: [linux-distributions]}
+  - {pattern: "windows server", categories: [windows-server]}
+  - {pattern: "kubernetes|openshift|rancher|(?<![a-z])k3s(?![a-z])|(?<![a-z])eks(?![a-z])|(?<![a-z])aks(?![a-z])|(?<![a-z])gke(?![a-z])|(?<![a-z])mk8s(?![a-z])|kapsule", categories: [kubernetes]}
+  - {pattern: "docker|podman|containerd|container instances|cloud run|fargate", categories: [container]}
+  - {pattern: "istio|linkerd", categories: [service-mesh]}
+  - {pattern: "harbor|container registry|artifact registry", categories: [container-registry]}
+  - {pattern: "vmware|vsphere|vcenter|esxi", categories: [vmware]}
+  - {pattern: "proxmox|hyper-v|(?<![a-z])kvm(?![a-z])|xenserver|nutanix|openstack|zvirt", categories: [virtualization]}
+  - {pattern: "(?<![a-z])ec2(?![a-z])|compute engine|elastic compute service|(?<![a-z])cvm(?![a-z])|(?<![a-z])vps(?![a-z])|droplets?|云服务器|弹性计算", categories: [virtual-machines]}
+  - {pattern: "bare.?metal|dedicated servers?|裸金属", categories: [bare-metal]}
+  - {pattern: "(?<![a-z])lambda(?![a-z])|cloud functions|azure functions|function compute|函数计算", categories: [serverless]}
+  - {pattern: "(?<![a-z])s3(?![a-z])|object storage|blob storage|对象存储", categories: [object-storage]}
+  - {pattern: "(?<![a-z])ebs(?![a-z])|block storage|persistent disk|managed disks|云硬盘", categories: [block-storage]}
+  - {pattern: "(?<![a-z])efs(?![a-z])|filestore|azure files|文件存储", categories: [file-storage]}
+  - {pattern: "glacier|archive storage|归档存储", categories: [archive-storage]}
+  - {pattern: "route ?53|cloud dns|云解析", categories: [dns-domains]}
+  - {pattern: "certificate manager|let'?s encrypt", categories: [ssl-certificates]}
+  - {pattern: "sagemaker|vertex ai|azure machine learning|mlflow|kubeflow|datasphere", categories: [ai-ml]}
+  - {pattern: "bedrock|openai|chatgpt|(?<![a-z])gpt-?[0-9]|claude|gemini|llama|mistral|qwen|通义|文心|豆包|deepseek|gigachat|yandexgpt", categories: [generative-ai]}
+  - {pattern: "copilot|agentforce|智能体|ии-агент", categories: [ai-agents]}
+  - {pattern: "(?<![a-z])mcp(?![a-z])|model context protocol", categories: [mcp-servers]}
+  - {pattern: "rekognition|vision api|face recognition|人脸识别", categories: [computer-vision]}
+  - {pattern: "transcribe|(?<![a-z])polly(?![a-z])|speechkit", categories: [speech]}
+  - {pattern: "(?<![a-z])translate(?![a-z])|translator|机器翻译", categories: [language-translation]}
+  - {pattern: "textract|form recognizer|document ai", categories: [document-ai]}
+  - {pattern: "docusign|adobe sign|yousign|dropbox sign|диадок", categories: [e-signature]}
 
 category_rules:
-  - pattern: "talent.?acquisition|recruit|applicant|hiring|招聘"
-    types: [ats]
-  - pattern: "customer relationship|(?<![a-z])crm(?![a-z])|客户关系|客户管理|销售管理"
-    types: [crm]
-  - pattern: "enterprise resource planning|(?<![a-z])erp(?![a-z])|(?<![a-z])sap(?![a-z])|企业资源"
-    types: [erp]
-  - pattern: "human.?resources?|(?<![a-z])hr(?![a-z])|(?<![a-z])hcm(?![a-z])|payroll|talent.?management|workforce|人事|人力资源|薪酬"
-    types: [hris]
-  - pattern: "accounting|billing|invoic|(?<![a-z])tax|expense|财务|财税|发票|记账"
-    types: [accounting]
-  - pattern: "(?<![a-z])e[- ]?commerce|commerce|retail|online store|(?<![a-z])shops?(?![a-z])|point of sale|(?<![a-z])pos(?![a-z])|payment|merchant services|digital ordering|电商|零售|商城"
-    types: [ecommerce]
-  - pattern: "(?<![a-z])cms(?![a-z])|content management|blog|website|web.?site|web apps|portal|建站(?!推广)|网站|小程序"
-    types: [cms]
-  - pattern: "marketing|advertis|(?<![a-z])seo(?![a-z])|social media|tag manager|(?<!建站)推广|营销|广告"
-    types: [marketing]
-  - pattern: "customer (service|support|experience|engagement)|contact.?cent|help.?desk|call cent|客服|呼叫中心"
-    types: [customer-service]
-  - pattern: "collaboration|productivity|(?<!back )office|协同|办公|协作"
-    types: [collaboration]
-  - pattern: "communication|(?<![a-z])e[- ]?mail|messaging apps|corporate messaging|telephon|(?<![a-z])voip(?![a-z])|conferenc|forum|bulletin board|community|邮箱|通信|通讯|视频会议|论坛"
-    types: [communication]
-  - pattern: "project.?management|task.?and.?project|agile lifecycle|项目管理"
-    types: [project-management]
-  - pattern: "document|(?<![a-z])e[- ]?signature|(?<![a-z])ecm(?![a-z])|(?<![a-z])ocr(?![a-z])|文档|文字识别|电子签"
-    types: [document-management]
-  - pattern: "business intelligence|analytics|reporting|visuali[sz]ation|power.?bi|dashboard|商业智能|数据分析|数据智能|报表|可视化"
-    types: [business-intelligence]
-  - pattern: "supply chain|procurement|logistic|inventory|manufactur|operations.?and.?supply|供应链|采购|物流|制造"
-    types: [supply-chain]
-  - pattern: "legal|compliance|(?<![a-z])grc(?![a-z])|governance,? risk|risk management|法务|合规|风控"
-    types: [legal-compliance]
-  - pattern: "(?<![a-z])e[- ]?learning|education|(?<![a-z])training(?! data)|(?<![a-z])lms(?![a-z])|learning management|learning (&|and) training|教育|培训|课程"
-    types: [e-learning]
-  - pattern: "health|medical|life science|(?<![a-z])hospitals?(?![a-z])|医疗|健康"
-    types: [healthcare]
-  - pattern: "media|video|streaming|audio|(?<!machine )image(?! builder)|photo|视频|直播|音频|图像|媒体"
-    types: [media]
-  - pattern: "(?<![a-z])itsm(?![a-z])|it service|service management|it (business )?management|it and management|asset management|system administration|运维管理"
-    types: [itsm]
-  - pattern: "artificial intelligence|(?<![a-z])ai(?![a-z])|machine learning|(?<![a-z])ml(?![a-z])|generative|(?<![a-z])llm|ai agents?|agentic|agents? (&|and) tools|agent tools|computer vision|natural language|(?<![a-z])nlp(?![a-z])|人工智能|机器学习|大模型|智能体|数字人"
-    types: [ai-ml]
-  - pattern: "database|(?<![a-z])sql(?![a-z])|nosql|caching|data management|数据库|缓存"
-    types: [database]
-  - pattern: "data integration|(?<![a-z])etl(?![a-z])|data processing|big data|data pipeline|data transfer|data platform|migration|大数据|数据集成|数据处理|迁移"
-    types: [data-integration]
-  - pattern: "devops|ci.?cd|continuous|source control|infrastructure as code|(?<![a-z])iac(?![a-z])|automation tools|server panel|control panel|开发运维|持续集成|代码管理"
-    types: [devops]
-  - pattern: "application development|developer tools|(?<!data )development|app(lication)? stacks?|application servers|runtime|running environment|middleware|frameworks?|(?<![a-z])compute(?![a-z])|high.performance computing|(?<![a-z])hpc(?![a-z])|geolocation|(?<![a-z])maps?(?![a-z])|开发(?!运维)|中间件|运行环境|工具软件"
-    types: [development]
-  - pattern: "low.?code|no.?code|workflow automation|intelligent automation|robotic process|service orchestration|^automation$|power platform|低代码|零代码"
-    types: [low-code]
-  - pattern: "testing|(?<![a-z])test(?![a-z])|quality assurance|bug tracking|issue (&|and) bug|测试"
-    types: [testing]
-  - pattern: "monitor|observab|logging|log analysis|diagnostic|(?<![a-z])apm(?![a-z])|cloud management|监控|日志"
-    types: [monitoring]
-  - pattern: "security|firewall|threat|vulnerab|antivirus|malware|encryption|siem|安全|防火墙|防护"
-    types: [security]
-  - pattern: "identity|access management|(?<![a-z])iam(?![a-z])|single sign|(?<![a-z])sso(?![a-z])|authenticat|身份|认证"
-    types: [identity]
-  - pattern: "backup|disaster recovery|recovery|备份|容灾|灾备"
-    types: [backup]
-  - pattern: "storage|存储"
-    types: [storage]
-  - pattern: "network|(?<![a-z])vpn(?![a-z])|load balanc|(?<![a-z])cdn(?![a-z])|sd.?wan|(?<![a-z])dns(?![a-z])|service mesh|网络|负载均衡"
-    types: [networking]
-  - pattern: "operating system|(?<![a-z])os(?![a-z])|virtual desktop|remote desktop|linux|操作系统|云桌面"
-    types: [operating-system]
-  - pattern: "container|kubernetes|(?<![a-z])k8s(?![a-z])|helm|容器"
-    types: [container]
-  - pattern: "message queue|event stream|消息队列"
-    types: [messaging]
-  - pattern: "(?<![a-z])api(?![a-z])|api management|api gateway|(?<!data )integration|(?<![a-z])mcp(?![a-z])|插件|API服务"
-    types: [api-management]
-  - pattern: "internet of things|(?<![a-z])iot(?![a-z])|物联网"
-    types: [iot]
-  - pattern: "blockchain|web3|区块链"
-    types: [blockchain]
+  - {pattern: "(?<![a-z])compute(?![a-z])|computing|(?<![a-z])计算(?!机)|вычислени", categories: [compute]}
+  - {pattern: "virtual machines?|cloud servers?|elastic compute|云服务器|弹性计算|виртуальн[а-я]* машин|облачн[а-я]* сервер", categories: [virtual-machines]}
+  - {pattern: "bare.?metal|dedicated servers?|裸金属|выделенн[а-я]* сервер", categories: [bare-metal]}
+  - {pattern: "(?<![a-z])gpus?(?![a-z])|accelerat|(?<![a-z])tpu(?![a-z])|异构计算|графическ[а-я]* ускорител", categories: [gpu]}
+  - {pattern: "high.performance computing|(?<![a-z])hpc(?![a-z])|supercomput|高性能计算|высокопроизводительн", categories: [hpc]}
+  - {pattern: "serverless|(?<![a-z])faas(?![a-z])|函数|бессерверн", categories: [serverless]}
+  - {pattern: "batch computing|批量计算|пакетн[а-я]* вычислени", categories: [batch-computing]}
+  - {pattern: "spot instances?|preemptible|interruptible|抢占式|прерываем", categories: [spot-instances]}
+  - {pattern: "edge computing|(?<![a-z])edge(?![a-z])|边缘|граничн", categories: [edge-computing]}
+  - {pattern: "machine images?|(?<![a-z])vm images?|server templates?|appliances?|镜像(?!仓库)|образ[а-я]* (вм|машин|серв)", categories: [machine-images]}
+  - {pattern: "mainframe|legacy|(?<![a-z])as/?400", categories: [mainframe]}
+  - {pattern: "containers?(?! registry)|容器(?!镜像)|контейнер", categories: [container]}
+  - {pattern: "kubernetes|(?<![a-z])k8s(?![a-z])|(?<![a-z])helm(?![a-z])|(?<![a-z])mk8s(?![a-z])", categories: [kubernetes]}
+  - {pattern: "container registr|镜像仓库|реестр[а-я]* (образов|контейнер)", categories: [container-registry]}
+  - {pattern: "service mesh|服务网格", categories: [service-mesh]}
+  - {pattern: "operating systems?|operation systems?|(?<![a-z])os(?![a-z])|操作系统|операционн", categories: [operating-system]}
+  - {pattern: "(?<![a-z])linux(?![a-z])", categories: [linux-distributions]}
+  - {pattern: "windows", categories: [windows-server]}
+  - {pattern: "virtual desktops?|remote desktops?|(?<![a-z])vdi(?![a-z])|desktop as a service|云桌面|виртуальн[а-я]* рабоч", categories: [virtual-desktops]}
+  - {pattern: "virtuali[sz]ation|hypervisor|虚拟化|виртуализац", categories: [virtualization]}
+  - {pattern: "vmware", categories: [vmware]}
+  - {pattern: "private cloud|частн[а-я]* облак|私有云|专属云", categories: [private-cloud]}
+  - {pattern: "sovereign|certified cloud|аттестованн|政务云|合规云|суверенн", categories: [sovereign-cloud]}
+  - {pattern: "hybrid|multi.?cloud|混合云|多云|гибридн|мультиоблак", categories: [hybrid-multicloud]}
+  - {pattern: "storage|(?<![a-z])存储|хранилищ|хранени", categories: [storage]}
+  - {pattern: "object storage|对象存储|объектн[а-я]* хранилищ", categories: [object-storage]}
+  - {pattern: "block storage|(?<![a-z])disks?(?![a-z])|云硬盘|блочн[а-я]* хранилищ", categories: [block-storage]}
+  - {pattern: "file (storage|systems?)|文件存储|файлов[а-я]* (хранилищ|систем)", categories: [file-storage]}
+  - {pattern: "archiv|归档|архив", categories: [archive-storage]}
+  - {pattern: "data transfer|数据传输|перенос данных", categories: [data-transfer]}
+  - {pattern: "storage (management|gateways?)|software.defined storage|存储管理|управлени[а-я]* хранени", categories: [storage-management]}
+  - {pattern: "backup|备份|резервн|бэкап", categories: [backup]}
+  - {pattern: "disaster recovery|容灾|灾备|аварийн", categories: [disaster-recovery]}
+  - {pattern: "replication|数据复制|репликац", categories: [replication]}
+  - {pattern: "high availability|高可用|отказоустойчив", categories: [high-availability]}
+  - {pattern: "network|网络|сетев|(?<![а-я])сет(и|ь)(?![а-я])", categories: [networking]}
+  - {pattern: "(?<![a-z])vpc(?![a-z])|virtual networks?|private network|私有网络|виртуальн[а-я]* сет", categories: [virtual-networks]}
+  - {pattern: "load balanc|负载均衡|балансировк", categories: [load-balancing]}
+  - {pattern: "(?<![a-z])vpn(?![a-z])|interconnect|direct connect|专线|выделенн[а-я]* канал", categories: [vpn-interconnect]}
+  - {pattern: "sd.?wan", categories: [sd-wan]}
+  - {pattern: "(?<![a-z])cdn(?![a-z])|content delivery|内容分发|доставк[а-я]* контент", categories: [cdn]}
+  - {pattern: "network monitoring|网络监控|мониторинг сети", categories: [network-monitoring]}
+  - {pattern: "(?<![a-z])5g(?![a-z])|telecom|(?<![a-z])lte(?![a-z])|mobile network|电信|телеком", categories: [telecom-5g]}
+  - {pattern: "satellite|卫星|спутник", categories: [satellite-connectivity]}
+  - {pattern: "(?<![a-z])dns(?![a-z])|domains?|域名|домен", categories: [dns-domains]}
+  - {pattern: "(?<![a-z])ssl(?![a-z])|(?<![a-z])tls(?![a-z])|certificates?|证书|сертификат", categories: [ssl-certificates]}
+  - {pattern: "hosting|虚拟主机|хостинг", categories: [web-hosting]}
+  - {pattern: "website build|建站|конструктор[а-я]* сайт|web sites", categories: [website-builders]}
+  - {pattern: "one.click|一键|в один клик", categories: [one-click-apps]}
+  - {pattern: "(?<![a-z])e[- ]?mail|(?<![a-z])mail(?![a-z])|邮箱|邮件|почт", categories: [email]}
+  - {pattern: "database|(?<![a-z])sql(?![a-z])|数据库|баз[а-я]* данных|(?<![а-я])[сc]убд", categories: [database]}
+  - {pattern: "relational|(?<![a-z])rdbms|关系型|реляционн", categories: [relational-database]}
+  - {pattern: "nosql|document databases?|key.value|文档数据库|нереляционн", categories: [nosql-database]}
+  - {pattern: "caching|(?<![a-z])cache|缓存|кеш|кэш", categories: [in-memory-cache]}
+  - {pattern: "graph databases?|图数据库|графов[а-я]* (баз|субд)", categories: [graph-database]}
+  - {pattern: "time.series|时序|временн[а-я]* ряд", categories: [time-series-database]}
+  - {pattern: "vector|向量|векторн", categories: [vector-database]}
+  - {pattern: "database tools|database management|数据库工具", categories: [database-tools]}
+  - {pattern: "data platform|data-платформ|платформ[а-я]* данных|数据平台|data management|работа с данными|data (&|and) analytics", categories: [data-analytics]}
+  - {pattern: "data warehouses?|数据仓库|хранилищ[а-я]* данных|(?<![a-z])dwh(?![a-z])", categories: [data-warehouse]}
+  - {pattern: "data lakes?|lakehouse|数据湖|озер[а-я]* данных", categories: [data-lake]}
+  - {pattern: "big data|大数据|больш[а-я]* данн", categories: [big-data]}
+  - {pattern: "data integration|(?<![a-z])etl(?![a-z])|data pipeline|data processing|数据集成|数据处理|обработк[а-я]* данных|интеграци[яи] данных", categories: [data-integration]}
+  - {pattern: "streaming analytics|real.time analytics|stream processing|实时计算|потоков[а-я]* (аналитик|обработк)", categories: [streaming-analytics]}
+  - {pattern: "business intelligence|analytics|reporting|visuali[sz]ation|dashboard|商业智能|数据分析|数据智能|报表|可视化|аналитик|анализ данных", categories: [business-intelligence]}
+  - {pattern: "data governance|data quality|data catalog|master data|(?<![a-z])mdm(?![a-z])|数据治理|управлени[а-я]* данными", categories: [data-governance]}
+  - {pattern: "(?<![a-z])search|搜索|поиск", categories: [search-engines]}
+  - {pattern: "geolocation|geospatial|(?<![a-z])gis(?![a-z])|(?<![a-z])maps?(?![a-z])|地图|地理|геоданн", categories: [geospatial]}
+  - {pattern: "notebooks?|jupyter|data science|数据科学", categories: [data-science-notebooks]}
+  - {pattern: "datasets?|data products?|data exchange|数据集|数据交易|набор[а-я]* данных", categories: [open-data-datasets]}
+  - {pattern: "message queues?|messaging(?! apps)|消息队列|брокер[а-я]* сообщений|очеред[иь] сообщений", categories: [messaging]}
+  - {pattern: "event stream|event bus|事件流|потоки событий", categories: [event-streaming]}
+  - {pattern: "workflow|orchestration|工作流|编排|оркестрац", categories: [workflow-orchestration]}
+  - {pattern: "(?<![a-z])ipaas|(?<!data )integration|connectors?|(?<![a-z])esb(?![a-z])|(?<!数据)集成|интеграци(?![яи] данных)", categories: [ipaas]}
+  - {pattern: "api management|api gateway|(?<![a-z])apis?(?![a-z])|API服务|插件", categories: [api-management]}
+  - {pattern: "artificial intelligence|(?<![a-z])ai(?![a-z])|ai/ml|machine learning|(?<![a-z])ml(?![a-z])|人工智能|机器学习|искусственн[а-я]* интеллект|(?<![а-я])ии(?![а-я])|машинн[а-я]* обучени", categories: [ai-machine-learning]}
+  - {pattern: "ml platform|machine learning platform|mlops|ml-платформ|机器学习平台|模型平台", categories: [ai-ml]}
+  - {pattern: "generative|(?<![a-z])llms?(?![a-z])|large language|foundation models?|genai|大模型|生成式|генеративн|языков[а-я]* модел", categories: [generative-ai]}
+  - {pattern: "ai agents?|agentic|agents? (&|and) tools|agent tools|(?<![a-z])agents?(?![a-z])|copilot|assistants?|智能体|ai-агент|ии-агент|ассистент", categories: [ai-agents]}
+  - {pattern: "(?<![a-z])mcp(?![a-z])|mcp-сервер", categories: [mcp-servers]}
+  - {pattern: "(?<![a-z])models?(?![a-z])|algorithms?|(?<![a-z])模型(?!平台)|(?<![а-я])модел[ьи]", categories: [ai-models]}
+  - {pattern: "computer vision|(?<![a-z])vision(?![a-z])|image recognition|视觉|图像识别|компьютерн[а-я]* зрени", categories: [computer-vision]}
+  - {pattern: "speech|(?<![a-z])voice|语音|речев|(?<![а-я])реч[ьи]|голос", categories: [speech]}
+  - {pattern: "natural language|(?<![a-z])nlp(?![a-z])|translation|自然语言|翻译|перевод", categories: [language-translation]}
+  - {pattern: "(?<![a-z])ocr(?![a-z])|document (ai|understanding)|intelligent document|文字识别|распознавани[а-я]* документ", categories: [document-ai]}
+  - {pattern: "recommend|personali[sz]|推荐|рекомендац", categories: [recommendation]}
+  - {pattern: "labell?ing|annotation|数据标注|разметк", categories: [data-labeling]}
+  - {pattern: "ai infrastructure|ai factory|inference|model serving|training clusters?|算力|智算|инференс", categories: [ai-infrastructure]}
+  - {pattern: "security|safety|(?<![a-z])安全|безопасност", categories: [security]}
+  - {pattern: "endpoint|antivirus|anti.?malware|(?<![a-z])edr(?![a-z])|终端安全|антивирус", categories: [endpoint-protection]}
+  - {pattern: "firewall|(?<![a-z])ngfw|intrusion|network security|secure web gateway|防火墙|межсетев[а-я]* экран|сетев[а-я]* безопасност", categories: [network-security]}
+  - {pattern: "application security|(?<![a-z])waf(?![a-z])|code (security|scanning)|应用安全|безопасност[а-я]* приложени", categories: [application-security]}
+  - {pattern: "(?<![a-z])cspm|cnapp|cloud security|workload protection|云安全|облачн[а-я]* безопасност", categories: [cloud-security-posture]}
+  - {pattern: "data (security|protection)|(?<![a-z])dlp(?![a-z])|data loss|数据安全|защит[а-я]* данных", categories: [data-security]}
+  - {pattern: "encryption|(?<![a-z])kms(?![a-z])|(?<![a-z])hsm(?![a-z])|secrets?(?![a-z])|keys? management|加密|密钥|шифровани", categories: [key-management]}
+  - {pattern: "(?<![a-z])siem|(?<![a-z])soar|(?<![a-z])soc(?![a-z])(?!\\s*[123](?![0-9]))|security operations|threat (detection|intelligence)|态势感知|анализ событий", categories: [siem-soc]}
+  - {pattern: "vulnerab|penetration|pentest|attack surface|漏洞|уязвим", categories: [vulnerability-management]}
+  - {pattern: "email security|anti.?spam|phishing|邮件安全|защит[а-я]* почт", categories: [email-security]}
+  - {pattern: "ddos|anti.?bot|抗d|защит[а-я]* от ddos", categories: [ddos-protection]}
+  - {pattern: "identity|access management|(?<![a-z])iam(?![a-z])|authenticat|身份|认证|идентификац|аутентификац|управлени[а-я]* доступ", categories: [identity]}
+  - {pattern: "single sign|(?<![a-z])sso(?![a-z])|federation|单点登录|единый вход", categories: [single-sign-on]}
+  - {pattern: "privileged|(?<![a-z])pam(?![a-z])|bastion|堡垒机|привилегированн", categories: [privileged-access]}
+  - {pattern: "directory|(?<![a-z])ldap(?![a-z])|目录服务|служб[а-я]* каталог", categories: [directory-services]}
+  - {pattern: "customer identity|(?<![a-z])ciam(?![a-z])", categories: [customer-identity]}
+  - {pattern: "application development|developer (tools|services)|(?<!data )development|开发(?!运维)|软件工具|工具软件|разработк|инструменты разработчика|инструменты для разработки", categories: [developer-tools]}
+  - {pattern: "app(lication)? stacks?|running environment|运行环境|(?<![а-я])стек", categories: [development]}
+  - {pattern: "(?<![a-z])ides?(?![a-z])|code editors?|开发工具|сред[а-я]* разработки", categories: [ides-editors]}
+  - {pattern: "application servers|runtimes?|middleware|frameworks?|中间件|运行时|промежуточн[а-я]* по", categories: [frameworks-runtimes]}
+  - {pattern: "(?<![a-z])sdks?(?![a-z])|software development kit", categories: [sdks-apis]}
+  - {pattern: "source control|code (repositor|management)|(?<![a-z])git(?![a-z])|artifact|代码托管|代码管理|制品|репозитор", categories: [source-control]}
+  - {pattern: "testing|(?<![a-z])test(?![a-z])|quality assurance|bug tracking|issue (&|and) bug|测试|тестировани", categories: [testing]}
+  - {pattern: "low.?code|no.?code|robotic process|(?<![a-z])rpa(?![a-z])|power platform|^automation$|intelligent automation|低代码|零代码|лоу-?код|ноу-?код", categories: [low-code]}
+  - {pattern: "(?<![a-z])paas(?![a-z])|application platforms?|app engine|app service|应用平台|платформ[а-я]* приложени", categories: [application-platforms]}
+  - {pattern: "devops|开发运维|инструменты devops", categories: [devops]}
+  - {pattern: "ci.?cd|cicd|continuous|持续集成|持续交付|непрерывн", categories: [ci-cd]}
+  - {pattern: "infrastructure as code|(?<![a-z])iac(?![a-z])|基础设施即代码|инфраструктур[а-я]* как код", categories: [infrastructure-as-code]}
+  - {pattern: "configuration management|automation tools|配置管理|управлени[а-я]* конфигурац", categories: [configuration-management]}
+  - {pattern: "release|feature flags?|发布|релиз", categories: [release-management]}
+  - {pattern: "monitor|observab|alerting|diagnostic|监控|告警|мониторинг|наблюдаем", categories: [monitoring]}
+  - {pattern: "logging|(?<![a-z])logs?(?![a-z])|log (analysis|management)|日志|(?<![а-я])лог(и|ов|ировани)|журнал", categories: [logging]}
+  - {pattern: "(?<![a-z])apm(?![a-z])|application performance|tracing|应用性能|производительност[а-я]* приложени", categories: [apm]}
+  - {pattern: "(?<![a-z])itsm(?![a-z])|it service|service management|it (business )?management|it and management|service desk|运维管理|управлени[а-я]* ит-услуг", categories: [itsm]}
+  - {pattern: "cloud management|management (&|and) (governance|administration)|administration|management tools|server panel|control panel|resource management|管理与监控|管理工具|управление и администрирование|администрирование|управлени[а-я]* облак", categories: [cloud-management]}
+  - {pattern: "finops|cost management|cost optimi[sz]ation|billing management|费用|成本|затрат", categories: [finops]}
+  - {pattern: "cloud governance|polic(y|ies)|landing zones?|治理|策略|политик", categories: [governance-policy]}
+  - {pattern: "internet of things|(?<![a-z])iot(?![a-z])|物联网|интернет вещей", categories: [iot]}
+  - {pattern: "industrial|(?<![a-z])scada(?![a-z])|(?<![a-z])iiot|工业|промышленн", categories: [industrial-iot]}
+  - {pattern: "digital twins?|数字孪生|цифров[а-я]* двойник", categories: [digital-twins]}
+  - {pattern: "robot(?!ic process)|drones?|机器人|无人机|робот|дрон", categories: [robotics]}
+  - {pattern: "blockchain|区块链|блокчейн", categories: [blockchain]}
+  - {pattern: "quantum|量子|квантов", categories: [quantum]}
+  - {pattern: "(?<![a-z])ar(?![a-z])|(?<![a-z])vr(?![a-z])|augmented|virtual reality|metaverse|(?<![a-z])3d(?![a-z])|元宇宙|增强现实|虚拟现实|метавселенн", categories: [ar-vr]}
+  - {pattern: "web3|crypto|(?<![a-z])nfts?(?![a-z])|digital assets|数字资产|криптовалют", categories: [web3]}
+  - {pattern: "business (applications?|software)|enterprise applications?|企业应用|企业服务|бизнес-приложен|прикладное по|решения для бизнеса|(?<![а-я])бизнес(?![а-я])", categories: [business-applications]}
+  - {pattern: "enterprise resource planning|(?<![a-z])erp(?![a-z])|(?<![a-z])sap(?![a-z])|企业资源", categories: [erp]}
+  - {pattern: "accounting|bookkeeping|invoic|(?<![a-z])tax|expense|financ(e|ial planning)|财务|财税|发票|记账|финанс|бухгалтер|расч[её]ты", categories: [accounting]}
+  - {pattern: "procurement|sourcing|(?<![a-z])spend|purchas|采购|закупк", categories: [procurement]}
+  - {pattern: "supply chain|logistic|inventory|warehouse management|operations.?and.?supply|供应链|物流|库存|логистик|склад", categories: [supply-chain]}
+  - {pattern: "asset management|maintenance|facilit|(?<![a-z])eam(?![a-z])|(?<![a-z])cmms|资产管理|управлени[а-я]* активами|тоир", categories: [asset-management]}
+  - {pattern: "legal|compliance|(?<![a-z])grc(?![a-z])|governance,? risk|risk management|contract management|audit|法务|合规|风控|юриспруденц|соответстви", categories: [legal-compliance]}
+  - {pattern: "project.?management|task.?and.?project|agile lifecycle|work management|项目管理|управлени[а-я]* проект", categories: [project-management]}
+  - {pattern: "(?<![a-z])esg(?![a-z])|sustainab|carbon|emission|(?<![a-z])碳|可持续|устойчив[а-я]* развити", categories: [esg-sustainability]}
+  - {pattern: "business process|(?<![a-z])bpm(?![a-z])|process mining|流程管理|бизнес-процесс", categories: [bpm]}
+  - {pattern: "human.?resources?|(?<![a-z])hr(?![a-z])|(?<![a-z])hcm(?![a-z])|talent.?management|人事|人力资源|кадр|персонал", categories: [hris]}
+  - {pattern: "talent.?acquisition|recruit|applicant|hiring|招聘|рекрутинг|подбор[а-я]* персонала", categories: [ats]}
+  - {pattern: "payroll|薪酬|зарплат", categories: [payroll]}
+  - {pattern: "workforce|scheduling|time (tracking|and attendance)|考勤|排班|учет рабочего времени", categories: [workforce-management]}
+  - {pattern: "employee (experience|engagement)|performance management|员工体验|вовлеч[её]нност", categories: [employee-experience]}
+  - {pattern: "customer relationship|(?<![a-z])crm(?![a-z])|客户关系|客户管理|销售管理", categories: [crm]}
+  - {pattern: "marketing|(?<![a-z])seo(?![a-z])|tag manager|(?<!建站)推广|营销|маркетинг", categories: [marketing]}
+  - {pattern: "advertis|ad tech|广告|реклам", categories: [advertising]}
+  - {pattern: "social (media|networks?)|社交|соцсет|социальн[а-я]* сет", categories: [social-media]}
+  - {pattern: "customer data|(?<![a-z])cdp(?![a-z])|客户数据|клиентск[а-я]* данн", categories: [customer-data-platform]}
+  - {pattern: "surveys?|feedback|问卷|опрос", categories: [surveys-feedback]}
+  - {pattern: "(?<![a-z])sales(?![a-z])|(?<![a-z])cpq(?![a-z])|proposals?|销售(?!管理)|продаж", categories: [sales-enablement]}
+  - {pattern: "(?<![a-z])e[- ]?commerce|commerce|online store|(?<![a-z])shops?(?![a-z])|digital ordering|电商|商城|электронн[а-я]* коммерц|интернет-магазин", categories: [ecommerce]}
+  - {pattern: "payments?|merchant services|支付|платеж", categories: [payments]}
+  - {pattern: "point of sale|(?<![a-z])pos(?![a-z])|收银|касс", categories: [point-of-sale]}
+  - {pattern: "booking|reservations?|预订|预约|бронировани", categories: [booking-reservations]}
+  - {pattern: "loyalty|rewards|coupons?|会员|积分|лояльност", categories: [loyalty]}
+  - {pattern: "customer (service|support|experience|engagement)|help.?desk|ticketing|客服|служб[а-я]* поддержки", categories: [customer-service]}
+  - {pattern: "contact.?cent|call cent|呼叫中心|контакт-центр|колл-центр", categories: [contact-center]}
+  - {pattern: "chatbots?|conversational|virtual agents?|聊天机器人|чат-бот", categories: [chatbots]}
+  - {pattern: "field service|现场服务|выездн", categories: [field-service]}
+  - {pattern: "collaboration|productivity|(?<!back )office|协同|办公|协作|совместн[а-я]* работ|офис", categories: [collaboration]}
+  - {pattern: "communication|messaging apps|corporate messaging|telephon|(?<![a-z])voip(?![a-z])|forum|bulletin board|community|(?<![a-z])通信|通讯|论坛|коммуникац|мессенджер|телефони", categories: [communication]}
+  - {pattern: "conferenc|webinars?|meetings?|视频会议|видеоконференц|вебинар", categories: [video-conferencing]}
+  - {pattern: "document|(?<![a-z])ecm(?![a-z])|(?<![a-z])文档|документооборот", categories: [document-management]}
+  - {pattern: "(?<![a-z])e[- ]?signature|digital signature|电子签|электронн[а-я]* подпис", categories: [e-signature]}
+  - {pattern: "file sharing|file sync|cloud drive|网盘|文件共享|обмен файлами", categories: [file-sharing]}
+  - {pattern: "knowledge|wiki|intranet|知识|база знаний|вики", categories: [knowledge-management]}
+  - {pattern: "(?<![a-z])cms(?![a-z])|content management|blog|websites?|web.?site|web apps|portal|网站|小程序|(?<![а-я])сайт", categories: [cms]}
+  - {pattern: "(?<![a-z])e[- ]?learning|(?<![a-z])lms(?![a-z])|learning management|online courses?|在线教育|课程|электронн[а-я]* обучени|онлайн-обучени", categories: [e-learning]}
+  - {pattern: "education|school|universit|campus|(?<![a-z])教育|教务|学校|образовани|школ|(?<![а-я])вуз", categories: [education-management]}
+  - {pattern: "(?<![a-z])training(?! data)|certification|培训|сертификаци", categories: [training-certification]}
+  - {pattern: "industr(y|ies)|verticals?|行业应用|行业系统|(?<![a-z])行业|отраслев", categories: [industry-solutions]}
+  - {pattern: "health|medical|(?<![a-z])ehr(?![a-z])|(?<![a-z])hospitals?(?![a-z])|医疗|健康|медицин|здравоохранени", categories: [healthcare]}
+  - {pattern: "life science|pharma|biotech|genom|生命科学|制药|фарм", categories: [life-sciences]}
+  - {pattern: "financial services|banking|(?<![a-z])bank|fintech|trading|wealth|金融|银行|(?<![а-я])банк|финансов[а-я]* услуг", categories: [financial-services]}
+  - {pattern: "insurance|保险|страховани", categories: [insurance]}
+  - {pattern: "government|public sector|smart cit|e-gov|政务|政府|госсектор|государствен", categories: [public-sector]}
+  - {pattern: "retail|consumer goods|零售|ритейл|розничн", categories: [retail]}
+  - {pattern: "manufactur|(?<![a-z])mes(?![a-z])|(?<![a-z])plm(?![a-z])|factory|制造|производств", categories: [manufacturing]}
+  - {pattern: "energy|utilit|oil (and|&) gas|smart grid|能源|电力|энергетик|жкх", categories: [energy-utilities]}
+  - {pattern: "telecommunications|(?<![a-z])bss(?![a-z])|运营商|оператор[а-я]* связи", categories: [telecommunications]}
+  - {pattern: "hospitality|hotels?|restaurants?|food (and|&) beverage|travel|guest experience|酒店|餐饮|旅游|гостиниц|ресторан|туризм", categories: [hospitality]}
+  - {pattern: "transport|mobility|fleet|aviation|airline|交通|出行|транспорт", categories: [transportation-logistics]}
+  - {pattern: "automotive|connected car|汽车|автомобил", categories: [automotive]}
+  - {pattern: "real estate|property management|construction|(?<![a-z])bim(?![a-z])|房地产|建筑|недвижимост|строительств", categories: [real-estate]}
+  - {pattern: "agricultur|(?<![a-z])farm|农业|сельск", categories: [agriculture]}
+  - {pattern: "media|video|streaming|broadcast|audio|(?<!machine )images?(?! builder)|photo|视频|直播|音频|图像|媒体|видео|медиа", categories: [media]}
+  - {pattern: "gaming|games?|游戏|(?<![а-я])игр", categories: [gaming]}
+  - {pattern: "law firms?|legal services|律所|юридическ[а-я]* услуг", categories: [legal-services]}
+  - {pattern: "non.?profit|(?<![a-z])ngo(?![a-z])|charit|fundrais|公益|некоммерч", categories: [nonprofit]}
+  - {pattern: "professional services|consulting|implementation|咨询|实施|консалтинг|внедрени", categories: [professional-services]}
+  - {pattern: "managed services?|outsourc|托管服务|управляем[а-я]* услуг", categories: [managed-services]}
+  - {pattern: "(?<![a-z])support(?![a-z])|技术支持|техническ[а-я]* поддержк", categories: [technical-support]}
+  - {pattern: "migration|migrate|迁移|миграци", categories: [migration]}
+  - {pattern: "licen[cs]es?|subscriptions?|许可|лицензи", categories: [software-licenses]}
 
 keyword_rules:
-  - pattern: "(?<![a-z])ats(?![a-z])|applicant tracking|recruit|hiring|talent acquisition|招聘"
-    types: [ats]
-  - pattern: "(?<![a-z])crm(?![a-z])|customer relationship|sales pipeline|客户关系"
-    types: [crm]
-  - pattern: "(?<![a-z])erp(?![a-z])|enterprise resource planning|企业资源"
-    types: [erp]
-  - pattern: "(?<![a-z])hris?(?![a-z])|(?<![a-z])hcm(?![a-z])|human resources?|payroll|employee (experience|onboarding)|人事|人力资源|薪酬"
-    types: [hris]
-  - pattern: "accounting|invoic|billing|bookkeeping|expense management|(?<![a-z])tax(?![a-z])|财务|发票|记账"
-    types: [accounting]
-  - pattern: "(?<![a-z])e[- ]?commerce|online store|webshop|point of sale|电商|商城"
-    types: [ecommerce]
-  - pattern: "(?<![a-z])cms(?![a-z])|content management system|website builder|(?<![a-z])blog(?![a-z])|建站"
-    types: [cms]
-  - pattern: "marketing|advertis|(?<![a-z])seo(?![a-z])|newsletter|social media|tag manager|server.?side tagging|营销|广告"
-    types: [marketing]
-  - pattern: "help.?desk|contact.?cent|call cent|customer (service|support)|ticketing|chatbot|客服"
-    types: [customer-service]
-  - pattern: "office suite|collaborat|whiteboard|file sharing|intranet|productivity|协同办公|协作"
-    types: [collaboration]
-  - pattern: "(?<![a-z])e[- ]?mail|(?<![a-z])smtp(?![a-z])|(?<![a-z])chat(?![a-z])|messenger|video conferenc|(?<![a-z])voip(?![a-z])|telephon|forum|邮箱|视频会议"
-    types: [communication]
-  - pattern: "project management|task management|kanban|项目管理"
-    types: [project-management]
-  - pattern: "document management|(?<![a-z])e[- ]?signature|(?<![a-z])ocr(?![a-z])|(?<![a-z])pdf(?![a-z])|(?<![a-z])ecm(?![a-z])|文档|电子签"
-    types: [document-management]
-  - pattern: "business intelligence|(?<![a-z])bi(?![a-z])|dashboards?|reporting|analytics|商业智能|数据分析|报表"
-    types: [business-intelligence]
-  - pattern: "supply chain|procurement|logistic|inventory|warehouse management|供应链|物流"
-    types: [supply-chain]
-  - pattern: "compliance|(?<![a-z])gdpr(?![a-z])|governance|risk management|audit|合规"
-    types: [legal-compliance]
-  - pattern: "(?<![a-z])lms(?![a-z])|(?<![a-z])e[- ]?learning|learning management|online courses?|education|教育|培训"
-    types: [e-learning]
-  - pattern: "healthcare|medical|clinical|patient|hospital|医疗"
-    types: [healthcare]
-  - pattern: "video|streaming|transcod|media server|image processing|audio|视频|直播"
-    types: [media]
-  - pattern: "(?<![a-z])itsm(?![a-z])|service desk|it asset"
-    types: [itsm]
-  - pattern: "(?<![a-z])ai(?![a-z])|(?<![a-z])ml(?![a-z])|artificial intelligence|machine learning|(?<![a-z])llms?(?![a-z])|generative|(?<![a-z])gpt|ai agents?|agentic|deep learning|tensorflow|pytorch|jupyter|rstudio|langchain|langsmith|(?<![a-z])ray(?![a-z])|neural|computer vision|(?<![a-z])nlp(?![a-z])|人工智能|大模型|智能体"
-    types: [ai-ml]
-  - pattern: "database|(?<![a-z])sql(?![a-z])|数据库"
-    types: [database]
-  - pattern: "(?<![a-z])etl(?![a-z])|data integration|data pipeline|airflow|spark|hadoop|data lake|data warehouse|大数据"
-    types: [data-integration]
-  - pattern: "ci/?cd|continuous (integration|delivery|deployment)|terraform|ansible|devops|gitops|code.?server|(?<![a-z])git(hub)?(?![a-z])|repository manag"
-    types: [devops]
-  - pattern: "(?<![a-z])ide(?![a-z])|(?<![a-z])sdk(?![a-z])|framework|(?<![a-z])lamp(?![a-z])|(?<![a-z])lemp(?![a-z])|node\\.?js|(?<![a-z])php(?![a-z])|(?<![a-z])java(?![a-z])|python|\\.net(?![a-z])|application server|tomcat|nginx|apache|laravel|symfony|django|gradle|maven|(?<![a-z])scala(?![a-z])|golang|(?<![a-z])rust(?![a-z])|ruby|(?<![a-z])perl(?![a-z])"
-    types: [development]
-  - pattern: "low.?code|no.?code|workflow automation|robotic process automation|(?<![a-z])rpa(?![a-z])|低代码"
-    types: [low-code]
-  - pattern: "testing|test automation|load test|selenium|(?<![a-z])qa(?![a-z])|测试"
-    types: [testing]
-  - pattern: "monitoring|observability|alerting|(?<![a-z])apm(?![a-z])|logging|log management|syslog|metrics|监控|日志"
-    types: [monitoring]
-  - pattern: "security|firewall|(?<![a-z])waf(?![a-z])|threat|vulnerab|antivirus|malware|(?<![a-z])siem(?![a-z])|ddos|encryption|intrusion|deception|attack surface|exposure management|secrets? manag|password manager|安全|防火墙"
-    types: [security]
-  - pattern: "identity|(?<![a-z])iam(?![a-z])|single sign|(?<![a-z])sso(?![a-z])|active directory|(?<![a-z])mfa(?![a-z])|passwordless|webauthn|fido2|身份认证"
-    types: [identity]
-  - pattern: "back.?up|disaster recovery|restore|备份|容灾|灾备"
-    types: [backup]
-  - pattern: "storage|(?<![a-z])nas(?![a-z])|(?<![a-z])san(?![a-z])|object store|minio|存储"
-    types: [storage]
-  - pattern: "(?<![a-z])vpn(?![a-z])|load balanc|(?<![a-z])cdn(?![a-z])|sd.?wan|router|(?<![a-z])dns(?![a-z])|proxy|service mesh|网络"
-    types: [networking]
-  - pattern: "operating system|virtual desktop|(?<![a-z])vdi(?![a-z])|desktop.as.a.service|remote desktop|操作系统|云桌面"
-    types: [operating-system]
-  - pattern: "kubernetes|(?<![a-z])k8s(?![a-z])|docker|container|helm|容器"
-    types: [container]
-  - pattern: "message queue|(?<![a-z])mqtt(?![a-z])|event streaming|消息队列"
-    types: [messaging]
-  - pattern: "api management|api gateway|(?<![a-z])apis?(?![a-z])|(?<![a-z])mcp(?![a-z])|插件"
-    types: [api-management]
-  - pattern: "(?<![a-z])iot(?![a-z])|internet of things|物联网"
-    types: [iot]
-  - pattern: "blockchain|web3|crypto|区块链"
-    types: [blockchain]
+  - {pattern: "(?<![a-z])ats(?![a-z])|applicant tracking|recruit|hiring|talent acquisition|招聘|подбор[а-я]* персонала|рекрутинг|(?<![а-я])ваканси", categories: [ats]}
+  - {pattern: "(?<![a-z])crm(?![a-z])|customer relationship|sales pipeline|客户关系|управлени[а-я]* (отношениями с )?клиент", categories: [crm]}
+  - {pattern: "(?<![a-z])erp(?![a-z])|enterprise resource planning|企业资源|управлени[а-я]* предприяти|1[сc]:предприятие", categories: [erp]}
+  - {pattern: "(?<![a-z])hris?(?![a-z])|(?<![a-z])hcm(?![a-z])|human resources?|employee onboarding|人事|人力资源|кадров|персонал", categories: [hris]}
+  - {pattern: "payroll|薪酬|зарплат", categories: [payroll]}
+  - {pattern: "accounting|invoic|bookkeeping|expense management|(?<![a-z])tax(?![a-z])|财务|发票|记账|бухгалтер|бухучет|(?<![а-я])налог|(?<![а-я])1[сc](?![а-я])", categories: [accounting]}
+  - {pattern: "billing|payment gateway|online payments?|支付|платеж|эквайринг", categories: [payments]}
+  - {pattern: "(?<![a-z])e[- ]?commerce|online store|webshop|电商|商城|интернет-магазин|электронн[а-я]* коммерц", categories: [ecommerce]}
+  - {pattern: "point of sale|(?<![a-z])pos system|收银|кассов", categories: [point-of-sale]}
+  - {pattern: "(?<![a-z])cms(?![a-z])|content management system|(?<![a-z])blog(?![a-z])|(?<![а-я])сайт", categories: [cms]}
+  - {pattern: "website builder|landing page|(?<![a-z])建站|конструктор[а-я]* сайт", categories: [website-builders]}
+  - {pattern: "web hosting|shared hosting|хостинг|虚拟主机", categories: [web-hosting]}
+  - {pattern: "marketing|(?<![a-z])seo(?![a-z])|newsletter|tag manager|server.?side tagging|营销|маркетинг|рассылк", categories: [marketing]}
+  - {pattern: "advertis|ad server|programmatic|广告|реклам", categories: [advertising]}
+  - {pattern: "social media|社交媒体|соцсет", categories: [social-media]}
+  - {pattern: "help.?desk|customer (service|support)|ticketing|客服|служб[а-я]* поддержки", categories: [customer-service]}
+  - {pattern: "contact.?cent|call cent|呼叫中心|контакт-центр|колл-центр", categories: [contact-center]}
+  - {pattern: "chatbots?|чат-бот|聊天机器人|virtual agent", categories: [chatbots]}
+  - {pattern: "office suite|collaborat|whiteboard|productivity|协同办公|协作|совместн[а-я]* работ|офисн[а-я]* пакет|онлайн-офис", categories: [collaboration]}
+  - {pattern: "file sharing|file sync|cloud drive|网盘|обмен файлами", categories: [file-sharing]}
+  - {pattern: "intranet|knowledge base|(?<![a-z])wiki(?![a-z])|知识库|база знаний", categories: [knowledge-management]}
+  - {pattern: "(?<![a-z])chat(?![a-z])|messenger|(?<![a-z])voip(?![a-z])|telephon|forum|мессенджер|телефони", categories: [communication]}
+  - {pattern: "video conferenc|webinars?|online meetings?|视频会议|видеоконференц|вебинар", categories: [video-conferencing]}
+  - {pattern: "(?<![a-z])e[- ]?mail|(?<![a-z])smtp(?![a-z])|mailbox|邮箱|почт", categories: [email]}
+  - {pattern: "project management|task management|kanban|项目管理|управлени[а-я]* проект|таск-трекер", categories: [project-management]}
+  - {pattern: "document management|(?<![a-z])pdf(?![a-z])|(?<![a-z])ecm(?![a-z])|(?<![a-z])文档|документооборот|(?<![а-я])эдо(?![а-я])", categories: [document-management]}
+  - {pattern: "(?<![a-z])e[- ]?signature|电子签|электронн[а-я]* подпис", categories: [e-signature]}
+  - {pattern: "(?<![a-z])ocr(?![a-z])|document (ai|understanding|extraction)|invoice (processing|capture|recognition)|文字识别|票据识别|распознавани[а-я]* документ", categories: [document-ai]}
+  - {pattern: "business intelligence|(?<![a-z])bi(?![a-z])|dashboards?|reporting|analytics|商业智能|数据分析|报表|бизнес-аналитик|аналитик|отч[её]т|дашборд|визуализац", categories: [business-intelligence]}
+  - {pattern: "supply chain|logistic|inventory|warehouse management|供应链|物流|логистик|складск", categories: [supply-chain]}
+  - {pattern: "procurement|sourcing|采购|закупк", categories: [procurement]}
+  - {pattern: "compliance|(?<![a-z])gdpr(?![a-z])|(?<![a-z])grc(?![a-z])|governance,? risk|(?<![a-z])isms(?![a-z])|iso 27001|risk management|audit|合规|юриди|юриспруденц", categories: [legal-compliance]}
+  - {pattern: "(?<![a-z])esg(?![a-z])|carbon footprint|sustainability|碳排放|углеродн", categories: [esg-sustainability]}
+  - {pattern: "(?<![a-z])lms(?![a-z])|(?<![a-z])e[- ]?learning|learning management|online courses?|(?<![a-z])教育|培训|онлайн-обучени|образовательн|дистанционн[а-я]* обучени", categories: [e-learning]}
+  - {pattern: "healthcare|medical|clinical|patient|(?<![a-z])hospitals?(?![a-z])|(?<![a-z])ehr(?![a-z])|医疗|медицин", categories: [healthcare]}
+  - {pattern: "banking|fintech|trading platform|wealth management|银行|(?<![а-я])банк", categories: [financial-services]}
+  - {pattern: "insurance|保险|страхов", categories: [insurance]}
+  - {pattern: "(?<![a-z])hotels?(?![a-z])|restaurants?|hospitality|酒店|餐饮|гостиниц|ресторан", categories: [hospitality]}
+  - {pattern: "manufactur|(?<![a-z])mes(?![a-z])|(?<![a-z])plm(?![a-z])|制造|производствен", categories: [manufacturing]}
+  - {pattern: "video|streaming|transcod|media server|image processing|audio|视频|直播|видео|стриминг|трансляци", categories: [media]}
+  - {pattern: "game server|gaming|game engine|游戏|игров", categories: [gaming]}
+  - {pattern: "(?<![a-z])itsm(?![a-z])|service desk|it asset", categories: [itsm]}
+  - {pattern: "(?<![a-z])ai(?![a-z])|(?<![a-z])ml(?![a-z])|artificial intelligence|machine learning|deep learning|tensorflow|pytorch|(?<![a-z])ray(?![a-z])|neural|人工智能|искусственн[а-я]* интеллект|машинн[а-я]* обучени|нейросет|(?<![а-я])ии(?![а-я])", categories: [ai-ml]}
+  - {pattern: "(?<![a-z])llms?(?![a-z])|generative|(?<![a-z])gpt|large language model|foundation model|大模型|生成式|больш[а-я]* языков[а-я]* модел|генеративн", categories: [generative-ai]}
+  - {pattern: "ai agents?|agentic|langchain|langgraph|copilot|智能体|ии-агент", categories: [ai-agents]}
+  - {pattern: "(?<![a-z])mcp(?![a-z])|model context protocol|mcp-сервер", categories: [mcp-servers]}
+  - {pattern: "jupyter|rstudio|notebook|data science", categories: [data-science-notebooks]}
+  - {pattern: "computer vision|image recognition|object detection|face recognition|视觉|图像识别|компьютерн[а-я]* зрени", categories: [computer-vision]}
+  - {pattern: "speech|(?<![a-z])voice|text.to.speech|语音|(?<![а-я])речь|голосов", categories: [speech]}
+  - {pattern: "(?<![a-z])nlp(?![a-z])|natural language|machine translation|翻译|машинн[а-я]* перевод", categories: [language-translation]}
+  - {pattern: "inference|gpu cluster|model serving|算力|инференс", categories: [ai-infrastructure]}
+  - {pattern: "(?<![a-z])gpus?(?![a-z])|(?<![a-z])cuda(?![a-z])|nvidia|(?<![a-z])h100|(?<![a-z])a100|accelerator|видеокарт", categories: [gpu]}
+  - {pattern: "virtual machines?|virtual servers?|cloud servers?|(?<![a-z])vps(?![a-z])|云服务器|виртуальн[а-я]* (машин|сервер)|облачн[а-я]* сервер", categories: [virtual-machines]}
+  - {pattern: "bare.?metal|dedicated servers?|裸金属|выделенн[а-я]* сервер", categories: [bare-metal]}
+  - {pattern: "serverless|functions? as a service|event.driven functions|бессерверн|函数计算", categories: [serverless]}
+  - {pattern: "(?<![a-z])ami(?![a-z])|machine image|pre-?configured (image|vm|server)|ready-to-use image|(?<![a-z])vm image|镜像|готов[а-я]* образ", categories: [machine-images]}
+  - {pattern: "database|(?<![a-z])sql(?![a-z])|数据库|баз[а-я]* данных|(?<![а-я])[сc]убд(?![а-я])", categories: [database]}
+  - {pattern: "relational database|(?<![a-z])rdbms|postgres(ql)?|mysql|mariadb|sql server|关系型|реляционн", categories: [relational-database]}
+  - {pattern: "nosql|document database|key.value store", categories: [nosql-database]}
+  - {pattern: "in-memory|(?<![a-z])cache|кэш|кеш|缓存", categories: [in-memory-cache]}
+  - {pattern: "vector (database|search|store)|embeddings|向量|векторн", categories: [vector-database]}
+  - {pattern: "(?<![a-z])etl(?![a-z])|(?<![a-z])elt(?![a-z])|data integration|data pipeline|change data capture|(?<![a-z])cdc(?![a-z])|интеграци[яи] данных", categories: [data-integration]}
+  - {pattern: "data warehouse|(?<![a-z])dwh(?![a-z])|(?<![a-z])olap(?![a-z])|数据仓库|хранилищ[а-я]* данных", categories: [data-warehouse]}
+  - {pattern: "data lake|lakehouse|iceberg|delta lake|数据湖|озер[а-я]* данных", categories: [data-lake]}
+  - {pattern: "big data|大数据|больш[а-я]* данн", categories: [big-data]}
+  - {pattern: "data governance|data catalog|data quality|data lineage|master data|数据治理|управлени[а-я]* данными", categories: [data-governance]}
+  - {pattern: "full.text search|search engine|搜索引擎|поисков[а-я]* (движ|систем)", categories: [search-engines]}
+  - {pattern: "(?<![a-z])gis(?![a-z])|geospatial|geolocation|(?<![a-z])maps?(?![a-z])|地图|геоданн|картограф", categories: [geospatial]}
+  - {pattern: "ci/?cd|continuous (integration|delivery|deployment)|непрерывн[а-я]* (интеграц|доставк)", categories: [ci-cd]}
+  - {pattern: "terraform|infrastructure as code|cloudformation|(?<![a-z])iac(?![a-z])", categories: [infrastructure-as-code]}
+  - {pattern: "ansible|puppet|configuration management|saltstack", categories: [configuration-management]}
+  - {pattern: "devops|gitops|code.?server", categories: [devops]}
+  - {pattern: "(?<![a-z])git(hub|lab)?(?![a-z])|repository manag|artifact|репозитори", categories: [source-control]}
+  - {pattern: "(?<![a-z])ide(?![a-z])|code editor|visual studio|vs ?code|сред[а-я]* разработки", categories: [ides-editors]}
+  - {pattern: "(?<![a-z])sdk(?![a-z])|rest api|graphql", categories: [sdks-apis]}
+  - {pattern: "framework|(?<![a-z])lamp(?![a-z])|(?<![a-z])lemp(?![a-z])|node\\.?js|(?<![a-z])php(?![a-z])|(?<![a-z])java(?![a-z])|python|\\.net(?![a-z])|application server|tomcat|nginx|apache|laravel|symfony|django|golang|ruby|middleware|веб-приложени", categories: [frameworks-runtimes]}
+  - {pattern: "low.?code|no.?code|workflow automation|robotic process automation|(?<![a-z])rpa(?![a-z])|低代码|без написания кода|автоматизац[а-я]* бизнес-процесс|ноу-?код|лоу-?код", categories: [low-code]}
+  - {pattern: "testing|test automation|load test|selenium|(?<![a-z])qa(?![a-z])|测试|тестировани", categories: [testing]}
+  - {pattern: "monitoring|observability|alerting|metrics|监控|мониторинг", categories: [monitoring]}
+  - {pattern: "logging|log management|syslog|日志|логировани|журнал[а-я]* событий", categories: [logging]}
+  - {pattern: "(?<![a-z])apm(?![a-z])|distributed tracing|application performance", categories: [apm]}
+  - {pattern: "cost (management|optimi[sz]ation)|finops|cloud spend|成本优化|затрат[а-я]* на облако", categories: [finops]}
+  - {pattern: "control panel|server management|cloud management|运维面板|панел[а-я]* управлени", categories: [cloud-management]}
+  - {pattern: "security|threat|malware|deception|exposure management|(?<![a-z])安全|безопасност|защит[а-я]* (от|информац)", categories: [security]}
+  - {pattern: "firewall|(?<![a-z])ngfw|(?<![a-z])utm(?![a-z])|ids/ips|intrusion|防火墙|межсетев[а-я]* экран|вторжени", categories: [network-security]}
+  - {pattern: "(?<![a-z])waf(?![a-z])|(?<![a-z])waap(?![a-z])|web application firewall|web application and api protection|code scanning|(?<![a-z])sast|(?<![a-z])dast", categories: [application-security]}
+  - {pattern: "antivirus|anti.?malware|(?<![a-z])edr(?![a-z])|(?<![a-z])xdr(?![a-z])|endpoint protection|антивирус", categories: [endpoint-protection]}
+  - {pattern: "(?<![a-z])siem(?![a-z])|(?<![a-z])soar(?![a-z])|(?<![a-z])soc(?![a-z])(?!\\s*[123](?![0-9]))|security operations", categories: [siem-soc]}
+  - {pattern: "vulnerab|penetration test|pentest|attack surface|漏洞|уязвим", categories: [vulnerability-management]}
+  - {pattern: "encryption|secrets? manag|password manager|(?<![a-z])kms(?![a-z])|(?<![a-z])hsm(?![a-z])|шифровани|加密", categories: [key-management]}
+  - {pattern: "(?<![a-z])dlp(?![a-z])|data loss|data masking|защит[а-я]* данных", categories: [data-security]}
+  - {pattern: "ddos|anti.?bot|защит[а-я]* от ddos", categories: [ddos-protection]}
+  - {pattern: "anti.?spam|phishing|email security|защит[а-я]* почт", categories: [email-security]}
+  - {pattern: "identity|(?<![a-z])iam(?![a-z])|(?<![a-z])mfa(?![a-z])|passwordless|webauthn|fido2|身份认证|аутентификац|многофакторн|управлени[а-я]* доступ", categories: [identity]}
+  - {pattern: "single sign|(?<![a-z])sso(?![a-z])|(?<![a-z])saml(?![a-z])|openid|oauth", categories: [single-sign-on]}
+  - {pattern: "active directory|(?<![a-z])ldap(?![a-z])", categories: [directory-services]}
+  - {pattern: "privileged access|(?<![a-z])pam(?![a-z])|bastion|堡垒机", categories: [privileged-access]}
+  - {pattern: "back.?up|restore|备份|резервн[а-я]* копи|бэкап", categories: [backup]}
+  - {pattern: "disaster recovery|容灾|灾备|аварийн[а-я]* восстановлен", categories: [disaster-recovery]}
+  - {pattern: "replication|репликац", categories: [replication]}
+  - {pattern: "storage|(?<![a-z])san(?![a-z])|(?<![a-z])存储|хранилищ", categories: [storage]}
+  - {pattern: "object store|object storage|(?<![a-z])s3(?![a-z])|minio|对象存储|объектн[а-я]* хранилищ", categories: [object-storage]}
+  - {pattern: "(?<![a-z])nas(?![a-z])|file system|(?<![a-z])nfs(?![a-z])|(?<![a-z])smb(?![a-z])|文件存储|файлов[а-я]* систем", categories: [file-storage]}
+  - {pattern: "(?<![a-z])vpn(?![a-z])|ipsec|wireguard", categories: [vpn-interconnect]}
+  - {pattern: "load balanc|reverse proxy|负载均衡|балансировщик", categories: [load-balancing]}
+  - {pattern: "(?<![a-z])cdn(?![a-z])|content delivery|内容分发", categories: [cdn]}
+  - {pattern: "sd.?wan", categories: [sd-wan]}
+  - {pattern: "router|proxy|network|网络|маршрутизац|сетев|(?<![а-я])сет(и|ей|ь)(?![а-я])", categories: [networking]}
+  - {pattern: "(?<![a-z])dns(?![a-z])|domain name|域名|домен", categories: [dns-domains]}
+  - {pattern: "(?<![a-z])ssl(?![a-z])|tls certificate|证书|сертификат", categories: [ssl-certificates]}
+  - {pattern: "operating system|操作系统|операционн[а-я]* систем|дистрибутив", categories: [operating-system]}
+  - {pattern: "virtual desktop|(?<![a-z])vdi(?![a-z])|desktop.as.a.service|remote desktop|云桌面|виртуальн[а-я]* рабоч[а-я]* стол", categories: [virtual-desktops]}
+  - {pattern: "hypervisor|virtuali[sz]ation|виртуализац|虚拟化", categories: [virtualization]}
+  - {pattern: "vmware|vsphere|esxi", categories: [vmware]}
+  - {pattern: "kubernetes|(?<![a-z])k8s(?![a-z])|(?<![a-z])helm(?![a-z])", categories: [kubernetes]}
+  - {pattern: "docker|container|容器|контейнер", categories: [container]}
+  - {pattern: "message queue|(?<![a-z])mqtt(?![a-z])|(?<![a-z])amqp(?![a-z])|消息队列|брокер[а-я]* сообщений|очеред[иь] сообщений", categories: [messaging]}
+  - {pattern: "event streaming|event bus|kafka|事件流", categories: [event-streaming]}
+  - {pattern: "workflow orchestration|orchestrat|airflow|编排|оркестрац", categories: [workflow-orchestration]}
+  - {pattern: "api management|api gateway|(?<![a-z])apis?(?![a-z])|插件", categories: [api-management]}
+  - {pattern: "(?<![a-z])iot(?![a-z])|internet of things|物联网|интернет вещей", categories: [iot]}
+  - {pattern: "scada|industrial iot|(?<![a-z])plc(?![a-z])|工业互联网|промышленн[а-я]* интернет", categories: [industrial-iot]}
+  - {pattern: "digital twin|数字孪生|цифров[а-я]* двойник", categories: [digital-twins]}
+  - {pattern: "blockchain|区块链|блокчейн", categories: [blockchain]}
+  - {pattern: "web3|crypto|(?<![a-z])nfts?(?![a-z])|криптовалют", categories: [web3]}
+  - {pattern: "quantum|量子|квантов", categories: [quantum]}
+  - {pattern: "(?<![a-z])ar/vr|augmented reality|virtual reality|metaverse|元宇宙|виртуальн[а-я]* реальност", categories: [ar-vr]}
+  - {pattern: "migrat|迁移|миграци", categories: [migration]}
+  - {pattern: "consulting|implementation services|professional services|咨询|консалтинг", categories: [professional-services]}
+  - {pattern: "managed service|托管运维|управляем[а-я]* услуг", categories: [managed-services]}
+
+  # Name and description keywords of the categories the rules above leave out, and of frequent misses.
+  - {pattern: "high.performance comput|(?<![a-z])hpc(?![a-z])|supercomput|scientific comput|高性能计算|超算|высокопроизводительн[а-я]* вычислен|суперкомпьют", categories: [hpc]}
+  - {pattern: "batch (jobs?|processing|computing|scheduling|service)|job schedul|^batch$|批量计算|пакетн[а-я]* (обработк|вычислен)", categories: [batch-computing]}
+  - {pattern: "edge comput|edge (nodes?|zones?|locations?|servers?|machines?)|close to (your )?users|multi-access edge|边缘计算|边缘节点|граничн[а-я]* вычислен|периферийн[а-я]* вычислен", categories: [edge-computing]}
+  - {pattern: "spot (instances?|vms?|capacity)|preemptible|抢占式|竞价实例|прерываем[а-я]* (вм|виртуальн)", categories: [spot-instances]}
+  - {pattern: "mainframe|(?<![a-z])z/os(?![a-z])|(?<![a-z])cobol(?![a-z])|大型机|мейнфрейм", categories: [mainframe]}
+  - {pattern: "container registry|image registry|artifact registry|(?<![a-z])harbor(?![a-z])|镜像仓库|реестр[а-я]* (контейнер|образ)", categories: [container-registry]}
+  - {pattern: "service mesh|(?<![a-z])istio|linkerd|microservices? governance|service registry|服务网格|微服务治理|сервисн[а-я]* сетк", categories: [service-mesh]}
+  - {pattern: "ubuntu|debian|centos|(?<![a-z])rhel(?![a-z])|red hat enterprise linux|rocky linux|almalinux|opensuse|suse linux|fedora|alpine linux|linux distribution", categories: [linux-distributions]}
+  - {pattern: "windows server|microsoft windows", categories: [windows-server]}
+  - {pattern: "astra linux|астра линукс|red os|ред ос|alt linux|альт линукс|麒麟|统信|kylin|国产操作系统|отечественн[а-я]* (ос|операционн)", categories: [secure-domestic-os]}
+  - {pattern: "(?<![a-z])os(?![a-z])|операционк", categories: [operating-system]}
+  - {pattern: "private cloud|dedicated cloud|virtual (private )?data ?cent|cloud data ?cent|私有云|专属云|частн[а-я]* облак|выделенн[а-я]* облак", categories: [private-cloud]}
+  - {pattern: "sovereign|secnumcloud|data residency|gaia-x|certified cloud|аттестованн|суверенн|政务云", categories: [sovereign-cloud]}
+  - {pattern: "hybrid cloud|multi.?cloud|anthos|azure arc|outposts|stack hci|混合云|多云|гибридн[а-я]* облак|мультиоблач", categories: [hybrid-multicloud]}
+  - {pattern: "block storage|block volumes?|(?<![a-z])ebs(?![a-z])|cloud disks?|persistent disks?|块存储|云硬盘|云盘|блочн[а-я]* хранилищ|сетев[а-я]* диск", categories: [block-storage]}
+  - {pattern: "archive storage|cold storage|(?<![a-z])glacier|long.term retention|(?<![a-z])tapes?(?![a-z])|归档存储|冷存储|архивн[а-я]* хранени|холодн[а-я]* хранени", categories: [archive-storage]}
+  - {pattern: "data transfer|data transport|(?<![a-z])sftp(?![a-z])|(?<![a-z])ftps?(?![a-z])|file transfer|snowball|data box|transfer appliance|offline transfer|数据传输|闪电立方|передач[а-я]* данных", categories: [data-transfer]}
+  - {pattern: "storage management|storage gateway|storage (analytics|lens|insights)|hierarchical storage|tiering|存储网关|управлени[а-я]* хранени", categories: [storage-management]}
+  - {pattern: "high availability|(?<![a-z])ha cluster|failover|multi.?active|active.active|fault toleran|高可用|多活|容错|высок[а-я]* доступност|отказоустойчив", categories: [high-availability]}
+  - {pattern: "virtual (private )?networks?|(?<![a-z])vpc(?![a-z])|(?<![a-z])vnet(?![a-z])|subnets?|elastic ip|public ip|nat gateway|private ?link|peering|私有网络|弹性公网|виртуальн[а-я]* сет|публичн[а-я]* ip|приватн[а-я]* сет", categories: [virtual-networks]}
+  - {pattern: "express ?connect|direct connect|dedicated (physical )?(connections?|lines?)|interconnect|专线|выделенн[а-я]* (канал|лини)", categories: [vpn-interconnect]}
+  - {pattern: "network (monitoring|performance|observability|analytics|traffic analysis)|flow logs?|packet capture|网络监控|流量分析|мониторинг[а-я]* сет", categories: [network-monitoring]}
+  - {pattern: "(?<![a-z0-9])[45]g(?![a-z0-9])|(?<![a-z])lte(?![a-z])|(?<![a-z])e?sim cards?|mobile network operator|(?<![a-z])mvno(?![a-z])|network slicing|蜂窝|物联网卡|сотов[а-я]* связ|сим-карт", categories: [telecom-5g]}
+  - {pattern: "satellite|ground station|卫星|спутник", categories: [satellite-connectivity]}
+  - {pattern: "one.click|1-click|marketplace apps?|app templates?|application templates?|一键部署|应用模板|в один клик", categories: [one-click-apps]}
+  - {pattern: "graph database|(?<![a-z])neo4j|neptune|janusgraph|nebula ?graph|图数据库|графов[а-я]* (баз|субд)", categories: [graph-database]}
+  - {pattern: "time.?series|influxdb|timescale|tdengine|opentsdb|时序数据库|временн[а-я]* ряд", categories: [time-series-database]}
+  - {pattern: "database (management tools?|admin|client|migration|audit|backup)|db admin|pgadmin|phpmyadmin|dbeaver|data management service|数据库管理|数据管理服务|数据库审计|администрировани[а-я]* (баз|субд)", categories: [database-tools]}
+  - {pattern: "stream (processing|analytics|computing)|real.time (analytics|processing|data)|(?<![a-z])flink|spark streaming|kinesis|流计算|实时计算|实时分析|потоков[а-я]* (обработк|аналитик)", categories: [streaming-analytics]}
+  - {pattern: "open data|datasets?|data ?marketplace|data exchange|public data|数据集|数据市场|открыт[а-я]* данн|набор[а-я]* данных", categories: [open-data-datasets]}
+  - {pattern: "(?<![a-z])ipaas|integration platform|enterprise service bus|(?<![a-z])esb(?![a-z])|application integration|集成平台|интеграционн[а-я]* платформ|шин[а-я]* (данных|интеграц)", categories: [ipaas]}
+  - {pattern: "model (hub|garden|catalog|library|marketplace|gallery)|pre-?trained models?|multimodal|模型广场|模型库|预训练模型|каталог[а-я]* моделей", categories: [ai-models]}
+  - {pattern: "content generation|text generation|image generation|video generation|视频生成|文生图|生成视频", categories: [generative-ai]}
+  - {pattern: "recommend|personali[sz]ation engine|推荐|рекомендательн|рекомендаци", categories: [recommendation]}
+  - {pattern: "data label|annotation|labell?ing|标注|разметк", categories: [data-labeling]}
+  - {pattern: "security posture|(?<![a-z])cspm(?![a-z])|(?<![a-z])cnapp(?![a-z])|(?<![a-z])cwpp(?![a-z])|security (center|hub|command center)|guardduty|defender for cloud|attestation|云安全中心|安全中心|безопасност[а-я]* облак", categories: [cloud-security-posture]}
+  - {pattern: "customer identity|(?<![a-z])ciam(?![a-z])|user authentication|(?<![a-z])e?kyc(?![a-z])|identity verification|captcha|user profiles?|身份核验|实名认证|验证码|верификаци[а-я]* личност", categories: [customer-identity]}
+  - {pattern: "software development|developer (tools?|platform)|development (tools|environment|platform)|app development|mobile apps?|开发者|开发工具|小程序|разработк[а-я]* (по|приложений|программ)|инструмент[а-я]* разработ", categories: [development]}
+  - {pattern: "(?<![a-z])paas(?![a-z])|platform as a service|app service|app engine|application platform|elastic beanstalk|cloud foundry|heroku|microservices? (platform|engine)|应用托管|微服务引擎|платформ[а-я]* (для )?приложений", categories: [application-platforms]}
+  - {pattern: "release management|feature (flags?|toggles?)|canary|blue.green|app distribution|beta (builds?|testing)|发布管理|灰度发布|управлени[а-я]* релиз", categories: [release-management]}
+  - {pattern: "cloud governance|landing zone|policy (management|as code|engine)|resource (manager|groups?)|(?<![a-z])tag (policies|editor)|account (factory|management)|control tower|service catalog|多账号|云治理|управлени[а-я]* ресурс", categories: [governance-policy]}
+  - {pattern: "resource (formation|orchestration)|resources in batches|pulumi|(?<![a-z])bicep(?![a-z])|(?<![a-z])arm templates?|资源编排", categories: [infrastructure-as-code]}
+  - {pattern: "robot(?!ic process)|(?<![a-z])ros(?![a-z])|机器人|робот", categories: [robotics]}
+  - {pattern: "asset management|(?<![a-z])eam(?![a-z])|(?<![a-z])cmms(?![a-z])|maintenance management|资产管理|управлени[а-я]* активами|уч[её]т[а-я]* (активов|основных средств)", categories: [asset-management]}
+  - {pattern: "mobile device management|enterprise mobility|(?<![a-z])emm(?![a-z])|移动设备管理", categories: [endpoint-protection]}
+  - {pattern: "business process management|(?<![a-z])bpmn?(?![a-z])|process mining|workflow engine|流程管理|业务流程|бизнес-процесс", categories: [bpm]}
+  - {pattern: "workforce management|time tracking|shift (planning|scheduling)|time and attendance|attendance|考勤|排班|уч[её]т[а-я]* рабоч[а-я]* времени|график[а-я]* смен", categories: [workforce-management]}
+  - {pattern: "employee (experience|engagement)|digital signage|internal communications?|hr portal|员工体验|вовлеченност[а-я]* сотрудник|корпоративн[а-я]* портал", categories: [employee-experience]}
+  - {pattern: "customer data platform|(?<![a-z])cdp(?![a-z])|user analytics|customer analytics|growth analytics|audience segment|用户分析|用户画像|客户数据平台", categories: [customer-data-platform]}
+  - {pattern: "survey|feedback|questionnaire|(?<![a-z])nps(?![a-z])|(?<![a-z])polls?(?![a-z])|问卷|опрос|анкет", categories: [surveys-feedback]}
+  - {pattern: "sales (enablement|engagement|intelligence|automation|outreach)|lead generation|prospect|(?<![a-z])sdr(?![a-z])|(?<![a-z])cpq(?![a-z])|销售管理|销售自动化|автоматизаци[а-я]* продаж|управлени[а-я]* продаж", categories: [sales-enablement]}
+  - {pattern: "booking|reservations?|appointments?|预约|预订|бронировани|запис[а-я]* на при[её]м", categories: [booking-reservations]}
+  - {pattern: "loyalty|rewards? programs?|membership|会员|积分|лояльност", categories: [loyalty]}
+  - {pattern: "field service|technician dispatch|work orders?|on-site service|现场服务|выездн[а-я]* (сервис|обслужив)", categories: [field-service]}
+  - {pattern: "school management|student information|campus|university management|virtual labs?|教务|校园|智慧教育|учебн[а-я]* заведени|электронн[а-я]* дневник", categories: [education-management]}
+  - {pattern: "(employee|staff|corporate|it) training|training (courses?|platform|programs?)|certification (exams?|programs?)|(?<![a-z])exams?(?![a-z])|hackathons?|考试|职业培训|обучени[а-я]* (сотрудник|персонал)", categories: [training-certification]}
+  - {pattern: "life sciences?|genomic|bioinformatic|drug discovery|pharma|biotech|clinical trials?|生命科学|基因|生物信息|геном|фармацевт", categories: [life-sciences]}
+  - {pattern: "government|public sector|(?<![a-z])citizens?(?![a-z])|municipal|smart cit(y|ies)|(?<![a-z])e-?gov|政务|智慧城市|государствен|госсектор|муниципальн|умн[а-я]* город", categories: [public-sector]}
+  - {pattern: "retail|supermarket|merchandis|零售|商超|门店|розничн|ритейл", categories: [retail]}
+  - {pattern: "energy|utilit(y|ies)(?! (software|tools?|functions?))|oil and gas|power grid|smart grid|renewable|(?<![a-z])solar|electricity|能源|电力|油气|энергетик|электроэнерг|нефт", categories: [energy-utilities]}
+  - {pattern: "telecom|telco|subscribers?|mobile operator|network operator|电信|运营商|телеком|оператор[а-я]* связи", categories: [telecommunications]}
+  - {pattern: "(?<![a-z])sms(?![a-z])|short messag|text messag|短信|смс", categories: [communication]}
+  - {pattern: "transportation|freight|shipping|courier|parcels?|package tracking|fleet tracking|vehicle tracking|logistics|物流|快递|运输|货运|транспортн[а-я]* (компани|логистик)|грузоперевоз", categories: [transportation-logistics]}
+  - {pattern: "automotive|connected cars?|vehicles?|autonomous driving|汽车|车联网|自动驾驶|автомобил", categories: [automotive]}
+  - {pattern: "real estate|property management|proptech|building management|smart buildings?|facility management|房地产|物业|недвижимост|управлени[а-я]* зданиями", categories: [real-estate]}
+  - {pattern: "agricultur|(?<![a-z])farm|(?<![a-z])crops?(?![a-z])|livestock|agritech|农业|农场|сельск[а-я]* хозяйств|агро", categories: [agriculture]}
+  - {pattern: "law firms?|legal (services|practice|research)|lawyers?|attorneys?|e-?discovery|contract (lifecycle|review)|律所|法律服务|юридическ[а-я]* (услуг|фирм)|адвокат", categories: [legal-services]}
+  - {pattern: "non.?profit|charit|(?<![a-z])ngos?(?![a-z])|donation|fundrais|公益|慈善|некоммерческ|благотворит", categories: [nonprofit]}
+  - {pattern: "technical support|support plans?|premium support|enterprise support|技术支持|техническ[а-я]* поддержк", categories: [technical-support]}
+  - {pattern: "licen[cs]es?(?![a-z])|subscription keys?|perpetual|(?<![a-z])byol(?![a-z])|bring your own licen|source code|软件许可|授权|源码|лицензи", categories: [software-licenses]}
+  - {pattern: "enterprise messaging|messaging (service|middleware)|message (brokers?|queu)|pub/?sub|rabbitmq|activemq|rocketmq|(?<![a-z])mq(?![a-z])|消息中间件|消息服务", categories: [messaging]}
+  - {pattern: "event (bus|grid|hub|bridge)|eventbridge|事件总线", categories: [event-streaming]}
+  - {pattern: "hadoop|(?<![a-z])spark(?![a-z])|mapreduce|(?<![a-z])emr(?![a-z])|(?<![a-z])hive(?![a-z])|presto|trino", categories: [big-data]}
+  - {pattern: "virtual private servers?|compute instances?|elastic compute|(?<![a-z])ecs(?![a-z])|(?<![a-z])ec2(?![a-z])|auto ?scaling|弹性伸缩|弹性计算", categories: [virtual-machines]}
+  - {pattern: "text (analytics|analysis)|sentiment|entity extraction|in text(?![a-z])|natural language processing|文本分析|情感分析|анализ[а-я]* текст", categories: [language-translation]}
+  - {pattern: "image (enhancement|processing|analysis)|video analy|图像|视频分析|影像|видеоаналитик", categories: [computer-vision]}
+  - {pattern: "cloud phones?|云手机|облачн[а-я]* телефон", categories: [virtual-desktops]}
+  - {pattern: "(?<![a-z])domains?(?![a-z])[’']?s? (privacy|protection|registration|transfer|names?)|whois|domain privacy", categories: [dns-domains]}
+  - {pattern: "service management|servicenow|jira service", categories: [itsm]}
+  - {pattern: "code (review|analysis|quality|profil|scanning)|static analysis|linters?|代码分析|代码扫描|анализ[а-я]* кода", categories: [testing]}
+  - {pattern: "sensitive data|(?<![a-z])pii(?![a-z])|data classification|敏感数据|чувствительн[а-я]* данн", categories: [data-security]}
+  - {pattern: "智算|ai (appliance|computing)|一体机", categories: [ai-infrastructure]}
+  - {pattern: "代办|资质", categories: [professional-services]}
+  - {pattern: "数字人|数字员工|digital (humans?|employees?|avatars?)|agent runtime|managed agents|agent (platform|builder)", categories: [ai-agents]}
+  - {pattern: "traffic (manager|routing|management)|global (server )?load|流量调度", categories: [load-balancing]}
+  - {pattern: "(?<![a-z])vod(?![a-z])|live (streaming|broadcast)|media (packag|process|convert)", categories: [media]}
+  - {pattern: "temporary access|just.in.time access|access requests?", categories: [privileged-access]}
+  - {pattern: "hosting plans?|business hosting|wordpress hosting|managed hosting|unmanaged (cloud )?hosting", categories: [web-hosting]}
+  - {pattern: "it infrastructure management|full operation|outsourc|运维外包|аутсорс", categories: [managed-services]}

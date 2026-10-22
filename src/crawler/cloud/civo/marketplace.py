@@ -9,9 +9,10 @@ from scrapling.parser import Selector
 from scrapling.spiders import Response
 
 # First Party Imports.
+from crawler.enums import HtmlAttribute
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
-from models.cloud.marketplace_software import MarketplaceSoftware
+from models.cloud.software.marketplace_software import MarketplaceSoftware
 
 
 class CivoMarketplaceCrawler(BaseMarketplaceCrawler):
@@ -23,7 +24,8 @@ class CivoMarketplaceCrawler(BaseMarketplaceCrawler):
     Notes:
         The https://www.civo.com/marketplace page lists every application installed on the Civo Kubernetes clusters
         as a card (`a.marketplace-application`): its name, its description and its category badge. The featured
-        applications are shown twice: the duplicates (same page) are skipped.
+        applications are shown twice: the duplicates (same page) are skipped. The marketplace taxonomy is flat: the
+        category path is the badge text, without identifier.
     """
 
     CARD: ClassVar[str] = "a.marketplace-application"
@@ -64,14 +66,16 @@ class CivoMarketplaceCrawler(BaseMarketplaceCrawler):
         cards = response.css(self.CARD)
         self.logger.info("%d application cards in the %s page %s.", len(cards), self.name, response.url)
         for card in cards:
-            link = card.attrib.get("href")
+            link = card.attrib.get(HtmlAttribute.HREF)
+            badge = self._text(card, "span.badge")
             software = self._build_software(
                 self._text(card, "h5"),
                 self._text(card, ".description p") or self._text(card, ".description"),
                 urljoin(response.url, link) if link else None,
                 None,
                 DeliveryMethod.KUBERNETES,
-                [self._text(card, "span.badge")],
+                [badge],
+                marketplace_category_paths=[self._category([badge])],
             )
             if software is not None:
                 yield software

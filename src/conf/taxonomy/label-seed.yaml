@@ -1,0 +1,180 @@
+# Seed of the source labels: the categories of the providers which are not in English (or are noise), with their
+# English name and the taxonomy nodes (categories, or a domain only) they file their items under.
+#
+# - `text` is matched by its normalized key (case, spacing, punctuation, plurals and Latin look-alikes ignored).
+# - `en` is the English name: the labels sharing an English name are aliases ("Базы данных" counts with "Databases").
+# - `links` are taxonomy slugs (see taxonomy.yaml); a domain slug files the items in the domain only.
+# - `same_as` makes the label an alias of another one (its text), `noise: true` marks a tab, a vendor or "Other".
+# The seed never overwrites what a person changed in the Categories manager. Apply it with `uv run migrate-db seed`.
+
+labels:
+  - {text: "AI-агенты", en: "AI agents", links: [ai-agents]}
+  - {text: "CУБД и работа с данными", en: "DBMS & data", links: [database, data-analytics]}
+  - {text: "Data-платформа", en: "Data platform", links: [data-analytics]}
+  - {text: "MCP-серверы", en: "MCP servers", links: [mcp-servers]}
+  - {text: "ML-платформа", en: "ML platform", links: [ai-ml]}
+  - {text: "Аварийное восстановление", en: "Disaster recovery", links: [disaster-recovery]}
+  - {text: "Администрирование", en: "Administration", links: [management-observability]}
+  - {text: "Анализ событий и логов", en: "Event & log analysis", links: [siem-soc, logging]}
+  - {text: "Аналитика", en: "Analytics", links: [data-analytics]}
+  - {text: "Аналитика данных", en: "Data analytics", links: [data-analytics]}
+  - {text: "Аттестованное облако", en: "Certified cloud", links: [sovereign-cloud]}
+  - {text: "Базовые сервисы", en: "Core services"}
+  - {text: "Базы данных", en: "Databases", links: [database]}
+  - {text: "Безопасность", en: "Security", links: [security]}
+  - {text: "Бизнес", en: "Business", links: [business-applications]}
+  - {text: "Брокеры сообщений", en: "Message brokers", links: [messaging]}
+  - {text: "Бэкап", en: "Backup", links: [backup]}
+  - {text: "Варианты конфигурации инфраструктуры", en: "Infrastructure configurations", links: [compute]}
+  - {text: "Вычисления", en: "Compute", links: [compute]}
+  - {text: "Данные", en: "Data", links: [data-analytics]}
+  - {text: "Дизайн", en: "Design"}
+  - {text: "Домены и DNS", en: "Domains & DNS", links: [dns-domains]}
+  - {text: "Другое", noise: true}
+  - {text: "ИИ-решения", en: "AI solutions", links: [ai-machine-learning]}
+  - {text: "Индивидуальные решения", en: "Custom solutions", links: [professional-services]}
+  - {text: "Инструменты DevOps", en: "DevOps tools", links: [devops]}
+  - {text: "Инструменты для разработки", en: "Development tools", links: [development]}
+  - {text: "Инструменты для тестирования", en: "Testing tools", links: [testing]}
+  - {text: "Инструменты разработчика", en: "Developer tools", links: [development]}
+  - {text: "Интеграции", en: "Integrations", links: [application-integration]}
+  - {text: "Интеграция сервисов", en: "Service integration", links: [ipaas]}
+  - {text: "Инфраструктура", en: "Infrastructure", links: [compute]}
+  - {text: "Искусственный интеллект", en: "Artificial intelligence", links: [ai-machine-learning]}
+  - {text: "Контейнеры", en: "Containers", links: [container]}
+  - {text: "Логи", en: "Logs", links: [logging]}
+  - {text: "Машинное обучение в облаке", en: "Machine learning in the cloud", links: [ai-ml]}
+  - {text: "Менеджмент", en: "Management", links: [business-applications]}
+  - {text: "Миграция", en: "Migration", links: [migration]}
+  - {text: "Мониторинг", en: "Monitoring", links: [monitoring]}
+  - {text: "Наука", en: "Science", links: [hpc]}
+  - {text: "Обработка и анализ данных", en: "Data processing & analytics", links: [big-data]}
+  - {text: "Операционные системы", en: "Operating systems", links: [operating-system]}
+  - {text: "Организация сети", en: "Networking", links: [networking]}
+  - {text: "Офисный пакет", en: "Office suite", links: [collaboration]}
+  - {text: "Партнерские решения", noise: true}
+  - {text: "Платформа данных", en: "Data platform", links: [data-analytics]}
+  - {text: "Поиск", en: "Search", links: [search-engines]}
+  - {text: "Прикладное ПО", en: "Application software", links: [business-applications]}
+  - {text: "Приложения", en: "Applications"}
+  - {text: "Продукты", noise: true}
+  - {text: "Разработка", en: "Development", links: [development]}
+  - {text: "Расчеты", en: "Payments & settlements", links: [payments]}
+  - {text: "Реализация веб-приложений", en: "Web application delivery", links: [application-platforms]}
+  - {text: "Рекрутинг", en: "Recruiting", links: [ats]}
+  - {text: "Решения для бизнеса", en: "Business solutions", links: [business-applications]}
+  - {text: "Связи", en: "Communications", links: [communication]}
+  - {text: "Серверы и вычисления", en: "Servers & compute", links: [virtual-machines]}
+  - {text: "Сетевая инфраструктура", en: "Network infrastructure", links: [networking]}
+  - {text: "Сети", en: "Networks", links: [networking]}
+  - {text: "Сети и доставка контента", en: "Networks & content delivery", links: [networking, cdn]}
+  - {text: "Сеть", en: "Network", links: [networking]}
+  - {text: "Тестирование", en: "Testing", links: [testing]}
+  - {text: "Управление и администрирование", en: "Management & administration", links: [cloud-management]}
+  - {text: "Управление и мониторинг", en: "Management & monitoring", links: [monitoring, cloud-management]}
+  - {text: "Управление разработкой", en: "Development management", links: [devops]}
+  - {text: "Услуги", noise: true}
+  - {text: "Финансы", en: "Finance", links: [accounting]}
+  - {text: "Хранение и восстановление данных", en: "Data storage & recovery", links: [storage, backup]}
+  - {text: "Хранение и резервное копирование", en: "Storage & backup", links: [storage, backup]}
+  - {text: "Хранилище", en: "Storage", links: [storage]}
+  - {text: "Хранилище и файловые системы", en: "Storage & file systems", links: [storage, file-storage]}
+  - {text: "Частное облако", en: "Private cloud", links: [private-cloud]}
+  - {text: "Юриспруденция", en: "Legal", links: [legal-compliance]}
+  - {text: "人事管理", en: "HR management", links: [hris]}
+  - {text: "人工智能", en: "Artificial intelligence", links: [ai-machine-learning]}
+  - {text: "人脸识别", en: "Face recognition", links: [computer-vision]}
+  - {text: "仓储物流", en: "Warehousing & logistics", links: [supply-chain, transportation-logistics]}
+  - {text: "企业办公", en: "Office", links: [collaboration]}
+  - {text: "企业应用", en: "Enterprise applications", links: [business-applications]}
+  - {text: "企业服务", en: "Enterprise services", links: [business-applications]}
+  - {text: "企业管理", en: "Business management", links: [erp]}
+  - {text: "企业通信", en: "Business communication", links: [communication]}
+  - {text: "企业邮箱", en: "Business email", links: [email]}
+  - {text: "会员营销", en: "Membership marketing", links: [loyalty, marketing]}
+  - {text: "供应链管理", en: "Supply chain management", links: [supply-chain]}
+  - {text: "其他", noise: true}
+  - {text: "其它", noise: true}
+  - {text: "剧本创作", en: "Script writing", links: [generative-ai, media]}
+  - {text: "办公协同", en: "Office collaboration", links: [collaboration]}
+  - {text: "区块链", en: "Blockchain", links: [blockchain]}
+  - {text: "协同办公", en: "Office collaboration", links: [collaboration]}
+  - {text: "商业客户", noise: true}
+  - {text: "基础环境", en: "Base environments", links: [operating-system]}
+  - {text: "大模型", en: "Large language models", links: [generative-ai, ai-models]}
+  - {text: "安全", en: "Security", links: [security]}
+  - {text: "安全生产", en: "Production safety", links: [manufacturing]}
+  - {text: "安防监控", en: "Video surveillance", links: [computer-vision]}
+  - {text: "定制建站", en: "Custom websites", links: [website-builders, professional-services]}
+  - {text: "客户服务", en: "Customer service", links: [customer-service]}
+  - {text: "小程序专区", en: "Mini programs", links: [development]}
+  - {text: "工业应用", en: "Industrial applications", links: [manufacturing]}
+  - {text: "工具软件", en: "Software tools"}
+  - {text: "应用定制", en: "Custom applications", links: [professional-services]}
+  - {text: "应用模板", en: "Application templates", links: [one-click-apps]}
+  - {text: "建站工具", en: "Website building tools", links: [website-builders]}
+  - {text: "建站推广", en: "Website promotion", links: [website-builders, marketing]}
+  - {text: "建站系统", en: "Website systems", links: [cms]}
+  - {text: "建站&零售商城", en: "Websites & retail stores", links: [website-builders, ecommerce]}
+  - {text: "开发测试", en: "Development & testing", links: [development, testing]}
+  - {text: "开发运维", en: "DevOps", links: [devops]}
+  - {text: "开团上品", en: "Group buying", links: [ecommerce]}
+  - {text: "操作系统", en: "Operating systems", links: [operating-system]}
+  - {text: "教育", en: "Education", links: [education-training]}
+  - {text: "数据决策", en: "Data-driven decisions", links: [business-intelligence]}
+  - {text: "数据分析", en: "Data analytics", links: [data-analytics]}
+  - {text: "数据展示", en: "Data visualization", links: [business-intelligence]}
+  - {text: "数据应用", en: "Data applications", links: [data-analytics]}
+  - {text: "数据智能", en: "Data intelligence", links: [data-analytics, ai-machine-learning]}
+  - {text: "文档管理", en: "Document management", links: [document-management]}
+  - {text: "智能办公", en: "Smart office", links: [collaboration]}
+  - {text: "智能合约", en: "Smart contracts", links: [blockchain]}
+  - {text: "服务器软件", en: "Server software", links: [frameworks-runtimes]}
+  - {text: "服务框架", en: "Service frameworks", links: [frameworks-runtimes]}
+  - {text: "服务组件", en: "Service components", links: [frameworks-runtimes]}
+  - {text: "流量营销", en: "Traffic marketing", links: [advertising, marketing]}
+  - {text: "灾备迁移", en: "Disaster recovery & migration", links: [disaster-recovery, migration]}
+  - {text: "爱速搭平台", en: "Aisuda low-code platform", links: [low-code]}
+  - {text: "生产制造", en: "Manufacturing", links: [manufacturing]}
+  - {text: "电商ERP", en: "E-commerce ERP", links: [erp, ecommerce]}
+  - {text: "电商提效", en: "E-commerce efficiency", links: [ecommerce]}
+  - {text: "电商网站", en: "E-commerce websites", links: [ecommerce, website-builders]}
+  - {text: "直播带货", en: "Live-stream selling", links: [ecommerce, social-media]}
+  - {text: "短剧制作", en: "Short drama production", links: [media]}
+  - {text: "短视频创意", en: "Short video creative", links: [media]}
+  - {text: "短视频制作", en: "Short video production", links: [media]}
+  - {text: "移动应用", en: "Mobile apps", links: [development]}
+  - {text: "策划设计", en: "Planning & design", links: [marketing]}
+  - {text: "管理与监控", en: "Management & monitoring", links: [monitoring, cloud-management]}
+  - {text: "系统源码", en: "System source code", links: [software-licenses]}
+  - {text: "网站服务", en: "Website services", links: [web-hosting]}
+  - {text: "网络工具", en: "Network tools", links: [networking]}
+  - {text: "营销互动", en: "Interactive marketing", links: [marketing]}
+  - {text: "营销文案/AI写作", en: "Marketing copy & AI writing", links: [marketing, generative-ai]}
+  - {text: "行业应用", en: "Industry applications", links: [industry-solutions]}
+  - {text: "行业系统", en: "Industry systems", links: [industry-solutions]}
+  - {text: "行业门户", en: "Industry portals", links: [industry-solutions, cms]}
+  - {text: "视频生成", en: "Video generation", links: [generative-ai]}
+  - {text: "解决方案", en: "Solutions"}
+  - {text: "订单管理", en: "Order management", links: [ecommerce, supply-chain]}
+  - {text: "财务管理", en: "Financial management", links: [accounting]}
+  - {text: "质量管控", en: "Quality control", links: [manufacturing]}
+  - {text: "资源管理", en: "Resource management", links: [asset-management]}
+  - {text: "软件工具", en: "Software tools"}
+  - {text: "软件服务", en: "Software services"}
+  - {text: "运营管理", en: "Operations management", links: [business-applications]}
+  - {text: "运行环境", en: "Runtime environments", links: [frameworks-runtimes]}
+  - {text: "速成建站", en: "Quick website building", links: [website-builders]}
+  - {text: "销售管理", en: "Sales management", links: [crm, sales-enablement]}
+  - {text: "镜像专区", en: "Machine images", links: [machine-images]}
+  - {text: "镜像环境", en: "Image environments", links: [machine-images]}
+  - {text: "集成应用", en: "Integrated applications", links: [application-integration]}
+  - {text: "零售商超", en: "Retail & supermarkets", links: [retail]}
+  - {text: "风格模板", en: "Style templates", links: [website-builders]}
+  - {text: "AI应用", en: "AI applications", links: [ai-machine-learning]}
+  - {text: "AI+抖音小游戏", en: "AI + Douyin mini games", links: [gaming, generative-ai]}
+  - {text: "AI+抖音生活服务", en: "AI + Douyin local services", links: [marketing, generative-ai]}
+  - {text: "AI+抖音电商", en: "AI + Douyin e-commerce", links: [ecommerce, generative-ai]}
+  - {text: "AI生态市场", en: "AI ecosystem marketplace", links: [ai-machine-learning]}
+  - {text: "AI+红果短剧", en: "AI + Hongguo short dramas", links: [media, generative-ai]}
+  - {text: "API服务", en: "API services", links: [sdks-apis]}

@@ -4,7 +4,7 @@ from __future__ import annotations
 import base64
 import json
 import re
-from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Tuple, Union
+from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Tuple, Union
 from urllib.parse import parse_qs, urljoin, urlparse
 
 # Third Party Imports.
@@ -13,8 +13,10 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
+from crawler.cloud.gcp.enums import GcpCatalogueMeta, GcpCatalogueParameter, GcpHostPrefix, GcpHtmlAttribute
+from crawler.enums import HtmlAttribute
 from crawler.exception import CatalogueFormatError
-from models.cloud.product import CloudProduct
+from models.cloud.products.product import CloudProduct
 
 
 class GoogleCloudPlatformCrawler(BaseCloudCrawler):
@@ -28,12 +30,23 @@ class GoogleCloudPlatformCrawler(BaseCloudCrawler):
         CATALOGUE_DATA (ClassVar[re.Pattern[str]]): The catalogue data embedded in a category page.
         PRODUCT_ID (ClassVar[re.Pattern[str]]): The identifier of a catalogue product, a UUID.
         NOT_PRODUCT (ClassVar[re.Pattern[str]]): The menu links which are not products (solutions, use cases).
+        CATEGORY_LABEL (ClassVar[GcpHtmlAttribute]): The attribute of a category filter holding its label.
+        CATEGORY_META (ClassVar[GcpCatalogueMeta]): The meta key of a category page request, holding the category label.
+        MENU_HEADLINE (ClassVar[GcpHtmlAttribute]): The attribute of a menu link holding the headline of its menu group,
+            if any.
+        MARKETING_GROUP (ClassVar[re.Pattern[str]]): The product groups which are not categories ("Featured").
+        SEE_ALL (ClassVar[re.Pattern[str]]): The menu links closing a menu category ("See all ...").
 
     Notes:
         The catalogue is split by category: `https://cloud.google.com/products` lists the categories, and each
         category page embeds (server-side) the data of all its products. The products menu completes it with the
         products not listed in the catalogue. The class names of the pages are generated, so the crawler relies on
         tracking attributes and data structures only.
+        A category page groups its products by sub-category (e.g. `AI/ML` > `Generative AI`), a product being
+        listed in each of its groups: its categories are the category of the page then its groups, gathered over
+        the whole page before it is streamed. A product of several category pages keeps the categories of the
+        first one. In the products menu, the category of a product is the headline of its group, else the last
+        category link above it.
     """
 
     PRODUCT_LINKS: ClassVar[str] = 'a[track-type="nav"][track-metadata-position="nav - products"]'
@@ -49,6 +62,11 @@ class GoogleCloudPlatformCrawler(BaseCloudCrawler):
     NOT_PRODUCT: ClassVar[re.Pattern[str]] = re.compile(
         r"/(solutions|use-cases)/|console\.cloud\.google\.com", re.IGNORECASE
     )
+    CATEGORY_LABEL: ClassVar[GcpHtmlAttribute] = GcpHtmlAttribute.EVENT_DETAIL
+    CATEGORY_META: ClassVar[GcpCatalogueMeta] = GcpCatalogueMeta.CATEGORY
+    MENU_HEADLINE: ClassVar[GcpHtmlAttribute] = GcpHtmlAttribute.MODULE_HEADLINE
+    MARKETING_GROUP: ClassVar[re.Pattern[str]] = re.compile(r"^\s*featured\b", re.IGNORECASE)
+    SEE_ALL: ClassVar[re.Pattern[str]] = re.compile(r"^\s*see all\b", re.IGNORECASE)
 
     name = "gcp"
     catalogue_url: ClassVar[str] = "https://cloud.google.com/products"
@@ -68,7 +86,7 @@ class GoogleCloudPlatformCrawler(BaseCloudCrawler):
         Returns:
             str: The generic URL key, without the `docs.` sub-domain.
         """
-        return super()._url_key(url).removeprefix("docs.")
+        return super()._url_key(url).removeprefix(GcpHostPrefix.DOCS)
 
     def _category_code(self, category_id: int) -> str:
         """Encode a category identifier as the `pds` parameter of its catalogue page (protobuf field 1, base64).
@@ -87,17 +105,21 @@ class GoogleCloudPlatformCrawler(BaseCloudCrawler):
         varint.append(value)
         return base64.urlsafe_b64encode(bytes([0x08]) + bytes(varint)).decode().rstrip("=")
 
-    def _category_urls(self, response: Response) -> List[str]:
-        """Get the catalogue page of each category.
+    def _category_labels(self, response: Response) -> Dict[int, str]:
+        """Get the label of each category of the catalogue home page.
 
         Args:
             response (Response): The catalogue home page.
 
         Returns:
-            List[str]: The category pages, in category order.
+            Dict[int, str]: The label of each category identifier, in category order, empty when unlabelled.
         """
-        ids = {int(value) for value in response.css(self.CATEGORY_FILTERS).css("::attr(data-category-id)").getall()}
-        return [self.CATEGORY_URL.format(code=self._category_code(category_id)) for category_id in sorted(ids)]
+        labels: Dict[int, str] = {}
+        for category in response.css(self.CATEGORY_FILTERS):
+            label = category.attrib.get(self.CATEGORY_LABEL) or category.get_all_text(separator=" ", strip=True)
+            identifier = int(category.attrib.get(GcpHtmlAttribute.CATEGORY_ID, 0))
+            labels[identifier] = labels.get(identifier) or self._clean_text(label)
+        return dict(sorted(labels.items()))
 
     def _catalogue_data(self, response: Response) -> JsonValue:
         """Read the catalogue data embedded in a category page.
@@ -122,23 +144,31 @@ class GoogleCloudPlatformCrawler(BaseCloudCrawler):
         self.logger.error("The %s catalogue data (`ds:1`) of %s is missing.", self.name, response.url)
         raise CatalogueFormatError(self.name, response.url, "the catalogue data (`ds:1`) is missing")
 
-    def _catalogue_entries(self, value: JsonValue) -> Iterator[List[JsonValue]]:
+    def _catalogue_entries(
+        self, value: JsonValue, group: Optional[str] = None
+    ) -> Iterator[Tuple[List[JsonValue], Optional[str]]]:
         """Find the products of the catalogue data: the lists starting with a UUID, the product name at index 6.
 
         Args:
             value (JsonValue): The catalogue data.
+            group (Optional[str]): The title of the product group holding the data, if any.
 
         Yields:
-            List[JsonValue]: Each product entry, depth first.
+            Tuple[List[JsonValue], Optional[str]]: Each product entry, depth first, with the title of its group.
+
+        Notes:
+            A product group is a list of its product entries, then a null, then its title (and its description).
         """
         if not isinstance(value, list):
             return
         identifier = value[0] if value else None
         if len(value) > 7 and isinstance(identifier, str) and self.PRODUCT_ID.match(identifier):
-            yield value
+            yield value, group
             return
+        if len(value) > 2 and isinstance(value[0], list) and isinstance(value[2], str):
+            group = value[2]
         for child in value:
-            yield from self._catalogue_entries(child)
+            yield from self._catalogue_entries(child, group)
 
     def _entry_text(self, entry: List[JsonValue], index: int, sub_index: int = -1) -> str:
         """Read a text of a catalogue product entry.
@@ -185,33 +215,61 @@ class GoogleCloudPlatformCrawler(BaseCloudCrawler):
         """
         entries = list(self._catalogue_entries(self._catalogue_data(response)))
         self.logger.debug("%d catalogue entries in %s.", len(entries), response.url)
-        for entry in entries:
+        category = response.meta.get(self.CATEGORY_META)
+        former_names: Dict[str, List[str]] = {}
+        products: List[CloudProduct] = []
+        for entry, group in entries:
             url = urljoin(response.url, self._entry_text(entry, 1, 2)) if self._entry_text(entry, 1, 2) else None
-            product = self._build_product(self._entry_text(entry, 6), self._entry_text(entry, 7), url)
-            if product:
-                yield product
-                self._remember(self._former_names(entry))
+            if group and self.MARKETING_GROUP.search(group):
+                self.logger.debug("Ignoring the marketing group %r of %r.", group, self._entry_text(entry, 6))
+                group = None
+            categories = [category if isinstance(category, str) else None, group]
+            name, description = self._entry_text(entry, 6), self._entry_text(entry, 7)
+            if product := self._build_product(name, description, url, categories=categories):
+                products.append(product)
+                former_names.setdefault(self._name_key(product.name), []).extend(self._former_names(entry))
+        for product in self._merge_categories(products):
+            yield product
+            self._remember(former_names.get(self._name_key(product.name), []))
 
-    def _menu_products(self, response: Response) -> Iterator[CloudProduct]:
-        """Extract the products of the products menu, skipping category headers, "See all" and solution links.
+    def _menu_links(self, response: Response) -> Iterator[CloudProduct]:
+        """Extract the product links of the products menu, skipping category headers, "See all" and solution links.
 
         Args:
             response (Response): A catalogue page.
 
         Yields:
-            Iterator[CloudProduct]: Each valid product of the menu.
+            Iterator[CloudProduct]: Each valid product link of the menu, with its category, if any.
         """
         links = response.css(self.PRODUCT_LINKS)
         self.logger.debug("%d products menu links in %s.", len(links), response.url)
+        heading: Optional[str] = None
         for link in links:
             texts = [
                 text for text in (child.get_all_text(separator=" ", strip=True) for child in link.children) if text
             ]
-            href = link.attrib.get("href", "")
+            href = link.attrib.get(HtmlAttribute.HREF, "")
+            if len(texts) == 1:
+                heading = None if self.SEE_ALL.search(texts[0]) else texts[0]
+            headline = link.attrib.get(self.MENU_HEADLINE)
+            category = None if headline and self.MARKETING_GROUP.search(headline) else headline or heading
             if len(texts) != 2 or self.NOT_PRODUCT.search(href):
-                self.logger.debug("Skipping the menu link %r, not a product.", link.attrib.get("track-name"))
-            elif product := self._build_product(texts[0], texts[1], urljoin(response.url, href)):
+                self.logger.debug(
+                    "Skipping the menu link %r, not a product.", link.attrib.get(GcpHtmlAttribute.TRACK_NAME)
+                )
+            elif product := self._build_product(texts[0], texts[1], urljoin(response.url, href), categories=[category]):
                 yield product
+
+    def _menu_products(self, response: Response) -> Iterator[CloudProduct]:
+        """Extract the products of the products menu.
+
+        Args:
+            response (Response): A catalogue page.
+
+        Yields:
+            Iterator[CloudProduct]: Each valid product of the menu, with the categories of all its links.
+        """
+        yield from self._merge_categories(self._menu_links(response))
 
     def _is_home_page(self, response: Response) -> bool:
         """Tell whether a page is the catalogue home page, which lists the categories.
@@ -240,7 +298,7 @@ class GoogleCloudPlatformCrawler(BaseCloudCrawler):
         Raises:
             CatalogueFormatError: If a category page does not embed the catalogue data.
         """
-        if "pds" in parse_qs(urlparse(response.url).query):
+        if GcpCatalogueParameter.PDS in parse_qs(urlparse(response.url).query):
             return self._category_products(response)
         return self._menu_products(response)
 
@@ -260,10 +318,11 @@ class GoogleCloudPlatformCrawler(BaseCloudCrawler):
             async for item in super().parse(response):
                 yield item
             return
-        urls = self._category_urls(response)
-        if not urls:
+        labels = self._category_labels(response)
+        if not labels:
             self.logger.error("The %s catalogue home page %s lists no category.", self.name, response.url)
             raise CatalogueFormatError(self.name, response.url, "no catalogue category found")
-        self.logger.info("Requesting the %d %s catalogue categories.", len(urls), self.name)
-        for url in urls:
-            yield Request(url, priority=self.PRIMARY_PRIORITY)
+        self.logger.info("Requesting the %d %s catalogue categories.", len(labels), self.name)
+        for category_id, label in labels.items():
+            url = self.CATEGORY_URL.format(code=self._category_code(category_id))
+            yield Request(url, priority=self.PRIMARY_PRIORITY, meta={self.CATEGORY_META: label})
