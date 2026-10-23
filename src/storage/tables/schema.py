@@ -19,6 +19,9 @@ from storage.tables.items.product_version_row import ProductVersionRow
 from storage.tables.items.software_row import SoftwareRow
 from storage.tables.items.software_version_row import SoftwareVersionRow
 from storage.tables.llm.llm_usage_row import LlmUsageRow
+from storage.tables.markets.fx_rate_row import FxRateRow
+from storage.tables.markets.market_share_row import MarketShareRow
+from storage.tables.markets.stock_price_row import StockPriceRow
 from storage.tables.metrics.provider_metric_row import ProviderMetricRow
 from storage.tables.taxonomy.label_link_row import LabelLinkRow
 from storage.tables.taxonomy.label_sighting_row import LabelSightingRow
@@ -36,7 +39,7 @@ class StorageSchema:
         metadata (MetaData): The metadata of every table, index and sequence.
     """
 
-    REVISION: ClassVar[str] = "0008"
+    REVISION: ClassVar[str] = "0010"
     TABLES: ClassVar[Tuple[Type[Base], ...]] = (
         CrawlRow,
         DatasetRow,
@@ -55,6 +58,9 @@ class StorageSchema:
         ConceptMemberRow,
         CorrespondenceCheckRow,
         ProviderMetricRow,
+        MarketShareRow,
+        StockPriceRow,
+        FxRateRow,
     )
 
     def __init__(self) -> None:

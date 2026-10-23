@@ -30,7 +30,7 @@ class UsageMeter:
         cache writes at 1.25 times the input rate.
     """
 
-    MILLION: ClassVar[Decimal] = Decimal(1_000_000)
+    MILLION: ClassVar[Decimal] = Decimal(1000000)
     CACHE_WRITE_FACTOR: ClassVar[Decimal] = Decimal("1.25")
 
     def __init__(self, budget: LLMBudgetConfig, logger: Optional[Logger] = None) -> None:  # noqa: E501

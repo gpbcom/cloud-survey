@@ -18,6 +18,7 @@ from sqlalchemy import text
 from sqlalchemy.engine import make_url
 
 from crawler.cloud.base import BaseCloudCrawler
+from crawler.markets.catalog_loader import MarketsCatalogLoader
 from crawler.metrics.catalog_loader import CollectorCatalogLoader
 from crawler.tls.ca_bundle import CaBundle
 from gui.paging.identified_row import IdentifiedRow
@@ -41,6 +42,8 @@ from models.cloud.software.marketplace import CloudMarketplace
 from models.cloud.software.marketplace_software import MarketplaceSoftware
 from models.configuration.storage.storage_settings import StorageSettings
 from models.drivers.collectors.collector_catalog import CollectorCatalog
+from models.history.chronology import Chronology
+from models.markets.markets_catalog import MarketsCatalog
 from models.stats.market_report import MarketReport
 from models.storage.enums import StorageTable
 from scripts.migrate_database import DatabaseMigrator
@@ -119,6 +122,31 @@ def metric_page() -> Callable[[str, str, Dict[str, JsonValue]], Response]:
 
     def build(url: str, fixture: str, meta: Dict[str, JsonValue]) -> Response:
         content = (FIXTURES_DIR / "metrics" / fixture).read_bytes()
+        return Response(
+            url=url, content=content, status=200, reason="OK", cookies={}, headers={}, request_headers={}, meta=meta
+        )
+
+    return build
+
+
+@pytest.fixture(scope="session")
+def markets_catalog() -> MarketsCatalog:
+    """The shipped markets catalogue (`conf/history/markets.yaml`), checked against the chronology."""
+    return MarketsCatalogLoader().load()
+
+
+@pytest.fixture(scope="session")
+def markets_chronology() -> Chronology:
+    """The shipped chronology naming the companies of the markets catalogue."""
+    return MarketsCatalogLoader().chronology()
+
+
+@pytest.fixture
+def market_page() -> Callable[[str, str, Dict[str, JsonValue]], Response]:
+    """Build an offline response from a recorded document of `tests/fixtures/markets`, with its request meta."""
+
+    def build(url: str, fixture: str, meta: Dict[str, JsonValue]) -> Response:
+        content = (FIXTURES_DIR / "markets" / fixture).read_bytes()
         return Response(
             url=url, content=content, status=200, reason="OK", cookies={}, headers={}, request_headers={}, meta=meta
         )

@@ -5,7 +5,7 @@ import logging
 import threading
 from collections.abc import AsyncIterator, Iterator
 from functools import partial
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -26,6 +26,7 @@ from gui.window.main_window import MainWindow
 from models.cloud.enums import CloudProvider, Country, MarketPlayer, SoftwareCategory
 from models.cloud.software.marketplace_software import MarketplaceSoftware
 from models.configuration.storage.storage_settings import StorageSettings
+from models.markets.enums import MarketFeed
 from models.stats.market_statistics import MarketStatistics
 from models.storage.pages.item_query import ItemQuery
 from storage.storage import Storage
@@ -577,3 +578,76 @@ def test_the_taxonomy_menu_opens_the_categories_manager(
     assert manager.tabs.currentIndex() == 2
     assert window._manager() is manager, "the manager is built once"
     manager.close()
+
+
+def test_the_markets_menu_crawls_each_source(
+    make_window: Callable[[Optional[MagicMock]], MainWindow], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    window = make_window(None)
+    started: List[Tuple[CrawlSource, Optional[List[MarketFeed]]]] = []
+    monkeypatch.setattr(
+        window,
+        "_start_crawl",
+        lambda provider, country=None, source=CrawlSource.CATALOGUE, providers=None, feeds=None: started.append(
+            (source, feeds)
+        ),
+    )
+    actions = {str(action.data()): action for action in window.markets_menu.actions() if action.data()}
+
+    actions["trendforce"].trigger()
+    actions["idc"].trigger()
+    actions["worldbank"].trigger()
+    actions["fred"].trigger()
+    window.markets_menu.actions()[0].trigger()
+
+    assert set(actions) == {feed.value for feed in MarketFeed}
+    assert started == [
+        (CrawlSource.MARKETS, [MarketFeed.TRENDFORCE]),
+        (CrawlSource.MARKETS, [MarketFeed.IDC]),
+        (CrawlSource.MARKETS, [MarketFeed.WORLD_BANK]),
+        (CrawlSource.MARKETS, [MarketFeed.FRED]),
+        (CrawlSource.MARKETS, list(MarketFeed)),
+    ]
+
+
+def test_the_toolbar_list_and_button_crawl_the_chosen_markets_source(
+    make_window: Callable[[Optional[MagicMock]], MainWindow], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    window = make_window(None)
+    started: List[Tuple[CrawlSource, Optional[List[MarketFeed]]]] = []
+    monkeypatch.setattr(
+        window,
+        "_start_crawl",
+        lambda provider, country=None, source=CrawlSource.CATALOGUE, providers=None, feeds=None: started.append(
+            (source, feeds)
+        ),
+    )
+    values = [window.markets_box.itemData(index) for index in range(window.markets_box.count())]
+
+    for feed in (MarketFeed.TRENDFORCE, MarketFeed.IDC, MarketFeed.WORLD_BANK, MarketFeed.FRED):
+        window.markets_box.setCurrentIndex(values.index(feed.value))
+        window.markets_button.click()
+    window.markets_box.setCurrentIndex(0)
+    window.markets_button.click()
+
+    assert values == ["", *(feed.value for feed in window.MARKET_FEEDS)]
+    assert started == [
+        (CrawlSource.MARKETS, [MarketFeed.TRENDFORCE]),
+        (CrawlSource.MARKETS, [MarketFeed.IDC]),
+        (CrawlSource.MARKETS, [MarketFeed.WORLD_BANK]),
+        (CrawlSource.MARKETS, [MarketFeed.FRED]),
+        (CrawlSource.MARKETS, list(MarketFeed)),
+    ]
+
+
+def test_the_markets_button_is_disabled_while_crawling(
+    make_window: Callable[[Optional[MagicMock]], MainWindow],
+) -> None:
+    window = make_window(None)
+
+    window._set_crawling(True, "Crawling")
+    disabled = not window.markets_button.isEnabled()
+    window._set_crawling(False, "Idle")
+
+    assert disabled
+    assert window.markets_button.isEnabled()

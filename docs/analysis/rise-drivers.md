@@ -1,3 +1,5 @@
+[↑ Docs index](../README.md)
+
 # What drives the rise of a cloud provider
 
 This guide explains how to find which criteria weigh most in the rise of a cloud provider, using the data the
@@ -7,7 +9,8 @@ crawler gathers. It covers:
 - which statistical methods to use, in which order, and the traps to avoid.
 
 The "Rise drivers" section of the Analysis tab implements the method described here (section 7), and section 8
-gives what it finds on the data crawled so far.
+gives what it finds on the data crawled so far. For the longer view, who led each segment of computing since 1964
+and which events changed it, see [Leaders of digital infrastructure](leaders-chronology.md).
 
 ## 1. What we can and cannot do today
 
@@ -133,6 +136,13 @@ for intervals. This ranking is the direct answer to "which criteria are predomin
    criteria in the order of section 4.
 4. Run the "Rise drivers" analysis on the 31 providers (ecosystem targets), then on the economic target as revenue
    arrives.
+
+### Stock values of the providers
+
+The markets crawl (`CRAWLER_SOURCE=markets`, [market-shares-and-stocks.md](market-shares-and-stocks.md)) writes two
+more measures per provider and quarter, source `gfinance`: `stock-value`, the quarter-end close of its listing in US
+dollars, and `stock-return`, the quarterly log return. A provider takes its company's primary listing, so AWS trades
+as Amazon and Azure as Microsoft: the value is the group's. They give the panel decades of quarters.
 
 ## 7. In the application
 

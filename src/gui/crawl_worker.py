@@ -9,12 +9,16 @@ from typing import Dict, List, Optional, Sequence, Union
 from PyQt6.QtCore import QObject, pyqtSignal
 
 # First Party Imports.
+from analytics.markets.markets_collector import MarketsCollector
 from crawler.enums import CrawlSource
 from crawler.exception import CrawlerError
+from crawler.markets.catalog_loader import MarketsCatalogLoader
 from crawler.runner import CatalogueRunner
 from models.cloud.enums import CloudProvider, Country
 from models.cloud.products.product import CloudProduct
 from models.cloud.software.marketplace_software import MarketplaceSoftware
+from models.markets.crawl_scope import CrawlScope
+from models.markets.enums import MarketFeed
 from storage.exception import StorageError
 
 
@@ -30,9 +34,10 @@ class CrawlWorker(QObject):
         provider (Optional[CloudProvider]): The crawled cloud provider, `None` for several of them.
         country (Optional[Country]): The country whose providers are crawled when no provider is given, `None` for
             every provider.
-        source (CrawlSource): What is crawled: the catalogues, the marketplaces or the statistics.
+        source (CrawlSource): What is crawled: the catalogues, the marketplaces, the statistics or the markets.
         providers (Optional[List[CloudProvider]]): The crawled cloud providers when no provider is given, before the
             country filter, `None` for every one.
+        feeds (List[MarketFeed]): The markets sources crawled (`CrawlSource.MARKETS`), every one when empty.
         counts (Dict[CloudProvider, int]): The products (or software) crawled so far, by cloud provider.
     """
 
@@ -49,6 +54,7 @@ class CrawlWorker(QObject):
         country: Optional[Country] = None,
         source: CrawlSource = CrawlSource.CATALOGUE,
         providers: Optional[Sequence[CloudProvider]] = None,
+        feeds: Optional[Sequence[MarketFeed]] = None,
     ) -> None:
         """Initialize the worker.
 
@@ -60,6 +66,8 @@ class CrawlWorker(QObject):
             source (CrawlSource): What is crawled: the catalogues (default), the marketplaces or the statistics.
             providers (Optional[Sequence[CloudProvider]]): The crawled cloud providers when no provider is given,
                 e.g. the marketplaces chosen in the marketplace menu, `None` for every one.
+            feeds (Optional[Sequence[MarketFeed]]): The markets sources crawled (`CrawlSource.MARKETS`), every one
+                by default.
         """
         super().__init__()
         self.runner = runner
@@ -67,6 +75,7 @@ class CrawlWorker(QObject):
         self.country = country
         self.source = source
         self.providers: Optional[List[CloudProvider]] = list(providers) if providers is not None else None
+        self.feeds: List[MarketFeed] = list(feeds) if feeds else []
         self.counts: Dict[CloudProvider, int] = {}
         self.logger = logger if logger else getLogger(__name__)
         self.logger.debug(
@@ -124,6 +133,33 @@ class CrawlWorker(QObject):
             f"({summary.added} added, {summary.updated} updated, {summary.deleted} deleted)"
         )
 
+    async def _crawl_markets(self) -> str:
+        """Run a markets crawl: each source picked, then the measures derived from several of them.
+
+        Returns:
+            str: The crawl summary.
+
+        Raises:
+            CrawlerError: If the markets catalogue cannot be loaded.
+
+        Notes:
+            As `CRAWLER_SOURCE=markets`: the World Bank weights join StatCounter (the EU-27 estimate needs them), the
+            facts are written by batches as they come, then the EU-27 is estimated, the dossier's manual shares and
+            the Synergy cloud shares are written, and the providers' stock measures computed.
+        """
+        feeds = [feed for feed in self.runner.factory.MARKETS_MAP if not self.feeds or feed in self.feeds]
+        if MarketFeed.STATCOUNTER in feeds and MarketFeed.WORLD_BANK not in feeds:
+            feeds.insert(0, MarketFeed.WORLD_BANK)
+        self.logger.debug("Running a markets crawl of %s.", ", ".join(feed.value for feed in feeds))
+        loader = MarketsCatalogLoader(self.logger)
+        catalog = loader.load()
+        collector = MarketsCollector(catalog, loader.chronology(), self.runner.storage, self.logger)
+        written = 0
+        for feed in feeds:
+            written += await self.runner.stream_markets(feed, collector.write, catalog, CrawlScope())
+        written += await collector.finish(feeds)
+        return f"{written} markets rows written from {', '.join(feed.value for feed in feeds)}"
+
     async def _crawl(self) -> str:
         """Run the crawl, with the storage of the runner opened in the event loop of the crawl.
 
@@ -138,6 +174,8 @@ class CrawlWorker(QObject):
                 case CrawlSource.STATISTICS:
                     summary = await self.runner.run_statistics()
                     return f"{summary.found} market reports written"
+                case CrawlSource.MARKETS:
+                    return await self._crawl_markets()
                 case _:
                     return await self._crawl_catalogues()
 
@@ -147,7 +185,9 @@ class CrawlWorker(QObject):
 
     def run(self) -> None:
         """Run the crawl in its own event loop, then emit its outcome."""
-        if self.provider:
+        if self.source is CrawlSource.MARKETS:
+            scope = ", ".join(feed.value for feed in self.feeds) or "every markets source"
+        elif self.provider:
             scope = self.provider.value
         elif self.providers is not None:
             scope = ", ".join(provider.value for provider in self.providers)

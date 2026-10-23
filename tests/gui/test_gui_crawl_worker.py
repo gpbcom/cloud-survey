@@ -9,15 +9,19 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from pytestqt.qtbot import QtBot
 
+from analytics.markets.markets_collector import MarketsCollector
 from crawler.enums import CrawlSource
 from crawler.exception import CrawlerError
 from crawler.factory import CrawlerFactory
-from crawler.runner import CatalogueRunner, ProductCallback, SoftwareCallback
+from crawler.runner import CatalogueRunner, FactSink, ProductCallback, SoftwareCallback
 from gui.crawl_worker import CrawlWorker
 from models.cloud.enums import CloudProvider, Country, SoftwareCategory
 from models.cloud.products.product import CloudProduct
 from models.cloud.software.marketplace_software import MarketplaceSoftware
 from models.configuration.storage.storage_settings import StorageSettings
+from models.markets.crawl_scope import CrawlScope
+from models.markets.enums import MarketFeed
+from models.markets.markets_catalog import MarketsCatalog
 from models.storage.crawl_summary import CrawlSummary
 from models.storage.enums import CrawlStatus, DatasetKind
 from storage.exception import StorageWriteError
@@ -217,3 +221,26 @@ def test_statistics_crawl(qtbot: QtBot) -> None:
         worker.run()
 
     assert signal.args == ["12 market reports written"]
+
+
+def test_markets_crawl_streams_each_source_then_derives(qtbot: QtBot, monkeypatch: pytest.MonkeyPatch) -> None:
+    runner = FakeRunner({})
+    streamed: List[MarketFeed] = []
+
+    async def stream_markets(
+        feed: MarketFeed, sink: FactSink, catalog: Optional[MarketsCatalog], scope: Optional[CrawlScope]
+    ) -> int:
+        streamed.append(feed)
+        return 10
+
+    finish = AsyncMock(return_value=5)
+    runner.stream_markets = stream_markets  # type: ignore[method-assign, assignment]
+    monkeypatch.setattr(MarketsCollector, "finish", finish)
+    worker = CrawlWorker(runner, None, source=CrawlSource.MARKETS, feeds=[MarketFeed.STATCOUNTER, MarketFeed.IDC])
+
+    with qtbot.waitSignal(worker.succeeded) as blocker:
+        worker.run()
+
+    assert streamed == [MarketFeed.WORLD_BANK, MarketFeed.STATCOUNTER, MarketFeed.IDC], "the weights join StatCounter"
+    assert blocker.args == ["35 markets rows written from worldbank, statcounter, idc"]
+    finish.assert_awaited_once_with(streamed)

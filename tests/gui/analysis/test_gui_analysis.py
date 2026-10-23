@@ -88,10 +88,11 @@ class TestChartsInTheWindow:
             for section in sections
             if not section.key.endswith("/table") and not section.key.startswith("correspondence/")
         ]
-        assert len(charts) == 16
+        assert len(charts) == 20
         assert all(scrolled(section) for section in charts)
         assert sorted(section.key for section in sections if section not in charts) == [
             "analysis/drivers/table",
+            "analysis/leaders/table",
             "catalogue/table",
             "correspondence/controls",
             "correspondence/diagram",

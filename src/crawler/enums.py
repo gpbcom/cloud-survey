@@ -19,6 +19,8 @@ class CrawlSource(StrEnum):
             equivalent catalogue services, with the language model (`conf/llm.yaml`), without crawling.
         CORRESPOND (str): Match the equivalent catalogue services of the providers with the language model only.
         METRICS (str): Compute the measures of the providers (the criteria of the driver analysis) again.
+        MARKETS (str): Crawl the market shares (StatCounter), the stock prices (Google Finance), the exchange rates
+            (FRED) and the union weights (World Bank) of the leaders of the chronology.
     """
 
     CATALOGUE = "catalogue"
@@ -30,6 +32,7 @@ class CrawlSource(StrEnum):
     TRANSLATE = "translate"
     CORRESPOND = "correspond"
     METRICS = "metrics"
+    MARKETS = "markets"
 
 
 @unique

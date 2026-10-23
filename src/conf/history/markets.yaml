@@ -1,0 +1,536 @@
+# Market shares and stock values of the leaders of the chronology (conf/history/chronology.yaml).
+# Read by the markets crawl (CRAWLER_SOURCE=markets) and by the Analysis tab cards "Market shares" and "Stock values".
+# Sources, licences and limits: docs/analysis/market-shares-and-stocks.md. Every company key is a chronology key.
+
+# StatCounter Global Stats publishes monthly shares from 2009-01 (phone vendors from 2010-04, AI chatbots 2025-04).
+statcounter_from: "2009-01"
+
+# Google Finance's chart RPC (measured 2026-10-23, as in mega-trends' GoogleFinanceConfig). Google renames these
+# without notice: change them here. The cookies only record a consent choice.
+google_finance:
+  rpc_id: c2u4wc
+  period: 8
+  consent_cookies:
+    CONSENT: "YES+cb.20240101-00-p0.en+FX+000"
+    SOCS: "CAESHAgBEhJnd3NfMjAyNDAxMDEtMF9SQzIaAmVuIAEaBgiA0t-tBg"
+
+# The markets followed. The first device of a segment is the one its card opens on.
+segments:
+  - key: search
+    label: Web search
+    chronology: search
+    source: statcounter
+    stat: search_engine
+    metric: usage
+    devices: [all, desktop, mobile, tablet]
+    description: "Share of the search referrals to the 1.5 million sites of the StatCounter panel (page views, not users or revenue)."
+  - key: browsers
+    label: Web browsers
+    chronology: browsers
+    source: statcounter
+    stat: browser
+    metric: usage
+    devices: [all, desktop, mobile, tablet]
+    description: "Share of the page views of the StatCounter panel, by browser."
+  - key: operating-systems
+    label: Operating systems
+    chronology: mobile
+    source: statcounter
+    stat: os_combined
+    metric: usage
+    devices: [mobile, all, desktop, tablet]
+    description: "Share of the page views of the StatCounter panel, by operating system (on phones: the smartphone OS)."
+  - key: device-vendors
+    label: Device vendors
+    source: statcounter
+    stat: vendor
+    metric: usage
+    devices: [mobile, tablet, all]
+    description: "Share of the page views of the StatCounter panel, by phone or tablet vendor (installed base in use, not shipments)."
+  - key: ai-chatbots
+    label: AI chatbots
+    chronology: ai-labs
+    source: statcounter
+    stat: ai_chatbot
+    metric: usage
+    devices: [all, desktop, mobile, tablet]
+    first_month: "2025-04"
+    description: "Share of the referrals from AI chatbots to the StatCounter panel (from April 2025)."
+  - key: cloud
+    label: Cloud infrastructure
+    chronology: cloud
+    source: synergy
+    metric: revenue
+    devices: [all]
+    description: "Share of cloud infrastructure services revenue (IaaS, PaaS, hosted private cloud), Synergy Research Group, quarterly."
+
+  - key: foundry
+    label: Chip foundry
+    chronology: foundry
+    source: trendforce
+    metric: revenue
+    devices: [all]
+    description: "Share of the revenue of the top 10 foundries, TrendForce, quarterly (the pure-play and IDM foundry businesses)."
+  - key: dram
+    label: DRAM
+    source: trendforce
+    metric: revenue
+    devices: [all]
+    description: "Share of DRAM revenue by supplier, TrendForce, quarterly."
+  - key: nand
+    label: NAND flash
+    source: trendforce
+    metric: revenue
+    devices: [all]
+    description: "Share of NAND flash revenue by supplier, TrendForce, quarterly."
+  - key: pcs
+    label: PCs
+    chronology: pcs
+    source: idc
+    metric: units
+    devices: [all]
+    description: "Share of traditional PC shipments (desktops, notebooks, workstations; sell-in), IDC, quarterly."
+  - key: smartphones
+    label: Smartphones
+    source: idc
+    metric: units
+    devices: [all]
+    description: "Share of smartphone shipments (sell-in), IDC, quarterly."
+  - key: tablets
+    label: Tablets
+    source: idc
+    metric: units
+    devices: [all]
+    description: "Share of tablet shipments (sell-in), IDC, quarterly."
+
+  - key: mainframes
+    label: Mainframes & EDP industry
+    chronology: mainframes
+    source: manual
+    metric: revenue
+    devices: [all]
+    description: "IBM's share of the US electronic data processing industry revenue (as defined in US v. IBM), of mainframe sales, and of computers worldwide (dossier points, 1961 to 1985)."
+  - key: x86
+    label: x86 CPUs
+    chronology: x86
+    source: manual
+    metric: units
+    devices: [all]
+    description: "x86 processor unit shipments, PC and server (Mercury Research, dossier points)."
+  - key: smartphone-os-sales
+    label: Smartphone OS (sales)
+    source: manual
+    metric: units
+    devices: [all]
+    description: "Smartphone operating systems, sales to end users (Gartner, dossier points); StatCounter's operating systems are page views."
+
+# The areas. A key is its StatCounter region code: ww, a continent, or an ISO 3166-1 alpha-2 country.
+# The EU-27 is estimated from its members, weighted by internet users (World Bank IT.NET.USER.ZS x SP.POP.TOTL).
+areas:
+  - {key: ww, label: Worldwide, kind: world}
+  - {key: eu27, label: EU-27 (estimate), kind: union, members: [AT, BE, BG, HR, CY, CZ, DK, EE, FI, FR, DE, GR, HU, IE, IT, LV, LT, LU, MT, NL, PL, PT, RO, SK, SI, ES, SE]}
+  - {key: eu, label: Europe, kind: continent}
+  - {key: na, label: North America, kind: continent}
+  - {key: sa, label: South America, kind: continent}
+  - {key: as, label: Asia, kind: continent}
+  - {key: af, label: Africa, kind: continent}
+  - {key: oc, label: Oceania, kind: continent}
+  - {key: US, label: United States, kind: country}
+  - {key: GB, label: United Kingdom, kind: country}
+  - {key: DE, label: Germany, kind: country}
+  - {key: FR, label: France, kind: country}
+  - {key: IT, label: Italy, kind: country}
+  - {key: ES, label: Spain, kind: country}
+  - {key: NL, label: Netherlands, kind: country}
+  - {key: PL, label: Poland, kind: country}
+  - {key: SE, label: Sweden, kind: country}
+  - {key: BE, label: Belgium, kind: country}
+  - {key: AT, label: Austria, kind: country}
+  - {key: IE, label: Ireland, kind: country}
+  - {key: DK, label: Denmark, kind: country}
+  - {key: FI, label: Finland, kind: country}
+  - {key: PT, label: Portugal, kind: country}
+  - {key: CZ, label: Czechia, kind: country}
+  - {key: GR, label: Greece, kind: country}
+  - {key: HU, label: Hungary, kind: country}
+  - {key: RO, label: Romania, kind: country}
+  - {key: BG, label: Bulgaria, kind: country}
+  - {key: HR, label: Croatia, kind: country}
+  - {key: SK, label: Slovakia, kind: country}
+  - {key: SI, label: Slovenia, kind: country}
+  - {key: LT, label: Lithuania, kind: country}
+  - {key: LV, label: Latvia, kind: country}
+  - {key: EE, label: Estonia, kind: country}
+  - {key: LU, label: Luxembourg, kind: country}
+  - {key: CY, label: Cyprus, kind: country}
+  - {key: MT, label: Malta, kind: country}
+  - {key: CH, label: Switzerland, kind: country}
+  - {key: "NO", label: Norway, kind: country}
+  - {key: UA, label: Ukraine, kind: country}
+  - {key: TR, label: Turkey, kind: country}
+  - {key: RU, label: Russia, kind: country}
+  - {key: CA, label: Canada, kind: country}
+  - {key: MX, label: Mexico, kind: country}
+  - {key: BR, label: Brazil, kind: country}
+  - {key: AR, label: Argentina, kind: country}
+  - {key: CL, label: Chile, kind: country}
+  - {key: CO, label: Colombia, kind: country}
+  - {key: CN, label: China, kind: country}
+  - {key: JP, label: Japan, kind: country}
+  - {key: KR, label: South Korea, kind: country}
+  - {key: TW, label: Taiwan, kind: country}
+  - {key: HK, label: Hong Kong, kind: country}
+  - {key: IN, label: India, kind: country}
+  - {key: ID, label: Indonesia, kind: country}
+  - {key: VN, label: Vietnam, kind: country}
+  - {key: TH, label: Thailand, kind: country}
+  - {key: PH, label: Philippines, kind: country}
+  - {key: MY, label: Malaysia, kind: country}
+  - {key: SG, label: Singapore, kind: country}
+  - {key: PK, label: Pakistan, kind: country}
+  - {key: BD, label: Bangladesh, kind: country}
+  - {key: IL, label: Israel, kind: country}
+  - {key: SA, label: Saudi Arabia, kind: country}
+  - {key: AE, label: United Arab Emirates, kind: country}
+  - {key: EG, label: Egypt, kind: country}
+  - {key: NG, label: Nigeria, kind: country}
+  - {key: KE, label: Kenya, kind: country}
+  - {key: ZA, label: South Africa, kind: country}
+  - {key: MA, label: Morocco, kind: country}
+  - {key: AU, label: Australia, kind: country}
+  - {key: NZ, label: New Zealand, kind: country}
+
+# The company behind each StatCounter label. A label left out (Linux, Unknown, Other, a small engine) is kept as
+# printed and counted in "Others".
+labels:
+  # Google (Alphabet)
+  - {label: Google, company: google}
+  - {label: Chrome, company: google}
+  - {label: Chromium, company: google}
+  - {label: Android, company: google}
+  - {label: Chrome OS, company: google}
+  - {label: Google Gemini, company: google}
+  # Microsoft
+  - {label: bing, company: microsoft}
+  - {label: MSN, company: microsoft}
+  - {label: Windows Live, company: microsoft}
+  - {label: IE, company: microsoft}
+  - {label: IEMobile, company: microsoft}
+  - {label: Edge, company: microsoft}
+  - {label: Edge Legacy, company: microsoft}
+  - {label: Windows, company: microsoft}
+  - {label: Xbox, company: microsoft}
+  - {label: Microsoft, company: microsoft}
+  - {label: Microsoft Copilot, company: microsoft}
+  # Apple
+  - {label: Safari, company: apple}
+  - {label: iOS, company: apple}
+  - {label: OS X, company: apple}
+  - {label: macOS, company: apple}
+  - {label: Apple, company: apple}
+  # Yahoo, AOL
+  - {label: Yahoo!, company: yahoo}
+  - {label: AOL, company: aol}
+  # Nokia
+  - {label: Nokia, company: nokia}
+  - {label: Series 40, company: nokia}
+  - {label: SymbianOS, company: nokia}
+  - {label: Nokia Unknown, company: nokia}
+  - {label: MeeGo, company: nokia}
+  # Samsung
+  - {label: Samsung, company: samsung}
+  - {label: Samsung Internet, company: samsung}
+  - {label: bada, company: samsung}
+  - {label: Tizen, company: samsung}
+  # Phone makers
+  - {label: Xiaomi, company: xiaomi}
+  - {label: Huawei, company: huawei}
+  - {label: Petal Search, company: huawei}
+  - {label: Oppo, company: bbk}
+  - {label: Vivo, company: bbk}
+  - {label: Realme, company: bbk}
+  - {label: OnePlus, company: bbk}
+  - {label: BBK, company: bbk}
+  - {label: Lenovo, company: lenovo}
+  - {label: Motorola, company: motorola}
+  - {label: RIM, company: blackberry}
+  - {label: BlackBerry, company: blackberry}
+  - {label: BlackBerry OS, company: blackberry}
+  - {label: Sony, company: sony}
+  - {label: Sony Ericsson, company: sony}
+  - {label: SonyEricsson, company: sony}
+  - {label: Playstation, company: sony}
+  - {label: Sony PS3, company: sony}
+  - {label: Sony PS4, company: sony}
+  - {label: Sony PSP, company: sony}
+  - {label: Sony PSP Vita, company: sony}
+  - {label: LG, company: lg}
+  - {label: HTC, company: htc}
+  - {label: Amazon, company: amazon}
+  - {label: Silk, company: amazon}
+  # Browsers and engines
+  - {label: Firefox, company: mozilla}
+  - {label: Mozilla, company: mozilla}
+  - {label: SeaMonkey, company: mozilla}
+  - {label: Firefox OS, company: mozilla}
+  - {label: Opera, company: opera}
+  - {label: YANDEX, company: yandex}
+  - {label: YANDEX RU, company: yandex}
+  - {label: Yandex Browser, company: yandex}
+  - {label: Baidu, company: baidu}
+  - {label: Baidu Browser, company: baidu}
+  - {label: Naver, company: naver}
+  - {label: Whale Browser, company: naver}
+  - {label: QQ Browser, company: tencent}
+  - {label: Sogou, company: tencent}
+  - {label: Sogou Explorer, company: tencent}
+  - {label: UC Browser, company: alibaba}
+  - {label: Shenma, company: alibaba}
+  - {label: Haosou, company: qihoo}
+  - {label: 360 Safe Browser, company: qihoo}
+  - {label: DuckDuckGo, company: duckduckgo}
+  # AI chatbots
+  - {label: ChatGPT, company: openai}
+  - {label: Claude, company: anthropic}
+  - {label: Perplexity, company: perplexity}
+  - {label: Deepseek, company: deepseek}
+  # Synergy Research Group players (the stored cloud market reports)
+  - {source: synergy, label: amazon, company: amazon}
+  - {source: synergy, label: microsoft, company: microsoft}
+  - {source: synergy, label: google, company: google}
+  - {source: synergy, label: sap, company: sap}
+
+  # TrendForce: foundries and memory makers
+  - {source: trendforce, label: TSMC, company: tsmc}
+  - {source: trendforce, label: Samsung, company: samsung}
+  - {source: trendforce, label: Samsung Foundry, company: samsung}
+  - {source: trendforce, label: SMIC, company: smic}
+  - {source: trendforce, label: UMC, company: umc}
+  - {source: trendforce, label: GlobalFoundries, company: globalfoundries}
+  - {source: trendforce, label: GF, company: globalfoundries}
+  - {source: trendforce, label: Hua Hong Group, company: hua-hong}
+  - {source: trendforce, label: HuaHong Group, company: hua-hong}
+  - {source: trendforce, label: Hua Hong, company: hua-hong}
+  - {source: trendforce, label: SK hynix, company: sk-hynix}
+  - {source: trendforce, label: SK Hynix, company: sk-hynix}
+  - {source: trendforce, label: Micron, company: micron}
+  - {source: trendforce, label: Kioxia, company: kioxia}
+  - {source: trendforce, label: Western Digital, company: western-digital}
+  - {source: trendforce, label: WDC, company: western-digital}
+  - {source: trendforce, label: SanDisk, company: sandisk}
+  - {source: trendforce, label: Sandisk, company: sandisk}
+  - {source: trendforce, label: Nanya, company: nanya}
+  - {source: trendforce, label: Nanya Technology, company: nanya}
+  - {source: trendforce, label: Winbond, company: winbond}
+  - {source: trendforce, label: YMTC, company: ymtc}
+  - {source: trendforce, label: CXMT, company: cxmt}
+  - {source: trendforce, label: Intel, company: intel}
+  - {source: trendforce, label: Toshiba, company: kioxia}
+  - {source: trendforce, label: Hynix, company: sk-hynix}
+  # IDC: PC, smartphone and tablet makers
+  - {source: idc, label: Lenovo, company: lenovo}
+  - {source: idc, label: HP Inc, company: hp}
+  - {source: idc, label: HP Inc., company: hp}
+  - {source: idc, label: HP, company: hp}
+  - {source: idc, label: Dell Technologies, company: dell}
+  - {source: idc, label: Dell, company: dell}
+  - {source: idc, label: Apple, company: apple}
+  - {source: idc, label: ASUS, company: asus}
+  - {source: idc, label: Asus, company: asus}
+  - {source: idc, label: Acer Group, company: acer}
+  - {source: idc, label: Acer, company: acer}
+  - {source: idc, label: Samsung, company: samsung}
+  - {source: idc, label: Xiaomi, company: xiaomi}
+  - {source: idc, label: Poco, company: xiaomi}
+  - {source: idc, label: OPPO, company: bbk}
+  - {source: idc, label: vivo, company: bbk}
+  - {source: idc, label: realme, company: bbk}
+  - {source: idc, label: OnePlus, company: bbk}
+  - {source: idc, label: iQOO, company: bbk}
+  - {source: idc, label: Huawei, company: huawei}
+  - {source: idc, label: Honor, company: honor}
+  - {source: idc, label: Transsion, company: transsion}
+  - {source: idc, label: Motorola, company: motorola}
+  - {source: idc, label: Google, company: google}
+  - {source: idc, label: Amazon.com, company: amazon}
+  - {source: idc, label: Microsoft, company: microsoft}
+  - {source: idc, label: Sony, company: sony}
+
+# FRED daily exchange rates against the US dollar (the pivot of every conversion). The rouble is monthly (OECD).
+currencies:
+  - {currency: EUR, series: DEXUSEU, quote: usd-per-unit}
+  - {currency: GBP, series: DEXUSUK, quote: usd-per-unit}
+  - {currency: JPY, series: DEXJPUS, quote: units-per-usd}
+  - {currency: KRW, series: DEXKOUS, quote: units-per-usd}
+  - {currency: CNY, series: DEXCHUS, quote: units-per-usd}
+  - {currency: HKD, series: DEXHKUS, quote: units-per-usd}
+  - {currency: TWD, series: DEXTAUS, quote: units-per-usd}
+  - {currency: CAD, series: DEXCAUS, quote: units-per-usd}
+  - {currency: CHF, series: DEXSZUS, quote: units-per-usd}
+  - {currency: SEK, series: DEXSDUS, quote: units-per-usd}
+  - {currency: NOK, series: DEXNOUS, quote: units-per-usd}
+  - {currency: DKK, series: DEXDNUS, quote: units-per-usd}
+  - {currency: INR, series: DEXINUS, quote: units-per-usd}
+  - {currency: RUB, series: CCUSMA02RUM618N, quote: units-per-usd}
+
+# The regions the listed companies are grouped by, from the country of their headquarters (chronology `country`).
+regions:
+  - {key: us, label: United States, countries: [US]}
+  - {key: uk, label: United Kingdom, countries: [GB]}
+  - {key: eu, label: European Union, countries: [AT, BE, BG, HR, CY, CZ, DK, EE, FI, FR, DE, GR, HU, IE, IT, LV, LT, LU, MT, NL, PL, PT, RO, SK, SI, ES, SE]}
+  - {key: other-europe, label: Other Europe, countries: ["NO", CH]}
+  - {key: china, label: China and Hong Kong, countries: [CN, HK]}
+  - {key: japan, label: Japan, countries: [JP]}
+  - {key: korea, label: South Korea, countries: [KR]}
+  - {key: taiwan, label: Taiwan, countries: [TW]}
+  - {key: russia, label: Russia, countries: [RU]}
+  - {key: canada, label: Canada, countries: [CA]}
+
+# The listings read from Google Finance (each checked on 2026-10-23: the first weekly point is in the comment).
+listings:
+  - {company: ibm, symbol: "NYSE:IBM", currency: USD}                                   # 1986-10
+  - {company: microsoft, symbol: "NASDAQ:MSFT", currency: USD}                          # 1986-10
+  - {company: oracle, symbol: "NYSE:ORCL", currency: USD}                               # 1986-10
+  - {company: apple, symbol: "NASDAQ:AAPL", currency: USD}                              # 1986-10
+  - {company: hp, symbol: "NYSE:HPQ", currency: USD, note: "HP Inc. (Hewlett-Packard until the 2015 split)"}  # 1986-10
+  - {company: hp, symbol: "NYSE:HPE", currency: USD, primary: false, note: "Hewlett Packard Enterprise (from the 2015 split)"}  # 2015-10
+  - {company: lenovo, symbol: "HKG:0992", currency: HKD}                                # 2000-01
+  - {company: intel, symbol: "NASDAQ:INTC", currency: USD}                              # 1986-10
+  - {company: amd, symbol: "NASDAQ:AMD", currency: USD}                                 # 1986-10
+  - {company: cisco, symbol: "NASDAQ:CSCO", currency: USD}                              # 1990-02
+  - {company: google, symbol: "NASDAQ:GOOGL", currency: USD, note: "Alphabet (Google until 2015)"}  # 2004-08
+  - {company: nokia, symbol: "HEL:NOKIA", currency: EUR}                                # 1991-02
+  - {company: nokia, symbol: "NYSE:NOK", currency: USD, primary: false, note: "ADR"}    # 1994-07
+  - {company: tsmc, symbol: "TPE:2330", currency: TWD}                                  # 2000-01
+  - {company: tsmc, symbol: "NYSE:TSM", currency: USD, primary: false, note: "ADR"}     # 1997-10
+  - {company: nvidia, symbol: "NASDAQ:NVDA", currency: USD}                             # 1999-01
+  - {company: amazon, symbol: "NASDAQ:AMZN", currency: USD, note: "Amazon, parent of AWS"}  # 1997-05
+  - {company: att, symbol: "NYSE:T", currency: USD}                                     # 1986-10
+  - {company: unisys, symbol: "NYSE:UIS", currency: USD}                                # 1986-10
+  - {company: verizon, symbol: "NYSE:VZ", currency: USD}                                # 1986-10
+  - {company: smic, symbol: "HKG:0981", currency: HKD}                                  # 2004-03
+  - {company: smic, symbol: "SHA:688981", currency: CNY, primary: false, note: "Shanghai STAR Market"}  # 2020-07
+  - {company: arm, symbol: "NASDAQ:ARM", currency: USD}                                 # 2023-09
+  - {company: broadcom, symbol: "NASDAQ:AVGO", currency: USD, note: "Broadcom, owner of VMware since 2023"}  # 2009-08
+  - {company: coreweave, symbol: "NASDAQ:CRWV", currency: USD}                          # 2025-03
+  - {company: samsung, symbol: "KRX:005930", currency: KRW}                             # 2005-09
+  - {company: xiaomi, symbol: "HKG:1810", currency: HKD}                                # 2018-07
+  - {company: motorola, symbol: "NYSE:MSI", currency: USD, note: "Motorola Solutions (Motorola until the 2011 split)"}  # 1986-10
+  - {company: blackberry, symbol: "NYSE:BB", currency: USD}                             # 1999-02
+  - {company: blackberry, symbol: "TSE:BB", currency: CAD, primary: false, note: "Toronto"}  # 1998-06
+  - {company: sony, symbol: "NYSE:SONY", currency: USD, note: "ADR"}                    # 1986-10
+  - {company: sony, symbol: "TYO:6758", currency: JPY, primary: false, note: "Tokyo"}   # 2000-01
+  - {company: lg, symbol: "KRX:066570", currency: KRW, note: "LG Electronics"}          # 2005-09
+  - {company: htc, symbol: "TPE:2498", currency: TWD}                                   # 2002-03
+  - {company: opera, symbol: "NASDAQ:OPRA", currency: USD}                              # 2018-07
+  - {company: yandex, symbol: "NASDAQ:NBIS", currency: USD, note: "Nebius Group, the former Yandex N.V. (history from 2024-10 only)"}  # 2024-10
+  - {company: baidu, symbol: "NASDAQ:BIDU", currency: USD, note: "ADS"}                 # 2005-08
+  - {company: baidu, symbol: "HKG:9888", currency: HKD, primary: false}                 # 2021-03
+  - {company: naver, symbol: "KRX:035420", currency: KRW}                               # 2005-09
+  - {company: tencent, symbol: "HKG:0700", currency: HKD}                               # 2004-06
+  - {company: tencent, symbol: "OTCMKTS:TCEHY", currency: USD, primary: false, note: "ADR"}  # 2008-11
+  - {company: alibaba, symbol: "NYSE:BABA", currency: USD, note: "ADS"}                 # 2014-09
+  - {company: alibaba, symbol: "HKG:9988", currency: HKD, primary: false}               # 2019-11
+  - {company: qihoo, symbol: "SHA:601360", currency: CNY, note: "360 Security Technology"}  # 2012-01
+  - {company: sap, symbol: "ETR:SAP", currency: EUR}                                    # 1998-04
+  - {company: sap, symbol: "NYSE:SAP", currency: USD, primary: false, note: "ADR"}      # 1995-09
+  - {company: ovhcloud, symbol: "EPA:OVH", currency: EUR}                               # 2021-10
+  - {company: dell, symbol: "NYSE:DELL", currency: USD, note: "Dell Technologies (relisted 2018)"}  # 2016-08
+
+  - {company: umc, symbol: "TPE:2303", currency: TWD}                                   # 2000-01
+  - {company: umc, symbol: "NYSE:UMC", currency: USD, primary: false, note: "ADR"}      # 2000-09
+  - {company: globalfoundries, symbol: "NASDAQ:GFS", currency: USD}                     # 2021-10
+  - {company: hua-hong, symbol: "HKG:1347", currency: HKD}                              # 2014-10
+  - {company: sk-hynix, symbol: "KRX:000660", currency: KRW}                            # 2005-09
+  - {company: micron, symbol: "NASDAQ:MU", currency: USD}                               # 1986-10
+  - {company: kioxia, symbol: "TYO:285A", currency: JPY}                                # 2024-12
+  - {company: western-digital, symbol: "NASDAQ:WDC", currency: USD}                     # 1986-10
+  - {company: sandisk, symbol: "NASDAQ:SNDK", currency: USD, note: "Spun off from Western Digital in 2025"}  # 2025-02
+  - {company: nanya, symbol: "TPE:2408", currency: TWD}                                 # 2000-08
+  - {company: winbond, symbol: "TPE:2344", currency: TWD}                               # 2000-01
+  - {company: asus, symbol: "TPE:2357", currency: TWD}                                  # 2000-01
+  - {company: acer, symbol: "TPE:2353", currency: TWD}                                  # 2000-01
+  - {company: transsion, symbol: "SHA:688036", currency: CNY}                           # 2019-09
+
+# Sourced valuation points (source dossier, Tab 3), for the companies without a price history and the latest caps.
+# Tags: P primary filing, J journalistic, B blog or aggregator.
+valuations:
+  - {company: ashton-tate, date: "1991-07-09", kind: deal, value_bn: 0.44, label: To Borland, source: DOJ Competitive Impact Statement, tag: P}
+  - {company: wordperfect, date: "1994-06", kind: deal, value_bn: 0.855, label: To Novell (1.4 announced), source: Deseret News, tag: J}
+  - {company: wordperfect, date: "1996", kind: deal, value_bn: 0.186, high_bn: 0.2, label: To Corel, source: Deseret News, tag: J}
+  - {company: lotus, date: "1995-07-05", kind: deal, value_bn: 3.2, high_bn: 3.5, label: To IBM, source: IBM 10-Qs, tag: P}
+  - {company: dec, date: "1998-01-26", kind: deal, value_bn: 9.6, label: To Compaq, source: DEC 8-K, tag: P}
+  - {company: netscape, date: "1998-11-24", kind: deal, value_bn: 4.2, label: To AOL, source: AOL 8-K, tag: P}
+  - {company: compaq, date: "2002-05-03", kind: deal, value_bn: 25, label: To HP, source: HP 424B5, tag: P}
+  - {company: google, date: "2004-08-18", kind: ipo, value_bn: 23, label: IPO at $85, source: Prospectus and Washington Post, tag: P}
+  - {company: ibm, date: "2005-05", kind: deal, value_bn: 1.25, label: PC unit to Lenovo, source: China Daily and Forbes, tag: J}
+  - {company: sun, date: "2010-01-27", kind: deal, value_bn: 7.4, label: To Oracle, source: eWeek and Oracle 10-K, tag: P}
+  - {company: palm, date: "2010-04-28", kind: deal, value_bn: 1.2, label: To HP, source: HP and Palm release, tag: P}
+  - {company: yahoo, date: "2017-06-13", kind: deal, value_bn: 4.48, label: To Verizon (from 4.83), source: Verizon 10-Q, tag: P}
+  - {company: arm, date: "2023-09-14", kind: ipo, value_bn: 52.3, high_bn: 54.5, label: IPO at $51, source: Fortune and StoneX, tag: J}
+  - {company: vmware, date: "2023-11-22", kind: deal, value_bn: 61, high_bn: 69, label: To Broadcom, source: VMware DEF 14A, tag: P}
+  - {company: openai, date: "2025-03", kind: private-round, value_bn: 300, label: Post-money, source: RevenueMemo, tag: B}
+  - {company: coreweave, date: "2025-03-27", kind: ipo, value_bn: 19, high_bn: 23, label: IPO at $40, source: CoreWeave and CNBC, tag: P}
+  - {company: anthropic, date: "2026-02", kind: private-round, value_bn: 380, label: Series G, source: Pinggy and ValueAddVC, tag: B}
+  - {company: openai, date: "2026-03-31", kind: private-round, value_bn: 852, label: Post-money, source: Reuters, tag: J}
+  - {company: anthropic, date: "2026-05-28", kind: private-round, value_bn: 965, label: Series H, source: Pinggy and ValueAddVC, tag: B}
+  - {company: nvidia, date: "2026-10-09", kind: market-cap, value_bn: 5536, label: Market cap, source: finhacker.cz, tag: B}
+  - {company: apple, date: "2026-10-09", kind: market-cap, value_bn: 4918, label: Market cap, source: finhacker.cz, tag: B}
+  - {company: google, date: "2026-10-09", kind: market-cap, value_bn: 4301, label: Market cap (Alphabet), source: finhacker.cz, tag: B}
+  - {company: microsoft, date: "2026-10-09", kind: market-cap, value_bn: 3974, label: Market cap, source: finhacker.cz, tag: B}
+  - {company: amazon, date: "2026-10-09", kind: market-cap, value_bn: 2830, label: Market cap, source: finhacker.cz, tag: B}
+  - {company: broadcom, date: "2026-10-09", kind: market-cap, value_bn: 1726, label: Market cap, source: finhacker.cz, tag: B}
+  - {company: amd, date: "2026-10-09", kind: market-cap, value_bn: 992, label: Market cap, source: finhacker.cz, tag: B}
+  - {company: tsmc, date: "2026-10", kind: market-cap, value_bn: 2450, label: Market cap, source: AlphaSense, tag: B}
+
+# The analyst press releases read (phase 2). A release goes to the first family it matches, on "title | caption":
+# the countries before the worldwide families, which exclude every regional wording. Regexes are single-quoted.
+press:
+  - {source: idc, segment: smartphones, area: IN, search: smartphone, pattern: 'India.*smartphone|smartphone.*India', exclude: 'used|refurbish|foldable|feature phone|wearable'}
+  - {source: idc, segment: smartphones, area: CN, search: smartphone, pattern: 'China.*smartphone|smartphone.*China', exclude: 'used|refurbish|foldable|wearable'}
+  - {source: idc, segment: smartphones, area: JP, search: smartphone, pattern: 'Japan.*smartphone|smartphone.*Japan'}
+  - {source: idc, segment: smartphones, area: ID, search: smartphone, pattern: 'Indonesia.*smartphone|smartphone.*Indonesia'}
+  - {source: idc, segment: smartphones, area: TH, search: smartphone, pattern: 'Thailand.*smartphone|smartphone.*Thailand'}
+  - {source: idc, segment: smartphones, area: VN, search: smartphone, pattern: 'Vietnam.*smartphone|smartphone.*Vietnam'}
+  - {source: idc, segment: smartphones, area: PH, search: smartphone, pattern: 'Philippines.*smartphone|smartphone.*Philippines'}
+  - {source: idc, segment: smartphones, area: ww, search: smartphone, pattern: 'smartphone', exclude: 'used|refurbish|foldable|feature phone|wearable|AR/VR|India|China|Chinese|Japan|Philippines|Middle East|Africa|Europe|Asia|Canada|Latin America|Indonesia|Thailand|Vietnam|Malaysia|Singapore|Korea|Australia|Turkey|Saudi|Emirates|Brazil|Mexico|United States|U\.S\.|\bUS\b'}
+  - {source: idc, segment: pcs, area: IN, search: PC, pattern: 'India.*\bPCs?\b|\bPCs?\b.*India', exclude: 'monitor|workstation|chromebook|tablet|gaming'}
+  - {source: idc, segment: pcs, area: PH, search: PC, pattern: 'Philippines.*\bPCs?\b|\bPCs?\b.*Philippines', exclude: 'monitor|workstation|chromebook|tablet|gaming'}
+  - {source: idc, segment: pcs, area: ww, search: PC, pattern: '\bPCs?\b', exclude: 'monitor|workstation|chromebook|tablet|gaming|peripheral|India|China|Chinese|Japan|Philippines|Middle East|Africa|Europe|Asia|Canada|Latin America|Indonesia|Thailand|Vietnam|Malaysia|Singapore|Korea|Australia|Turkey|Saudi|Emirates|Brazil|Mexico|United States|U\.S\.|\bUS\b'}
+  - {source: idc, segment: tablets, area: IN, search: tablet, pattern: 'India.*tablet|tablet.*India', exclude: 'chromebook'}
+  - {source: idc, segment: tablets, area: ww, search: tablet, pattern: 'tablet', exclude: 'chromebook|India|China|Chinese|Japan|Philippines|Middle East|Africa|Europe|Asia|Canada|Latin America|Indonesia|Thailand|Vietnam|Malaysia|Singapore|Korea|Australia|Turkey|Saudi|Emirates|Brazil|Mexico|United States|U\.S\.|\bUS\b'}
+  # TrendForce: the quarterly revenue rankings (titles only; the forecasts and price releases left out).
+  - {source: trendforce, segment: foundry, pattern: 'foundr(y|ies).*(revenue|ranking|market share)|(revenue|ranking|top 10|top ten|top-10).*foundr(y|ies)', exclude: 'forecast|projected|expected|outlook|will |to reach|to grow|to undergo|module|price|contract|spot|HBM|capex|wafer|inventor|shipment|memory market revenue|packaging|earthquake|outage|capacity|equipment'}
+  - {source: trendforce, segment: dram, pattern: '\bDRAM\b.*(revenue|ranking|market share)|(revenue|ranking).*\bDRAM\b', exclude: 'forecast|projected|expected|outlook|will |to reach|to grow|module|price|contract|spot|HBM|mobile DRAM|server DRAM|enterprise SSD|capex|wafer|inventor|shipment|NAND'}
+  - {source: trendforce, segment: nand, pattern: 'NAND.*(revenue|ranking|market share|brand)|(revenue|ranking).*NAND', exclude: 'forecast|projected|expected|outlook|will |to reach|to grow|module|price|contract|spot|HBM|mobile DRAM|server DRAM|enterprise SSD|capex|wafer|inventor|shipment|DRAM'}
+
+# Companies the press releases name without a company of the chronology: read under their own name (stored without
+# a company, counted in "Others"), so that their share never goes to the company named before them.
+press_names: [Elpida, Powerchip, ProMOS, Qimonda, Inotera, Rexchip, Spansion, Numonyx, Tower, PSMC, VIS, Vanguard, Nexchip, Sharp, Silicon Motion, Phison, Solidigm, Intel Foundry]
+
+# The shares of the source dossier no crawled source gives (phase 3, Tab 1): stored with the source `manual`,
+# drawn as dots. A segment's own source wins where both give a company's share for the same period.
+manual_shares:
+  - {segment: mainframes, area: US, period: "1961", label: "IBM", company: ibm, value: 52, source: "Fisher-McKie-Mancke via Cato 1985", tag: A}
+  - {segment: mainframes, area: US, period: "1968", label: "IBM", company: ibm, value: 50, source: "Fisher-McKie-Mancke via Cato 1985", tag: A}
+  - {segment: mainframes, area: US, period: "1972", label: "IBM", company: ibm, value: 37, source: "Fisher-McKie-Mancke via Cato 1985", tag: A}
+  - {segment: mainframes, area: US, period: "1981", label: "IBM (mainframe sales)", company: ibm, value: 69.4, source: "Fisher-McKie-Mancke via Cato 1985", tag: A}
+  - {segment: mainframes, area: US, period: "1982", label: "IBM", company: ibm, value: 37, source: "Fisher-McKie-Mancke via Cato 1985 (approx.)", tag: A}
+  - {segment: mainframes, area: US, period: "1983", label: "IBM (mainframe sales)", company: ibm, value: 73.8, source: "Fisher-McKie-Mancke via Cato 1985", tag: A}
+  - {segment: mainframes, area: ww, period: "1976", label: "IBM (computers)", company: ibm, value: 50, source: "CMU slides", tag: B}
+  - {segment: mainframes, area: ww, period: "1985", label: "IBM (computers)", company: ibm, value: 25, source: "CMU slides", tag: B}
+  - {segment: pcs, area: ww, period: "1984", label: "IBM PC", company: ibm, value: 26, source: "Dataquest via transcript (weak)", tag: B}
+  - {segment: pcs, area: ww, period: "2025", label: "Lenovo", company: lenovo, value: 27.2, source: "Gartner", tag: I}
+  - {segment: pcs, area: ww, period: "2025", label: "Dell", company: dell, value: 15.3, source: "Gartner", tag: I}
+  - {segment: pcs, area: ww, period: "2025", label: "Apple", company: apple, value: 9.2, source: "Gartner", tag: I}
+  - {segment: x86, area: ww, period: "2026Q2", label: "Intel", company: intel, value: 69.3, source: "Mercury Research", tag: I}
+  - {segment: x86, area: ww, period: "2026Q2", label: "AMD", company: amd, value: 30.7, source: "Mercury Research", tag: I}
+  - {segment: smartphones, area: ww, period: "2007", label: "Nokia", company: nokia, value: 49.4, source: "Gartner (sales to end users)", tag: I}
+  - {segment: smartphones, area: ww, period: "2008", label: "Nokia", company: nokia, value: 43.7, source: "Gartner (sales to end users)", tag: I}
+  - {segment: smartphone-os-sales, area: ww, period: "2008", label: "Symbian", company: nokia, value: 52.4, source: "Gartner", tag: I}
+  - {segment: smartphone-os-sales, area: ww, period: "2009", label: "Symbian", company: nokia, value: 46.9, source: "Gartner", tag: I}
+  - {segment: smartphone-os-sales, area: ww, period: "2009", label: "RIM", company: blackberry, value: 19.9, source: "Gartner", tag: I}
+  - {segment: smartphone-os-sales, area: ww, period: "2009", label: "iOS", company: apple, value: 14.4, source: "Gartner", tag: I}
+  - {segment: smartphone-os-sales, area: ww, period: "2009", label: "Android", company: google, value: 3.9, source: "Gartner", tag: I}
+  - {segment: smartphone-os-sales, area: ww, period: "2009", label: "WebOS", company: palm, value: 0.7, source: "Gartner", tag: I}
+  - {segment: foundry, area: ww, period: "2024Q4", label: "TSMC", company: tsmc, value: 67.1, source: "TrendForce via the dossier", tag: I}

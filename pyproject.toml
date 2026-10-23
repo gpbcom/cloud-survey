@@ -33,6 +33,8 @@ poc-crawler = "crawler:main"
 poc-crawler-gui = "gui.window.app:main"
 install-stack = "scripts.install_stack:main"
 migrate-db = "scripts.migrate_database:main"
+render-chronology = "scripts.docs.render_chronology:main"
+render-markets-doc = "scripts.docs.render_markets_doc:main"
 
 [build-system]
 requires = ["hatchling>=1.27"]

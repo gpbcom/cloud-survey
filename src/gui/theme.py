@@ -28,6 +28,7 @@ from models.cloud.enums import (
 )
 from models.correspondence.enums import CardinalityClass
 from models.drivers.enums import DriverRole, WarningSeverity
+from models.history.catalog.company import Company
 
 
 class Theme:
@@ -79,6 +80,7 @@ class Theme:
             legend chips, the scatter axes). The criteria share the colour of the importance bars.
         WARNING_COLORS (ClassVar[Dict[WarningSeverity, str]]): The colour of each severity of the warnings.
         WARNING_SYMBOLS (ClassVar[Dict[WarningSeverity, str]]): The glyph drawn on the warnings of each severity.
+        POLICY_SHOCK (ClassVar[str]): The colour of the notable-event markers, the policy-shock colour of mega-trends.
         CAVEAT_LABELS (ClassVar[Dict[DateCaveat, str]]): Why a date published by a website may be inaccurate.
         flags (FlagPainter): The painter of the country flags.
     """
@@ -238,6 +240,9 @@ class Theme:
         "CoverageMatrix",
         "DriverBarChart",
         "DriverScatterChart",
+        "LeadershipChart",
+        "TimeSeriesChart",
+        "LagChart",
     )
     CORRESPONDENCE_FILLS: ClassVar[Dict[CardinalityClass, str]] = {
         CardinalityClass.ONE_TO_ONE: "#d3e2e6",
@@ -341,6 +346,7 @@ class Theme:
         WarningSeverity.CAUTION: "#e3a008",
         WarningSeverity.BLOCKING: "#f85149",
     }
+    POLICY_SHOCK: ClassVar[str] = "#e0726f"
     WARNING_SYMBOLS: ClassVar[Dict[WarningSeverity, str]] = {
         WarningSeverity.INFO: "i",
         WarningSeverity.CAUTION: "!",
@@ -493,6 +499,17 @@ class Theme:
             QColor: The audience colour.
         """
         return QColor(self.AUDIENCE_COLORS[audience])
+
+    def company_color(self, company: Company) -> QColor:
+        """Get the colour of a company of the computing chronology.
+
+        Args:
+            company (Company): The company.
+
+        Returns:
+            QColor: The colour of its cloud provider when it runs one (as everywhere else), else its own colour.
+        """
+        return QColor(self.PROVIDER_COLORS[company.provider] if company.provider else company.color)
 
     def driver_role_color(self, role: DriverRole) -> QColor:
         """Get the colour of a role of the driver analysis.

@@ -1,5 +1,7 @@
 # poc-crawler
 
+📖 **Full functional and technical documentation, with diagrams: [docs/README.md](docs/README.md).**
+
 Crawls the **product catalogues** and **marketplaces** of 32 cloud providers from 11 countries, and the **cloud
 market shares** published by Synergy Research Group. It stores them in PostgreSQL (asynchronous SQLAlchemy) and shows
 them in a PyQt6 desktop explorer.
@@ -185,6 +187,42 @@ Machines and Google Compute Engine are the same service), matched by the languag
   equivalent or partial, removes it, or has its category matched again. What a person sets is never changed by the
   model.
 
+## Leaders of digital infrastructure
+
+The Analysis tab opens on who led each segment of computing and digital infrastructure since 1964: mainframes,
+minicomputers, PCs, x86, networking, browsers, search, smartphone OS, foundry, AI accelerators, cloud and frontier AI
+labs.
+- **Chart.** One swimlane per segment, a band per leader in its company colour. The notable events (regulation,
+  acquisitions, bankruptcies, listings, funding, launches, market access) are dashed red markers, drawn the way
+  mega-trends draws its policy shocks. Labels step down when they would overlap.
+- **Interaction.** Hover a band or a marker for its evidence, criteria, outcome and source. Pick the events in the
+  "Notable events" menu (a `YYYY — label` entry each, grouped by kind). Click a band or a marker to find it in the
+  chronology. Zoom the years by dragging, and widen the card.
+- **Chronology.** The card below prints every change of leader and every event by date. The same chronology is the
+  guide [docs/analysis/leaders-chronology.md](docs/analysis/leaders-chronology.md).
+- **Data.** `src/conf/history/chronology.yaml`: segments, companies, reigns and events, each figure with the source
+  tag of [the dossier](docs/analysis/sources/computing-leaders-1964-2026.md). After editing it, run
+  `uv run render-chronology` to print the guide again (`--check` only checks it is up to date).
+
+## Market shares and stock values
+
+The evolution behind the leaders: the market share of each company over time, worldwide, by continent, in the EU-27
+(estimated) and in about 60 countries, by device, and the stock value of its listings in their currency or converted
+(USD, EUR, GBP), with an index per region of headquarters. The sources, the method, the limits and the coverage are in
+[docs/analysis/market-shares-and-stocks.md](docs/analysis/market-shares-and-stocks.md).
+
+- **Sources.** StatCounter Global Stats (monthly usage shares since 2009), the stored Synergy reports (cloud,
+  quarterly), Google Finance (weekly closes over each listing's history), FRED (exchange rates since 1971) and the
+  World Bank (the weights of the EU-27 estimate). `src/conf/history/markets.yaml` lists the segments, areas, labels,
+  listings and the dossier's valuation points.
+- **Crawl.** `CRAWLER_SOURCE=markets` (`CRAWLER_TARGET=statcounter,google-finance,fred,worldbank`, `MARKETS_AREAS`,
+  `MARKETS_LISTINGS`, `MARKETS_SINCE`). The crawlers only stream what the sources state, and `src/analytics/markets/`
+  maps, converts, estimates and correlates.
+- **Cards.** "Market shares", "Stock values" and "Share vs stock" under the leaders in the Analysis tab. A click on a
+  leader band opens them on its segment and company, and the notable events picked mark both time charts.
+- **Rise drivers.** The stock values of the providers' listings feed `provider_metrics` as `stock-value` and
+  `stock-return` (source `gfinance`).
+
 ## Rise drivers
 
 Which criteria are predominant in the rise of a cloud provider: the method, the criteria gathered, those missing
@@ -328,6 +366,7 @@ CRAWLER_SOURCE=marketplace CRAWLER_TARGET=civo uv run python src/main.py     # o
 CRAWLER_SOURCE=both CRAWLER_TARGET=all uv run python src/main.py             # everything
 CRAWLER_SOURCE=reclassify uv run python src/main.py                          # classify the stored items again
 CRAWLER_SOURCE=statistics uv run python src/main.py                          # the market statistics
+CRAWLER_SOURCE=markets uv run python src/main.py                             # market shares, stocks, FX
 CRAWLER_SOURCE=import-json uv run python src/main.py                         # import output/*.json into the database
 CRAWLER_SOURCE=translate uv run python src/main.py                           # the language model tasks (see above)
 CRAWLER_SOURCE=correspond uv run python src/main.py                          # match the equivalent services only

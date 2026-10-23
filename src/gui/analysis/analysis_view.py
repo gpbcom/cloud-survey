@@ -9,6 +9,8 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 # First Party Imports.
 from gui.analysis.drivers.drivers_panel import DriversPanel
+from gui.analysis.history.history_panel import HistoryPanel
+from gui.analysis.markets.markets_panel import MarketsPanel
 from gui.charts.panels.chart_panel import ChartPanel
 from gui.charts.panels.stored_chart_controller import StoredChartController
 from gui.charts.sections.chart_state_store import ChartStateStore
@@ -33,6 +35,12 @@ class AnalysisView(QWidget):
         controllers (List[StoredChartController]): Read the data of each chart.
         sections (SectionsToolbar): Expands or collapses every chart of the view.
         chart_sections (List[ChartSection]): The collapsible cards of the charts.
+        history (HistoryPanel): The leaders of digital infrastructure since 1964 (the chart, its notable events and
+            the chronology).
+        history_sections (List[ChartSection]): The cards of the leaders: the chart, then the chronology.
+        markets (MarketsPanel): The market shares and stock values of the leaders, worldwide and by area, and their
+            correlation.
+        market_sections (List[ChartSection]): The cards of the markets: the shares, the stocks, their correlation.
         drivers (DriversPanel): The "Rise drivers" analysis (its pickers and table).
         driver_sections (List[ChartSection]): The cards of the rise drivers: the pickers and table, then the
             correlations, the predominance and the scatters.
@@ -42,6 +50,11 @@ class AnalysisView(QWidget):
         - The charts compare the datasets with each other: the market statistics, the catalogues and the
           marketplaces, per provider or per geopolitical bloc.
         - Every chart can be switched to any other analysis metric, kind or ready-made chart.
+        - The leaders of digital infrastructure (1964 to today) show who led each segment, with the notable events
+          drawn as dashed markers, the policy-shock look of mega-trends (`docs/analysis/leaders-chronology.md`).
+        - The market shares (StatCounter, Synergy) and the stock values (Google Finance) of the leaders follow, by
+          area and currency, with their correlation (`docs/analysis/market-shares-and-stocks.md`). A click on a
+          leader band opens them on its segment and company, and the events picked mark all three charts.
         - The rise drivers rank the criteria by their share of the variance of a target they explain
           (`docs/analysis/rise-drivers.md`).
     """
@@ -89,6 +102,69 @@ class AnalysisView(QWidget):
             self.panels.append(panel)
             self.controllers.append(StoredChartController(panel, loop, statistics_source))
             self.chart_sections.append(section)
+        self.history = HistoryPanel(theme, logger=self.logger)
+        self.history_sections: List[ChartSection] = []
+        for card, heading_text, subtitle_text, card_body, card_tool, card_detachable in (
+            (
+                "analysis/leaders",
+                "Leaders of digital infrastructure, 1964\u20132026",
+                "Who led each segment of computing, a band per leader. Dashed red lines are notable events "
+                "(regulation, deals, bankruptcies, listings, launches), the policy-shock look of mega-trends: hover "
+                "them, pick them in the menu, click to find them in the chronology.",
+                self.history.chart,
+                self.history.selector,
+                True,
+            ),
+            (
+                "analysis/leaders/table",
+                "Chronology",
+                "Every change of leader and every notable event, by date, with its evidence and its source.",
+                self.history.table,
+                None,
+                False,
+            ),
+        ):
+            section = self.sections.add(
+                ChartSection(
+                    card, heading_text, card_body, self.store, card_tool, logger=self.logger, detachable=card_detachable
+                )
+            )
+            section.set_heading(heading_text, subtitle_text)
+            self.history_sections.append(section)
+        self.markets = MarketsPanel(theme, loop, chronology=self.history.chronology, logger=self.logger)
+        self.market_sections: List[ChartSection] = []
+        for market_card, market_title, market_subtitle, market_body in (
+            (
+                "analysis/markets/shares",
+                "Market shares",
+                "The share of each company over time in a segment, worldwide, by continent, in the EU-27 (estimated) "
+                "or in a country, by device. Usage shares (StatCounter) are page views, not users or revenue.",
+                self.markets.share_body,
+            ),
+            (
+                "analysis/markets/stocks",
+                "Stock values",
+                "The value of the listings of the leaders over time, in their currency or converted, indexed or "
+                "not, every listing or an index per region of headquarters, and the valuation points of the "
+                "companies without a price history.",
+                self.markets.stock_body,
+            ),
+            (
+                "analysis/markets/correlation",
+                "Share vs stock",
+                "Does a company's stock follow its market share, or the other way round? Rank correlation of the "
+                "monthly changes lag by lag, with block-bootstrap intervals, and Granger tests both ways.",
+                self.markets.correlation_body,
+            ),
+        ):
+            market_section = self.sections.add(
+                ChartSection(market_card, market_title, market_body, self.store, logger=self.logger)
+            )
+            market_section.set_heading(market_title, market_subtitle)
+            self.market_sections.append(market_section)
+        self.history.selector.changed.connect(self._on_events)
+        self.history.chart.picked.connect(self._on_leader)
+        self._on_events(self.history.selector.selected())
         self.drivers = DriversPanel(theme, loop, logger=self.logger)
         self.driver_sections: List[ChartSection] = []
         for key, title, subtitle, body, tools, detachable in (
@@ -140,7 +216,8 @@ class AnalysisView(QWidget):
             "marketplaces compared per provider and per bloc "
             "(United States, European Union, China, Russia), "
             "and the software type and audience mix of each provider "
-            "(developer tools, end-user software, or both)."
+            "(developer tools, end-user software, or both), the leaders of digital infrastructure since 1964 with "
+            "their chronology, and the drivers of the rise of the providers."
         )
         caption.setObjectName("muted")
         caption.setWordWrap(True)
@@ -155,6 +232,10 @@ class AnalysisView(QWidget):
         column.add_widget(caption)
         for section in self.chart_sections:
             column.add_section(section, 1)
+        for index, section in enumerate(self.history_sections):
+            column.add_section(section, 0 if index else 1)
+        for index, section in enumerate(self.market_sections):
+            column.add_section(section, 1 if index < 2 else 0)
         for index, section in enumerate(self.driver_sections):
             column.add_section(section, 1 if index else 0)
         layout = QVBoxLayout(self)
@@ -162,6 +243,30 @@ class AnalysisView(QWidget):
         layout.addWidget(column, 1)
         layout.addStretch(0)
         self.logger.debug("Analysis view built with %d charts.", len(self.panels))
+
+    ############################
+    # Internal Helpers Methods #
+    ############################
+
+    def _on_events(self, keys: List[str]) -> None:
+        """Mark the events picked in the leaders card on the market charts too.
+
+        Args:
+            keys (List[str]): Their keys.
+        """
+        chronology = self.history.chronology
+        wanted = set(keys)
+        self.markets.set_events([event for event in chronology.events if event.key in wanted] if chronology else [])
+
+    def _on_leader(self, key: str) -> None:
+        """Open the market cards on the segment and company of a leader band clicked.
+
+        Args:
+            key (str): The key of the band or marker clicked (`reign:...` or `event:...`).
+        """
+        if key.startswith("reign:") and self.markets.focus_reign(key):
+            for section in self.market_sections[:2]:
+                section.set_expanded(True)
 
     ############################
     # Publicly Exposed Methods #
@@ -172,6 +277,7 @@ class AnalysisView(QWidget):
         self.logger.debug("Refreshing the %d analysis charts.", len(self.controllers))
         for controller in self.controllers:
             controller.refresh()
+        self.markets.refresh()
         self.drivers.refresh()
 
     def set_available(self, available: FrozenSet[DatasetKind]) -> None:

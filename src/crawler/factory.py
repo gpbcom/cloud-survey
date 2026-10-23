@@ -68,6 +68,13 @@ from crawler.cloud.yandex.crawler import YandexCloudCrawler
 from crawler.cloud.yandex.marketplace import YandexMarketplaceCrawler
 from crawler.exception import NoMarketplaceError, UnknownCrawlerTargetError
 from crawler.marketplace.base import BaseMarketplaceCrawler
+from crawler.markets.base import BaseMarketsCrawler
+from crawler.markets.fred.crawler import FredCrawler
+from crawler.markets.google_finance.crawler import GoogleFinanceCrawler
+from crawler.markets.idc.crawler import IdcCrawler
+from crawler.markets.statcounter.crawler import StatCounterCrawler
+from crawler.markets.trendforce.crawler import TrendForceCrawler
+from crawler.markets.worldbank.crawler import WorldBankCrawler
 from crawler.metrics.base import BaseMetricsCrawler
 from crawler.metrics.edgar.crawler import EdgarCrawler
 from crawler.metrics.github.crawler import GithubCrawler
@@ -78,6 +85,9 @@ from crawler.stats.synergy import SynergyResearchCrawler
 from models.cloud.enums import CloudProvider
 from models.drivers.collectors.collector_catalog import CollectorCatalog
 from models.drivers.enums import MetricSource
+from models.markets.crawl_scope import CrawlScope
+from models.markets.enums import MarketFeed
+from models.markets.markets_catalog import MarketsCatalog
 
 
 class CrawlerFactory:
@@ -91,6 +101,8 @@ class CrawlerFactory:
         STATISTICS_MAP (Final[Dict[str, Type[BaseStatsCrawler]]]): The crawler of each market statistics source, by
             name (e.g. `synergy`).
         METRICS_MAP (Final[Dict[MetricSource, Type[BaseMetricsCrawler]]]): The crawler of each metric source.
+        MARKETS_MAP (Final[Dict[MarketFeed, Type[BaseMarketsCrawler]]]): The crawler of each source of the market
+            shares, the stock prices and the exchange rates, in the order a full markets crawl runs them.
     """
 
     CRAWLER_MAP: Final[Dict[CloudProvider, Type[BaseCloudCrawler]]] = {
@@ -163,6 +175,14 @@ class CrawlerFactory:
         MetricSource.WIKIDATA: WikidataCrawler,
         MetricSource.PEERINGDB: PeeringdbCrawler,
         MetricSource.GITHUB: GithubCrawler,
+    }
+    MARKETS_MAP: Final[Dict[MarketFeed, Type[BaseMarketsCrawler]]] = {
+        MarketFeed.FRED: FredCrawler,
+        MarketFeed.WORLD_BANK: WorldBankCrawler,
+        MarketFeed.GOOGLE_FINANCE: GoogleFinanceCrawler,
+        MarketFeed.STATCOUNTER: StatCounterCrawler,
+        MarketFeed.TRENDFORCE: TrendForceCrawler,
+        MarketFeed.IDC: IdcCrawler,
     }
 
     def __init__(self, logger: Optional[Logger] = None) -> None:
@@ -292,3 +312,27 @@ class CrawlerFactory:
             raise UnknownCrawlerTargetError(source.value)
         self.logger.info("Instantiating %s for the %s metrics.", crawler.__name__, source.value)
         return crawler(catalog=catalog)
+
+    def get_markets(
+        self, feed: MarketFeed, catalog: Optional[MarketsCatalog] = None, scope: Optional[CrawlScope] = None
+    ) -> BaseMarketsCrawler:
+        """Get the crawler instance of a markets source.
+
+        Args:
+            feed (MarketFeed): The source, e.g. StatCounter.
+            catalog (Optional[MarketsCatalog]): What is read, `conf/history/markets.yaml` by default.
+            scope (Optional[CrawlScope]): The part of the catalogue read, all of it by default.
+
+        Returns:
+            BaseMarketsCrawler: The markets crawler ready to run.
+
+        Raises:
+            UnknownCrawlerTargetError: If there is no crawler for the source.
+            MarketsCatalogError: If the default catalogue cannot be loaded.
+        """
+        crawler = self.MARKETS_MAP.get(feed)
+        if crawler is None:
+            self.logger.error("There is no markets crawler for the source: %s", feed.value)
+            raise UnknownCrawlerTargetError(feed.value)
+        self.logger.info("Instantiating %s for the %s markets data.", crawler.__name__, feed.value)
+        return crawler(catalog=catalog, scope=scope)

@@ -87,6 +87,9 @@ class StorageTable(StrEnum):
         CONCEPT_MEMBERS (str): The catalogue services filed under each service concept.
         CORRESPONDENCE_CHECKS (str): When the language model last matched each catalogue service, by category.
         PROVIDER_METRICS (str): The measures of the providers per quarter (the criteria of the driver analysis).
+        MARKET_SHARES (str): The market shares of the companies, by segment, area, device and period.
+        STOCK_PRICES (str): The weekly closing prices of the listings.
+        FX_RATES (str): The daily exchange rates against the US dollar.
     """
 
     CRAWLS = "crawls"
@@ -106,6 +109,9 @@ class StorageTable(StrEnum):
     CONCEPT_MEMBERS = "concept_members"
     CORRESPONDENCE_CHECKS = "correspondence_checks"
     PROVIDER_METRICS = "provider_metrics"
+    MARKET_SHARES = "market_shares"
+    STOCK_PRICES = "stock_prices"
+    FX_RATES = "fx_rates"
 
 
 @unique

@@ -6,16 +6,21 @@ import os
 from datetime import UTC, datetime
 from logging import Logger, getLogger
 from pathlib import Path
-from typing import Final, Tuple
+from typing import Final, List, Tuple
 
 # First Party Imports.
+from analytics.markets.markets_collector import MarketsCollector
 from analytics.metrics.metric_measurer import MetricMeasurer  # noqa: E501
 from crawler.enums import CrawlSource
 from crawler.exception import CrawlerError, EmptyCrawlError
 from crawler.factory import CrawlerFactory
+from crawler.markets.catalog_loader import MarketsCatalogLoader
 from crawler.runner import CatalogueRunner
 from llm.exception import LLMError
 from logger import setup_logging
+from models.markets.crawl_scope import CrawlScope
+from models.markets.enums import MarketFeed
+from models.markets.exception import MarketsModelError
 from storage.exception import StorageError
 from storage.importer.json_importer import JsonImporter
 from storage.storage import Storage
@@ -25,6 +30,9 @@ SOURCES: Final[Tuple[str, ...]] = tuple(CrawlSource)
 IMPORT_DIR_VARIABLE: Final[str] = "CRAWLER_IMPORT_DIR"
 IMPORT_REPLACE_VARIABLE: Final[str] = "CRAWLER_IMPORT_REPLACE"
 DEFAULT_IMPORT_DIR: Final[str] = "output"
+MARKETS_AREAS_VARIABLE: Final[str] = "MARKETS_AREAS"
+MARKETS_LISTINGS_VARIABLE: Final[str] = "MARKETS_LISTINGS"
+MARKETS_SINCE_VARIABLE: Final[str] = "MARKETS_SINCE"
 
 
 async def crawl_catalogues(runner: CatalogueRunner, target: str, logger: Logger) -> None: # noqa: E501
@@ -133,6 +141,69 @@ async def collect_metrics(runner: CatalogueRunner, storage: Storage, logger: Log
     logger.info("%d provider metrics computed again.", written)
 
 
+def market_feeds(target: str, logger: Logger) -> List[MarketFeed]:
+    """Read the markets sources of a run from `CRAWLER_TARGET`.
+
+    Args:
+        target (str): The target: empty or `all` for every source, else sources separated by commas.
+        logger (Logger): The program logger.
+
+    Returns:
+        List[MarketFeed]: The sources, in the order a full crawl runs them (the World Bank weights join StatCounter,
+            the union estimates need them).
+    """
+    names = {name.strip().casefold() for name in target.split(",") if name.strip()}
+    if not names or ALL_TARGETS in names:
+        return list(CrawlerFactory.MARKETS_MAP)
+    unknown = sorted(names - {feed.value for feed in MarketFeed})
+    if unknown:
+        logger.warning("Unknown markets sources ignored: %s (expected %s).", ", ".join(unknown), ", ".join(MarketFeed))
+    if MarketFeed.STATCOUNTER in names:
+        names.add(MarketFeed.WORLD_BANK)
+    return [feed for feed in CrawlerFactory.MARKETS_MAP if feed.value in names]
+
+
+async def collect_markets(runner: CatalogueRunner, storage: Storage, target: str, logger: Logger) -> None:
+    """Crawl the market shares, stock prices and exchange rates, measure them and write them.
+
+    Args:
+        runner (CatalogueRunner): The crawl runner.
+        storage (Storage): The open storage.
+        target (str): The `CRAWLER_TARGET`: the sources (`statcounter`, `google-finance`, `fred`, `worldbank`),
+            every one by default.
+        logger (Logger): The program logger.
+
+    Notes:
+        `MARKETS_AREAS` (e.g. `ww,US,GB`) and `MARKETS_LISTINGS` (e.g. `NYSE:IBM`) limit the crawl, and
+        `MARKETS_SINCE` (`YYYY-MM`) reads only the months from then: the way to keep the series up to date.
+    """
+    feeds = market_feeds(target, logger)
+    try:
+        scope = CrawlScope(
+            areas=os.getenv(MARKETS_AREAS_VARIABLE, ""),
+            listings=os.getenv(MARKETS_LISTINGS_VARIABLE, ""),
+            since=os.getenv(MARKETS_SINCE_VARIABLE, ""),
+        )
+        catalog = MarketsCatalogLoader(logger).load()
+        chronology = MarketsCatalogLoader(logger).chronology()
+    except (MarketsModelError, ValueError) as e:
+        logger.error("The markets crawl scope is invalid: %s", e)
+        return
+    except CrawlerError:
+        logger.error("The markets catalogue is unavailable.")
+        return
+    collector = MarketsCollector(catalog, chronology, storage, logger)
+    written = 0
+    try:
+        for feed in feeds:
+            written += await runner.stream_markets(feed, collector.write, catalog, scope)
+        written += await collector.finish(feeds)
+    except (CrawlerError, StorageError):
+        logger.error("The markets data are unavailable.")
+        return
+    logger.info("Markets crawl over: %d rows written from %s.", written, ", ".join(feed.value for feed in feeds))
+
+
 async def import_json(storage: Storage, logger: Logger) -> None:
     """Import the JSON files of the former file storage (`CRAWLER_IMPORT_DIR`, `output/` by default).
 
@@ -176,6 +247,8 @@ async def run_source(source: CrawlSource, target: str, storage: Storage, logger:
             logger.info("%d services matched with their equivalents by the language model.", matched)
         case CrawlSource.METRICS:
             await collect_metrics(runner, storage, logger)
+        case CrawlSource.MARKETS:
+            await collect_markets(runner, storage, target, logger)
         case CrawlSource.CORRESPOND:
             matched = await runner.correspond()
             logger.info("%d services matched with their equivalents by the language model.", matched)
@@ -200,7 +273,8 @@ async def main() -> None:
         the former file storage (`CRAWLER_IMPORT_DIR`, `CRAWLER_IMPORT_REPLACE`). `CRAWLER_SOURCE=translate` runs the
         language model tasks (labels, items, then equivalent services), `CRAWLER_SOURCE=correspond` matches the
         equivalent services only, `CRAWLER_SOURCE=metrics` computes the measures of the providers (the criteria of the
-        driver analysis) again. Everything is written to the
+        driver analysis) again, `CRAWLER_SOURCE=markets` crawls the market shares, stock prices and exchange rates of
+        the leaders of the chronology (`CRAWLER_TARGET` picks the sources). Everything is written to the
         PostgreSQL storage (`CRAWLER_DATABASE_URL`).
     """
     logger: Logger = getLogger(__name__)

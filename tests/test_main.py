@@ -121,7 +121,7 @@ async def test_unknown_source_is_logged(
     assert last_message(caplog_info).getMessage() == (
         "Unknown crawl source 'pricing': "
         "CRAWLER_SOURCE must be one of catalogue, marketplace, both, reclassify, statistics, import-json, translate, "
-        "correspond, metrics."
+        "correspond, metrics, markets."
     )
     factory.get.assert_not_called()
 
@@ -455,3 +455,31 @@ async def test_import_json_needs_a_folder(
     await main_module.main()
 
     assert last_message(caplog_info).getMessage() == "The folder output to import does not exist."
+
+
+@pytest.mark.parametrize(
+    ("target", "expected"),
+    [
+        ("", ["fred", "worldbank", "google-finance", "statcounter", "trendforce", "idc"]),
+        ("all", ["fred", "worldbank", "google-finance", "statcounter", "trendforce", "idc"]),
+        ("statcounter", ["worldbank", "statcounter"]),
+        ("google-finance, FRED, nasdaq", ["fred", "google-finance"]),
+    ],
+)
+def test_the_markets_sources_are_read_from_the_target(target: str, expected: List[str]) -> None:
+    feeds = main_module.market_feeds(target, logging.getLogger("test"))
+
+    assert [feed.value for feed in feeds] == expected
+
+
+async def test_an_invalid_markets_scope_is_logged(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    monkeypatch.setenv("MARKETS_SINCE", "2026")
+    runner, storage = MagicMock(), MagicMock()
+
+    with caplog.at_level(logging.ERROR):
+        await main_module.collect_markets(runner, storage, "fred", logging.getLogger("test"))
+
+    assert "The markets crawl scope is invalid" in caplog.text
+    runner.stream_markets.assert_not_called()

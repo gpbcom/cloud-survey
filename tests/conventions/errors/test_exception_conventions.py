@@ -120,6 +120,7 @@ def test_every_package_raising_errors_has_an_exception_module() -> None:
 
     assert names == {
         "analytics.drivers.exception",
+        "analytics.history.exception",
         "classifier.exception",
         "crawler.exception",
         "llm.exception",
@@ -131,6 +132,8 @@ def test_every_package_raising_errors_has_an_exception_module() -> None:
         "models.configuration.logging.exception",
         "models.correspondence.exception",
         "models.drivers.exception",
+        "models.history.exception",
+        "models.markets.exception",
         "models.storage.filters.exception",
         "models.taxonomy.exception",
         "scripts.exception",

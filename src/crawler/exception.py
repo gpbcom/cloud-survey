@@ -146,3 +146,22 @@ class CollectorCatalogError(CrawlerError):
         """
         self.path, self.reason = path, reason
         super().__init__(f"The metric collectors catalogue {path} cannot be loaded: {reason}")
+
+
+class MarketsCatalogError(CrawlerError):
+    """Raised when the catalogue of the market shares and stock values cannot be loaded.
+
+    Attributes:
+        path (str): The catalogue file.
+        reason (str): Why it cannot be loaded.
+    """
+
+    def __init__(self, path: str, reason: str) -> None:
+        """Initialize the error.
+
+        Args:
+            path (str): The catalogue file.
+            reason (str): Why it cannot be loaded.
+        """
+        self.path, self.reason = path, reason
+        super().__init__(f"The markets catalogue {path} cannot be loaded: {reason}")

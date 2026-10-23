@@ -18,6 +18,9 @@ from storage.repositories.correspondence.correspondence_repository import Corres
 from storage.repositories.dataset_repository import DatasetRepository
 from storage.repositories.llm.llm_usage_repository import LlmUsageRepository
 from storage.repositories.marketplace_repository import MarketplaceRepository
+from storage.repositories.markets.fx_repository import FxRateRepository
+from storage.repositories.markets.share_repository import MarketShareRepository
+from storage.repositories.markets.stock_repository import StockPriceRepository
 from storage.repositories.metrics.manual_metric_loader import ManualMetricLoader  # noqa: E501
 from storage.repositories.metrics.metric_deriver import MetricDeriver
 from storage.repositories.metrics.provider_metric_repository import ProviderMetricRepository  # noqa: E501
@@ -43,6 +46,9 @@ class Storage:
         correspondences (CorrespondenceRepository): The equivalent services of the providers (service concepts).
         metrics (ProviderMetricRepository): The measures of the providers per quarter (the driver analysis).
         metric_deriver (MetricDeriver): Computes the measures of the providers from the crawled data.
+        shares (MarketShareRepository): The market shares of the companies of the chronology.
+        stocks (StockPriceRepository): The closing prices of their listings.
+        fx (FxRateRepository): The exchange rates against the US dollar.
         datasets (DatasetRepository): The state of the stored datasets.
         catalogues (CatalogueRepository): The product catalogues.
         marketplaces (MarketplaceRepository): The marketplace software.
@@ -67,7 +73,7 @@ class Storage:
             logger (Optional[Logger]): The storage logger.
         """
         self.logger = logger if logger else getLogger(__name__)
-        self.settings = settings if settings else StorageSettingsReader().read()   # noqa: E501
+        self.settings = settings if settings else StorageSettingsReader().read()  # noqa: E501
         self.database = Database(self.settings)
         self.categorizer = ItemCategorizer(self.database)
         self.taxonomy = self.categorizer.taxonomy
@@ -76,11 +82,14 @@ class Storage:
         self.llm_usage = LlmUsageRepository(self.database)
         self.correspondences = CorrespondenceRepository(self.database)
         self.datasets = DatasetRepository(self.database)
-        self.catalogues = CatalogueRepository(self.database, categorizer=self.categorizer)    # noqa: E501
-        self.marketplaces = MarketplaceRepository(self.database, categorizer=self.categorizer)   # noqa: E501
+        self.catalogues = CatalogueRepository(self.database, categorizer=self.categorizer)  # noqa: E501
+        self.marketplaces = MarketplaceRepository(self.database, categorizer=self.categorizer)  # noqa: E501
         self.statistics = StatisticsRepository(self.database)
         self.metrics = ProviderMetricRepository(self.database)
         self.metric_deriver = MetricDeriver(self.database, self.statistics)
+        self.shares = MarketShareRepository(self.database)
+        self.stocks = StockPriceRepository(self.database)
+        self.fx = FxRateRepository(self.database)
         self.trends = TrendRepository(self.database)
         self.crawls = CrawlRepository(self.database)
         self.matrices = MatrixRepository(self.database)
@@ -138,7 +147,9 @@ class Storage:
         return self.database.url
 
     async def recategorize(
-        self, label_ids: Optional[Sequence[int]] = None, node_slugs: Optional[Sequence[str]] = None  # noqa: E501
+        self,
+        label_ids: Optional[Sequence[int]] = None,
+        node_slugs: Optional[Sequence[str]] = None,  # noqa: E501
     ) -> int:
         """Categorize the stored products and software again (all, or those of some labels or taxonomy nodes).
 
@@ -159,7 +170,7 @@ class Storage:
         changed = 0
         for repository in (self.catalogues, self.marketplaces):
             for provider in CloudProvider:
-                changed += await repository.recategorize(provider, label_ids, node_slugs) or 0 # noqa: E501
+                changed += await repository.recategorize(provider, label_ids, node_slugs) or 0  # noqa: E501
         self.logger.info("%d items categorized again.", changed)
         return changed
 

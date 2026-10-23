@@ -41,6 +41,8 @@ class ProviderMetric(StrEnum):
         SDK_STARS (str): The GitHub stars of the provider's SDKs and Terraform provider.
         EMPLOYEES (str): The employees of the provider (or of its group).
         AGE (str): The years since the provider was founded.
+        STOCK_VALUE (str): The quarter-end close of the provider's listing (or its parent's), in US dollars.
+        STOCK_RETURN (str): The log return of that listing over the quarter, in US dollars.
     """
 
     PRODUCTS = "products"
@@ -75,6 +77,8 @@ class ProviderMetric(StrEnum):
     SDK_STARS = "sdk-stars"
     EMPLOYEES = "employees"
     AGE = "age"
+    STOCK_VALUE = "stock-value"
+    STOCK_RETURN = "stock-return"
 
 
 @unique
@@ -89,6 +93,7 @@ class MetricSource(StrEnum):
         PEERINGDB (str): PeeringDB.
         GITHUB (str): GitHub.
         MANUAL (str): Typed in from an annual report or an analyst publication (`conf/metrics/manual-metrics.yaml`).
+        GOOGLE_FINANCE (str): The Google Finance price history of the listing (the markets crawl).
     """
 
     DERIVED = "derived"
@@ -98,6 +103,7 @@ class MetricSource(StrEnum):
     PEERINGDB = "peeringdb"
     GITHUB = "github"
     MANUAL = "manual"
+    GOOGLE_FINANCE = "gfinance"
 
 
 @unique

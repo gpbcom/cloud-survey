@@ -69,7 +69,7 @@ class BaseMetricsCrawler(BaseCloudCrawler):
             CollectorCatalogError: If the default catalogue cannot be loaded.
         """
         super().__init__(crawldir=crawldir, interval=interval)
-        self.catalog = catalog if catalog else CollectorCatalogLoader().load()
+        self.catalog = catalog if catalog else CollectorCatalogLoader(self.logger).load()
         self.facts = 0
 
     ############################
@@ -144,7 +144,7 @@ class BaseMetricsCrawler(BaseCloudCrawler):
         try:
             return CloudProvider(str(value)) if value else None
         except ValueError:
-            .warning("Unknown provider %r of the %s document %s.", value, self.name, response.url)
+            self.logger.warning("Unknown provider %r of the %s document %s.", value, self.name, response.url)
             return None
 
     ############################
@@ -158,8 +158,8 @@ class BaseMetricsCrawler(BaseCloudCrawler):
             manager (SessionManager): Consistent scrapling session mechanism.
         """
         super().configure_sessions(manager)
-        .debug("Configuring the HTTP session %s.", self._http_session_id())
-        CaBundle(logger=).install()
+        self.logger.debug("Configuring the HTTP session %s.", self._http_session_id())
+        CaBundle(logger=self.logger).install()
         manager.add(
             self._http_session_id(),
             FetcherSession(
@@ -185,7 +185,7 @@ class BaseMetricsCrawler(BaseCloudCrawler):
     async def on_close(self) -> None:
         """Log the crawl summary."""
         await super().on_close()
-        .info("The %s metrics crawl is over: %d facts.", self.name, self.facts)
+        self.logger.info("The %s metrics crawl is over: %d facts.", self.name, self.facts)
 
     def extract_facts(self, response: Response) -> Iterator[MetricFact]:
         """Extract the facts of a document.
@@ -199,7 +199,7 @@ class BaseMetricsCrawler(BaseCloudCrawler):
         Raises:
             ParseNotImplementedError: If the crawler does not implement the extraction.
         """
-        .error("The %s crawler does not implement the fact extraction.", type(self).__name__)
+        self.logger.error("The %s crawler does not implement the fact extraction.", type(self).__name__)
         raise ParseNotImplementedError(type(self).__name__)
 
     async def parse(self, response: Response) -> AsyncGenerator[Union[Dict[str, JsonValue], Request]]:
@@ -211,10 +211,10 @@ class BaseMetricsCrawler(BaseCloudCrawler):
         Yields:
             Dict[str, JsonValue]: Each fact, as a dictionary.
         """
-        .debug("Parsing the %s document %s (HTTP %s).", self.name, response.url, response.status)
+        self.logger.debug("Parsing the %s document %s (HTTP %s).", self.name, response.url, response.status)
         found = 0
         for fact in self.extract_facts(response):
             found += 1
             yield fact.model_dump(mode="json")
         self.facts += found
-        .info("%s document %s parsed: %d facts.", self.name, response.url, found)
+        self.logger.info("%s document %s parsed: %d facts.", self.name, response.url, found)

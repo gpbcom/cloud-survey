@@ -32,6 +32,9 @@ from models.cloud.software.marketplace_software import MarketplaceSoftware
 from models.configuration.llm.llm_settings import LLMSettings
 from models.drivers.collectors.collector_catalog import CollectorCatalog
 from models.drivers.enums import MetricSource
+from models.markets.crawl_scope import CrawlScope
+from models.markets.enums import MarketFeed
+from models.markets.markets_catalog import MarketsCatalog
 from models.stats.market_report import MarketReport
 from models.stats.market_statistics import MarketStatistics
 from models.storage.crawl_summary import CrawlSummary
@@ -44,6 +47,7 @@ SoftwareCallback = Callable[[CloudProvider, MarketplaceSoftware], None]
 ReportCallback = Callable[[MarketReport], None]
 ProductSink = Callable[[CloudProduct], Awaitable[None]]
 SoftwareSink = Callable[[MarketplaceSoftware], Awaitable[None]]
+FactSink = Callable[[MarketFeed, List[Dict[str, JsonValue]]], Awaitable[int]]
 
 
 class CatalogueRunner:
@@ -51,6 +55,7 @@ class CatalogueRunner:
 
     Attributes:
         DEFAULT_CONCURRENCY (ClassVar[int]): The number of providers crawled at the same time by default.
+        MARKETS_BATCH (ClassVar[int]): The facts of a markets crawl handed to its sink at once.
         CONCURRENCY_VARIABLE (ClassVar[str]): The environment variable overriding the default concurrency.
         SAVE_INTERVAL (ClassVar[float]): How often, in seconds, a running crawl writes the items crawled so far by
             default.
@@ -73,6 +78,7 @@ class CatalogueRunner:
     """
 
     DEFAULT_CONCURRENCY: ClassVar[int] = 4
+    MARKETS_BATCH: ClassVar[int] = 5000
     CONCURRENCY_VARIABLE: ClassVar[str] = "CRAWLER_CONCURRENCY"
     SAVE_INTERVAL: ClassVar[float] = 10.0
 
@@ -612,6 +618,49 @@ class CatalogueRunner:
             crawled[source] = facts
         self.logger.info("Metrics crawled from %d of %d sources.", len(crawled), len(self.factory.METRICS_MAP))
         return crawled
+
+    async def stream_markets(
+        self,
+        feed: MarketFeed,
+        sink: FactSink,
+        catalog: Optional[MarketsCatalog] = None,
+        scope: Optional[CrawlScope] = None,
+    ) -> int:
+        """Crawl a markets source, handing its facts to a sink by batches as they come.
+
+        Args:
+            feed (MarketFeed): The source.
+            sink (FactSink): Called with each batch of facts, as the source states them: it measures and writes
+                them, and returns how many rows it wrote.
+            catalog (Optional[MarketsCatalog]): What is read, `conf/history/markets.yaml` by default.
+            scope (Optional[CrawlScope]): The part of the catalogue read, all of it by default.
+
+        Returns:
+            int: The rows the sink wrote. Zero when the source yielded nothing: its stored data are kept.
+
+        Raises:
+            UnknownCrawlerTargetError: If there is no crawler for the source.
+            MarketsCatalogError: If the default catalogue cannot be loaded.
+
+        Notes:
+            The facts are never all held in memory: a full StatCounter crawl yields millions of them.
+        """
+        crawler = self.factory.get_markets(feed, catalog, scope)
+        written = crawled = 0
+        batch: List[Dict[str, JsonValue]] = []
+        async for item in crawler.stream():
+            batch.append(item)
+            if len(batch) >= self.MARKETS_BATCH:
+                crawled += len(batch)
+                written += await sink(feed, batch)
+                batch = []
+        if batch:
+            crawled += len(batch)
+            written += await sink(feed, batch)
+        if not crawled:
+            self.logger.warning("The %s markets crawl produced no fact: its stored data are kept.", feed.value)
+        self.logger.info("%s markets crawl: %d facts, %d rows written.", feed.value, crawled, written)
+        return written
 
     async def translate(self) -> Tuple[int, int]:
         """Translate every pending label, then categorize every unclassified item, with the language model.

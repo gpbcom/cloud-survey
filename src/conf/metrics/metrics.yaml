@@ -7,6 +7,8 @@ definitions:
   # Economic: the targets of the economic rise.
   - {metric: market-share, label: Market share, family: economic, scale: share, unit: "%", target: true, description: "Share of the world cloud infrastructure market.", sources: [Synergy Research Group]}
   - {metric: revenue, label: Revenue (share × market), family: economic, scale: amount, unit: USD bn, target: true, description: "Market share times the world market size of the quarter.", sources: [Synergy Research Group]}
+  - {metric: stock-value, label: Stock value, family: economic, scale: amount, unit: USD, target: true, description: "Quarter-end close of the listing of the provider or of its parent group (AWS trades as Amazon), in US dollars.", sources: [Google Finance (markets crawl)]}
+  - {metric: stock-return, label: Stock return, family: economic, scale: share, unit: log return, description: "Log return of that listing over the quarter, in US dollars.", sources: [Google Finance (markets crawl)]}
   - {metric: cloud-revenue, label: Cloud revenue (reported), family: economic, scale: amount, unit: USD bn, target: true, description: "Cloud revenue of the quarter as an annual report or an analyst publishes it.", sources: [SEC EDGAR XBRL companyfacts, HKEX and SSE annual reports, Euronext reports, Canalys / IDC / Gartner press releases]}
   # Breadth and mix of the catalogue.
   - {metric: products, label: Catalogue products, family: breadth, scale: count, unit: products, target: true, description: "Listed products of the catalogue.", sources: [derived]}

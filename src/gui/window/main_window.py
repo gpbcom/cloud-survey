@@ -5,7 +5,7 @@ import logging
 # Standard Library Imports.
 from functools import partial
 from logging import Logger, getLogger
-from typing import ClassVar, Dict, FrozenSet, List, Optional
+from typing import ClassVar, Dict, FrozenSet, List, Optional, Tuple
 
 # Third Party Imports.
 from PyQt6.QtCore import QItemSelectionModel, QModelIndex, Qt, QThread, QTimer
@@ -66,6 +66,7 @@ from gui.widgets.marketplace_menu import MarketplaceMenu
 from gui.widgets.provider_sidebar import ProviderSidebar
 from models.cloud.enums import CloudProvider, Country
 from models.cloud.products.product import CloudProduct
+from models.markets.enums import MarketFeed
 from models.stats.market_statistics import MarketStatistics
 from models.storage.dataset_stamp import DatasetStamp
 from models.storage.enums import DatasetKind, ItemFilter, ItemSort
@@ -79,6 +80,8 @@ class MainWindow(QMainWindow):
     Attributes:
         TITLE (ClassVar[str]): The window title.
         STATISTICS_SOURCE (ClassVar[str]): The market statistics source shown in the statistics view.
+        MARKET_FEEDS (ClassVar[Dict[MarketFeed, Tuple[str, str]]]): The menu entry and the tooltip of each markets
+            source.
         POLL_INTERVAL_MS (ClassVar[int]): How often the state of the stored datasets is read.
         SEARCH_DELAY_MS (ClassVar[int]): How long the search text must stay unchanged before it is searched.
         loop (StorageLoop): The storage thread of the GUI.
@@ -118,6 +121,9 @@ class MainWindow(QMainWindow):
         log_dock (FoldingDock): The logs, folding to their title bar (or hidden, shown again from the View menu).
         view_menu (QMenu): Shows the logs and the details panels again, folded or hidden.
         taxonomy_menu (QMenu): Opens the Categories manager, or categorizes every item again.
+        markets_menu (QMenu): Crawls the market shares, stock prices and exchange rates, a source or every one.
+        markets_box (CompactCombo): The markets source the toolbar button crawls, or every one.
+        markets_button (QPushButton): Crawls the markets source chosen in `markets_box`.
         categories_manager (Optional[CategoriesManager]): The Categories manager, built when first opened.
         logs_button (QToolButton): Shows the logs again from the status bar, while they are folded or hidden.
 
@@ -129,6 +135,32 @@ class MainWindow(QMainWindow):
 
     TITLE: ClassVar[str] = "Cloud Catalogue Explorer"
     STATISTICS_SOURCE: ClassVar[str] = "synergy"
+    MARKET_FEEDS: ClassVar[Dict[MarketFeed, Tuple[str, str]]] = {
+        MarketFeed.TRENDFORCE: (
+            "TrendForce: foundry and memory shares",
+            "The quarterly foundry, DRAM and NAND rankings of TrendForce's press releases (about 12 minutes)",
+        ),
+        MarketFeed.IDC: (
+            "IDC: PC, smartphone and tablet shares",
+            "The quarterly top 5 tables of IDC's press releases, worldwide and by country (about a minute)",
+        ),
+        MarketFeed.WORLD_BANK: (
+            "World Bank: EU-27 weights",
+            "The internet users of the EU member states, weighting the EU-27 estimate (a few seconds)",
+        ),
+        MarketFeed.FRED: (
+            "FRED: exchange rates",
+            "The daily exchange rates of the listing currencies against the US dollar, since 1971 (a few seconds)",
+        ),
+        MarketFeed.GOOGLE_FINANCE: (
+            "Google Finance: stock prices",
+            "The weekly closes of every listing over its history (a few minutes)",
+        ),
+        MarketFeed.STATCOUNTER: (
+            "StatCounter: usage shares",
+            "The monthly search, browser, OS, vendor and AI chatbot shares of every area and device (about 2.5 hours)",
+        ),
+    }
     POLL_INTERVAL_MS: ClassVar[int] = 2000
     SEARCH_DELAY_MS: ClassVar[int] = 300
 
@@ -180,6 +212,7 @@ class MainWindow(QMainWindow):
         self._build_view_menu()
         self.categories_manager: Optional[CategoriesManager] = None
         self._build_taxonomy_menu()
+        self._build_markets_menu()
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
         self.search_timer.setInterval(self.SEARCH_DELAY_MS)
@@ -933,6 +966,7 @@ class MainWindow(QMainWindow):
         self.logger.debug("Window %s: %s", "crawling" if running else "idle", message)
         for action in (self.crawl_selected_action, self.crawl_all_action):
             action.setEnabled(not running)
+        self.markets_button.setEnabled(not running)
         self.progress.setVisible(running)
         self.status_bar.showMessage(message)
 
@@ -972,6 +1006,38 @@ class MainWindow(QMainWindow):
         self.status_bar.showMessage(f"Not saved: {message}", 10000)
         QMessageBox.warning(self, "Not saved", message)
 
+    def _build_markets_menu(self) -> None:
+        """Build the Markets menu: crawl the market shares, stock prices and exchange rates, a source or every one."""
+        self.markets_menu = QMenu("&Markets", self)
+        every = self.markets_menu.addAction("Crawl every markets source")
+        if every is not None:
+            every.setToolTip("Every source below, then the EU-27 estimate and the stock measures (hours: StatCounter)")
+            every.triggered.connect(partial(self.crawl_markets, list(MarketFeed)))
+        self.markets_menu.addSeparator()
+        for feed, (text, tooltip) in self.MARKET_FEEDS.items():
+            action = self.markets_menu.addAction(text)
+            if action is not None:
+                action.setToolTip(tooltip)
+                action.setData(feed.value)
+                action.triggered.connect(partial(self.crawl_markets, [feed]))
+        self.markets_menu.setToolTipsVisible(True)
+        menu_bar = self.menuBar()
+        if menu_bar is not None:
+            menu_bar.addMenu(self.markets_menu)
+        self.markets_box = CompactCombo(logger=self.logger)
+        self.markets_box.setToolTip("The markets source crawled by the button next to it")
+        self.markets_box.addItem("Every markets source", "")
+        for feed, (text, tooltip) in self.MARKET_FEEDS.items():
+            self.markets_box.addItem(text, feed.value)
+            self.markets_box.setItemData(self.markets_box.count() - 1, tooltip, Qt.ItemDataRole.ToolTipRole)
+        self.markets_button = QPushButton("\U0001f4c8  Crawl markets")
+        self.markets_button.setToolTip("Crawl the markets source chosen in the list (shares, stock prices, rates)")
+        self.markets_button.clicked.connect(self.crawl_chosen_markets)
+        self.toolbar.addSeparator()
+        self.toolbar.addWidget(self.markets_box)
+        self.toolbar.addWidget(self.markets_button)
+        self.logger.debug("Markets menu and toolbar list built with %d sources.", len(self.MARKET_FEEDS))
+
     def _on_crawl_succeeded(self, summary: str) -> None:
         """Show the written datasets after a successful crawl.
 
@@ -980,6 +1046,8 @@ class MainWindow(QMainWindow):
         """
         self.logger.info("Crawl over: %s.", summary)
         self._poll()
+        if self.crawl_source is CrawlSource.MARKETS:
+            self.analysis_view.markets.refresh()
         self.status_bar.showMessage(f"Crawl over: {summary}.", 10000)
 
     def _on_crawl_failed(self, message: str) -> None:
@@ -1010,6 +1078,7 @@ class MainWindow(QMainWindow):
         country: Optional[Country] = None,
         source: CrawlSource = CrawlSource.CATALOGUE,
         providers: Optional[List[CloudProvider]] = None,
+        feeds: Optional[List[MarketFeed]] = None,
     ) -> None:
         """Start a crawl in a background thread, unless one is running.
 
@@ -1020,6 +1089,7 @@ class MainWindow(QMainWindow):
             source (CrawlSource): What is crawled, the catalogues (default), the marketplaces or the statistics.
             providers (Optional[List[CloudProvider]]): The crawled providers when no provider is given, `None` for
                 every provider.
+            feeds (Optional[List[MarketFeed]]): The markets sources crawled (`CrawlSource.MARKETS`).
         """
         if self.crawl_thread is not None:
             self.logger.warning("A crawl is already running: the new one is ignored.")
@@ -1037,9 +1107,11 @@ class MainWindow(QMainWindow):
             label = f"{label} (marketplaces)"
         elif source is CrawlSource.STATISTICS:
             label = "the market statistics (Synergy Research Group)"
+        elif source is CrawlSource.MARKETS:
+            label = "the markets sources (" + ", ".join(feed.value for feed in feeds or list(MarketFeed)) + ")"
         self.logger.info("Crawl of %s requested from the GUI.", label)
         thread = QThread(self)
-        worker = CrawlWorker(self.runner, provider, country=country, source=source, providers=providers)
+        worker = CrawlWorker(self.runner, provider, country=country, source=source, providers=providers, feeds=feeds)
         self.crawl_source = source
         worker.moveToThread(thread)
         thread.started.connect(worker.run)
@@ -1124,6 +1196,21 @@ class MainWindow(QMainWindow):
         """Crawl the cloud market statistics (Synergy Research Group) again."""
         self.logger.info("Crawl of the market statistics requested.")
         self._start_crawl(None, None, CrawlSource.STATISTICS)
+
+    def crawl_markets(self, feeds: List[MarketFeed]) -> None:
+        """Crawl markets sources (shares, stock prices, exchange rates), then derive the EU-27 and stock measures.
+
+        Args:
+            feeds (List[MarketFeed]): The sources.
+        """
+        self.logger.info("Crawl of the markets sources %s requested.", ", ".join(feed.value for feed in feeds))
+        self._start_crawl(None, None, CrawlSource.MARKETS, feeds=feeds)
+
+    def crawl_chosen_markets(self) -> None:
+        """Crawl the markets source chosen in the toolbar list, every one when "Every markets source" is chosen."""
+        value = str(self.markets_box.currentData() or "")
+        self.logger.debug("Markets crawl requested from the toolbar for %s.", value or "every source")
+        self.crawl_markets([MarketFeed(value)] if value else list(MarketFeed))
 
     def crawl_selected(self) -> None:
         """Crawl the provider or the country selected in the current tab, every provider when none is."""
