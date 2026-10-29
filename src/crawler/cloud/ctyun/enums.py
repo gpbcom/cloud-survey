@@ -186,3 +186,68 @@ class ChinaTelecomOwnerField(StrEnum):
     """
 
     NAME = "name"
+
+
+@unique
+class ChinaTelecomDynamicParameter(StrEnum):
+    """Enums representing the query parameters of the China Telecom Cloud product updates API (产品动态).
+
+    Attributes:
+        OBJECT_TYPE (str): The kind of object whose updates are listed.
+        OBJECT_ID (str): The identifier of that object, the documentation book of a product.
+    """
+
+    OBJECT_TYPE = "objectType"
+    OBJECT_ID = "objectId"
+
+
+@unique
+class ChinaTelecomDynamicObject(StrEnum):
+    """Enums representing the kinds of object of the China Telecom Cloud product updates API.
+
+    Attributes:
+        BOOK (str): The documentation book of a product.
+    """
+
+    BOOK = "book"
+
+
+@unique
+class ChinaTelecomDynamicField(StrEnum):
+    """Enums representing the fields of a China Telecom Cloud product updates API response and of its updates.
+
+    Attributes:
+        CODE (str): The result code of the response.
+        LIST (str): The updates of the product.
+        RELEASE_DATE (str): The release date of an update, e.g. `2019-09-19`.
+        TYPE (str): The kind of the update.
+        TITLE (str): The title of the update.
+    """
+
+    CODE = "code"
+    LIST = "list"
+    RELEASE_DATE = "releaseDate"
+    TYPE = "type"
+    TITLE = "title"
+
+
+@unique
+class ChinaTelecomDynamicCode(StrEnum):
+    """Enums representing the result codes of the China Telecom Cloud product updates API.
+
+    Attributes:
+        OK (str): The call succeeded.
+    """
+
+    OK = "core.ok"
+
+
+@unique
+class ChinaTelecomDynamicType(StrEnum):
+    """Enums representing the kinds of update of the China Telecom Cloud product updates API.
+
+    Attributes:
+        LAUNCH (str): A product launch (`...上线`, `...推广使用`).
+    """
+
+    LAUNCH = "1"

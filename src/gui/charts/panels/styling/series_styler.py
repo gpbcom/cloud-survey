@@ -79,6 +79,12 @@ class SeriesStyler:
         several = len(groups) > 1
         several_segments = len({segment for _, segment in groups}) > 1
         currencies = len({one.currency for one in series if one.currency}) > 1
+        self.logger.debug(
+            "Styling %d series: %d region and segment groups, several currencies %s.",
+            len(series),
+            len(groups),
+            currencies,
+        )
         lines: List[ChartLine] = []
         for one in series:
             label = (

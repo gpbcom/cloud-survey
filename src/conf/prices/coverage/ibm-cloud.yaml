@@ -1,0 +1,126 @@
+# Curated price coverage of IBM Cloud (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: ibm-cloud
+currency: USD
+row_links:
+  'Red Hat OpenShift on IBM Cloud': ['^Kubernetes Service \| [^|]*redhat\.openshift']
+links:
+  'Object Storage': ['^Cloud Object Storage$']
+  'VCF as a Service': ['^VCF as a Service( - .+)?$']
+  'Cloud HSM': ['^(Standard|Premium) (Live|Test) (General Purpose|Payment) HSM Service$']
+statements:
+  - product: 'Bare Metal Server for Classic'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/gen1/infrastructure/provision/bm'
+  - product: 'Block Storage for Classic'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/cloud-storage/block/order'
+  - product: 'File Storage for Classic'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/cloud-storage/file/order'
+  - product: 'IBM Cloud Backup for Classic'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/cloud-storage/backup/order'
+  - product: 'Load Balancers for Classic'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/catalog/infrastructure/load-balancer-group'
+  - product: 'Virtual Server for Classic'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/gen1/infrastructure/provision/vs'
+  - product: 'Gateway Appliance'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/catalog/infrastructure/gateway-appliance'
+  - product: 'Hardware Firewall'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/netsec/firewalls/single-server/provision#about'
+  - product: 'FortiGate Security Appliance 10Gbps'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/netsec/firewalls/multi-vlan/provision#about'
+  - product: 'SSL Certificates'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/catalog/infrastructure/ssl-certificate'
+  - product: 'VLAN'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/networking/vlans/provision'
+  - product: 'Secondary Subnets'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/networking/subnets/provision'
+  - product: 'Direct Link Connect on Classic'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/catalog/infrastructure/direct-link-cloud-connect'
+  - product: 'Direct Link Dedicated Hosting on Classic'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/catalog/infrastructure/direct_link_colocation'
+  - product: 'Direct Link Dedicated on Classic'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/catalog/infrastructure/direct-link-network-service-provider'
+  - product: 'Direct Link Exchange on Classic'
+    model: not-public
+    reason: 'Classic infrastructure is priced in the IBM Cloud order form and the SoftLayer API, both behind an account login.'
+    source: 'https://cloud.ibm.com/catalog/infrastructure/direct-link-cloud-exchange'
+  - product: 'IBM Bare Metal Servers for Oracle workloads'
+    model: not-public
+    reason: 'Configured, priced and quoted in the IBM catalog after creating an account, with 1-month or 1-year terms.'
+    source: 'https://www.ibm.com/products/bare-metal-servers-oracle'
+  - product: 'Cloud Pak for Aiops'
+    model: quote
+    reason: 'Modular licence pricing, existing entitlements or custom payment plans worked out with IBM.'
+    source: 'https://www.ibm.com/products/cloud-pak-for-aiops/pricing'
+  - product: 'Cloud Pak for Business Automation'
+    model: quote
+    reason: 'Free SaaS trial, then pricing through IBM sales (contact us).'
+    source: 'https://www.ibm.com/products/cloud-pak-for-business-automation'
+  - product: 'Cloud Paks'
+    model: included
+    reason: 'A family of software bundles, each Cloud Pak is licensed and priced on its own.'
+    source: 'https://www.ibm.com/products/cloud-paks'
+  - product: 'Cloud Pak System'
+    model: not-public
+    reason: 'An on-premises hardware and software appliance sold through IBM, without public price.'
+    source: 'https://www.ibm.com/products/cloudpaksystem'
+  - product: 'Cloud Sync'
+    model: quote
+    reason: 'Free trial, then pricing through IBM sales (contact sales).'
+    source: 'https://www.ibm.com/products/cloud-sync'
+  - product: 'Hybrid Cloud Mesh'
+    model: not-public
+    reason: 'No price is published on its product page.'
+    source: 'https://www.ibm.com/products/hybrid-cloud-mesh'
+  - product: 'IBM Verify'
+    model: not-public
+    reason: 'Usage-based plans shown on the IBM Verify pricing page, rendered client-side without a public price list.'
+    source: 'https://www.ibm.com/products/verify'
+  - product: 'IBM watsonx Code Assistant'
+    model: not-public
+    reason: 'Now sold as IBM Bob packages, whose prices are rendered client-side without a public price list.'
+    source: 'https://www.ibm.com/products/ai-coding-agent'
+  - product: 'Context-Based Restrictions'
+    model: free
+    reason: 'Listed as Free in the IBM Cloud catalog.'
+    source: 'https://cloud.ibm.com/catalog/starters/context-based-restrictions'
+  - product: 'IAM Access Management Service'
+    model: free
+    reason: 'Listed as Free in the IBM Cloud catalog.'
+    source: 'https://cloud.ibm.com/catalog/starters/iam-access-management'
+  - product: 'Private Path Service for VPC'
+    model: not-public
+    reason: 'Not in the public IBM Global Catalog pricing, priced in the authenticated VPC order form.'
+    source: 'https://cloud.ibm.com/infrastructure/provision/privatePathService'
+  - product: 'Red Hat OpenShift Virtualization Service on IBM Cloud'
+    model: not-public
+    reason: 'Not in the public IBM Global Catalog pricing, priced in the authenticated cluster order form.'
+    source: 'https://cloud.ibm.com/containers/cluster-management/rovs/create'

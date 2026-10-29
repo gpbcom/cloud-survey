@@ -413,6 +413,7 @@ class OptionBlock(StrEnum):
         NO_MARKETPLACES (str): No marketplace is stored yet.
         NO_STATISTICS (str): No market statistics are stored yet.
         SAME_AS_SERIES (str): The grouping is already the grouping of the series.
+        NEEDS_LINE_CHART (str): The option needs a line chart.
     """
 
     SAME_AS_X = "same-as-x"
@@ -428,6 +429,7 @@ class OptionBlock(StrEnum):
     NO_MARKETPLACES = "no-marketplaces"
     NO_STATISTICS = "no-statistics"
     SAME_AS_SERIES = "same-as-series"
+    NEEDS_LINE_CHART = "needs-line-chart"
 
 
 @unique
@@ -442,6 +444,7 @@ class ChartNote(StrEnum):
         PUBLISHERS_FIRST_SEEN (str): The publishers are counted from their first listing, never removed.
         FORECAST_METHOD (str): How the forecast is computed.
         CRAWL_HISTORY (str): The updates are only known since the first crawl stored in the database.
+        DERIVATIVE (str): The lines show the rate of change of the values, not the values.
     """
 
     FIRST_CRAWL_DATES = "first-crawl-dates"
@@ -451,6 +454,7 @@ class ChartNote(StrEnum):
     PUBLISHERS_FIRST_SEEN = "publishers-first-seen"
     FORECAST_METHOD = "forecast-method"
     CRAWL_HISTORY = "crawl-history"
+    DERIVATIVE = "derivative"
 
 
 TIME_METRICS: Final[FrozenSet[ChartMetric]] = frozenset(

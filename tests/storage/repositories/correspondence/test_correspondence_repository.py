@@ -152,11 +152,11 @@ class TestMatching:
         await repository.invalidate("kubernetes")
         await match_kubernetes_again(storage, products, concept_id)
 
-        concept = await repository.concept(concept_id)
+        concept = await repository.read(concept_id)
         assert concept is not None
         assert [member.name for member in concept.members] == ["EKS", "GKE"]
         await repository.link(concept_id, products["AKS"], MemberRole.PARTIAL)
-        concept = await repository.concept(concept_id)
+        concept = await repository.read(concept_id)
         assert concept is not None
         assert concept.members_of(AZURE)[0].source is ConceptSource.USER
 
@@ -196,21 +196,21 @@ class TestReading:
         def query(**fields: JsonValue) -> CorrespondenceQuery:
             return CorrespondenceQuery.model_validate({"columns": COLUMNS, **fields})
 
-        assert [concept.name for concept in await repository.rows(query())] == [
+        assert [concept.name for concept in await repository.list(query())] == [
             "Managed Kubernetes",
             "Virtual machines",
         ]
-        equivalent = await repository.rows(query(strength=MatchStrength.EQUIVALENT, coverage=CoverageFilter.COMPLETE))
+        equivalent = await repository.list(query(strength=MatchStrength.EQUIVALENT, coverage=CoverageFilter.COMPLETE))
         assert [concept.name for concept in equivalent] == ["Virtual machines"]
-        assert [concept.name for concept in await repository.rows(query(min_confidence=70, coverage="gaps"))] == [
+        assert [concept.name for concept in await repository.list(query(min_confidence=70, coverage="gaps"))] == [
             "Managed Kubernetes"
         ]
-        assert [concept.name for concept in await repository.rows(query(search="gke"))] == ["Managed Kubernetes"]
-        assert [concept.name for concept in await repository.rows(query(service_categories=["compute"]))] == [
+        assert [concept.name for concept in await repository.list(query(search="gke"))] == ["Managed Kubernetes"]
+        assert [concept.name for concept in await repository.list(query(service_categories=["compute"]))] == [
             "Virtual machines"
         ]
-        assert await repository.rows(query(sources=["user"])) == []
-        assert await repository.rows(query(cardinalities=["2:1"])) == []
+        assert await repository.list(query(sources=["user"])) == []
+        assert await repository.list(query(cardinalities=["2:1"])) == []
         assert await repository.classes(query()) == {CardinalityClass.ONE_TO_ONE: 2}
 
     async def test_the_figures_and_the_coverage_are_counted(self, storage: Storage, products: Dict[str, int]) -> None:
@@ -237,14 +237,14 @@ class TestEditing:
         kubernetes = (await repository.bucket("kubernetes", 60)).concepts[0].id
 
         created = await repository.create("Container clusters", "kubernetes", [products["EKS"], products["Cloud Run"]])
-        await repository.rename(created, "Container platforms", "Clusters and runtimes")
+        await repository.update(created, "Container platforms", "Clusters and runtimes")
         await repository.merge(kubernetes, created)
 
-        merged = await repository.concept(kubernetes)
+        merged = await repository.read(kubernetes)
         assert merged is not None
         assert merged.edited
         assert sorted(member.name for member in merged.members) == ["AKS", "Cloud Run", "EKS", "GKE"]
-        assert await repository.concept(created) is None
+        assert await repository.read(created) is None
         assert [service.name for service in await repository.services("kubernetes")] == ["EKS", "GKE", "AKS"]
         await repository.delete(kubernetes)
         assert await scalar(storage, "SELECT count(*) FROM concept_members") == 0
@@ -257,7 +257,7 @@ class TestCategories:
         repository = storage.correspondences
         query = CorrespondenceQuery(columns=COLUMNS, mode=ViewMode.CATEGORIES)
 
-        rows = await repository.rows(query)
+        rows = await repository.list(query)
         stats = await repository.stats(query)
         cells = {
             (cell.source, cell.target): (cell.matched, cell.total)
@@ -274,5 +274,5 @@ class TestCategories:
         assert (stats.concepts, stats.matched, stats.services, stats.stored) == (4, 6, 8, 0)
         assert cells[(AWS, AZURE)] == (2, 3)
         assert cells[(GCP, AZURE)] == (2, 3)
-        unique = await repository.rows(query.model_copy(update={"coverage": CoverageFilter.UNIQUE}))
+        unique = await repository.list(query.model_copy(update={"coverage": CoverageFilter.UNIQUE}))
         assert [row.name for row in unique] == ["Object storage", "Serverless functions"]

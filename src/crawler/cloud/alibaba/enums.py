@@ -272,3 +272,35 @@ class AlibabaProductCodePrefix(StrEnum):
     IMAGE = "cmjj"
     SAAS = "cmgj"
     API = "cmapi"
+
+
+@unique
+class AlibabaPriceFile(StrEnum):
+    """Enums representing the ECS price files of the international price list read for the prices.
+
+    Attributes:
+        INSTANCES_1 (str): The first file of the instance type prices.
+        INSTANCES_2 (str): The second file of the instance type prices.
+        DISKS (str): The disk prices.
+        BANDWIDTH (str): The bandwidth and traffic prices.
+    """
+
+    INSTANCES_1 = "instanceTypePrice_1.js"
+    INSTANCES_2 = "instanceTypePrice_2.js"
+    DISKS = "diskPrice.js"
+    BANDWIDTH = "bandWidthPrice.js"
+
+
+@unique
+class AlibabaBandwidthUnit(StrEnum):
+    """Enums representing the units of an ECS bandwidth price.
+
+    Attributes:
+        MONTH (str): A bandwidth for a month.
+        HOUR (str): A bandwidth for an hour.
+        GB (str): A GB of traffic.
+    """
+
+    MONTH = "Month"
+    HOUR = "Hour"
+    GB = "GB"

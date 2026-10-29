@@ -23,6 +23,7 @@ from models.storage.enums import CrawlStatus, DatasetKind, ItemField
 from models.storage.pages.item_query import ItemQuery
 from models.storage.pages.page import Page
 from models.storage.pages.stored_item import StoredItem
+from models.storage.versions.item_version import ItemVersion
 from models.taxonomy.enums import CategorySource, LabelStatus
 from models.taxonomy.facets.unclassified_count import UnclassifiedCount
 from models.taxonomy.labels.label_count import LabelCount
@@ -34,6 +35,7 @@ from storage.mappers.item_query_builder import ItemQueryBuilder
 from storage.repositories.dataset_repository import DatasetRepository
 from storage.repositories.taxonomy.item_categorizer import ItemCategorizer
 from storage.tables.base import ITEM_REVISION, Base
+from storage.tables.datasets.crawl_row import CrawlRow
 from storage.tables.taxonomy.source_label_row import SourceLabelRow
 from storage.writer.crawl_recorder import CrawlRecorder
 from storage.writer.item_writer import ItemWriter
@@ -92,13 +94,13 @@ class ItemRepository[T: CategorizedItem]:
         """
         self.database = database
         self.mapper = mapper
-        self.builder = ItemQueryBuilder(mapper.table, logger)
+        self.builder = ItemQueryBuilder(mapper.table)
         self.kind = kind
         self.logger = logger if logger else getLogger(__name__)
         self.datasets = DatasetRepository(database)
-        self.lock = DatasetLock(self.logger)
-        self.recorder = CrawlRecorder(self.logger)
-        self.categorizer = categorizer if categorizer else ItemCategorizer(database, self.logger)
+        self.lock = DatasetLock()
+        self.recorder = CrawlRecorder()
+        self.categorizer = categorizer if categorizer else ItemCategorizer(database)
         self.logger.debug("Repository of the %s items ready.", kind.value)
 
     ############################
@@ -280,7 +282,7 @@ class ItemRepository[T: CategorizedItem]:
         revision = after or 0
         try:
             async with self.database.connect() as connection:
-                stamp = await self.datasets.read(connection, self.kind, provider.value)
+                stamp = await self.datasets.stamp(connection, self.kind, provider.value)
                 if stamp is None:
                     return None
                 result = await connection.stream(
@@ -367,6 +369,58 @@ class ItemRepository[T: CategorizedItem]:
             self.logger.debug("No %s item %d.", self.kind.value, item_id)
             return None
         return self._stored(row)
+
+    async def versions(self, item_id: int) -> List[ItemVersion]:
+        """Read the stored versions of an item, with the status of the crawls which found them.
+
+        Args:
+            item_id (int): The item identifier.
+
+        Returns:
+            List[ItemVersion]: The versions, the newest first, empty when the item has none (or does not exist).
+
+        Raises:
+            StorageReadError: If the versions cannot be read.
+
+        Notes:
+            - The versions are joined to their crawls (a left join: a version keeps its content without its crawl).
+            - A version whose row cannot be read as a model is skipped, with a warning.
+        """
+        versions = self.mapper.versions
+        crawls = Base.metadata.tables[CrawlRow.__tablename__]
+        statement = (
+            select(versions.c.crawl_id, versions.c.recorded_at, versions.c.content, crawls.c.status)
+            .select_from(versions.outerjoin(crawls, crawls.c.id == versions.c.crawl_id))
+            .where(versions.c.item_id == item_id)
+            .order_by(versions.c.recorded_at.desc(), versions.c.crawl_id.desc())
+        )
+        try:
+            async with self.database.connect() as connection:
+                rows = (await connection.execute(statement)).mappings().all()
+        except SQLAlchemyError as e:
+            self.logger.error("The versions of the %s item %d cannot be read: %s", self.kind.value, item_id, e)
+            raise StorageReadError(f"versions of the {self.kind.value} item {item_id}", str(e)) from e
+        read: List[ItemVersion] = []
+        for row in rows:
+            try:
+                read.append(
+                    ItemVersion(
+                        crawl_id=row["crawl_id"],
+                        recorded_at=row["recorded_at"],
+                        crawl_status=row["status"],
+                        content=row["content"],
+                    )
+                )
+            except ValidationError as e:
+                self.logger.warning(
+                    "A version of the %s item %d (crawl %s) is skipped: %s",
+                    self.kind.value,
+                    item_id,
+                    row["crawl_id"],
+                    e,
+                )
+        self.logger.debug("%d versions of the %s item %d read.", len(read), self.kind.value, item_id)
+        return read
 
     async def create(self, provider: CloudProvider, item: T) -> StoredItem[T]:
         """Store a new item by hand, with its dates as given.

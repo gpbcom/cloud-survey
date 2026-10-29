@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import re
+from pathlib import Path
 from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Tuple, Union
 from urllib.parse import urljoin, urlparse
 
@@ -13,6 +14,7 @@ from scrapling.spiders import Request, Response
 from crawler.cloud.base import BaseCloudCrawler
 from crawler.cloud.proximus.enums import ProximusPageKind
 from crawler.enums import HtmlAttribute
+from models.cloud.enums import PriceModel
 from models.cloud.products.product import CloudProduct
 
 
@@ -29,6 +31,8 @@ class ProximusNXTCrawler(BaseCloudCrawler):
         PAGE_ID (ClassVar[re.Pattern[str]]): The language and page identifier segments of the website paths, e.g.
             `/en/id_cl_privatecloud/`, the `id_catl_` identifiers marking the category pages.
         BREADCRUMB (ClassVar[str]): The CSS selector of the breadcrumb items of a page, but the home one.
+        UNPRICED_REASON (ClassVar[Optional[str]]): Why the provider has no public price.
+        UNPRICED_MODEL (ClassVar[PriceModel]): How its products are priced (on request).
 
     Notes:
         The main source is the cards of the cloud solutions page of Proximus NXT (the ICT offer for large companies):
@@ -40,6 +44,8 @@ class ProximusNXTCrawler(BaseCloudCrawler):
         experts, sectors, newsletter, links to other websites) and the rate pages are skipped.
         The catalogue categories of a product are the breadcrumb of the category page listing it, home excluded
         (e.g. `ICT for large companies`, `Cloud solutions for large companies`).
+        Proximus NXT publishes no price: in price mode its catalogue page is read as the evidence, and each live
+        product is priced on request (a quote).
     """
 
     ICT_URL: ClassVar[str] = (
@@ -58,6 +64,11 @@ class ProximusNXTCrawler(BaseCloudCrawler):
     PAGE_ID: ClassVar[re.Pattern[str]] = re.compile(r"^/[a-z]{2}/id_([a-z]+)_[^/]*/")
     BREADCRUMB: ClassVar[str] = "ul.breadcrumbs > li:not(.rs-breadcrumb-item-home)"
 
+    UNPRICED_REASON: ClassVar[Optional[str]] = (
+        "Proximus NXT publishes no price: its cloud and ICT services are quoted on request (contact sales)."
+    )
+    UNPRICED_MODEL: ClassVar[PriceModel] = PriceModel.QUOTE
+
     name = "proximus"
     catalogue_url: ClassVar[str] = (
         "https://www.proximus.be/en/id_catl_itcloud/companies-and-public-sector/ict-for-large-companies/"
@@ -65,6 +76,15 @@ class ProximusNXTCrawler(BaseCloudCrawler):
     )
     complement_urls: ClassVar[Tuple[str, ...]] = (ICT_URL, NETWORKS_URL, TELEPHONY_URL)
     name_prefixes: ClassVar[Tuple[str, ...]] = ("Proximus NXT ", "Proximus ")
+
+    def __init__(self, crawldir: Optional[Union[str, Path]] = None, interval: float = 300.0) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+        """
+        super().__init__(crawldir=crawldir, interval=interval)
 
     ############################
     # Internal Helpers Methods #
@@ -170,6 +190,7 @@ class ProximusNXTCrawler(BaseCloudCrawler):
         Returns:
             Iterator[CloudProduct]: The valid products of the page.
         """
+        self.logger.debug("Reading the %s product cards of %s.", self.name, response.url)
         return self._card_products(response)
 
     async def parse(self, response: Response) -> AsyncGenerator[Union[Dict[str, JsonValue], Request]]:

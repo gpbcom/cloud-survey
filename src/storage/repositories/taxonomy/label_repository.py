@@ -16,6 +16,7 @@ from sqlalchemy import (
     column,
     delete,
     func,
+    insert,
     or_,
     select,
     true,
@@ -24,13 +25,13 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.dialects.postgresql import insert as upsert
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 # First Party Imports.
 from classifier.software_classifier import SoftwareClassifier
 from models.storage.enums import DatasetKind
-from models.taxonomy.enums import LabelStatus, LinkSource, NameSource
+from models.taxonomy.enums import LabelStatus, Language, LinkSource, NameSource
 from models.taxonomy.labels.label_details import LabelDetails
 from models.taxonomy.labels.source_label import SourceLabel
 from models.taxonomy.llm.label_translation import LabelTranslation
@@ -47,7 +48,7 @@ from taxonomy.label_normalizer import LabelNormalizer
 
 
 class LabelRepository:
-    """Read and write the source labels: their links to the taxonomy, where they were seen.
+    """Create, read, update, delete and list the source labels, with their links to the taxonomy and sightings.
 
     Attributes:
         RULE_STATUS_SOURCES (ClassVar[Tuple[str, ...]]): The status sources the rules may overwrite.
@@ -66,9 +67,11 @@ class LabelRepository:
           `SoftwareClassifier.label_categories`). Recomputing them replaces the `rule` links only: the seed, language
           model and user links (and the exclusions) are kept, and own their nodes (no rule link is added beside them).
         - The rows are always locked in the order of their keys, so that concurrent crawls never deadlock.
-        - The edits of the Categories manager (`set_name`, `set_status`, `link`, `unlink`, `merge`, `unmerge`) are made
+        - The edits of the Categories manager (`update`, `set_status`, `link`, `unlink`, `merge`, `unmerge`) are made
           by a person: they are never overwritten. Each increments the revision and returns the labels whose items must
           be categorized again (the label and its aliases, before and after the edit).
+        - A label is the aggregate root: `create` writes it with its rule links, `update` sets its English name,
+          `delete` removes it with its links and sightings (its aliases are left unmerged) when no item carries it.
     """
 
     RULE_STATUS_SOURCES: ClassVar[Tuple[str, ...]] = (NameSource.RULE.value, NameSource.IDENTITY.value)
@@ -119,7 +122,9 @@ class LabelRepository:
             labels.c.canonical_id.in_(canonicals),
         )
         found = (await connection.execute(select(labels.c.id).where(members))).scalars().all()
-        return sorted({int(label_id) for label_id in found})
+        group = sorted({int(label_id) for label_id in found})
+        self.logger.debug("%d labels extended to their %d aliases.", len(label_ids), len(group))
+        return group
 
     def _rules(self) -> SoftwareClassifier:
         """Get the classifier of the project rules, reading them the first time.
@@ -145,7 +150,9 @@ class LabelRepository:
         """
         after = await self._group_ids(connection, label_ids)
         await self.taxonomy.bump(connection)
-        return sorted({*before, *after})
+        affected = sorted({*before, *after})
+        self.logger.debug("Label edit of %d labels affects %d labels.", len(label_ids), len(affected))
+        return affected
 
     ############################
     # Publicly Exposed Methods #
@@ -328,6 +335,40 @@ class LabelRepository:
         self.logger.debug("%d labels are pending.", count or 0)
         return int(count or 0)
 
+    async def delete(self, label_id: int) -> bool:
+        """Delete a label no item carries, with its links and sightings (its aliases are no longer merged into it).
+
+        Args:
+            label_id (int): The label.
+
+        Returns:
+            bool: Whether the label existed.
+
+        Raises:
+            StorageWriteError: If an item still carries the label, or it cannot be deleted.
+        """
+        try:
+            async with self.database.connect() as connection, connection.begin():
+                for table in self.items:
+                    carried = select(func.count()).where(table.c.source_label_ids.contains([label_id]))
+                    if await connection.scalar(carried):
+                        self.logger.error("Items of %s still carry the label %d: not deleted.", table.name, label_id)
+                        raise StorageWriteError(f"label {label_id}", f"{table.name} still carry it")
+                for owned in (self.links, self.sightings):
+                    await connection.execute(delete(owned).where(owned.c.label_id == label_id))
+                result = await connection.execute(delete(self.labels).where(self.labels.c.id == label_id))
+                if result.rowcount:
+                    await self.taxonomy.bump(connection)
+        except SQLAlchemyError as e:
+            self.logger.error("The label %d cannot be deleted: %s", label_id, e)
+            raise StorageWriteError(f"label {label_id}", str(e)) from e
+        found = bool(result.rowcount)
+        if found:
+            self.logger.info("Label %d deleted.", label_id)
+        else:
+            self.logger.debug("No source label %d: nothing deleted.", label_id)
+        return found
+
     async def read_all(self) -> List[SourceLabel]:
         """Read every stored label, for the names shown by the GUI.
 
@@ -355,8 +396,11 @@ class LabelRepository:
         self.logger.debug("%d source labels read.", len(labels))
         return labels
 
-    async def details(self) -> List[LabelDetails]:
-        """Read every label with its links, where it was seen and its number of items, for the Categories manager.
+    async def list(self, label_ids: Optional[Sequence[int]] = None) -> List[LabelDetails]:
+        """List the labels with their links, where they were seen and their number of items (the Categories manager).
+
+        Args:
+            label_ids (Optional[Sequence[int]]): Only these labels, every one when `None`.
 
         Returns:
             List[LabelDetails]: The labels, by identifier.
@@ -365,19 +409,18 @@ class LabelRepository:
             StorageReadError: If the labels cannot be read.
         """
         labels = self.labels
+        chosen = select(labels).order_by(labels.c.id)
+        linked = select(self.links.c.label_id, self.links.c.node_slug, self.links.c.excluded)
+        seen_in = select(self.sightings.c.label_id, self.sightings.c.kind, self.sightings.c.provider)
+        if label_ids is not None:
+            chosen = chosen.where(labels.c.id.in_(list(label_ids)))
+            linked = linked.where(self.links.c.label_id.in_(list(label_ids)))
+            seen_in = seen_in.where(self.sightings.c.label_id.in_(list(label_ids)))
         try:
             async with self.database.connect() as connection:
-                rows = (await connection.execute(select(labels).order_by(labels.c.id))).mappings().all()
-                links = (
-                    await connection.execute(
-                        select(self.links.c.label_id, self.links.c.node_slug, self.links.c.excluded)
-                    )
-                ).all()
-                sightings = (
-                    await connection.execute(
-                        select(self.sightings.c.label_id, self.sightings.c.kind, self.sightings.c.provider)
-                    )
-                ).all()
+                rows = (await connection.execute(chosen)).mappings().all()
+                links = (await connection.execute(linked)).all()
+                sightings = (await connection.execute(seen_in)).all()
                 counts: Dict[int, int] = {}
                 for table in self.items:
                     carried = func.unnest(table.c.source_label_ids).table_valued("label_id").render_derived()
@@ -389,6 +432,8 @@ class LabelRepository:
                         .where(table.c.deleted_at.is_(None))
                         .group_by(label_id)
                     )
+                    if label_ids is not None:
+                        statement = statement.where(table.c.source_label_ids.overlap(list(label_ids)))
                     for found_id, count in (await connection.execute(statement)).all():
                         counts[int(found_id)] = counts.get(int(found_id), 0) + int(count)
         except SQLAlchemyError as e:
@@ -418,7 +463,75 @@ class LabelRepository:
         self.logger.info("%d source labels read for the Categories manager.", len(details))
         return details
 
-    async def set_name(self, label_id: int, name_en: Optional[str]) -> List[int]:
+    async def read(self, label_id: int) -> Optional[LabelDetails]:
+        """Read one label with its links, where it was seen and its number of items.
+
+        Args:
+            label_id (int): The label.
+
+        Returns:
+            Optional[LabelDetails]: The label, `None` when there is none.
+
+        Raises:
+            StorageReadError: If the label cannot be read.
+        """
+        found = await self.list([label_id])
+        if not found:
+            self.logger.debug("No source label %d.", label_id)
+            return None
+        return found[0]
+
+    async def create(self, label_text: str) -> LabelDetails:
+        """Store a label never seen, from its text: its language, English name, status and rule links are derived.
+
+        Args:
+            label_text (str): Its text as the providers write it.
+
+        Returns:
+            LabelDetails: The label, as stored.
+
+        Raises:
+            StorageWriteError: If the text has no letter, the label is already stored, or it cannot be written.
+        """
+        cleaned = " ".join(label_text.split())
+        key = self.normalizer.key(cleaned)
+        if not key:
+            self.logger.error("The label %r has no letter: not created.", label_text)
+            raise StorageWriteError("source labels", f"{label_text!r} has no letter")
+        rules = self._rules()
+        language = self.normalizer.language(cleaned)
+        english = cleaned if language is Language.ENGLISH else None
+        row = {
+            "key": key,
+            "text": cleaned,
+            "language": language.value,
+            "name_en": english,
+            "name_key": key if english else None,
+            "name_source": NameSource.IDENTITY.value if english else None,
+            "status": self.rule_status(rules, cleaned, english).value,
+            "status_source": NameSource.RULE.value,
+        }
+        try:
+            async with self.database.connect() as connection, connection.begin():
+                label_id = int(
+                    (await connection.execute(insert(self.labels).values(row).returning(self.labels.c.id))).scalar_one()
+                )
+                await self.write_rule_links(connection, {label_id: self.rule_nodes(rules, cleaned, english)})
+                await self.taxonomy.bump(connection)
+        except IntegrityError as e:
+            self.logger.error("The label %r is already stored (key %s): not created.", cleaned, key)
+            raise StorageWriteError("source labels", f"{cleaned!r} already exists") from e
+        except SQLAlchemyError as e:
+            self.logger.error("The label %r cannot be created: %s", cleaned, e)
+            raise StorageWriteError("source labels", str(e)) from e
+        created = await self.read(label_id)
+        if created is None:
+            self.logger.error("The label %d was written but cannot be read back.", label_id)
+            raise StorageWriteError("source labels", f"label {label_id} was not stored")
+        self.logger.info("Label %d %r created.", label_id, cleaned)
+        return created
+
+    async def update(self, label_id: int, name_en: Optional[str]) -> List[int]:
         """Set the English name of a label by hand: it joins the aliases of the name, and the rules link it again.
 
         Args:

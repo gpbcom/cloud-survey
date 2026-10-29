@@ -4,11 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from analytics.history.chronology_loader import ChronologyLoader
 from analytics.history.chronology_renderer import ChronologyRenderer
 from analytics.history.chronology_timeline import ChronologyTimeline
-from analytics.history.exception import ChronologyFileError
 from conf import CHRONOLOGY_DOC_PATH
+from curated.bundle.bundle_catalogs import BundleCatalogs
+from curated.bundle.bundle_files import BundleFiles
+from curated.exception import CuratedError
 from models.history.chronology import Chronology
 from models.history.enums import EventKind
 from scripts.docs.render_chronology import ChronologyDocWriter
@@ -16,10 +17,10 @@ from scripts.docs.render_chronology import ChronologyDocWriter
 
 @pytest.fixture(scope="module")
 def shipped() -> Chronology:
-    return ChronologyLoader().load()
+    return BundleCatalogs().chronology()
 
 
-class TestChronologyLoader:
+class TestShippedChronology:
     def test_the_shipped_chronology_is_complete(self, shipped: Chronology) -> None:
         assert len(shipped.segments) >= 15
         assert all(shipped.reigns_of(segment.key) for segment in shipped.segments), "every segment has a leader"
@@ -29,15 +30,14 @@ class TestChronologyLoader:
         assert any(event.default for event in shipped.events)
         assert [reign.company for reign in shipped.reigns_of("browsers")] == ["netscape", "microsoft", "google"]
 
-    @pytest.mark.parametrize("content", ["segments: [", "as_of: 2026\nreigns: [{segment: x, company: y, start: 1990}]"])
+    @pytest.mark.parametrize("content", ['{"records": [', '{"records": [{"dataset": "chronology-reigns"}]}'])
     def test_a_broken_chronology_is_reported(self, tmp_path: Path, content: str) -> None:
-        broken = tmp_path / "chronology.yaml"
-        broken.write_text(content, encoding="utf-8")
+        (tmp_path / "chronology.json").write_text(content, encoding="utf-8")
 
-        with pytest.raises(ChronologyFileError):
-            ChronologyLoader().load(broken)
-        with pytest.raises(ChronologyFileError):
-            ChronologyLoader().load(tmp_path / "missing.yaml")
+        with pytest.raises(CuratedError):
+            BundleCatalogs(BundleFiles(tmp_path)).chronology()
+        with pytest.raises(CuratedError):
+            BundleCatalogs(BundleFiles(tmp_path / "missing")).chronology()
 
 
 class TestChronologyTimeline:
@@ -95,7 +95,6 @@ class TestChronologyDocWriter:
         assert output.read_text(encoding="utf-8") == writer.render()
 
     def test_a_broken_chronology_fails(self, tmp_path: Path) -> None:
-        broken = tmp_path / "chronology.yaml"
-        broken.write_text("segments: [", encoding="utf-8")
+        (tmp_path / "chronology.json").write_text("{", encoding="utf-8")
 
-        assert ChronologyDocWriter().parse(["--source", str(broken), "--output", str(tmp_path / "out.md")]) == 1
+        assert ChronologyDocWriter().parse(["--bundle", str(tmp_path), "--output", str(tmp_path / "out.md")]) == 1

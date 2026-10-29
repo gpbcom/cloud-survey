@@ -1,0 +1,36 @@
+# Curated price coverage of Seeweb (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: seeweb
+currency: EUR
+statements:
+  - product: 'Cloud Appliance'
+    model: not-public
+    reason: 'No price on its page.'
+    source: 'https://www.seeweb.it/en/products/cloud-appliance'
+  - product: 'Cloud Data Protection'
+    model: not-public
+    reason: 'Its cost depends on the protected volume, amounts not on its page.'
+    source: 'https://www.seeweb.it/en/products/cloud-data-protection'
+  - product: 'Foundation Server'
+    model: quote
+    reason: 'Dedicated servers configured with the Seeweb specialists.'
+    source: 'https://www.seeweb.it/en/products/foundation-server'
+  - product: 'Housing & Colocation'
+    model: not-public
+    reason: 'No price on its page.'
+    source: 'https://www.seeweb.it/en/products/housing-colocation'
+  - product: 'Kubernetes Service'
+    model: quote
+    reason: 'Contact Seeweb for info.'
+    source: 'https://www.seeweb.it/en/products/kubernetes-service'
+  - product: 'Plesk & cPanel'
+    model: quote
+    reason: 'Chosen with the Seeweb sales department for cloud and dedicated servers.'
+    source: 'https://www.seeweb.it/en/products/plesk-cpanel'
+  - product: 'Serverless GPU'
+    model: quote
+    reason: 'Contact Seeweb for info.'
+    source: 'https://www.seeweb.it/en/products/serverless-gpu'
+  - product: 'Technical Support'
+    model: not-public
+    reason: 'No price on its page.'
+    source: 'https://www.seeweb.it/en/products/technical-support'

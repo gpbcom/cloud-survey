@@ -3,6 +3,7 @@ from __future__ import annotations
 # Standard Library Imports.
 import json
 import re
+from decimal import Decimal
 from pathlib import Path
 from typing import AsyncGenerator, ClassVar, Dict, FrozenSet, Iterator, List, Optional, Set, Tuple, Union
 from urllib.parse import urljoin, urlparse
@@ -13,6 +14,7 @@ from scrapling.spiders import Request, Response
 
 # First Party Imports.
 from crawler.cloud.alibaba.enums import (
+    AlibabaBandwidthUnit,
     AlibabaCardField,
     AlibabaCardsDataField,
     AlibabaCardsGroupField,
@@ -26,10 +28,13 @@ from crawler.cloud.alibaba.enums import (
     AlibabaNavTreeField,
     AlibabaPageNotice,
     AlibabaPageSource,
+    AlibabaPriceFile,
 )
-from crawler.cloud.base import BaseCloudCrawler
+from crawler.cloud.base import BaseCloudCrawler, PriceFact
 from crawler.enums import HtmlAttribute, PageMetaName, TextEncoding
 from crawler.exception import CatalogueFormatError
+from models.cloud.enums import PriceModel, PriceSourceKind, PriceTerm, PriceUnit
+from models.cloud.prices.facts.service_price import ServicePrice
 from models.cloud.products.product import CloudProduct
 
 
@@ -77,6 +82,35 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             streamed yet, by normalized name.
         deprecated_names (Set[str]): The normalized names of the products marked as deprecated by the documentation.
         category_urls (Set[str]): The URL keys of the navigation categories, whose pages are not product pages.
+        PRICING_DIRECTORY_URL (ClassVar[str]): The pricing directory, listing the pricing page (or billing help
+            page) of every product.
+        DIRECTORY_DATA (ClassVar[str]): The CSS selector of the element holding its entries (JSON in `data-data`).
+        MODEL_PRICES_URL (ClassVar[str]): The Model Studio pricing page (the token prices of every model, by region).
+        MODEL_SERVICE (ClassVar[str]): The service of those prices.
+        DIRECTORY_META (ClassVar[str]): The request meta marking the pricing directory request.
+        PRICE_LOADER_URL (ClassVar[str]): The loader of the international ECS price list, naming its versioned
+            price files.
+        PRICE_FILE_URL (ClassVar[re.Pattern[str]]): A price file named by the loader.
+        FILE_VERSION (ClassVar[re.Pattern[str]]): The version segment of a price file URL, e.g. `/2.0.421/`.
+        PRICE_FILE (ClassVar[str]): The request meta holding the name of a price file.
+        PRICE_VERSION (ClassVar[str]): The request meta holding its version.
+        PRICE_CURRENCY (ClassVar[str]): The currency of the international price list.
+        PERIODS (ClassVar[Tuple[Tuple[PriceUnit, int, PriceTerm], ...]]): The periods of the seven prices of an
+            instance row: hourly, monthly, then 1 to 5 years paid at once (their months and term).
+        ROW_LENGTH (ClassVar[int]): The least length of an instance row.
+        DISK_UNITS (ClassVar[Tuple[Tuple[PriceUnit, str], ...]]): The units of the two prices of a disk row (per
+            its size: monthly, hourly).
+        BANDWIDTH_UNITS (ClassVar[Dict[AlibabaBandwidthUnit, PriceUnit]]): The unit of a bandwidth price.
+        ECS_SERVICE (ClassVar[str]): The service of the ECS prices.
+        INSTANCES_KEY (ClassVar[str]): The key part of an instance price.
+        DISKS_KEY (ClassVar[str]): The key part of a disk price.
+        BANDWIDTH_KEY (ClassVar[str]): The key part of a bandwidth price.
+        GROUP_ATTRIBUTE (ClassVar[str]): The attribute naming the generation and network of an instance price.
+        CATEGORY_ATTRIBUTE (ClassVar[str]): The attribute naming the category of a disk.
+        USE_ATTRIBUTE (ClassVar[str]): The attribute naming the use of a disk (system or data).
+        MBPS_ATTRIBUTE (ClassVar[str]): The attribute naming the bandwidth of a bandwidth price.
+        PRODUCT_PAGE_PRICES (ClassVar[bool]): The catalogue product pages are read too, for their prices.
+        PAGE_TEXT_PRICES (ClassVar[bool]): A product page without price table is read for the prices in its text.
 
     Notes:
         The main source is the product tree of the navigation menu (`detailedCategories`, walked through the
@@ -98,6 +132,10 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         section and group titles, or the documentation block titles (for the product pages and documentation
         pages of the documentation entries), each occurrence counted: they are gathered over the whole listing
         before the product is streamed.
+        In price mode it reads the international ECS price list: its loader names the versioned price files of
+        the instance types (hourly, monthly and 1 to 5 years paid at once, discounted), the disks (per 100 GB,
+        monthly and hourly) and the bandwidth (per Mbps value, or per GB of traffic), in dollars. Each file is a
+        source versioned by its path: an unchanged one is not downloaded again.
     """
 
     NAV_URL: ClassVar[str] = (
@@ -148,7 +186,47 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
     HELP_SLUG: ClassVar[AlibabaCrawlerMeta] = AlibabaCrawlerMeta.HELP_SLUG
     HELP_LANDING: ClassVar[AlibabaCrawlerMeta] = AlibabaCrawlerMeta.HELP_LANDING
     HELP_ARTICLE: ClassVar[AlibabaCrawlerMeta] = AlibabaCrawlerMeta.HELP_ARTICLE
+    PRICE_LOADER_URL: ClassVar[str] = "https://ecs.console.alibabacloud.com/tools/price.do?channel=intl"
+    PRICING_DIRECTORY_URL: ClassVar[str] = "https://www.alibabacloud.com/en/pricing"
+    DIRECTORY_DATA: ClassVar[str] = "div.render-container-data[data-data]"
+    MODEL_PRICES_URL: ClassVar[str] = "https://www.alibabacloud.com/help/en/model-studio/model-pricing"
+    MODEL_SERVICE: ClassVar[str] = "Model Studio"
+    DIRECTORY_META: ClassVar[str] = "price_directory"
+    PRICE_FILE_URL: ClassVar[re.Pattern[str]] = re.compile(r"'(https://g\.alicdn\.com/[^']+\.js)'")
+    FILE_VERSION: ClassVar[re.Pattern[str]] = re.compile(r"/(\d+\.\d+\.\d+)/")
+    PRICE_FILE: ClassVar[str] = "price_file"
+    PRICE_VERSION: ClassVar[str] = "price_version"
+    PRICE_CURRENCY: ClassVar[str] = "USD"
+    PERIODS: ClassVar[Tuple[Tuple[PriceUnit, int, PriceTerm], ...]] = (
+        (PriceUnit.HOUR, 1, PriceTerm.NONE),
+        (PriceUnit.MONTH, 1, PriceTerm.NONE),
+        (PriceUnit.MONTH, 12, PriceTerm.ONE_YEAR),
+        (PriceUnit.MONTH, 24, PriceTerm.TWO_YEARS),
+        (PriceUnit.MONTH, 36, PriceTerm.THREE_YEARS),
+        (PriceUnit.MONTH, 48, PriceTerm.FOUR_YEARS),
+        (PriceUnit.MONTH, 60, PriceTerm.FIVE_YEARS),
+    )
+    ROW_LENGTH: ClassVar[int] = 7
+    DISK_UNITS: ClassVar[Tuple[Tuple[PriceUnit, str], ...]] = (
+        (PriceUnit.GIB_MONTH, "month"),
+        (PriceUnit.GIB_HOUR, "hour"),
+    )
+    BANDWIDTH_UNITS: ClassVar[Dict[AlibabaBandwidthUnit, PriceUnit]] = {
+        AlibabaBandwidthUnit.MONTH: PriceUnit.UNIT_MONTH,
+        AlibabaBandwidthUnit.HOUR: PriceUnit.UNIT_HOUR,
+        AlibabaBandwidthUnit.GB: PriceUnit.GIB,
+    }
+    ECS_SERVICE: ClassVar[str] = "Elastic Compute Service"
+    INSTANCES_KEY: ClassVar[str] = "instances"
+    DISKS_KEY: ClassVar[str] = "disks"
+    BANDWIDTH_KEY: ClassVar[str] = "bandwidth"
+    GROUP_ATTRIBUTE: ClassVar[str] = "group"
+    CATEGORY_ATTRIBUTE: ClassVar[str] = "category"
+    USE_ATTRIBUTE: ClassVar[str] = "use"
+    MBPS_ATTRIBUTE: ClassVar[str] = "mbps"
 
+    PRODUCT_PAGE_PRICES: ClassVar[bool] = True
+    PAGE_TEXT_PRICES: ClassVar[bool] = True
     name = "alibaba"
     catalogue_url: ClassVar[str] = NAV_URL
     complement_urls: ClassVar[Tuple[str, ...]] = (PRODUCTS_URL, HELP_URL)
@@ -196,7 +274,9 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         item = super()._stream(product)
         if item is not None:
             abbreviation = self.ABBREVIATION.search(product.name)
-            self._remember((*self.NAME_ALIASES.get(product.name, ()), *(abbreviation.groups() if abbreviation else ())))
+            aliases = (*self.NAME_ALIASES.get(product.name, ()), *(abbreviation.groups() if abbreviation else ()))
+            self.logger.debug("Remembering %d alias(es) of the %s product %r.", len(aliases), self.name, product.name)
+            self._remember(aliases)
         return item
 
     def _complement_request(self, url: str) -> Request:
@@ -210,7 +290,9 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
                 read before the "All products" cards.
         """
         if url == self.HELP_URL:
+            self.logger.debug("Requesting the %s documentation home page %s, waiting for its entries.", self.name, url)
             return Request(url, priority=self.HELP_PRIORITY, wait_selector=self.HELP_WAIT_SELECTOR)
+        self.logger.debug("Requesting the %s complementary page %s.", self.name, url)
         return Request(url)
 
     def _source(self, url: str) -> AlibabaPageSource:
@@ -261,6 +343,9 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             self.category_urls.add(self._url_key(link))
         path = (*path, self._as_text(category.get(AlibabaNavCategoryField.NAME)))
         products = category.get(AlibabaNavCategoryField.PRODUCTS)
+        if products is not None and not isinstance(products, list):
+            self.logger.warning("The %s navigation category %s lists no product array, it is skipped.", self.name, path)
+        found = 0
         for entry in products if isinstance(products, list) else []:
             fields = self._as_object(entry)
             name, url = (
@@ -270,7 +355,9 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             if product := self._build_product(
                 name, self._as_text(fields.get(AlibabaNavProductField.SHORT_DESC)), url, categories=path
             ):
+                found += 1
                 yield product
+        self.logger.debug("%d valid product(s) in the %s navigation category %s.", found, self.name, path)
         subcategories = category.get(AlibabaNavCategoryField.SUB_CATEGORIES)
         for subcategory in subcategories if isinstance(subcategories, list) else []:
             yield from self._nav_category_products(self._as_object(subcategory), path)
@@ -446,6 +533,7 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             Request: The landing page request.
         """
         meta: Dict[str, str] = {self.HELP_LANDING: slug, self.PRODUCT_NAME: name}
+        self.logger.debug("Requesting the %s documentation landing page %r of %r.", self.name, slug, name)
         return Request(self.HELP_LANDING_URL.format(slug=slug), meta=meta)
 
     def _help_article_request(self, response: Response) -> Request:
@@ -503,6 +591,7 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             )
             description = next((self._clean_text(text) for text in paragraphs if self._clean_text(text)), "")
         if not description or self.HELP_BOILERPLATE.search(description):
+            self.logger.debug("No genuine description of %r in the %s article %s.", name, self.name, response.url)
             return None
         return description
 
@@ -518,6 +607,7 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         name = str(response.meta[self.PRODUCT_NAME])
         description = self._help_description(response, name)
         if description is None:
+            self.logger.debug("The landing page %s of %r describes nothing, reading its overview.", response.url, name)
             return None
         slug = str(response.meta[self.HELP_LANDING])
         categories = self.help_categories.get(self._name_key(name))
@@ -634,6 +724,280 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
         url = str(response.meta[self.PRODUCT_PAGE])
         return self._build_product(product.name, product.description, url, categories=categories)
 
+    def _script_object(self, response: Response) -> JsonValue:
+        """Read the object a price file assigns (`var X = {...}`).
+
+        Args:
+            response (Response): The price file.
+
+        Returns:
+            JsonValue: The object.
+
+        Raises:
+            CatalogueFormatError: If the file assigns no JSON object.
+        """
+        text = response.body.decode(TextEncoding.UTF_8, errors=TextEncoding.REPLACE)
+        start, end = text.find("{"), text.rfind("}")
+        if start < 0 or end < start:
+            self.logger.error("The Alibaba Cloud price file %s assigns no object.", response.url)
+            raise CatalogueFormatError(self.name, response.url, "the price file assigns no JSON object")
+        try:
+            data: JsonValue = json.loads(text[start : end + 1])
+        except ValueError as e:
+            self.logger.error("The Alibaba Cloud price file %s assigns no JSON object: %s", response.url, e)
+            raise CatalogueFormatError(self.name, response.url, "the price file assigns no JSON object") from e
+        return data
+
+    def _instance_row_prices(
+        self, row: JsonValue, system: str, region: str, group: str, source: str
+    ) -> Iterator[ServicePrice]:
+        """Read the prices of a row of the instance type prices.
+
+        Args:
+            row (JsonValue): The row: `[type, os, region, io optimized, vCPUs, memory, [7 prices], network, [7 list
+                prices], [discounts]]`.
+            system (str): Its operating system.
+            region (str): Its region.
+            group (str): Its generation and network.
+            source (str): The price file (its source).
+
+        Yields:
+            ServicePrice: Its price per period (`PERIODS`).
+        """
+        if not isinstance(row, list) or len(row) < self.ROW_LENGTH or not isinstance(row[6], list):
+            return
+        instance, vcpu, memory = row[0], row[4], row[5]
+        for index, (unit, months, term) in enumerate(self.PERIODS):
+            amount = row[6][index] if index < len(row[6]) else None
+            try:
+                price = Decimal(str(amount))
+            except ArithmeticError:
+                continue
+            fact = self._price_fact(
+                {
+                    "sku_key": f"{self.INSTANCES_KEY}/{region}/{system}/{group}/{instance}/{index}",
+                    "service": self.ECS_SERVICE,
+                    "family": self.INSTANCES_KEY,
+                    "region": region,
+                    "instance_type": instance,
+                    "vcpu": vcpu if isinstance(vcpu, int) and vcpu > 0 else None,
+                    "memory_gib": memory if isinstance(memory, (int, float)) and memory > 0 else None,
+                    "os": system,
+                    "attributes": {self.GROUP_ATTRIBUTE: group},
+                    "unit": unit,
+                    "unit_raw": unit.value if months <= 1 else f"{months} months",
+                    "unit_factor": Decimal(months) if unit is PriceUnit.MONTH else Decimal(1),
+                    "price": price,
+                    "currency": self.PRICE_CURRENCY,
+                    "model": PriceModel.FREE
+                    if price == 0
+                    else PriceModel.COMMITMENT
+                    if months > 1
+                    else PriceModel.ON_DEMAND,
+                    "term": term,
+                    "source_url": source,
+                    "source_kind": PriceSourceKind.CALCULATOR,
+                }
+            )
+            if fact is not None:
+                yield fact
+
+    def _instance_prices(self, data: JsonValue, source: str) -> Iterator[ServicePrice]:
+        """Read the prices of the instance types: hourly, monthly, then for 1 to 5 years paid at once (discounted).
+
+        Args:
+            data (JsonValue): The instance type prices, by operating system, region, generation and network.
+            source (str): The price file (its source).
+
+        Yields:
+            ServicePrice: A price per instance type, region, operating system and period.
+        """
+        for system, regions in (data if isinstance(data, dict) else {}).items():
+            for region, generations in (regions if isinstance(regions, dict) else {}).items():
+                for generation, networks in (generations if isinstance(generations, dict) else {}).items():
+                    for network, groups in (networks if isinstance(networks, dict) else {}).items():
+                        for rows in groups.values() if isinstance(groups, dict) else []:
+                            for row in rows if isinstance(rows, list) else []:
+                                yield from self._instance_row_prices(
+                                    row, system, region, f"{generation}/{network}", source
+                                )
+
+    def _disk_prices(self, data: JsonValue, source: str) -> Iterator[ServicePrice]:
+        """Read the disk prices: monthly and hourly, per 100 GB.
+
+        Args:
+            data (JsonValue): The disk prices, by region and kind.
+            source (str): The price file (its source).
+
+        Yields:
+            ServicePrice: A monthly and an hourly price per region, disk use and category.
+        """
+        for region, kinds in (data if isinstance(data, dict) else {}).items():
+            for kind, rows in kinds.items() if isinstance(kinds, dict) else []:
+                for row in rows if isinstance(rows, list) else []:
+                    if not isinstance(row, list) or len(row) < 5 or not isinstance(row[4], list):
+                        continue
+                    size, category = row[2], row[3]
+                    level = row[5] if len(row) > 5 else ""
+                    for (unit, written), amount in zip(self.DISK_UNITS, row[4], strict=False):
+                        try:
+                            price = Decimal(str(amount))
+                        except ArithmeticError:
+                            continue
+                        fact = self._price_fact(
+                            {
+                                "sku_key": f"{self.DISKS_KEY}/{region}/{kind}/{category}/{level}/{written}",
+                                "service": self.ECS_SERVICE,
+                                "family": self.DISKS_KEY,
+                                "region": region,
+                                "attributes": {self.CATEGORY_ATTRIBUTE: category, self.USE_ATTRIBUTE: row[1]},
+                                "unit": unit,
+                                "unit_raw": f"{size} GB/{written}",
+                                "unit_factor": Decimal(str(size)) if str(size).isdigit() else Decimal(1),
+                                "price": price,
+                                "currency": self.PRICE_CURRENCY,
+                                "model": PriceModel.FREE if price == 0 else PriceModel.ON_DEMAND,
+                                "source_url": source,
+                                "source_kind": PriceSourceKind.CALCULATOR,
+                            }
+                        )
+                        if fact is not None:
+                            yield fact
+
+    def _bandwidth_prices(self, data: JsonValue, source: str) -> Iterator[ServicePrice]:
+        """Read the bandwidth prices: per Mbps value, monthly or hourly, and the traffic per GB.
+
+        Args:
+            data (JsonValue): The bandwidth prices, by region.
+            source (str): The price file (its source).
+
+        Yields:
+            ServicePrice: A price per region, bandwidth value and unit.
+        """
+        for region, kinds in (data if isinstance(data, dict) else {}).items():
+            for rows in kinds.values() if isinstance(kinds, dict) else []:
+                for row in rows if isinstance(rows, list) else []:
+                    if not isinstance(row, list) or len(row) < 4:
+                        continue
+                    try:
+                        unit = self.BANDWIDTH_UNITS[AlibabaBandwidthUnit(str(row[2]))]
+                        price = Decimal(str(row[3]))
+                    except ValueError, ArithmeticError:
+                        continue
+                    fact = self._price_fact(
+                        {
+                            "sku_key": f"{self.BANDWIDTH_KEY}/{region}/{row[2]}/{row[1]}",
+                            "service": self.ECS_SERVICE,
+                            "family": self.BANDWIDTH_KEY,
+                            "region": region,
+                            "attributes": {self.MBPS_ATTRIBUTE: row[1]},
+                            "unit": unit,
+                            "unit_raw": str(row[2]),
+                            "price": price,
+                            "currency": self.PRICE_CURRENCY,
+                            "model": PriceModel.FREE if price == 0 else PriceModel.ON_DEMAND,
+                            "source_url": source,
+                            "source_kind": PriceSourceKind.CALCULATOR,
+                        }
+                    )
+                    if fact is not None:
+                        yield fact
+
+    def _directory_pages(self, response: Response) -> Iterator[Request]:
+        """Request the pricing pages listed by the pricing directory.
+
+        Args:
+            response (Response): The pricing directory.
+
+        Yields:
+            Request: One request per pricing page, named after its directory entry.
+
+        Raises:
+            CatalogueFormatError: If the directory holds no entries.
+        """
+        holder = response.css(self.DIRECTORY_DATA).first
+        raw = holder.attrib.get("data-data", "") if holder is not None else ""
+        try:
+            data: JsonValue = json.loads(raw) if raw else None
+        except json.JSONDecodeError as e:
+            self.logger.error("The %s pricing directory %s is not JSON: %s", self.name, response.url, e)
+            raise CatalogueFormatError(self.name, response.url, "the pricing directory is not JSON") from e
+        groups = data.get("product") if isinstance(data, dict) else None
+        if not isinstance(groups, list):
+            self.logger.error("The %s pricing directory %s holds no entries.", self.name, response.url)
+            raise CatalogueFormatError(self.name, response.url, "the pricing directory holds no entries")
+        pages: Dict[str, str] = {}
+        for group in groups:
+            items = group.get("productItem") if isinstance(group, dict) else None
+            for item in items if isinstance(items, list) else []:
+                children = item.get("child") if isinstance(item, dict) else None
+                for child in children if isinstance(children, list) else []:
+                    name = child.get("h4s") if isinstance(child, dict) else None
+                    link = child.get("url") if isinstance(child, dict) else None
+                    if isinstance(name, str) and isinstance(link, str) and link:
+                        pages.setdefault(urljoin(self.SITE_URL, link.strip()), name.strip())
+        self.logger.info("%d %s pricing pages in the pricing directory.", len(pages), self.name)
+        for url, name in pages.items():
+            yield self._price_request(url, {self.PRODUCT_PAGE_META: name})
+
+    async def _price_requests(self) -> AsyncGenerator[Request]:
+        """Request the loader of the ECS price list, the pricing directory and the Model Studio pricing page.
+
+        Yields:
+            Request: The loader, directory and Model Studio requests (the pricing pages and the Model Studio page
+                being read by the base reader of product pages).
+        """
+        self.logger.info("Reading the Alibaba Cloud ECS prices from %s.", self.PRICE_LOADER_URL)
+        yield self._price_request(self.PRICE_LOADER_URL)
+        self.logger.info("Reading the Alibaba Cloud pricing pages listed by %s.", self.PRICING_DIRECTORY_URL)
+        yield self._price_request(self.PRICING_DIRECTORY_URL, {self.DIRECTORY_META: True})
+        yield self._price_request(self.MODEL_PRICES_URL, {self.PRODUCT_PAGE_META: self.MODEL_SERVICE})
+
+    async def _extract_prices(self, response: Response) -> AsyncGenerator[PriceFact]:
+        """Read the loader (requesting each changed price file), a price file, or the pricing directory.
+
+        Args:
+            response (Response): The loader, a price file, or the pricing directory.
+
+        Yields:
+            PriceFact: The price file requests, the prices of a file, or the pricing page requests.
+
+        Raises:
+            CatalogueFormatError: If a price file assigns no JSON object, or the directory holds no entries.
+        """
+        if response.meta.get(self.DIRECTORY_META):
+            for request in self._directory_pages(response):
+                yield request
+            return
+        name = response.meta.get(self.PRICE_FILE)
+        if not isinstance(name, str):
+            text = response.body.decode(TextEncoding.UTF_8, errors=TextEncoding.REPLACE)
+            for url in self.PRICE_FILE_URL.findall(text):
+                file_name = url.rsplit("/", 1)[-1]
+                version = self.FILE_VERSION.search(url)
+                if file_name not in tuple(AlibabaPriceFile) or version is None:
+                    continue
+                source = self.FILE_VERSION.sub("/", url)
+                if self._price_unchanged(source, version=version[1]):
+                    continue
+                yield self._price_request(url, {self.PRICE_FILE: file_name, self.PRICE_VERSION: version[1]})
+            return
+        data = self._script_object(response)
+        file_version = str(response.meta.get(self.PRICE_VERSION) or "")
+        source = self.FILE_VERSION.sub("/", response.url)
+        if name == AlibabaPriceFile.DISKS:
+            facts = self._disk_prices(data, source)
+        elif name == AlibabaPriceFile.BANDWIDTH:
+            facts = self._bandwidth_prices(data, source)
+        else:
+            facts = self._instance_prices(data, source)
+        found = 0
+        for fact in facts:
+            found += 1
+            yield fact
+        self._record_price_source(source, found, version=file_version or None)
+        self.logger.info("The Alibaba Cloud price file %s (%s) is read: %d prices.", name, file_version, found)
+
     ############################
     # Publicly Exposed Methods #
     ############################
@@ -651,7 +1015,9 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             CatalogueFormatError: If the product tree or the product cards are missing.
         """
         if self._source(response.url) == AlibabaPageSource.NAV:
+            self.logger.debug("Extracting the %s products of the navigation tree %s.", self.name, response.url)
             return self._nav_products(response)
+        self.logger.debug("Extracting the %s product cards of %s.", self.name, response.url)
         return self._card_products(response)
 
     async def parse(self, response: Response) -> AsyncGenerator[Union[Dict[str, JsonValue], Request]]:
@@ -674,6 +1040,8 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
                 yield streamed
             elif product is None and landing:
                 yield self._help_article_request(response)
+            else:
+                self.logger.debug("Nothing new streamed from the %s documentation page %s.", self.name, response.url)
             return
         if self.HELP_SLUG in response.meta and self._page_description(response) is None:
             self.logger.debug("The product page %s has no description, reading its documentation.", response.url)
@@ -681,9 +1049,11 @@ class AlibabaCloudCrawler(BaseCloudCrawler):
             return
         source = self._source(response.url)
         if self.PRODUCT_PAGE not in response.meta and source == AlibabaPageSource.HELP:
+            self.logger.debug("Reading the %s documentation home page %s.", self.name, response.url)
             yield self._help_request(response)
             return
         if self.PRODUCT_PAGE not in response.meta and source == AlibabaPageSource.SITEMAP:
+            self.logger.debug("Reading the %s sitemap %s.", self.name, response.url)
             for request in self._sitemap_requests(response):
                 yield request
             return

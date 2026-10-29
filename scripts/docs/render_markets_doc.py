@@ -13,8 +13,8 @@ from typing import Dict, List, Optional, Sequence, Tuple
 # First Party Imports.
 from analytics.markets.markets_doc_renderer import MarketsDocRenderer
 from conf import MARKETS_DOC_PATH
-from crawler.exception import MarketsCatalogError
-from crawler.markets.catalog_loader import MarketsCatalogLoader
+from curated.bundle.bundle_catalogs import BundleCatalogs
+from curated.exception import CuratedError
 from logger import setup_logging
 from storage.exception import StorageError
 from storage.storage import Storage
@@ -24,32 +24,32 @@ class MarketsDocWriter:
     """Write the generated blocks of the markets guide: `uv run render-markets-doc [--coverage]`.
 
     Attributes:
-        loader (MarketsCatalogLoader): Reads `conf/history/markets.yaml` and the chronology.
+        catalogs (BundleCatalogs): Reads the markets catalogue and the chronology from the bundle.
         renderer (MarketsDocRenderer): Prints the blocks.
         logger (Logger): The writer logger.
 
     Notes:
-        - The catalogue block follows the YAML: `--check` writes nothing and fails when it is out of date (for the
-          CI and the tests).
+        - The catalogue block follows the bundle (`data/curated/markets.json`): `--check` writes nothing and fails
+          when it is out of date (for the CI and the tests).
         - `--coverage` also prints the coverage of the stored series, read from the database of
           `CRAWLER_DATABASE_URL`: run it after a markets crawl.
     """
 
     def __init__(
         self,
-        loader: Optional[MarketsCatalogLoader] = None,
+        catalogs: Optional[BundleCatalogs] = None,
         renderer: Optional[MarketsDocRenderer] = None,
         logger: Optional[Logger] = None,
     ) -> None:
         """Initialize the writer.
 
         Args:
-            loader (Optional[MarketsCatalogLoader]): Reads the catalogue and the chronology.
+            catalogs (Optional[BundleCatalogs]): Reads the catalogue and the chronology, `data/curated` by default.
             renderer (Optional[MarketsDocRenderer]): Prints the blocks.
             logger (Optional[Logger]): The writer logger.
         """
         self.logger = logger if logger else getLogger(__name__)
-        self.loader = loader if loader else MarketsCatalogLoader(self.logger)
+        self.catalogs = catalogs if catalogs else BundleCatalogs(logger=self.logger)
         self.renderer = renderer if renderer else MarketsDocRenderer(self.logger)
 
     ############################
@@ -91,7 +91,7 @@ class MarketsDocWriter:
             shares = await storage.shares.months()
             quarters = await storage.shares.quarters()
             listings: Dict[str, List[date]] = defaultdict(list)
-            for point in await storage.stocks.read():
+            for point in await storage.stocks.list():
                 month = point.day.replace(day=1)
                 if not listings[point.listing] or listings[point.listing][-1] != month:
                     listings[point.listing].append(month)
@@ -112,10 +112,10 @@ class MarketsDocWriter:
             str: The guide.
 
         Raises:
-            MarketsCatalogError: If the catalogue cannot be loaded.
+            CuratedError: If the catalogue cannot be read from the bundle.
             StorageError: If the coverage cannot be read.
         """
-        catalog, chronology = self.loader.load(), self.loader.chronology()
+        catalog, chronology = self.catalogs.markets(), self.catalogs.chronology()
         text = self.renderer.splice(current, MarketsDocRenderer.CATALOGUE, self.renderer.catalogue(catalog, chronology))
         if coverage:
             shares, listings, quarters = asyncio.run(self._coverage())
@@ -138,7 +138,7 @@ class MarketsDocWriter:
         current = output.read_text(encoding="utf-8") if output.is_file() else ""
         try:
             text = self.render(current, coverage=arguments.coverage and not arguments.check)
-        except MarketsCatalogError as e:
+        except CuratedError as e:
             self.logger.error("%s", e)
             return 1
         except StorageError as e:

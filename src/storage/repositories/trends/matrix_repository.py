@@ -9,6 +9,7 @@ from sqlalchemy import ColumnElement, Row, Select, distinct, func, literal_colum
 from sqlalchemy.exc import SQLAlchemyError
 
 # First Party Imports.
+from models.cloud.enums import CloudProvider
 from models.storage.enums import DatasetKind
 from models.storage.pages.item_query import ItemQuery
 from models.trends.enums import MatrixCell, SeriesGrouping
@@ -16,6 +17,7 @@ from models.trends.matrix.metric_matrix import MetricMatrix
 from storage.engine.database import Database
 from storage.exception import StorageReadError
 from storage.mappers.item_query_builder import ItemQueryBuilder
+from storage.repositories.trends.stored_items import StoredItems, StoredTrendItem, TrendItem, TrendPage
 from storage.repositories.trends.trend_statements import TrendStatements
 from storage.tables.base import Base
 from storage.tables.datasets.crawl_row import CrawlRow
@@ -26,11 +28,12 @@ CellRow = Row[str, str, int]
 
 
 class MatrixRepository:
-    """Read the matrices of the listed marketplace software: counts per row and column grouping.
+    """Read the matrices of the listed items (counts per row and column grouping), and CRUDL the items counted.
 
     Attributes:
         LIMIT (ClassVar[int]): The default largest number of rows and columns kept, the largest first.
         database (Database): The open database.
+        items (StoredItems): The counted items (the CRUDL operations of the repository).
         statements (TrendStatements): The statement builder of the software table.
         builder (ItemQueryBuilder): The filter builder of the software table.
         product_statements (TrendStatements): The statement builder of the products table.
@@ -41,26 +44,30 @@ class MatrixRepository:
         - The cells count the software, or the catalogue products (`kind`), which have no publisher.
         - Only the listed software is counted, whatever the query says about the deleted ones.
         - The publishers are compared case and spaces aside.
+        - The matrices own no table: `create`, `read`, `update`, `delete` and `list` are Cthose of the counted items
+          (see `StoredItems`).
     """
 
     LIMIT: ClassVar[int] = 12
 
-    def __init__(self, database: Database, logger: Optional[Logger] = None) -> None:
+    def __init__(self, database: Database, items: StoredItems, logger: Optional[Logger] = None) -> None:
         """Initialize the repository.
 
         Args:
             database (Database): The open database.
+            items (StoredItems): The counted items, whose CRUDL operations the repository exposes.
             logger (Optional[Logger]): The repository logger.
         """
         self.logger = logger if logger else getLogger(__name__)
         self.database = database
+        self.items = items
         tables = Base.metadata.tables
         software = tables[SoftwareRow.__tablename__]
-        self.statements = TrendStatements(software, tables[CrawlRow.__tablename__], self.logger)
-        self.builder = ItemQueryBuilder(software, self.logger)
+        self.statements = TrendStatements(software, tables[CrawlRow.__tablename__])
+        self.builder = ItemQueryBuilder(software)
         products = tables[ProductRow.__tablename__]
-        self.product_statements = TrendStatements(products, tables[CrawlRow.__tablename__], self.logger)
-        self.product_builder = ItemQueryBuilder(products, self.logger)
+        self.product_statements = TrendStatements(products, tables[CrawlRow.__tablename__])
+        self.product_builder = ItemQueryBuilder(products)
         self.logger.debug("Repository of the marketplace matrices ready.")
 
     ############################
@@ -124,6 +131,86 @@ class MatrixRepository:
     ############################
     # Publicly Exposed Methods #
     ############################
+
+    async def create(self, kind: DatasetKind, provider: CloudProvider, item: TrendItem) -> StoredTrendItem:
+        """Store an item counted by the matrices by hand (see `StoredItems.create`).
+
+        Args:
+            kind (DatasetKind): The kind of dataset: `CATALOGUE` for a product, `MARKETPLACE` for a software.
+            provider (CloudProvider): The cloud provider of the item.
+            item (TrendItem): The item.
+
+        Returns:
+            StoredTrendItem: The stored item, with its identifier.
+
+        Raises:
+            StorageWriteError: If the kind holds no such item, or the item cannot be written.
+        """
+        self.logger.debug("Creating a %s item counted by the matrices.", kind.value)
+        return await self.items.create(kind, provider, item)
+
+    async def read(self, kind: DatasetKind, item_id: int) -> Optional[StoredTrendItem]:
+        """Read an item counted by the matrices.
+
+        Args:
+            kind (DatasetKind): The kind of dataset.
+            item_id (int): The item identifier.
+
+        Returns:
+            Optional[StoredTrendItem]: The item, `None` when it does not exist.
+
+        Raises:
+            StorageReadError: If the item cannot be read.
+        """
+        return await self.items.read(kind, item_id)
+
+    async def update(self, kind: DatasetKind, item_id: int, item: TrendItem) -> Optional[StoredTrendItem]:
+        """Replace an item counted by the matrices by hand.
+
+        Args:
+            kind (DatasetKind): The kind of dataset.
+            item_id (int): The item identifier.
+            item (TrendItem): The new item.
+
+        Returns:
+            Optional[StoredTrendItem]: The updated item, `None` when it does not exist.
+
+        Raises:
+            StorageWriteError: If the kind holds no such item, or the item cannot be written.
+        """
+        self.logger.debug("Updating the %s item %d counted by the matrices.", kind.value, item_id)
+        return await self.items.update(kind, item_id, item)
+
+    async def delete(self, kind: DatasetKind, item_id: int) -> bool:
+        """Delete an item counted by the matrices by hand.
+
+        Args:
+            kind (DatasetKind): The kind of dataset.
+            item_id (int): The item identifier.
+
+        Returns:
+            bool: Whether the item existed.
+
+        Raises:
+            StorageWriteError: If the kind holds no item, or the item cannot be deleted.
+        """
+        self.logger.debug("Deleting the %s item %d counted by the matrices.", kind.value, item_id)
+        return await self.items.delete(kind, item_id)
+
+    async def list(self, kind: DatasetKind, query: ItemQuery) -> TrendPage:
+        """List a page of the items counted by the matrices.
+
+        Args:
+            kind (DatasetKind): The kind of dataset.
+            query (ItemQuery): The filters, order and bounds of the page.
+
+        Returns:
+            TrendPage: The items of the page, with the number of items matching the query.
+
+        Raises:
+            StorageReadError: If the kind holds no item, or the items cannot be read.
+        """
+        return await self.items.list(kind, query)
 
     async def cells(
         self,

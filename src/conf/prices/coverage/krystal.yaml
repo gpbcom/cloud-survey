@@ -1,0 +1,20 @@
+# Curated price coverage of Krystal (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: krystal
+currency: GBP
+statements:
+  - product: 'DNS Management'
+    model: free
+    reason: 'No per-domain fee and no per-query charge, running DNS costs nothing.'
+    source: 'https://krystal.io/cloud/networking/dns-management'
+  - product: 'Firewall'
+    model: free
+    reason: 'Firewall is included with every VM at no extra cost.'
+    source: 'https://krystal.io/cloud/networking/firewall'
+  - product: 'SDN Private Networks'
+    model: free
+    reason: 'SDN Private Networks are free with every account.'
+    source: 'https://krystal.io/cloud/networking/sdn-private-network'
+  - product: 'Managed solutions'
+    model: quote
+    reason: 'Every engagement is scoped individually and priced, not a price list.'
+    source: 'https://krystal.io/managed'

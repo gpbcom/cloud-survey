@@ -3,7 +3,8 @@ from __future__ import annotations
 # Standard Library Imports.
 import csv
 import io
-from typing import AsyncGenerator, ClassVar, Dict, Iterator
+from pathlib import Path
+from typing import AsyncGenerator, ClassVar, Dict, Iterator, Optional, Union
 from urllib.parse import urlencode
 
 # Third Party Imports.
@@ -13,8 +14,10 @@ from scrapling.spiders import Request, Response
 # First Party Imports.
 from crawler.markets.base import BaseMarketsCrawler, MarketFact
 from crawler.markets.fred.enums import FredField
+from models.markets.crawl_scope import CrawlScope
 from models.markets.enums import MarketFeed
 from models.markets.facts.fx_observation import FxObservation
+from models.markets.markets_catalog import MarketsCatalog
 
 
 class FredCrawler(BaseMarketsCrawler):
@@ -40,6 +43,26 @@ class FredCrawler(BaseMarketsCrawler):
     feed: ClassVar[MarketFeed] = MarketFeed.FRED
     catalogue_url: ClassVar[str] = "https://fred.stlouisfed.org/"
     download_delay: float = 1.0
+
+    def __init__(
+        self,
+        catalog: Optional[MarketsCatalog] = None,
+        scope: Optional[CrawlScope] = None,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            catalog (Optional[MarketsCatalog]): What is read, `data/curated/markets.json` by default.
+            scope (Optional[CrawlScope]): The part of the catalogue read, all of it by default.
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+
+        Raises:
+            MarketsCatalogError: If the default catalogue cannot be loaded.
+        """
+        super().__init__(catalog=catalog, scope=scope, crawldir=crawldir, interval=interval)
 
     ############################
     # Internal Helpers Methods #

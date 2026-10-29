@@ -1,0 +1,1 @@
+{"data":{"allApiKaasPrices":{"nodes":[{"data":[{"name":"shared","kaas_pack_id":1,"price_per_hour":{"CHF":0,"EUR":0}},{"name":"dedicated_4","kaas_pack_id":2,"price_per_hour":{"CHF":0.04,"EUR":0.03604}},{"name":"dedicated_8","kaas_pack_id":3,"price_per_hour":{"CHF":0.08,"EUR":0.07207}},{"name":"dedicated_16","kaas_pack_id":4,"price_per_hour":{"CHF":0.16,"EUR":0.14414}}]}]}}}

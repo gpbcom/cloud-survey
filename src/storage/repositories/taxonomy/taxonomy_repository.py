@@ -17,9 +17,12 @@ from models.taxonomy.enums import LinkSource, NodeOrigin
 
 # First Party Imports.
 from models.taxonomy.nodes.taxonomy import Taxonomy
+from models.taxonomy.nodes.taxonomy_node import TaxonomyNode
 from storage.engine.database import Database
 from storage.exception import StorageReadError, StorageWriteError
 from storage.tables.base import Base
+from storage.tables.items.product_row import ProductRow
+from storage.tables.items.software_row import SoftwareRow
 from storage.tables.taxonomy.label_link_row import LabelLinkRow
 from storage.tables.taxonomy.source_label_row import SourceLabelRow
 from storage.tables.taxonomy.taxonomy_node_row import TaxonomyNodeRow
@@ -27,7 +30,7 @@ from storage.tables.taxonomy.taxonomy_state_row import TaxonomyStateRow
 
 
 class TaxonomyRepository:
-    """Read the unified taxonomy stored in SQL, and its revision.
+    """Create, read, update, delete and list the nodes of the unified taxonomy stored in SQL, and its revision.
 
     Attributes:
         SLUG_SEPARATORS (ClassVar[str]): The pattern of the characters replaced by a dash in a new slug.
@@ -36,6 +39,7 @@ class TaxonomyRepository:
         links (Table): The `label_links` table.
         state (Table): The `taxonomy_state` table.
         labels (Table): The `source_labels` table.
+        items (Tuple[Table, ...]): The tables of the categorized items (catalogue products, marketplace software).
         logger (Logger): The repository logger.
 
     Notes:
@@ -43,9 +47,11 @@ class TaxonomyRepository:
           reload their caches when it changes. The crawls never change it (they only add labels, found by the largest
           label identifier).
         - A node without its Russian or Chinese name (added by hand) is read with its English name instead.
-        - The edits of the Categories manager (`add_node`, `update_node`, `set_hidden`, `move_node`, `merge_node`) mark
-          the nodes edited (the seed no longer overwrites them), increment the revision and return the nodes whose
-          items must be categorized again. A node is never deleted: the items store its slug.
+        - The edits of the Categories manager (`create`, `update`, `set_hidden`, `move_node`, `merge_node`) mark the
+          nodes edited (the seed no longer overwrites them), increment the revision and return the nodes whose items
+          must be categorized again.
+        - The items store the slugs of their nodes: `delete` removes only a node no item is filed under and with no
+          category under it (its label links go with it). A node in use is hidden or merged instead.
     """
 
     SLUG_SEPARATORS: ClassVar[str] = r"[^a-z0-9]+"
@@ -64,6 +70,7 @@ class TaxonomyRepository:
         self.state: Table = tables[TaxonomyStateRow.__tablename__]
         self.labels: Table = tables[SourceLabelRow.__tablename__]
         self.links: Table = tables[LabelLinkRow.__tablename__]
+        self.items: Tuple[Table, ...] = (tables[ProductRow.__tablename__], tables[SoftwareRow.__tablename__])
         self.logger.debug("Repository of the taxonomy ready.")
 
     ############################
@@ -131,6 +138,8 @@ class TaxonomyRepository:
         slug, number = base, 2
         while slug in taken:
             slug, number = f"{base}-{number}", number + 1
+        if slug != base:
+            self.logger.debug("The slug %s is taken: %s is used for %r.", base, slug, name_en)
         return slug
 
     ############################
@@ -169,8 +178,8 @@ class TaxonomyRepository:
         self.logger.info("Stored taxonomy read: %d domains, %d nodes.", len(domains), len(ordered))
         return taxonomy
 
-    async def read(self) -> Taxonomy:
-        """Read the stored taxonomy, in its own transaction.
+    async def list(self) -> Taxonomy:
+        """List the stored nodes as the taxonomy, in its own transaction.
 
         Returns:
             Taxonomy: The stored taxonomy (see `load`).
@@ -184,6 +193,33 @@ class TaxonomyRepository:
         except SQLAlchemyError as e:
             self.logger.error("The taxonomy cannot be read: %s", e)
             raise StorageReadError("taxonomy", str(e)) from e
+
+    async def read(self, slug: str) -> Optional[TaxonomyNode]:
+        """Read one node.
+
+        Args:
+            slug (str): The node slug.
+
+        Returns:
+            Optional[TaxonomyNode]: The node, `None` when there is none.
+
+        Raises:
+            StorageReadError: If the node cannot be read.
+        """
+        try:
+            async with self.database.connect() as connection:
+                row = (await connection.execute(select(self.nodes).where(self.nodes.c.slug == slug))).mappings().first()
+        except SQLAlchemyError as e:
+            self.logger.error("The taxonomy node %s cannot be read: %s", slug, e)
+            raise StorageReadError(f"taxonomy node {slug}", str(e)) from e
+        if row is None:
+            self.logger.debug("No taxonomy node %s.", slug)
+            return None
+        try:
+            return TaxonomyNode.model_validate(self._node(row))
+        except ValidationError as e:
+            self.logger.error("The stored taxonomy node %s is invalid: %s", slug, e.errors()[0]["msg"])
+            raise StorageReadError(f"taxonomy node {slug}", e.errors()[0]["msg"]) from e
 
     async def revision(self, connection: AsyncConnection) -> Tuple[Optional[int], int]:
         """Read the revision of the taxonomy and the largest label identifier.
@@ -221,7 +257,44 @@ class TaxonomyRepository:
         self.logger.info("Taxonomy revision %d.", revision)
         return int(revision or 0)
 
-    async def add_node(
+    async def delete(self, slug: str) -> bool:
+        """Delete a node no item is filed under, with no category under it (its label links go with it).
+
+        Args:
+            slug (str): The node slug.
+
+        Returns:
+            bool: Whether the node existed.
+
+        Raises:
+            StorageWriteError: If a category or an item is still filed under the node, or it cannot be deleted.
+        """
+        nodes = self.nodes
+        try:
+            async with self.database.connect() as connection, connection.begin():
+                if await connection.scalar(select(nodes.c.slug).where(nodes.c.slug == slug)) is None:
+                    self.logger.debug("No taxonomy node %s: nothing deleted.", slug)
+                    return False
+                if await connection.scalar(select(func.count()).where(nodes.c.parent_slug == slug)):
+                    self.logger.error("The taxonomy node %s still has categories: not deleted.", slug)
+                    raise StorageWriteError(f"taxonomy node {slug}", "categories are still under it")
+                for table in self.items:
+                    used = select(func.count()).where(
+                        (table.c.service_categories.contains([slug])) | (table.c.service_domains.contains([slug]))
+                    )
+                    if await connection.scalar(used):
+                        self.logger.error("Items of %s are still filed under %s: not deleted.", table.name, slug)
+                        raise StorageWriteError(f"taxonomy node {slug}", f"{table.name} are still filed under it")
+                await connection.execute(delete(self.links).where(self.links.c.node_slug == slug))
+                await connection.execute(delete(nodes).where(nodes.c.slug == slug))
+                await self.bump(connection)
+        except SQLAlchemyError as e:
+            self.logger.error("The taxonomy node %s cannot be deleted: %s", slug, e)
+            raise StorageWriteError(f"taxonomy node {slug}", str(e)) from e
+        self.logger.info("Taxonomy node %s deleted.", slug)
+        return True
+
+    async def create(
         self,
         name_en: str,
         parent_slug: Optional[str] = None,
@@ -278,7 +351,7 @@ class TaxonomyRepository:
         self.logger.info("Taxonomy node %s added under %s.", slug, parent_slug or "the root")
         return slug
 
-    async def update_node(
+    async def update(
         self, slug: str, name_en: str, name_ru: str = "", name_zh: str = "", description_en: str = ""
     ) -> List[str]:
         """Rename a node and change its description by hand.

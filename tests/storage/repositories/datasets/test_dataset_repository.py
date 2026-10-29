@@ -20,12 +20,12 @@ T0 = datetime(2026, 1, 1, tzinfo=UTC)
 async def test_a_dataset_is_in_progress_while_its_crawl_holds_its_lock(
     storage: Storage, make_software: Callable[..., MarketplaceSoftware]
 ) -> None:
-    assert await storage.datasets.stamps() == []
+    assert await storage.datasets.list() == []
     async with storage.marketplaces.writer(CloudProvider.CIVO, T0, 0.0) as writer:
         await writer.add(make_software("Postgres", ["database"], [SoftwareCategory.DEVELOPER_TOOL]))
-        (running,) = await storage.datasets.stamps()
+        (running,) = await storage.datasets.list()
         await writer._release()
-        (orphan,) = await storage.datasets.stamps()
+        (orphan,) = await storage.datasets.list()
 
     assert (running.kind, running.dataset, running.in_progress, running.size) == (
         DatasetKind.MARKETPLACE,
@@ -42,7 +42,7 @@ async def test_unreadable_datasets_are_reported(storage: Storage) -> None:
         await connection.commit()
     try:
         with pytest.raises(StorageReadError, match="datasets"):
-            await storage.datasets.stamps()
+            await storage.datasets.list()
     finally:
         async with storage.database.connect() as connection:
             await connection.execute(text("ALTER TABLE datasets_moved RENAME TO datasets"))

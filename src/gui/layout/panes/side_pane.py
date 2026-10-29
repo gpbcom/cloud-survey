@@ -73,6 +73,7 @@ class SidePane(FoldingPane):
         layout.addWidget(content, 1)
         self.toggle.clicked.connect(lambda: self.set_folded(not self.folded))
         self._apply(not store.expanded(key))
+        self.logger.debug("Side pane %s built, %s.", key, "folded" if self.folded else "expanded")
 
     ############################
     # Internal Helpers Methods #
@@ -113,9 +114,11 @@ class SidePane(FoldingPane):
             folded (bool): Whether only the strip is shown.
         """
         if folded == self.folded:
+            self.logger.debug("Side pane %s already %s.", self.key, "folded" if folded else "unfolded")
             return
         self._apply(folded)
         self.store.set_expanded(self.key, not folded)
+        self.logger.info("Side pane %s %s and remembered.", self.key, "folded" if folded else "unfolded")
         self.folded_changed.emit(folded)
 
     def is_folded(self) -> bool:

@@ -20,14 +20,14 @@ class MarketsDocRenderer:
     Attributes:
         START (ClassVar[str]): The opening marker of a generated block, formatted with its name.
         END (ClassVar[str]): The closing marker of a generated block, formatted with its name.
-        CATALOGUE (ClassVar[str]): The name of the block printing `conf/history/markets.yaml`.
+        CATALOGUE (ClassVar[str]): The name of the block printing the markets catalogue.
         COVERAGE (ClassVar[str]): The name of the block printing the stored series.
         checker (CoverageChecker): The correlation thresholds.
         logger (Logger): The renderer logger.
 
     Notes:
-        The guide is hand-written around two generated blocks: the catalogue block follows the YAML (`uv run
-        render-markets-doc`, checked by a test), the coverage block follows the stored crawls (`--coverage`, run
+        The guide is hand-written around two generated blocks: the catalogue block follows the bundle (`uv
+        run render-markets-doc`, checked by a test), the coverage block follows the stored crawls (`--coverage`, run
         after a markets crawl, since it reads the database).
     """
 

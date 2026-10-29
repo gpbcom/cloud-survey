@@ -1,0 +1,656 @@
+{
+ "menuInfos": [
+  {
+   "parentCategoryId": "CCV2021040400011",
+   "parentCategoryName": "Compute",
+   "subCategoryLists": [
+    {
+     "categoryName": "Elastic Cloud Server",
+     "urlPath": "ecs",
+     "hasCalculator": true,
+     "hideCalculator": false,
+     "associateList": [
+      "ecs",
+      "云主机",
+      "虚拟机",
+      "VPS"
+     ],
+     "categoryInfos": [
+      {
+       "cloudServiceType": "hws.service.type.ec2",
+       "resourceType": "hws.resource.type.vm",
+       "supportRI": true,
+       "mainProduct": true
+      },
+      {
+       "cloudServiceType": "hws.service.type.ec2",
+       "resourceType": "hws.resource.type.vm.image"
+      },
+      {
+       "cloudServiceType": "hws.service.type.ec2",
+       "resourceType": "hws.resource.type.vm.image.special"
+      },
+      {
+       "cloudServiceType": "hws.service.type.ebs",
+       "resourceType": "hws.resource.type.volume"
+      },
+      {
+       "cloudServiceType": "hws.service.type.vpc",
+       "resourceType": "hws.resource.type.ip"
+      },
+      {
+       "cloudServiceType": "hws.service.type.vpc",
+       "resourceType": "hws.resource.type.bandwidth"
+      }
+     ],
+     "mainProduct": [
+      {
+       "cloudServiceType": "hws.service.type.ec2",
+       "resourceType": "hws.resource.type.vm"
+      }
+     ],
+     "regionOnline": {
+      "regionList": [
+       "ap-southeast-1",
+       "af-south-1"
+      ],
+      "ap-southeast-1": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "ap-southeast-2": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "ap-southeast-3": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "ap-southeast-4": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "ap-southeast-5": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "af-south-1": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ],
+       "homeZoneAZCodes": [
+        "af-south-1-los1a"
+       ],
+       "af-south-1-los1a": [
+        "PERIOD",
+        "ONDEMAND"
+       ]
+      },
+      "af-north-1": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "tr-west-1": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "me-east-1": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "la-south-2": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "na-mexico-1": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "la-north-2": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "sa-peru-1": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "eu-west-0": {
+       "common": [
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "my-kualalumpur-1": {
+       "common": [
+        "ONDEMAND"
+       ]
+      },
+      "ru-moscow-1": {
+       "common": [
+        "ONDEMAND"
+       ]
+      },
+      "sa-brazil-1": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "sa-argentina-1": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "cn-north-1": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND"
+       ]
+      },
+      "cn-north-4": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND"
+       ]
+      },
+      "cn-north-9": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND"
+       ]
+      },
+      "cn-north-12": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND"
+       ]
+      },
+      "cn-east-3": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND"
+       ]
+      },
+      "cn-east-2": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND"
+       ]
+      },
+      "cn-east-5": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND"
+       ]
+      },
+      "cn-east-4": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND"
+       ]
+      },
+      "cn-south-1": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND"
+       ]
+      },
+      "cn-southwest-2": {
+       "common": [
+        "PERIOD",
+        "ONDEMAND"
+       ]
+      },
+      "eu-west-101": {
+       "common": [
+        "ONDEMAND",
+        "RI"
+       ]
+      },
+      "tr-central-201": {
+       "common": [
+        "ONDEMAND",
+        "RI"
+       ]
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "measureID": {
+  "0": {
+   "unit": "day",
+   "pluralUnit": "days"
+  },
+  "1": {
+   "unit": "yuan",
+   "pluralUnit": "yuan"
+  },
+  "3": {
+   "unit": "fen",
+   "pluralUnit": "fen"
+  },
+  "4": {
+   "unit": "hour",
+   "pluralUnit": "hours"
+  },
+  "5": {
+   "unit": "minute",
+   "pluralUnit": "minutes"
+  },
+  "6": {
+   "unit": "second",
+   "pluralUnit": "seconds"
+  },
+  "7": {
+   "unit": "EB",
+   "pluralUnit": "EB"
+  },
+  "8": {
+   "unit": "PB",
+   "pluralUnit": "PB"
+  },
+  "9": {
+   "unit": "TB",
+   "pluralUnit": "TB"
+  },
+  "10": {
+   "unit": "GB",
+   "pluralUnit": "GB"
+  },
+  "11": {
+   "unit": "MB",
+   "pluralUnit": "MB"
+  },
+  "12": {
+   "unit": "KB",
+   "pluralUnit": "KB"
+  },
+  "13": {
+   "unit": "Byte",
+   "pluralUnit": "Byte"
+  },
+  "14": {
+   "unit": "PCS",
+   "pluralUnit": "amounts"
+  },
+  "15": {
+   "unit": "Mbit/s",
+   "pluralUnit": "Mbit/s"
+  },
+  "16": {
+   "unit": "Byte",
+   "pluralUnit": "Byte"
+  },
+  "17": {
+   "unit": "GB",
+   "pluralUnit": "GB"
+  },
+  "18": {
+   "unit": "KLOC",
+   "pluralUnit": "KLOC"
+  },
+  "19": {
+   "unit": "Year",
+   "pluralUnit": "years"
+  },
+  "20": {
+   "unit": "month",
+   "pluralUnit": "months"
+  },
+  "21": {
+   "unit": "MB",
+   "pluralUnit": "MB"
+  },
+  "22": {
+   "unit": "GHz",
+   "pluralUnit": "GHz"
+  },
+  "23": {
+   "unit": "vCPU",
+   "pluralUnit": "vCPUs"
+  },
+  "24": {
+   "unit": "day",
+   "pluralUnit": "days"
+  },
+  "25": {
+   "unit": "Hour",
+   "pluralUnit": "hours"
+  },
+  "30": {
+   "unit": "Number",
+   "pluralUnit": "Number"
+  },
+  "31": {
+   "unit": "Thousand times",
+   "pluralUnit": "Thousand times"
+  },
+  "32": {
+   "unit": "Million times",
+   "pluralUnit": "Million times"
+  },
+  "33": {
+   "unit": "Billion times",
+   "pluralUnit": "Billion times"
+  },
+  "34": {
+   "unit": "bit/s",
+   "pluralUnit": "bit/s"
+  },
+  "35": {
+   "unit": "kbit/s",
+   "pluralUnit": "kbit/s"
+  },
+  "36": {
+   "unit": "Mbit/s",
+   "pluralUnit": "Mbit/s"
+  },
+  "37": {
+   "unit": "Gbit/s",
+   "pluralUnit": "Gbit/s"
+  },
+  "38": {
+   "unit": "Tbit/s",
+   "pluralUnit": "Tbit/s"
+  },
+  "39": {
+   "unit": "GB-seconds",
+   "pluralUnit": "GB-seconds"
+  },
+  "40": {
+   "unit": "times",
+   "pluralUnit": "times"
+  },
+  "41": {
+   "unit": "PCS",
+   "pluralUnit": "PCS"
+  },
+  "42": {
+   "unit": "Thousand PCS",
+   "pluralUnit": "Thousand PCS"
+  },
+  "43": {
+   "unit": "PCS",
+   "pluralUnit": "PCS"
+  },
+  "44": {
+   "unit": "Thousand PCS",
+   "pluralUnit": "Thousand PCS"
+  },
+  "45": {
+   "unit": "Query Per Second",
+   "pluralUnit": "Query Per Second"
+  },
+  "46": {
+   "unit": "Man/Day",
+   "pluralUnit": "Man/Day"
+  },
+  "47": {
+   "unit": "TB",
+   "pluralUnit": "TB"
+  },
+  "48": {
+   "unit": "PB",
+   "pluralUnit": "PB"
+  },
+  "49": {
+   "unit": "bit/s",
+   "pluralUnit": "bit/s"
+  },
+  "50": {
+   "unit": "kbit/s",
+   "pluralUnit": "kbit/s"
+  },
+  "51": {
+   "unit": "Mbit/s",
+   "pluralUnit": "Mbit/s"
+  },
+  "52": {
+   "unit": "Gbit/s",
+   "pluralUnit": "Gbit/s"
+  },
+  "53": {
+   "unit": "Tbit/s",
+   "pluralUnit": "Tbit/s"
+  },
+  "54": {
+   "unit": "Ten thousand times",
+   "pluralUnit": "Ten thousand times"
+  },
+  "55": {
+   "unit": "Virtual USER Minute",
+   "pluralUnit": "Virtual USER Minute"
+  },
+  "56": {
+   "unit": "Ten thousand PCS",
+   "pluralUnit": "Ten thousand PCS"
+  },
+  "57": {
+   "unit": "Square meter",
+   "pluralUnit": "Square meter"
+  },
+  "58": {
+   "unit": "Channel",
+   "pluralUnit": "Channel"
+  },
+  "59": {
+   "unit": "Transactions Per Second",
+   "pluralUnit": "Transactions Per Second"
+  },
+  "64": {
+   "unit": "SU",
+   "pluralUnit": "SU"
+  },
+  "65": {
+   "unit": "Pcs*Day",
+   "pluralUnit": "Pcs*Day"
+  },
+  "66": {
+   "unit": "Core*Second",
+   "pluralUnit": "Core*Second"
+  },
+  "67": {
+   "unit": "Core*Minute",
+   "pluralUnit": "Core*Minute"
+  },
+  "68": {
+   "unit": "Core*Hour",
+   "pluralUnit": "Core*Hour"
+  },
+  "69": {
+   "unit": "Core*Day",
+   "pluralUnit": "Core*Day"
+  },
+  "70": {
+   "unit": "GB*Second",
+   "pluralUnit": "GB*Second"
+  },
+  "71": {
+   "unit": "GB*Minute",
+   "pluralUnit": "GB*Minute"
+  },
+  "72": {
+   "unit": "GB*Hour",
+   "pluralUnit": "GB*Hour"
+  },
+  "73": {
+   "unit": "GB*Day",
+   "pluralUnit": "GB*Day"
+  },
+  "74": {
+   "unit": "IOPS*Second",
+   "pluralUnit": "IOPS*Second"
+  },
+  "75": {
+   "unit": "IOPS*Hour",
+   "pluralUnit": "IOPS*Hour"
+  },
+  "76": {
+   "unit": "MiBps*Second",
+   "pluralUnit": "MiBps*Second"
+  },
+  "77": {
+   "unit": "MiBps*Hour",
+   "pluralUnit": "MiBps*Hour"
+  },
+  "78": {
+   "unit": "Pcs/Day",
+   "pluralUnit": "Pcs/Day"
+  },
+  "79": {
+   "unit": "Pcs/Hour",
+   "pluralUnit": "Pcs/Hour"
+  },
+  "80": {
+   "unit": "Pcs/Minute",
+   "pluralUnit": "Pcs/Minute"
+  },
+  "81": {
+   "unit": "Pcs/Second",
+   "pluralUnit": "Pcs/Second"
+  },
+  "90": {
+   "unit": "Byte",
+   "pluralUnit": "Byte"
+  },
+  "91": {
+   "unit": "KB",
+   "pluralUnit": "KB"
+  },
+  "92": {
+   "unit": "MB",
+   "pluralUnit": "MB"
+  },
+  "93": {
+   "unit": "GB",
+   "pluralUnit": "GB"
+  },
+  "94": {
+   "unit": "TB",
+   "pluralUnit": "TB"
+  },
+  "95": {
+   "unit": "PB",
+   "pluralUnit": "PB"
+  },
+  "96": {
+   "unit": "EB",
+   "pluralUnit": "EB"
+  },
+  "97": {
+   "unit": "1K Tokens",
+   "pluralUnit": "1K Tokens"
+  },
+  "100": {
+   "unit": "KiB",
+   "pluralUnit": "KiB"
+  },
+  "101": {
+   "unit": "MiB",
+   "pluralUnit": "MiB"
+  },
+  "102": {
+   "unit": "GiB",
+   "pluralUnit": "GiB"
+  },
+  "103": {
+   "unit": "TiB",
+   "pluralUnit": "TiB"
+  },
+  "104": {
+   "unit": "Gigapixel",
+   "pluralUnit": "Gigapixel"
+  },
+  "108": {
+   "unit": "tokens",
+   "pluralUnit": "tokens"
+  },
+  "109": {
+   "unit": "thousand tokens",
+   "pluralUnit": "thousand tokens"
+  },
+  "110": {
+   "unit": "ten thousand tokens",
+   "pluralUnit": "ten thousand tokens"
+  },
+  "111": {
+   "unit": "million tokens",
+   "pluralUnit": "million tokens"
+  },
+  "112": {
+   "unit": "billion tokens",
+   "pluralUnit": "billion tokens"
+  },
+  "113": {
+   "unit": "Million",
+   "pluralUnit": "Million"
+  },
+  "116": {
+   "unit": "Compute Unit",
+   "pluralUnit": "Compute Unit"
+  },
+  "119": {
+   "unit": "Compute Unit",
+   "pluralUnit": "Compute Unit"
+  },
+  "121": {
+   "unit": "Node",
+   "pluralUnit": "Node"
+  },
+  "123": {
+   "unit": "Vehicle",
+   "pluralUnit": "Vehicle"
+  },
+  "490091": {
+   "unit": "hour/Day",
+   "pluralUnit": "hours/Day"
+  },
+  "490092": {
+   "unit": "hour/Month",
+   "pluralUnit": "hours/Month"
+  }
+ }
+}

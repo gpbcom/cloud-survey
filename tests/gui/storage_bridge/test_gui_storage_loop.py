@@ -24,7 +24,7 @@ def test_a_request_runs_in_the_storage_thread_and_answers_in_the_gui_thread(
 
     async def job(storage: Storage) -> List[DatasetStamp]:
         threads.append(threading.current_thread().name)
-        return await storage.datasets.stamps()
+        return await storage.datasets.list()
 
     def answer(stamps: List[DatasetStamp]) -> None:
         answers.append(stamps)
@@ -42,7 +42,7 @@ def test_an_unreachable_storage_answers_with_its_error(qtbot: QtBot) -> None:
     loop = StorageLoop(Storage(StorageSettings(url="postgresql+asyncpg://u:p@127.0.0.1:9/nowhere")))
     errors: List[StorageError] = []
     try:
-        loop.submit(lambda storage: storage.datasets.stamps(), lambda stamps: None, errors.append)
+        loop.submit(lambda storage: storage.datasets.list(), lambda stamps: None, errors.append)
         qtbot.waitUntil(lambda: len(errors) == 1)
     finally:
         loop.stop()
@@ -56,7 +56,7 @@ def test_a_failing_request_without_error_callback_is_only_logged(
 ) -> None:
     loop = StorageLoop(Storage(StorageSettings(url="postgresql+asyncpg://u:p@127.0.0.1:9/nowhere")))
     try:
-        future = loop.submit(lambda storage: storage.datasets.stamps(), lambda stamps: None)
+        future = loop.submit(lambda storage: storage.datasets.list(), lambda stamps: None)
         future.result(10)
         qtbot.wait(50)
     finally:

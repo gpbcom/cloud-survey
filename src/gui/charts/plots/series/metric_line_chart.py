@@ -226,9 +226,13 @@ class MetricLineChart(MetricChart):
         self._paint_y_grid(painter, frame, ticks, self._y_unit(), step)
         self._paint_x_axis(painter, frame)
         x_title = "" if self._is_time() else self.labels.axis_title(self.axes.x, self.axes.scope)
-        self._paint_titles(
-            painter, plot, x_title, self.labels.axis_title(self.axes.y, self.axes.scope, self.axes.transform)
+        rate = (
+            ("year" if self._is_time() else self.labels.metric_label(self.axes.x, self.axes.scope).lower())
+            if self.axes.derivative
+            else None
         )
+        y_title = self.labels.axis_title(self.axes.y, self.axes.scope, self.axes.transform, rate)
+        self._paint_titles(painter, plot, x_title, y_title)
         painter.save()
         painter.setClipRect(plot if self.zoom.is_zoomed() else plot.adjusted(-6, -6, 6, 6))
         self._paint_marks(painter, frame)
@@ -301,6 +305,6 @@ class MetricLineChart(MetricChart):
         """Tell whether the chart shows ranks (an inverted y axis).
 
         Returns:
-            bool: Whether the values are ranks.
+            bool: Whether the values are ranks (their rate of change is not inverted).
         """
-        return self.axes is not None and self.axes.transform is ValueTransform.RANK
+        return self.axes is not None and self.axes.transform is ValueTransform.RANK and not self.axes.derivative

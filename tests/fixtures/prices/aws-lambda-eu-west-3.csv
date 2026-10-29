@@ -1,0 +1,7 @@
+"FormatVersion","v1.0"
+"Disclaimer","This pricing list is for informational purposes only. All prices are subject to the additional terms included in the pricing pages on http://aws.amazon.com. All Free Tier prices are also subject to the terms included at https://aws.amazon.com/free/"
+"Publication Date","2026-10-22T18:39:59Z"
+"Version","20261022183959"
+"OfferCode","AWSLambda"
+"SKU","OfferTermCode","RateCode","TermType","PriceDescription","EffectiveDate","StartingRange","EndingRange","Unit","PricePerUnit","Currency","RelatedTo","Product Family","serviceCode","Location","Location Type","Group","Group Description","usageType","operation","Lambda Managed Instances - Request Type","Lambda Managed Instance Type","Region Code","serviceName"
+"3H5B5V4S3Z8AFPMU","JRTCKXETXF","3H5B5V4S3Z8AFPMU.JRTCKXETXF.6YS6EN2CT7","OnDemand","AWS Lambda - Total Compute for ARM (Provisioned) - EU (Paris)","2026-10-01","0","Inf","Lambda-GB-Second","0.0000090855","USD",,"Serverless","AWSLambda","EU (Paris)","AWS Region","AWS-Lambda-Duration-Provisioned-ARM","Invocation duration, during provisioned period, weighted by memory assigned to function, measured in GB-s for ARM","EUW3-Lambda-Provisioned-GB-Second-ARM","",,,"eu-west-3","AWS Lambda"

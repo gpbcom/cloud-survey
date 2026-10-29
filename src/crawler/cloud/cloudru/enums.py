@@ -114,3 +114,77 @@ class CloudRuRequestMeta(StrEnum):
 
     CARD = "card"
     TAXONOMY = "taxonomy"
+
+
+@unique
+class CloudRuTariffField(StrEnum):
+    """Enums representing the fields of the tariff documents flight data (navigation and price tables).
+
+    Attributes:
+        HREF (str): The path of a navigation entry.
+        TITLE (str): Its title, e.g. `Тарифы «Evolution Compute». Приложение №7.EVO.1.`.
+        COLUMN_DEFINITIONS (str): The columns of a price table.
+        DATA (str): Its rows, by column key.
+        HEADER (str): The header of a column.
+        ACCESSOR_KEY (str): The key of a column in the rows.
+    """
+
+    HREF = "href"
+    TITLE = "title"
+    COLUMN_DEFINITIONS = "columnDefinitions"
+    DATA = "data"
+    HEADER = "header"
+    ACCESSOR_KEY = "accessorKey"
+
+
+@unique
+class CloudRuTariffColumn(StrEnum):
+    """Enums representing the column headers of the tariff tables (their start).
+
+    Attributes:
+        NAME (str): The service or resource priced.
+        UNIT (str): Its unit, e.g. `шт.` or `ГБ`.
+        PERIOD (str): Its billing period, e.g. `час`.
+        PRICE_WITHOUT_VAT (str): The price without VAT.
+        PRICE_WITH_VAT (str): The price with VAT (its one-letter Cyrillic preposition escaped).
+    """
+
+    NAME = "Наименование"
+    UNIT = "Единица тарификации"
+    PERIOD = "Период тарификации"
+    PRICE_WITHOUT_VAT = "Цена, без НДС"
+    PRICE_WITH_VAT = "Цена \u0441 НДС"
+
+
+@unique
+class CloudRuTariffUnit(StrEnum):
+    """Enums representing the units of the tariff tables.
+
+    Attributes:
+        PIECE (str): An item (an instance, a vCPU, an address, a license).
+        GB (str): A gigabyte.
+        TB (str): A terabyte.
+    """
+
+    PIECE = "шт."
+    GB = "ГБ"
+    TB = "ТБ"
+
+
+@unique
+class CloudRuTariffPeriod(StrEnum):
+    """Enums representing the billing periods of the tariff tables.
+
+    Attributes:
+        HOUR (str): An hour.
+        DAY (str): A day.
+        MONTH (str): A month.
+        YEAR (str): A year.
+        ONCE (str): Billed once.
+    """
+
+    HOUR = "час"
+    DAY = "сутки"
+    MONTH = "месяц"
+    YEAR = "год"
+    ONCE = "разово"

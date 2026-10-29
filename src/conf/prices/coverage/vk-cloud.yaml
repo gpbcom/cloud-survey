@@ -1,0 +1,149 @@
+# Curated price coverage of VK Cloud (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: vk-cloud
+currency: RUB
+links:
+  'Cloud Servers': ['^Виртуальные серверы$', '^Файловое хранилище$', '^Доступ к лицензированным продуктам Microsoft$', '^Российские операционные системы$']
+  'Cloud GPU': ['^Виртуальные серверы \(GPU\)$', '^Виртуальные серверы \(vGPU\*\)$']
+  'Cloud Databases': ['^Базы данных$']
+  'Managed Containers': ['^Cloud Containers \((новое|предыдущее) поколение\)$']
+  'Cloud Networks': ['^Публичные IP-адреса$']
+  'Load Balancer': ['^Стандартный балансировщик нагрузки$']
+  'Cloud Direct Connect': ['^Подключение каналов связи$']
+  'Сloud Backup': ['^Бэкапы как сервис$']
+  'Marketplace': ['^Инфраструктура маркетплейса$']
+  'Security Gate': ['^Автоматизация безопасной разработки \(Security Gate\)$']
+  'Облачная инфраструктура 1С': ['^«1С:Готовое рабочее место»$']
+  'Arenadata DB': ['^Аналитические БД \(Arenadata DB\)$', '^Лицензии Arenadata$']
+statements:
+  - product: 'AntiDDoS + WAF'
+    model: quote
+    reason: 'The page only offers to leave a request, VK Cloud specialists then choose the configuration and price.'
+    source: 'https://cloud.vk.ru/waf/'
+  - product: 'AntiDDos'
+    model: quote
+    reason: 'The page asks to leave a request, a personal manager then calculates the price.'
+    source: 'https://cloud.vk.ru/anti-ddos/'
+  - product: 'Autoscaling'
+    model: free
+    reason: 'The page states that the autoscaling service itself is free, only the resources it starts are paid.'
+    source: 'https://cloud.vk.ru/autoscaling/'
+  - product: 'Bare Metal'
+    model: quote
+    reason: 'The page says the cost depends on configuration and rental period and asks to leave a request for an estimate.'
+    source: 'https://cloud.vk.ru/bare-metal/'
+  - product: 'Clickhouse'
+    model: included
+    reason: 'Billed by the generic Cloud Databases resources (vCPU, RAM, disks) of the VK Cloud price list, no engine-specific price.'
+    source: 'https://cloud.vk.ru/databases/clickhouse/'
+  - product: 'MongoDB'
+    model: included
+    reason: 'Billed by the generic Cloud Databases resources (vCPU, RAM, disks) of the VK Cloud price list, no engine-specific price.'
+    source: 'https://cloud.vk.ru/databases/mongodb/'
+  - product: 'MySQL'
+    model: included
+    reason: 'Billed by the generic Cloud Databases resources (vCPU, RAM, disks) of the VK Cloud price list, no engine-specific price.'
+    source: 'https://cloud.vk.ru/databases/mysql/'
+  - product: 'OpenSearch'
+    model: included
+    reason: 'Billed by the generic Cloud Databases resources (vCPU, RAM, disks) of the VK Cloud price list, no engine-specific price.'
+    source: 'https://cloud.vk.ru/databases/opensearch/'
+  - product: 'PostgreSQL'
+    model: included
+    reason: 'Billed by the generic Cloud Databases resources (vCPU, RAM, disks) of the VK Cloud price list, no engine-specific price.'
+    source: 'https://cloud.vk.ru/databases/postgresql/'
+  - product: 'Redis'
+    model: included
+    reason: 'Billed by the generic Cloud Databases resources (vCPU, RAM, disks) of the VK Cloud price list, no engine-specific price.'
+    source: 'https://cloud.vk.ru/databases/redis/'
+  - product: 'Tarantool'
+    model: included
+    reason: 'Billed by the generic Cloud Databases resources (vCPU, RAM, disks) of the VK Cloud price list, no engine-specific price.'
+    source: 'https://cloud.vk.ru/databases/tarantool/'
+  - product: 'Cloud Alerting'
+    model: not-public
+    reason: 'Not on the public VK Cloud price list and no price on the product page.'
+    source: 'https://cloud.vk.ru/pricelist/'
+  - product: 'Cloud Big Data'
+    model: not-public
+    reason: 'Not on the public VK Cloud price list and no price on the product page.'
+    source: 'https://cloud.vk.ru/pricelist/'
+  - product: 'Cloud Disaster Recovery'
+    model: quote
+    reason: 'The page says the exact RTO/RPO and cost are calculated after an express audit of the client landscape.'
+    source: 'https://cloud.vk.ru/disaster-recovery/'
+  - product: 'Cloud Flink'
+    model: not-public
+    reason: 'Not on the public VK Cloud price list and no price on the product page.'
+    source: 'https://cloud.vk.ru/pricelist/'
+  - product: 'Cloud Logging'
+    model: free
+    reason: 'The page states the service is free to use during its beta test.'
+    source: 'https://cloud.vk.ru/logging/'
+  - product: 'Cloud ML Platform'
+    model: not-public
+    reason: 'Pay-as-you-go through the console calculator, not on the public VK Cloud price list.'
+    source: 'https://cloud.vk.ru/pricelist/'
+  - product: 'Cloud Monitoring'
+    model: free
+    reason: 'The page states that VK Cloud Monitoring is currently provided free of charge.'
+    source: 'https://cloud.vk.ru/monitoring/'
+  - product: 'Cloud Streams'
+    model: not-public
+    reason: 'Not on the public VK Cloud price list and no price on the product page.'
+    source: 'https://cloud.vk.ru/pricelist/'
+  - product: 'Cloud Voice'
+    model: not-public
+    reason: 'Not on the public VK Cloud price list and no price on the product page.'
+    source: 'https://cloud.vk.ru/pricelist/'
+  - product: 'Dev Platform'
+    model: not-public
+    reason: 'Not on the public VK Cloud price list and no price on the product page.'
+    source: 'https://cloud.vk.ru/pricelist/'
+  - product: 'Enterprise Kubernetes'
+    model: not-public
+    reason: 'Not on the public VK Cloud price list and no price on the product page.'
+    source: 'https://cloud.vk.ru/pricelist/'
+  - product: 'Enterprise Storage'
+    model: quote
+    reason: 'An S3 storage solution sized after an assessment of the client infrastructure, no public price.'
+    source: 'https://cloud.vk.ru/enterprisestorage/'
+  - product: 'Live Cloud Migration'
+    model: free
+    reason: 'The page states lift-and-shift migration and the migration software are free. Migration with rework is priced on request.'
+    source: 'https://cloud.vk.ru/migration/'
+  - product: 'Professional Services'
+    model: quote
+    reason: 'The page says the cost depends on the request and is set individually by a manager.'
+    source: 'https://cloud.vk.ru/professional-services/'
+  - product: 'Registry'
+    model: quote
+    reason: 'The page says to leave a consultation request to get a price calculation.'
+    source: 'https://cloud.vk.ru/registry/'
+  - product: 'VK Data Lakehouse'
+    model: included
+    reason: 'The product page now redirects to VK Data Platform, which is priced on the VK Cloud price list.'
+    source: 'https://cloud.vk.ru/vk-data-lakehouse/'
+  - product: 'VK Private Cloud'
+    model: quote
+    reason: 'The page states the software cost is calculated individually.'
+    source: 'https://cloud.vk.ru/private-cloud/'
+  - product: 'VK Private Cloud Light'
+    model: not-public
+    reason: 'Licensed software with paid modules, no public price on the page or the VK Cloud price list.'
+    source: 'https://cloud.vk.ru/pricelist/'
+  - product: 'VK Secure Cloud'
+    model: not-public
+    reason: 'Not on the public VK Cloud price list and no price on the product page.'
+    source: 'https://cloud.vk.ru/pricelist/'
+  - product: 'VPS / VDS'
+    model: included
+    reason: 'A solution page for VPS hosting billed as VK Cloud Servers resources of the price list.'
+    source: 'https://cloud.vk.ru/solutions/vps-vds/'
+  - product: 'Кибер Бэкап Облачный'
+    model: not-public
+    reason: 'Priced by the partner licence model plus VK Cloud resources (gateway, S3), no public licence price.'
+    source: 'https://cloud.vk.ru/cyberprotect/'
+  - product: 'Облако 152-ФЗ'
+    model: quote
+    reason: 'The page offers an individual cost calculation for the client IT systems.'
+    source: 'https://cloud.vk.ru/solutions/152-fz/'

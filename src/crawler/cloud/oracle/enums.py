@@ -203,3 +203,53 @@ class OracleCategoryField(StrEnum):
 
     NAME = "name"
     CODE = "code"
+
+
+@unique
+class OracleReleaseNotesField(StrEnum):
+    """Enums representing the fields of a service of the Oracle Cloud Infrastructure release notes services list.
+
+    Attributes:
+        SLUG (str): The service slug, naming its release notes page (e.g. `audit`).
+        TITLE (str): The service title (e.g. `Audit`).
+    """
+
+    SLUG = "s"
+    TITLE = "t"
+
+
+@unique
+class OracleProductsField(StrEnum):
+    """Enums representing the fields of the Oracle Cloud price list API (cetools products), read for the prices.
+
+    Attributes:
+        ITEMS (str): The parts of the price list.
+        LAST_UPDATED (str): When the price list last changed (its version).
+        PART_NUMBER (str): The part number, e.g. `B88327`.
+        DISPLAY_NAME (str): The name of the part.
+        METRIC_NAME (str): What its price is per, e.g. `OCPU Per Hour`.
+        SERVICE_CATEGORY (str): Its service, e.g. `Compute - Virtual Machine`.
+        DESCRIPTION (str): Its description, if any.
+        CURRENCY_LOCALIZATIONS (str): Its prices, by currency.
+        CURRENCY_CODE (str): The currency of a price list.
+        PRICES (str): The prices in a currency (one per volume tier).
+        MODEL (str): How a price is charged (`PAY_AS_YOU_GO`).
+        VALUE (str): The price.
+        RANGE_MIN (str): The quantity from which a tier price applies.
+        RANGE_MAX (str): The quantity up to which it applies.
+    """
+
+    ITEMS = "items"
+    LAST_UPDATED = "lastUpdated"
+    PART_NUMBER = "partNumber"
+    DISPLAY_NAME = "displayName"
+    METRIC_NAME = "metricName"
+    SERVICE_CATEGORY = "serviceCategory"
+    DESCRIPTION = "description"
+    CURRENCY_LOCALIZATIONS = "currencyCodeLocalizations"
+    CURRENCY_CODE = "currencyCode"
+    PRICES = "prices"
+    MODEL = "model"
+    VALUE = "value"
+    RANGE_MIN = "rangeMin"
+    RANGE_MAX = "rangeMax"

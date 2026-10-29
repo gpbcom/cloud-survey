@@ -2,7 +2,9 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import re
-from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Tuple, Union
+from decimal import Decimal
+from pathlib import Path
+from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Set, Tuple, Union
 from urllib.parse import urljoin
 
 # Third Party Imports.
@@ -11,8 +13,13 @@ from scrapling.parser import Selector
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
-from crawler.cloud.base import BaseCloudCrawler
+from crawler.cloud.base import BaseCloudCrawler, PriceFact
+from crawler.cloud.tcloud.enums import TCloudPriceField, TCloudPriceUnit
 from crawler.enums import HtmlAttribute
+from crawler.exception import CatalogueFormatError
+from models.cloud.enums import PriceModel, PriceSourceKind, PriceTerm, PriceUnit
+from models.cloud.prices.facts.service_price import ServicePrice
+from models.cloud.prices.price_field_check import RawValue
 from models.cloud.products.product import CloudProduct
 
 
@@ -26,6 +33,22 @@ class TCloudPublicCrawler(BaseCloudCrawler):
             price display, documentation, certifications and professional services.
         TITLE_SUFFIX (ClassVar[re.Pattern[str]]): The brand suffix of the page titles.
         SERVICE_LINK (ClassVar[str]): The CSS selector of the core service link of a table row.
+        PRICES_URL (ClassVar[str]): A page of the public price API (no key), in euros.
+        PAGE_SIZE (ClassVar[int]): The records of a page.
+        PRICE_OFFSET (ClassVar[str]): The request meta holding the offset of a page.
+        PRICE_CURRENCY (ClassVar[str]): The currency of the API.
+        AMOUNT (ClassVar[re.Pattern[str]]): A price written with its currency, e.g. `6,239.000000 EUR`.
+        GIB (ClassVar[re.Pattern[str]]): A memory, e.g. `8 GiB`.
+        PRICE_UNITS (ClassVar[Dict[TCloudPriceUnit, Tuple[PriceUnit, Decimal]]]): The normalized unit of a unit, and
+            the normalized units in one.
+        RESERVATIONS (ClassVar[Tuple[Tuple[TCloudPriceField, PriceTerm, bool], ...]]): The reserved prices of a
+            record: their field, term and whether paid upfront.
+        RESERVED_UNIT (ClassVar[str]): The unit of a reserved price (a month).
+        UNBOUNDED (ClassVar[int]): The upper bound written for a tier without one.
+        GLOBAL_REGION (ClassVar[str]): The region of a record without region.
+        NO_UNIT (ClassVar[str]): The unit written for a record without unit.
+        price_pages (Set[int]): The offsets of the pages not read yet, in price mode.
+        price_rows (int): The prices read, in price mode.
 
     Notes:
         The main source is the https://www.t-cloud-public.com/en/products-services/core-services page: a table
@@ -35,6 +58,10 @@ class TCloudPublicCrawler(BaseCloudCrawler):
         description, dated by their sitemap last modification (`lastmod`). The table products are undated. The
         heading row of each table names its category (e.g. `Computing`): a table product gets the category of every
         table it is listed in, a sitemap product none.
+        In price mode it reads the public price API of the calculator (`PRICES_URL`, 500 records a page, the
+        first page telling how many follow): a price per record (its region in its identifier), a tier of its
+        group when tiered, and its monthly reserved prices (12, 24, 36 months, plain or upfront). The API is one
+        source, recorded once all its pages are read.
     """
 
     SITEMAP_URL: ClassVar[str] = "https://www.t-cloud-public.com/en/sitemap.xml"
@@ -52,6 +79,57 @@ class TCloudPublicCrawler(BaseCloudCrawler):
     complement_urls: ClassVar[Tuple[str, ...]] = (SITEMAP_URL,)
     dates_sitemaps: ClassVar[Tuple[str, ...]] = (SITEMAP_URL,)
     name_prefixes: ClassVar[Tuple[str, ...]] = ("T Cloud Public ", "Open Telekom Cloud ")
+    PRICES_URL: ClassVar[str] = "https://calculator.otc-service.com/en/open-telekom-price-api/?limitFrom={offset}"
+    PAGE_SIZE: ClassVar[int] = 500
+    PRICE_OFFSET: ClassVar[str] = "price_offset"
+    PRICE_CURRENCY: ClassVar[str] = "EUR"
+    AMOUNT: ClassVar[re.Pattern[str]] = re.compile(r"^([\d,]+(?:\.\d+)?) [A-Z]{3}$")
+    GIB: ClassVar[re.Pattern[str]] = re.compile(r"^([\d.]+)\s*GiB$")
+    PRICE_UNITS: ClassVar[Dict[TCloudPriceUnit, Tuple[PriceUnit, Decimal]]] = {
+        TCloudPriceUnit.HOUR: (PriceUnit.HOUR, Decimal(1)),
+        TCloudPriceUnit.HOUR_PER_MONTH: (PriceUnit.HOUR, Decimal(1)),
+        TCloudPriceUnit.MONTH: (PriceUnit.MONTH, Decimal(1)),
+        TCloudPriceUnit.GB: (PriceUnit.GIB, Decimal(1)),
+        TCloudPriceUnit.GB_MONTH: (PriceUnit.GIB_MONTH, Decimal(1)),
+        TCloudPriceUnit.REQUEST: (PriceUnit.REQUEST, Decimal(1)),
+        TCloudPriceUnit.RESTORE: (PriceUnit.REQUEST, Decimal(1)),
+        TCloudPriceUnit.MILLION_ITEMS_MONTH: (PriceUnit.REQUEST, Decimal(1_000_000)),
+        TCloudPriceUnit.ITEM_MONTH: (PriceUnit.UNIT_MONTH, Decimal(1)),
+        TCloudPriceUnit.RULES_HOUR: (PriceUnit.UNIT_HOUR, Decimal(1)),
+        TCloudPriceUnit.MBIT_HOUR: (PriceUnit.UNIT_HOUR, Decimal(1)),
+        TCloudPriceUnit.REQUESTS: (PriceUnit.REQUEST, Decimal(1)),
+        TCloudPriceUnit.THOUSAND_REQUESTS: (PriceUnit.REQUEST, Decimal(1000)),
+        TCloudPriceUnit.CORES_BROKERS_HOUR: (PriceUnit.VCPU_HOUR, Decimal(1)),
+        TCloudPriceUnit.GB_MONTH_CAPITAL: (PriceUnit.GIB_MONTH, Decimal(1)),
+        TCloudPriceUnit.LCU_HOUR_ZONE: (PriceUnit.UNIT_HOUR, Decimal(1)),
+        TCloudPriceUnit.PIECE: (PriceUnit.UNIT, Decimal(1)),
+        TCloudPriceUnit.PIECES: (PriceUnit.UNIT, Decimal(1)),
+        TCloudPriceUnit.GB_HOURS: (PriceUnit.GIB_HOUR, Decimal(1)),
+        TCloudPriceUnit.ITEM_ONE_TIME: (PriceUnit.ONE_TIME, Decimal(1)),
+    }
+    RESERVATIONS: ClassVar[Tuple[Tuple[TCloudPriceField, PriceTerm, bool], ...]] = (
+        (TCloudPriceField.RESERVED_12, PriceTerm.ONE_YEAR, False),
+        (TCloudPriceField.RESERVED_24, PriceTerm.TWO_YEARS, False),
+        (TCloudPriceField.RESERVED_36, PriceTerm.THREE_YEARS, False),
+        (TCloudPriceField.UPFRONT_12, PriceTerm.ONE_YEAR, True),
+        (TCloudPriceField.UPFRONT_24, PriceTerm.TWO_YEARS, True),
+        (TCloudPriceField.UPFRONT_36, PriceTerm.THREE_YEARS, True),
+    )
+    RESERVED_UNIT: ClassVar[str] = "month"
+    UNBOUNDED: ClassVar[int] = 999_999_999_999
+    GLOBAL_REGION: ClassVar[str] = "global"
+    NO_UNIT: ClassVar[str] = "none"
+
+    def __init__(self, crawldir: Optional[Union[str, Path]] = None, interval: float = 300.0) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+        """
+        super().__init__(crawldir=crawldir, interval=interval)
+        self.price_pages: Set[int] = set()
+        self.price_rows = 0
 
     ############################
     # Internal Helpers Methods #
@@ -198,6 +276,147 @@ class TCloudPublicCrawler(BaseCloudCrawler):
         )
         return requests
 
+    def _amount(self, text: JsonValue) -> Optional[Decimal]:
+        """Read a price written with its currency, e.g. `6,239.000000 EUR`.
+
+        Args:
+            text (JsonValue): The written price.
+
+        Returns:
+            Optional[Decimal]: The price, `None` when unreadable.
+        """
+        match = self.AMOUNT.match(text) if isinstance(text, str) else None
+        return Decimal(match[1].replace(",", "")) if match else None
+
+    def _record_prices(self, record: Dict[str, JsonValue], source: str) -> Iterator[ServicePrice]:
+        """Read the prices of a record of the price API: pay as you go, then each reservation.
+
+        Args:
+            record (Dict[str, JsonValue]): The record.
+            source (str): The source of its prices (the first page of the API).
+
+        Yields:
+            ServicePrice: Its pay-as-you-go price (a tier of its group, if tiered), then its monthly reserved
+                prices (12, 24, 36 months, plain and upfront) that are not 0.
+        """
+        identifier = record.get(TCloudPriceField.ID)
+        price = self._amount(record.get(TCloudPriceField.PRICE_AMOUNT))
+        if not isinstance(identifier, str) or price is None:
+            self.logger.debug("A T Cloud Public record has no identifier or price: skipped.")
+            return
+        unit_text = str(record.get(TCloudPriceField.UNIT) or "")
+        try:
+            unit, factor = self.PRICE_UNITS[TCloudPriceUnit(unit_text)]
+        except ValueError:
+            self.logger.debug("The T Cloud Public unit %r has no known unit: kept as other.", unit_text)
+            unit, factor = PriceUnit.OTHER, Decimal(1)
+        vcpu = record.get(TCloudPriceField.VCPU)
+        memory = self.GIB.match(str(record.get(TCloudPriceField.RAM) or ""))
+        tiered = bool(record.get(TCloudPriceField.ID_GROUP_TIERED))
+        start, end = record.get(TCloudPriceField.FROM_ON), record.get(TCloudPriceField.UP_TO)
+        fields: Dict[str, RawValue] = {
+            "sku_key": identifier,
+            "service": record.get(TCloudPriceField.PRODUCT_ID),
+            "family": record.get(TCloudPriceField.PRODUCT_FAMILY) or None,
+            "region": record.get(TCloudPriceField.REGION) or self.GLOBAL_REGION,
+            "instance_type": record.get(TCloudPriceField.OPI_FLAVOUR) or None,
+            "vcpu": vcpu if isinstance(vcpu, str) and vcpu.isdigit() and int(vcpu) > 0 else None,
+            "memory_gib": memory[1] if memory and Decimal(memory[1]) > 0 else None,
+            "os": record.get(TCloudPriceField.OS_UNIT) or None,
+            "attributes": {
+                field.value: record.get(field)
+                for field in (TCloudPriceField.PRODUCT_NAME, TCloudPriceField.PRODUCT_SECTION)
+                if record.get(field)
+            },
+            "unit": unit,
+            "unit_raw": unit_text or self.NO_UNIT,
+            "unit_factor": factor,
+            "price": price,
+            "currency": self.PRICE_CURRENCY,
+            "model": PriceModel.FREE if price == 0 else PriceModel.ON_DEMAND,
+            "tier_start": start if tiered and isinstance(start, int) else 0,
+            "tier_end": end if tiered and isinstance(end, int) and end < self.UNBOUNDED else None,
+            "source_url": source,
+            "source_kind": PriceSourceKind.API,
+        }
+        fact = self._price_fact(fields)
+        if fact is not None:
+            yield fact
+        for field, term, upfront in self.RESERVATIONS:
+            reserved = self._amount(record.get(field))
+            if reserved is None or reserved == 0:
+                continue
+            fact = self._price_fact(
+                {
+                    **fields,
+                    "sku_key": f"{identifier}/{field.value}",
+                    "unit": PriceUnit.MONTH,
+                    "unit_raw": self.RESERVED_UNIT,
+                    "unit_factor": Decimal(1),
+                    "price": reserved,
+                    "model": PriceModel.RESERVED,
+                    "term": term,
+                    "attributes": {
+                        **(fields["attributes"] if isinstance(fields["attributes"], dict) else {}),
+                        "upfront": upfront,
+                    },
+                }
+            )
+            if fact is not None:
+                yield fact
+
+    async def _price_requests(self) -> AsyncGenerator[Request]:
+        """Request the first page of the price API, which tells how many pages follow.
+
+        Yields:
+            Request: The request of the first page.
+        """
+        self.price_pages = set()
+        self.price_rows = 0
+        self.logger.info("Reading the T Cloud Public prices from %s.", self.PRICES_URL)
+        yield self._price_request(self.PRICES_URL.format(offset=0), {self.PRICE_OFFSET: 0})
+
+    async def _extract_prices(self, response: Response) -> AsyncGenerator[PriceFact]:
+        """Read a page of the price API: the following pages first (from the first one), then its prices.
+
+        Args:
+            response (Response): The page.
+
+        Yields:
+            PriceFact: The requests of the following pages, then the prices of the page.
+
+        Raises:
+            CatalogueFormatError: If the page lists no prices.
+        """
+        data = self._json_body(response)
+        body = data.get(TCloudPriceField.RESPONSE) if isinstance(data, dict) else None
+        result = body.get(TCloudPriceField.RESULT) if isinstance(body, dict) else None
+        if not isinstance(body, dict) or not isinstance(result, dict):
+            self.logger.error("The T Cloud Public price page %s lists no prices.", response.url)
+            raise CatalogueFormatError(self.name, response.url, "the price page lists no prices")
+        offset = response.meta.get(self.PRICE_OFFSET)
+        offset = offset if isinstance(offset, int) else 0
+        if offset == 0:
+            stats = body.get(TCloudPriceField.STATS)
+            pages = stats.get(TCloudPriceField.MAX_PAGES) if isinstance(stats, dict) else None
+            following = [page * self.PAGE_SIZE for page in range(1, pages if isinstance(pages, int) else 1)]
+            self.price_pages = set(following)
+            for start in following:
+                yield self._price_request(self.PRICES_URL.format(offset=start), {self.PRICE_OFFSET: start})
+            self.logger.info("The T Cloud Public price API has %d pages.", len(following) + 1)
+        found = 0
+        source = self.PRICES_URL.format(offset=0)
+        for records in result.values():
+            for record in records if isinstance(records, list) else []:
+                for fact in self._record_prices(record, source) if isinstance(record, dict) else iter(()):
+                    found += 1
+                    yield fact
+        self.price_rows += found
+        self.price_pages.discard(offset)
+        if not self.price_pages:
+            self._record_price_source(source, self.price_rows)
+            self.logger.info("The T Cloud Public price API is read whole: %d prices.", self.price_rows)
+
     ############################
     # Publicly Exposed Methods #
     ############################
@@ -211,6 +430,7 @@ class TCloudPublicCrawler(BaseCloudCrawler):
         Returns:
             Iterator[CloudProduct]: The valid products of the tables.
         """
+        self.logger.debug("Reading the %s service tables of %s.", self.name, response.url)
         return self._table_products(response)
 
     async def parse(self, response: Response) -> AsyncGenerator[Union[Dict[str, JsonValue], Request]]:
@@ -227,6 +447,7 @@ class TCloudPublicCrawler(BaseCloudCrawler):
             CatalogueFormatError: If the sitemap lists no page.
         """
         if response.url == self.SITEMAP_URL and self.PAGE_DATES not in response.meta:
+            self.logger.debug("Reading the %s sitemap %s.", self.name, response.url)
             for request in self._sitemap_requests(response):
                 yield request
             return

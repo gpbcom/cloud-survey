@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 # Standard Library Imports.
-from typing import AsyncGenerator, ClassVar, Dict, Iterator, List
+from pathlib import Path
+from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Union
 
 # Third Party Imports.
 from pydantic import JsonValue, ValidationError
@@ -11,6 +12,7 @@ from scrapling.spiders import Request, Response
 from crawler.metrics.base import BaseMetricsCrawler, MetricFact
 from crawler.metrics.peeringdb.enums import PeeringdbField
 from models.cloud.enums import CloudProvider
+from models.drivers.collectors.collector_catalog import CollectorCatalog
 from models.drivers.enums import MetricSource
 from models.drivers.facts.network_fact import NetworkFact
 
@@ -35,6 +37,25 @@ class PeeringdbCrawler(BaseMetricsCrawler):
     name = "peeringdb"
     source: ClassVar[MetricSource] = MetricSource.PEERINGDB
     catalogue_url: ClassVar[str] = "https://www.peeringdb.com/"
+
+    def __init__(
+        self,
+        catalog: Optional[CollectorCatalog] = None,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            catalog (Optional[CollectorCatalog]): Where each provider is found, `conf/metrics/collectors.yaml` by
+                default.
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+
+        Raises:
+            CollectorCatalogError: If the default catalogue cannot be loaded.
+        """
+        super().__init__(catalog=catalog, crawldir=crawldir, interval=interval)
 
     ############################
     # Internal Helpers Methods #

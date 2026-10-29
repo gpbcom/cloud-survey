@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # Standard Library Imports.
+from pathlib import Path
 from typing import AsyncGenerator, ClassVar, Dict, FrozenSet, Iterator, List, Optional, Tuple, Union
 
 # Third Party Imports.
@@ -9,6 +10,7 @@ from scrapling.parser import Selector
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
+from classifier.software_classifier import SoftwareClassifier
 from crawler.cloud.gcp.enums import (
     GcpBrowseRequestField,
     GcpBrowseRequestValue,
@@ -110,6 +112,21 @@ class GoogleCloudMarketplaceCrawler(BaseMarketplaceCrawler):
 
     name = "gcp-marketplace"
     catalogue_url: ClassVar[str] = API_URL
+
+    def __init__(
+        self,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+        classifier: Optional[SoftwareClassifier] = None,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+            classifier (Optional[SoftwareClassifier]): The software classifier, the project rules by default.
+        """
+        super().__init__(crawldir=crawldir, interval=interval, classifier=classifier)
 
     ############################
     # Internal Helpers Methods #

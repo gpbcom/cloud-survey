@@ -4,6 +4,7 @@ from __future__ import annotations
 import html
 import json
 import re
+from pathlib import Path
 from typing import AsyncGenerator, ClassVar, Dict, FrozenSet, Iterator, List, Optional, Tuple, Union
 from urllib.parse import urlparse
 
@@ -13,6 +14,7 @@ from scrapling.fetchers import FetcherSession
 from scrapling.spiders import Request, Response
 from scrapling.spiders.session import SessionManager
 
+from classifier.software_classifier import SoftwareClassifier
 from crawler.cloud.yandex.enums import (
     YandexHttpHeader,
     YandexMarketplaceCategory,
@@ -118,6 +120,21 @@ class YandexMarketplaceCrawler(BaseMarketplaceCrawler):
     catalogue_url: ClassVar[str] = MARKETPLACE_URL
     complement_urls: ClassVar[Tuple[str, ...]] = (SITEMAP_URL,)
     download_delay: float = 1.5
+
+    def __init__(
+        self,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+        classifier: Optional[SoftwareClassifier] = None,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+            classifier (Optional[SoftwareClassifier]): The software classifier, the project rules by default.
+        """
+        super().__init__(crawldir=crawldir, interval=interval, classifier=classifier)
 
     ############################
     # Internal Helpers Methods #
@@ -390,7 +407,9 @@ class YandexMarketplaceCrawler(BaseMarketplaceCrawler):
             Iterator[MarketplaceSoftware]: The valid software of the page.
         """
         if self.PRODUCT in response.meta:
+            self.logger.debug("Reading the %s product page %s.", self.name, response.url)
             return self._page_software(response)
+        self.logger.debug("Reading the %s home page %s.", self.name, response.url)
         return self._home_software(response)
 
     async def parse(self, response: Response) -> AsyncGenerator[Union[Dict[str, JsonValue], Request]]:
@@ -409,6 +428,7 @@ class YandexMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         self._reject_captcha(response)
         if response.meta.get(self.SITEMAP):
+            self.logger.debug("Reading the %s sitemap %s.", self.name, response.url)
             for request in self._product_requests(response):
                 yield request
             return

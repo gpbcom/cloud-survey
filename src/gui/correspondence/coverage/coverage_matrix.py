@@ -143,6 +143,10 @@ class CoverageMatrix(QWidget):
         self.cells = {(cell.source, cell.target): cell for cell in cells}
         self.setFixedSize(self.sizeHint())
         self.update()
+        if not self.providers:
+            self.logger.warning("No provider column: the coverage matrix is empty.")
+        elif not self.cells:
+            self.logger.warning("No coverage known between the %d providers.", len(self.providers))
         self.logger.debug("Coverage of %d providers shown.", len(self.providers))
 
     def event(self, event: Optional[QEvent]) -> bool:
@@ -178,6 +182,7 @@ class CoverageMatrix(QWidget):
         ):
             pair = self._cell_at(event.position())
             if pair is not None:
+                self.logger.debug("Coverage cell %s / %s clicked.", pair[0].value, pair[1].value)
                 self.pair_selected.emit(pair[0].value, pair[1].value)
                 return True
         return super().event(event)

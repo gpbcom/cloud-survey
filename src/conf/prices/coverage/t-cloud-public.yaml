@@ -1,0 +1,76 @@
+# Curated price coverage of T Cloud Public (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: t-cloud-public
+currency: EUR
+links:
+  'GeminiDB': ['^GaussDB ?(for )?Cassandra', '^GaussDBCassandra ']
+  'TaurusDB': ['^GaussDB ?(for )?MySQL$', '^GaussDBMySQL ']
+  'Scalable File Service': ['^Secure File Service \(SFS\)$']
+  'Simple Message Notification': ['^SIMPLE MESSAGE SERVICE \(BUNDLED\)$']
+  'Key Management Service': ['^KEY MESSAGE SERVICES \(BUNDLED\)$']
+  'Domain Name Service': ['^DNS (Public|Private) Queries$', '^DNS SERVICE (PUBLIC|PRIVATE) \(BUNDLED\)$']
+  'Virtual Private Network': ['^Enterprise VPN$']
+  'Elastic Cloud Server': ['^(Memory Optimized|GPU SERVICES \(BUNDLED\)|Ultra High I/O|DISK INTENSIVE SERVICE \(BUNDLED\)|LARGE MEMORY SERVICE \(BUNDLED\)|SAP CERTIFIED)$']
+  'Cloud Search Service': ['^Cloud Search (Client|Cold|Master) Node$']
+  'NAT Gateway': ['^Private NAT$']
+  'Web Application Firewall': ['^Cloud WAF$']
+  'Distributed Message Service': ['^DMS (PUBLIC IP SERVICE|VOLUME SERVICE|RocketMQ)$']
+  'Relational Database Service': ['^RELATIONAL DATABASE STORAGE$']
+  'Bare Metal Server (BMS)': ['^BARE METAL$']
+  'Data Warehouse Service': ['^Data Warehouse Services$']
+statements:
+  - product: 'Anti-DDoS'
+    model: free
+    reason: 'Anti-DDoS is a free add-on component, completely free.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/anti-ddos'
+  - product: 'Auto Scaling'
+    model: free
+    reason: 'The AutoScaling service is free, the ECS VMs it creates are charged.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/auto-scaling'
+  - product: 'Cloud Trace'
+    model: free
+    reason: 'The use of Cloud Trace Service is free of charge.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/cloud-trace'
+  - product: 'Identity and Access Management'
+    model: free
+    reason: 'IAM is integrated into T Cloud Public and is free of charge.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/identity-access-management'
+  - product: 'Image Management Service'
+    model: free
+    reason: 'The IMS is free of charge, the OBS storage it uses is charged.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/image-management-service'
+  - product: 'Tag Management Service'
+    model: free
+    reason: 'The Tag Management Service is free of charge.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/tag-management-service'
+  - product: 'Oracle-optimized'
+    model: quote
+    reason: 'Bring-your-own-licence Oracle platform, other sizes on request through the contact form.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/oracle-optimized'
+  - product: 'Cloud Create'
+    model: not-public
+    reason: 'Pay-as-you-go over the resources it provisions, no own price on the public price list.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/cloud-create'
+  - product: 'Application Service Mesh'
+    model: not-public
+    reason: 'Not on the public T Cloud Public price list, its page states a pricing model without amounts.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/application-service-mesh'
+  - product: 'Cloud Eye'
+    model: not-public
+    reason: 'Not on the public T Cloud Public price list, its page states a pricing model without amounts.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/cloud-eye'
+  - product: 'Config'
+    model: not-public
+    reason: 'Not on the public T Cloud Public price list, its page states a pricing model without amounts.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/config'
+  - product: 'Firewall as a Service'
+    model: not-public
+    reason: 'Not on the public T Cloud Public price list, its page states a pricing model without amounts.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/firewall-as-a-service'
+  - product: 'Resource Formation Service'
+    model: not-public
+    reason: 'Not on the public T Cloud Public price list, its page states a pricing model without amounts.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/resource-formation-service'
+  - product: 'Software Repository for Container'
+    model: not-public
+    reason: 'Not on the public T Cloud Public price list, its page states a pricing model without amounts.'
+    source: 'https://www.t-cloud-public.com/en/products-services/core-services/software-repository-for-container'

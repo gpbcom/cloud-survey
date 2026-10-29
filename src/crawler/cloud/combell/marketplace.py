@@ -2,13 +2,15 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import re
-from typing import ClassVar, Iterator, Optional
+from pathlib import Path
+from typing import ClassVar, Iterator, Optional, Union
 
 # Third Party Imports.
 from scrapling.parser import Selector
 from scrapling.spiders import Response
 
 # First Party Imports.
+from classifier.software_classifier import SoftwareClassifier
 from crawler.cloud.combell.enums import CombellBadge, CombellCategorySlug
 from crawler.enums import HtmlAttribute
 from crawler.marketplace.base import BaseMarketplaceCrawler
@@ -49,6 +51,21 @@ class CombellMarketplaceCrawler(BaseMarketplaceCrawler):
 
     name = "combell-marketplace"
     catalogue_url: ClassVar[str] = "https://www.combell.com/en/hosting/cms"
+
+    def __init__(
+        self,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+        classifier: Optional[SoftwareClassifier] = None,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+            classifier (Optional[SoftwareClassifier]): The software classifier, the project rules by default.
+        """
+        super().__init__(crawldir=crawldir, interval=interval, classifier=classifier)
 
     ############################
     # Internal Helpers Methods #

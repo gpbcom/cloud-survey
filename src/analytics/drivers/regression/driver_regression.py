@@ -81,7 +81,11 @@ class DriverRegression:
         """
         limit = self.shapley.MAX_CRITERIA
         if x.shape[1] <= limit:
+            self.logger.debug("%d criteria within the limit of %d: all kept for the importances.", x.shape[1], limit)
             return list(range(x.shape[1]))
+        self.logger.warning(
+            "%d criteria exceed the limit of %d: only the most correlated ones get an importance.", x.shape[1], limit
+        )
         with numpy.errstate(divide="ignore", invalid="ignore"):
             correlations = numpy.atleast_2d(numpy.corrcoef(numpy.column_stack([y, x]), rowvar=False))
         strength = numpy.nan_to_num(numpy.abs(correlations[0, 1:]))
@@ -116,8 +120,12 @@ class DriverRegression:
             if len(set(rows.tolist())) >= count + 2
         ]
         if len(found) < 20:
+            self.logger.warning(
+                "Only %d of %d importance draws hold enough providers: no importance interval.", len(found), draws
+            )
             return numpy.full(count, numpy.nan), numpy.full(count, numpy.nan)
         low, high = numpy.percentile(numpy.vstack(found), [2.5, 97.5], axis=0)
+        self.logger.debug("Importance intervals of %d criteria from %d draws.", count, len(found))
         return numpy.asarray(low, dtype=numpy.float64), numpy.asarray(high, dtype=numpy.float64)
 
     ############################

@@ -410,3 +410,77 @@ class TencentGoodsProviderField(StrEnum):
     """
 
     PROVIDER_NAME = "ProviderName"
+
+
+@unique
+class TencentPriceField(StrEnum):
+    """Enums representing the fields of the CVM purchase API answers (instance types of a region and their prices).
+
+    Attributes:
+        DATA (str): The answer of the proxied call.
+        RESPONSE (str): The response of the CVM API.
+        ERROR (str): The error of a refused call.
+        CODE (str): The code of that error.
+        QUOTAS (str): The instance types of the zones of the region, each with its price.
+        ZONE (str): The availability zone of an instance type.
+        INSTANCE_TYPE (str): The instance type, e.g. `S5.MEDIUM4`.
+        INSTANCE_FAMILY (str): Its family, e.g. `S5`.
+        TYPE_NAME (str): The name of its family (in Chinese).
+        CPU (str): Its vCPUs.
+        MEMORY (str): Its memory, in GiB.
+        GPU (str): Its GPUs (a fraction for a shared GPU).
+        CPU_TYPE (str): Its processor.
+        STATUS (str): Whether it is sold in the zone (`SELL`) or sold out (`SOLD_OUT`).
+        PRICE (str): Its price.
+        UNIT_PRICE (str): The hourly list price (first step).
+        UNIT_PRICE_DISCOUNT (str): The hourly price (first step).
+        SECOND_STEP_PRICE (str): The hourly price of the second step.
+        THIRD_STEP_PRICE (str): The hourly price of the third step.
+        CHARGE_UNIT (str): The unit of the hourly prices (`HOUR`).
+        ORIGINAL_PRICE (str): The monthly list price.
+        DISCOUNT_PRICE (str): The monthly price.
+        ONE_YEAR_PRICE (str): The price of one year paid at once.
+        THREE_YEARS_PRICE (str): The price of three years paid at once.
+        FIVE_YEARS_PRICE (str): The price of five years paid at once.
+        SIX_YEARS_PRICE (str): The price of six years paid at once.
+    """
+
+    DATA = "data"
+    RESPONSE = "Response"
+    ERROR = "Error"
+    CODE = "Code"
+    QUOTAS = "InstanceTypeQuotaSet"
+    ZONE = "Zone"
+    INSTANCE_TYPE = "InstanceType"
+    INSTANCE_FAMILY = "InstanceFamily"
+    TYPE_NAME = "TypeName"
+    CPU = "Cpu"
+    MEMORY = "Memory"
+    GPU = "Gpu"
+    CPU_TYPE = "CpuType"
+    STATUS = "Status"
+    PRICE = "Price"
+    UNIT_PRICE = "UnitPrice"
+    UNIT_PRICE_DISCOUNT = "UnitPriceDiscount"
+    SECOND_STEP_PRICE = "UnitPriceDiscountSecondStep"
+    THIRD_STEP_PRICE = "UnitPriceDiscountThirdStep"
+    CHARGE_UNIT = "ChargeUnit"
+    ORIGINAL_PRICE = "OriginalPrice"
+    DISCOUNT_PRICE = "DiscountPrice"
+    ONE_YEAR_PRICE = "DiscountPriceOneYear"
+    THREE_YEARS_PRICE = "DiscountPriceThreeYears"
+    FIVE_YEARS_PRICE = "DiscountPriceFiveYears"
+    SIX_YEARS_PRICE = "DiscountPriceSixYears"
+
+
+@unique
+class TencentChargeType(StrEnum):
+    """Enums representing the CVM charge types, the filter of a purchase API call.
+
+    Attributes:
+        POSTPAID (str): Pay as you go, billed by the hour.
+        PREPAID (str): Paid in advance, by month or by years.
+    """
+
+    POSTPAID = "POSTPAID_BY_HOUR"
+    PREPAID = "PREPAID"

@@ -100,6 +100,10 @@ class DiagramHeader(QWidget):
         self.layout_ = layout
         self.title = title
         self.update()
+        if layout is None:
+            self.logger.debug("Correspondence header cleared.")
+        else:
+            self.logger.debug("Correspondence header follows %d provider columns.", len(layout.columns))
 
     def set_offset(self, offset: int) -> None:
         """Follow the sideways scrolling of the diagram.

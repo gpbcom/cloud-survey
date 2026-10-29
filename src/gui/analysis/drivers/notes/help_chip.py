@@ -65,6 +65,7 @@ class HelpChip(QWidget):
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.setAccessibleName(title)
+        self.logger.debug("Chip %r built.", title)
 
     ############################
     # Internal Helpers Methods #
@@ -100,6 +101,7 @@ class HelpChip(QWidget):
             tooltip (str): The rich text explanation.
             dimmed (bool): Whether the chip is drawn faded (its parameter is not used).
         """
+        self.logger.debug("Chip %r shows %r%s.", self.title, value, " (dimmed)" if dimmed else "")
         self.value, self.dimmed = value, dimmed
         self.setToolTip(tooltip)
         self.setAccessibleDescription(value)
@@ -112,6 +114,7 @@ class HelpChip(QWidget):
         Args:
             selected (bool): Whether it is highlighted.
         """
+        self.logger.debug("Chip %r %s.", self.title, "highlighted" if selected else "not highlighted")
         self.selected = selected
         self.update()
 

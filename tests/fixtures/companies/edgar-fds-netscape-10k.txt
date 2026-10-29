@@ -1,0 +1,302 @@
+-----BEGIN PRIVACY-ENHANCED MESSAGE-----
+Proc-Type: 2001,MIC-CLEAR
+Originator-Name: webmaster@www.sec.gov
+Originator-Key-Asymmetric:
+ MFgwCgYEVQgBAQICAf8DSgAwRwJAW2sNKK9AVtBzYZmr6aGjlWyK3XmZv3dTINen
+ TWSM7vrzLADbmYQaionwg5sDW3P6oaM5D3tdezXMm7z1T+B+twIDAQAB
+MIC-Info: RSA-MD5,RSA,
+ PHMPiVq9e5DTnaYV2eKssdPHo7Gm1W9WFYIfgf62lZkofXhZGntWyURwvaalF5L6
+ o+Xrj8pK7ow5RRQn3fqsbg==
+
+<SEC-DOCUMENT>0001047469-98-012170.txt : 19980331
+<SEC-HEADER>0001047469-98-012170.hdr.sgml : 19980331
+ACCESSION NUMBER:		0001047469-98-012170
+CONFORMED SUBMISSION TYPE:	10-K
+PUBLIC DOCUMENT COUNT:		5
+CONFORMED PERIOD OF REPORT:	19971231
+FILED AS OF DATE:		19980327
+SROS:			NASD
+
+FILER:
+
+	COMPANY DATA:	
+		COMPANY CONFORMED NAME:			NETSCAPE COMMUNICATIONS CORP
+		CENTRAL INDEX KEY:			0000944458
+		STANDARD INDUSTRIAL CLASSIFICATION:	SERVICES-PREPACKAGED SOFTWARE [7372]
+		IRS NUMBER:				943200270
+		STATE OF INCORPORATION:			DE
+		FISCAL YEAR END:			1231
+
+	FILING VALUES:
+		FORM TYPE:		10-K
+		SEC ACT:		
+		SEC FILE NUMBER:	000-26310
+		FILM NUMBER:		98577007
+
+	BUSINESS ADDRESS:	
+		STREET 1:		501 E MIDDLEFIELD RD
+		CITY:			MOUNTAIN VEIW
+		STATE:			CA
+		ZIP:			94043
+		BUSINESS PHONE:		6502541900
+
+	MAIL ADDRESS:	
+		STREET 1:		501 EAST MIDDLEFIELD RD
+		CITY:			MOUNTAIN VIEW
+		STATE:			CA
+		ZIP:			94043
+</SEC-HEADER>
+<DOCUMENT>
+<TYPE>10-K
+<SEQUENCE>1
+<DESCRIPTION>10-K
+<TEXT>
+
+<PAGE>
+- --------------------------------------------------------------------------------
+- --------------------------------------------------------------------------------
+ 
+                       SECURITIES AND EXCHANGE COMMISSION
+                             WASHINGTON, D.C. 20549
+                            ------------------------
+ 
+
+[trimmed]
+</TEXT>
+</DOCUMENT>
+<DOCUMENT>
+<TYPE>EX-27.1
+<SEQUENCE>4
+<DESCRIPTION>EXHIBIT 27.1
+<TEXT>
+
+<TABLE> <S> <C>
+
+<PAGE>
+<ARTICLE> 5
+<LEGEND>
+THIS SCHEDULE CONTAINS SUMMARY FINANCIAL INFORMATION EXTRACTED FROM NETSCAPE
+COMMUNICATIONS CORPORATION'S ANNUAL REPORT ON FORM 10-K FOR THE PERIOD ENDED
+DECEMBER 31, 1997 AND IS QUALIFIED IN ITS ENTIRETY TO SUCH FINANCIAL STATEMENTS.
+</LEGEND>
+<MULTIPLIER> 1,000
+       
+<S>                             <C>
+<PERIOD-TYPE>                   YEAR
+<FISCAL-YEAR-END>                          DEC-31-1997
+<PERIOD-START>                             JAN-01-1997
+<PERIOD-END>                               DEC-31-1997
+<CASH>                                          55,172
+<SECURITIES>                                   129,426
+<RECEIVABLES>                                  161,526
+<ALLOWANCES>                                   (8,335)
+<INVENTORY>                                          0
+<CURRENT-ASSETS>                               395,086
+<PP&E>                                         207,180
+<DEPRECIATION>                                (76,087)
+<TOTAL-ASSETS>                                 632,820
+<CURRENT-LIABILITIES>                          203,550
+<BONDS>                                              0
+<PREFERRED-MANDATORY>                                0
+<PREFERRED>                                          0
+<COMMON>                                            10
+<OTHER-SE>                                     429,045
+<TOTAL-LIABILITY-AND-EQUITY>                   632,820
+<SALES>                                        383,950
+<TOTAL-REVENUES>                               533,851
+<CGS>                                           50,232
+<TOTAL-COSTS>                                   81,789
+<OTHER-EXPENSES>                               584,329
+<LOSS-PROVISION>                               (3,439)
+<INTEREST-EXPENSE>                                 425
+<INCOME-PRETAX>                              (127,284)
+<INCOME-TAX>                                  (11,788)
+<INCOME-CONTINUING>                          (115,496)
+<DISCONTINUED>                                       0
+<EXTRAORDINARY>                                      0
+<CHANGES>                                            0
+<NET-INCOME>                                 (115,496)
+<EPS-PRIMARY>                                   (1.34)
+<EPS-DILUTED>                                   (1.34)
+        
+
+</TABLE>
+</TEXT>
+</DOCUMENT>
+<DOCUMENT>
+<TYPE>EX-27.2
+<SEQUENCE>5
+<DESCRIPTION>EXHIBIT 27.2
+<TEXT>
+
+<TABLE> <S> <C>
+
+<PAGE>
+<ARTICLE> 5
+<RESTATED> 
+<MULTIPLIER> 1,000
+       
+<S>                             <C>                     <C>
+<PERIOD-TYPE>                   YEAR                   YEAR
+<FISCAL-YEAR-END>                          DEC-31-1996             DEC-31-1995
+<PERIOD-START>                             JAN-01-1996             JAN-01-1995
+<PERIOD-END>                               DEC-31-1996             DEC-31-1995
+<CASH>                                          88,233                  55,276
+<SECURITIES>                                   115,015                  96,841
+<RECEIVABLES>                                  115,717                  27,766
+<ALLOWANCES>                                   (4,896)                   (667)
+<INVENTORY>                                          0                       0
+<CURRENT-ASSETS>                               351,344                 185,621
+<PP&E>                                         106,193                  23,884
+<DEPRECIATION>                                (19,381)                 (3,012)
+<TOTAL-ASSETS>                                 541,325                 231,154
+<CURRENT-LIABILITIES>                          146,487                  52,569
+<BONDS>                                              0                       0
+<PREFERRED-MANDATORY>                                0                       0
+<PREFERRED>                                          0                       0
+<COMMON>                                             9                       8
+<OTHER-SE>                                     394,213                 177,379
+<TOTAL-LIABILITY-AND-EQUITY>                   541,325                 231,154
+<SALES>                                        291,183                  77,489
+<TOTAL-REVENUES>                               346,294                  85,387
+<CGS>                                           36,943                   9,177
+<TOTAL-COSTS>                                   50,067                  11,707
+<OTHER-EXPENSES>                               275,739                  84,389
+<LOSS-PROVISION>                               (4,896)                   (667)
+<INTEREST-EXPENSE>                                 330                     304
+<INCOME-PRETAX>                                 27,280                 (6,115)
+<INCOME-TAX>                                     7,763                     498
+<INCOME-CONTINUING>                             19,517                 (6,613)
+<DISCONTINUED>                                       0                       0
+<EXTRAORDINARY>                                      0                       0
+<CHANGES>                                            0                       0
+<NET-INCOME>                                    19,517                 (6,613)
+<EPS-PRIMARY>                                     0.27                  (0.16)
+<EPS-DILUTED>                                     0.21                  (0.16)
+        
+
+</TABLE>
+</TEXT>
+</DOCUMENT>
+<DOCUMENT>
+<TYPE>EX-27
+<SEQUENCE>6
+<DESCRIPTION>FINANCIAL DATA SCHEDULE
+<TEXT>
+
+<TABLE> <S> <C>
+
+<PAGE>
+<ARTICLE> 5
+<MULTIPLIER> 1,000
+       
+<S>                             <C>
+<PERIOD-TYPE>                   12-MOS
+<FISCAL-YEAR-END>                          DEC-31-1998
+<PERIOD-START>                             JAN-01-1998
+<PERIOD-END>                               DEC-31-1998
+<CASH>                                          81,137
+<SECURITIES>                                     3,225
+<RECEIVABLES>                                   51,808
+<ALLOWANCES>                                     8,293
+<INVENTORY>                                        763
+<CURRENT-ASSETS>                               138,253
+<PP&E>                                         227,678
+<DEPRECIATION>                                 116,529
+<TOTAL-ASSETS>                                 253,788
+<CURRENT-LIABILITIES>                           76,768
+<BONDS>                                              0
+<PREFERRED-MANDATORY>                           36,873
+<PREFERRED>                                          0
+<COMMON>                                           481
+<OTHER-SE>                                     120,528
+<TOTAL-LIABILITY-AND-EQUITY>                   253,788
+<SALES>                                        166,214
+<TOTAL-REVENUES>                               189,122
+<CGS>                                           15,683
+<TOTAL-COSTS>                                   31,085
+<OTHER-EXPENSES>                               175,953
+<LOSS-PROVISION>                                   814
+<INTEREST-EXPENSE>                               1,016
+<INCOME-PRETAX>                                  3,966
+<INCOME-TAX>                                   (4,380)
+<INCOME-CONTINUING>                              8,346
+<DISCONTINUED>                                       0
+<EXTRAORDINARY>                                      0
+<CHANGES>                                            0
+<NET-INCOME>                                     8,346
+<EPS-PRIMARY>                                     0.16
+<EPS-DILUTED>                                     0.14
+        
+
+</TABLE>
+</TEXT>
+</DOCUMENT>
+<DOCUMENT>
+<TYPE>EX-27.2
+<SEQUENCE>6
+<DESCRIPTION>FINANCIAL DATA SCHEDULE
+<TEXT>
+
+<TABLE> <S> <C>
+
+<PAGE>
+<ARTICLE> 5
+<MULTIPLIER> 1,000
+       
+<S>                             <C>             <C>
+<PERIOD-TYPE>                   12-MOS   12-MOS
+<FISCAL-YEAR-END>                          DEC-31-1998   DEC-31-1997
+<PERIOD-START>                             JAN-01-1998   JAN-01-1997
+<PERIOD-END>                               DEC-31-1998   DEC-31-1997
+<CASH>                                          81,137   81,137
+<SECURITIES>                                     3,225   3,225
+<RECEIVABLES>                                   51,808   51,808
+<ALLOWANCES>                                     8,293   8,293
+<INVENTORY>                                        763   763
+<CURRENT-ASSETS>                               138,253   138,253
+<PP&E>                                         227,678   227,678
+<DEPRECIATION>                                 116,529   116,529
+<TOTAL-ASSETS>                                 253,788   253,788
+<CURRENT-LIABILITIES>                           76,768   76,768
+<BONDS>                                              0   0
+<PREFERRED-MANDATORY>                           36,873   36,873
+<PREFERRED>                                          0   0
+<COMMON>                                           481   481
+<OTHER-SE>                                     120,528   120,528
+<TOTAL-LIABILITY-AND-EQUITY>                   253,788   253,788
+<SALES>                                        166,214   166,214
+<TOTAL-REVENUES>                               189,122   189,122
+<CGS>                                           15,683   15,683
+<TOTAL-COSTS>                                   31,085   31,085
+<OTHER-EXPENSES>                               175,953   175,953
+<LOSS-PROVISION>                                   814   814
+<INTEREST-EXPENSE>                               1,016   1,016
+<INCOME-PRETAX>                                  3,966   3,966
+<INCOME-TAX>                                   (4,380)   (4,380)
+<INCOME-CONTINUING>                              8,346   8,346
+<DISCONTINUED>                                       0   0
+<EXTRAORDINARY>                                      0   0
+<CHANGES>                                            0   0
+<NET-INCOME>                                     8,346   8,346
+<EPS-PRIMARY>                                     0.16   0.16
+<EPS-DILUTED>                                     0.14   0.14
+        
+
+</TABLE>
+</TEXT>
+</DOCUMENT>
+<DOCUMENT>
+<TYPE>EX-27.3
+<SEQUENCE>9
+<TEXT>
+<ARTICLE> 9
+<MULTIPLIER> 1,000
+<S> <C>
+<PERIOD-TYPE> YEAR
+<PERIOD-END> DEC-31-1998
+<CASH> 1,000
+<TOTAL-ASSETS> 9,000
+<NET-INCOME> 50
+</TEXT>
+</DOCUMENT>

@@ -250,6 +250,14 @@ class ChartPanel(QWidget):
         Args:
             axes (ChartAxes): The axes.
         """
+        self.logger.info(
+            "Chart %s shows a %s chart of %s by %s against %s.",
+            self.key,
+            axes.chart.value,
+            axes.y.value,
+            axes.series_by.value,
+            axes.x.value,
+        )
         self.store.set_axes(self.key, axes)
         self.stack.setCurrentWidget(self.facets if axes.facet_by is not None else self.charts[axes.chart])
         self._fit()
@@ -318,7 +326,9 @@ class ChartPanel(QWidget):
             str: The chart title, in lower case with dashes.
         """
         title = self.titles.title(self.picker.axes())
-        return "".join(character if character.isalnum() else "-" for character in title.lower()).strip("-")
+        name = "".join(character if character.isalnum() else "-" for character in title.lower()).strip("-")
+        self.logger.debug("Exported files of the chart %s named %s.", self.key, name)
+        return name
 
     def _build_tools(self) -> QWidget:
         """Build the header tools: the ready-made charts, the export menu and the reset.
@@ -329,6 +339,9 @@ class ChartPanel(QWidget):
         views = QMenu(self)
         views.setToolTipsVisible(True)
         chosen = self.presets.for_scope(self.scope)
+        self.logger.debug("Building the tools of the chart %s with %d ready-made charts.", self.key, len(chosen))
+        if not chosen:
+            self.logger.warning("No ready-made chart for the %s scope of the chart %s.", self.scope.value, self.key)
         for family in PresetFamily:
             presets = [preset for preset in chosen if self.presets.family(preset) is family]
             if presets:
@@ -381,10 +394,12 @@ class ChartPanel(QWidget):
             chart (MetricChart): The chart.
             position (QPoint): Where the menu was asked, in chart pixels.
         """
+        self.logger.debug("Context menu of the chart %s asked at %d, %d.", self.key, position.x(), position.y())
         menu = QMenu(self)
         for action in self.export_menu.actions():
             menu.addAction(action)
         if self.error:
+            self.logger.debug("Retry offered in the context menu of the chart %s after an error.", self.key)
             menu.addSeparator()
             retry = menu.addAction("Retry")
             if retry is not None:
@@ -411,7 +426,9 @@ class ChartPanel(QWidget):
                     datasets.append(dataset)
         missing = [dataset for dataset in datasets if self.available is not None and dataset not in self.available]
         if missing:
+            self.logger.warning("Chart %s has no data: the %s dataset is not stored yet.", self.key, missing[0].value)
             return self.labels.BLOCK_LABELS[self.rules.DATA_BLOCKS[missing[0]]]
+        self.logger.warning("Chart %s has no data: nothing matches its axes and filters.", self.key)
         return "Nothing matches these axes and filters yet."
 
     def _show_facets(self, axes: ChartAxes, result: TrendResult, lines: List[ChartLine]) -> None:
@@ -484,11 +501,19 @@ class ChartPanel(QWidget):
         changed = available != self.available
         self.available = available
         self.picker.set_available(available)
+        if available is None:
+            self.logger.warning("Stored datasets unknown for the chart %s: no option blocked.", self.key)
         if changed:
+            self.logger.debug(
+                "Stored datasets of the chart %s changed: %s.",
+                self.key,
+                sorted(dataset.value for dataset in available) if available is not None else "unknown",
+            )
             self._on_axes(self.picker.axes())
 
     def show_loading(self) -> None:
         """Show that the chart data is being read."""
+        self.logger.debug("Reading the data of the chart %s.", self.key)
         if self.picker.axes().facet_by is not None:
             self.facets.set_loading(True)
             return
@@ -513,6 +538,13 @@ class ChartPanel(QWidget):
             chart.set_lines(axes, lines, result.breaks, result.last_actual, result.as_of)
         else:
             chart.set_message(self._empty_message(axes))
+        self.logger.info(
+            "Chart %s drawn: %d series of %d, %d notes.",
+            self.key,
+            len(result.series),
+            result.total_count,
+            len(result.notes),
+        )
         self._fit()
         self.footnote.setText(self.titles.footnote(result.notes))
         self.footnote.setVisible(bool(result.notes))
@@ -534,6 +566,9 @@ class ChartPanel(QWidget):
             chart.set_matrix(axes, matrix)
         else:
             chart.set_message(self._empty_message(axes))
+        self.logger.info(
+            "Matrix chart %s drawn: %d rows by %d columns.", self.key, len(matrix.rows), len(matrix.columns)
+        )
         self._fit()
         self.footnote.setText(self.titles.footnote(matrix.notes))
         self.footnote.setVisible(bool(matrix.notes))
@@ -557,6 +592,7 @@ class ChartPanel(QWidget):
         Args:
             message (str): Why the data could not be read.
         """
+        self.logger.error("The data of the chart %s could not be read: %s", self.key, message)
         self.error = message
         text = f"The chart data could not be read: {message}\nRight-click to retry."
         if self.picker.axes().facet_by is not None:

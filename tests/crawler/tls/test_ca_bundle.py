@@ -48,6 +48,8 @@ def test_installing_points_the_http_client_at_the_merged_bundle(
 def test_an_unreadable_environment_bundle_is_left_out(
     isolated_ca_bundle: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    for variable in (*CaBundle.ENVIRONMENT_VARIABLES, CaBundle.SOURCES_VARIABLE):
+        monkeypatch.delenv(variable, raising=False)
     monkeypatch.setenv("REQUESTS_CA_BUNDLE", str(tmp_path / "missing.pem"))
 
     path = CaBundle().path()

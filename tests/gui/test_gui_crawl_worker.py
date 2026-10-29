@@ -3,33 +3,58 @@ from __future__ import annotations
 import logging
 from datetime import UTC, datetime
 from types import TracebackType
-from typing import Dict, List, Optional, Type, Union
+from typing import Dict, List, Optional, Tuple, Type, Union
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from pydantic import JsonValue
 from pytestqt.qtbot import QtBot
 
+from analytics.companies.companies_run import CompaniesRun
 from analytics.markets.markets_collector import MarketsCollector
 from crawler.enums import CrawlSource
-from crawler.exception import CrawlerError
+from crawler.exception import CrawlerError, EmptyCrawlError
 from crawler.factory import CrawlerFactory
 from crawler.runner import CatalogueRunner, FactSink, ProductCallback, SoftwareCallback
 from gui.crawl_worker import CrawlWorker
 from models.cloud.enums import CloudProvider, Country, SoftwareCategory
 from models.cloud.products.product import CloudProduct
 from models.cloud.software.marketplace_software import MarketplaceSoftware
+from models.companies.enums import CompanyFeed
 from models.configuration.storage.storage_settings import StorageSettings
+from models.curated.enums import CuratedFile
 from models.markets.crawl_scope import CrawlScope
 from models.markets.enums import MarketFeed
 from models.markets.markets_catalog import MarketsCatalog
 from models.storage.crawl_summary import CrawlSummary
 from models.storage.enums import CrawlStatus, DatasetKind
 from storage.exception import StorageWriteError
+from storage.repositories.curated.catalog_provider import CatalogProvider
 from storage.storage import Storage
+
+
+class OfflineCatalogs(CatalogProvider):
+    """The curated catalogues of the bundle, as a database never seeded gives them."""
+
+    async def _revisions(self, *files: CuratedFile) -> Optional[Tuple[int, ...]]:
+        return None
 
 
 class OfflineStorage(Storage):
     """Storage opened and closed without a database: the fake runners write nothing."""
+
+    def __init__(self, settings: StorageSettings) -> None:
+        super().__init__(settings)
+        self.catalogs = OfflineCatalogs(
+            self.curated_state,
+            self.curated_records,
+            self.company_profiles,
+            self.company_identifiers,
+            self.reported_companies,
+            self.reported_years,
+            self.reported_events,
+            self.launches,
+        )
 
     async def __aenter__(self) -> Storage:
         return self
@@ -244,3 +269,130 @@ def test_markets_crawl_streams_each_source_then_derives(qtbot: QtBot, monkeypatc
     assert streamed == [MarketFeed.WORLD_BANK, MarketFeed.STATCOUNTER, MarketFeed.IDC], "the weights join StatCounter"
     assert blocker.args == ["35 markets rows written from worldbank, statcounter, idc"]
     finish.assert_awaited_once_with(streamed)
+
+
+def history_runner(
+    monkeypatch: pytest.MonkeyPatch, products: Optional[Dict[CloudProvider, List[str]]] = None
+) -> FakeRunner:
+    runner = FakeRunner(products or {})
+    runner.run_statistics = AsyncMock(return_value=summary(DatasetKind.STATISTICS, "synergy", 12))  # type: ignore[method-assign]
+    runner.storage.refresh_metrics = AsyncMock(return_value=9)  # type: ignore[method-assign]
+    monkeypatch.setattr(MarketsCollector, "write_stored_shares", AsyncMock(return_value=7))
+    return runner
+
+
+def test_market_history_crawl_derives_the_shares_and_metrics(qtbot: QtBot, monkeypatch: pytest.MonkeyPatch) -> None:
+    runner = history_runner(monkeypatch)
+    worker = CrawlWorker(runner, None, source=CrawlSource.STATISTICS, market_history=True)
+
+    with qtbot.waitSignal(worker.succeeded) as signal:
+        worker.run()
+
+    assert signal.args == ["12 market reports written, 7 market shares and 9 provider metrics derived"]
+    runner.storage.refresh_metrics.assert_awaited_once()  # type: ignore[attr-defined]
+
+
+def test_market_history_without_new_report_derives_from_the_stored_one(
+    qtbot: QtBot, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    runner = history_runner(monkeypatch)
+    runner.run_statistics = AsyncMock(side_effect=EmptyCrawlError("synergy"))  # type: ignore[method-assign]
+    worker = CrawlWorker(runner, None, source=CrawlSource.STATISTICS, market_history=True)
+
+    with qtbot.waitSignal(worker.succeeded) as signal:
+        worker.run()
+
+    assert signal.args == ["no new market report, 7 market shares and 9 provider metrics derived"]
+
+
+def test_statistics_crawl_without_report_fails(qtbot: QtBot, monkeypatch: pytest.MonkeyPatch) -> None:
+    runner = history_runner(monkeypatch)
+    runner.run_statistics = AsyncMock(side_effect=EmptyCrawlError("synergy"))  # type: ignore[method-assign]
+    worker = CrawlWorker(runner, None, source=CrawlSource.STATISTICS)
+
+    with qtbot.waitSignal(worker.failed), qtbot.assertNotEmitted(worker.succeeded):
+        worker.run()
+
+    runner.storage.refresh_metrics.assert_not_awaited()  # type: ignore[attr-defined]
+
+
+def test_compounding_crawl_runs_the_catalogues_then_the_history(
+    qtbot: QtBot, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    products = {CloudProvider.AWS: ["Amazon EC2"], CloudProvider.SCALEWAY: ["Instances"], CloudProvider.CIVO: ["K8s"]}
+    runner = history_runner(monkeypatch, products)
+    worker = CrawlWorker(runner, None, providers=[CloudProvider.AWS, CloudProvider.SCALEWAY], market_history=True)
+    caplog.set_level(logging.INFO, logger="gui.crawl_worker")
+
+    with qtbot.waitSignal(worker.succeeded) as signal:
+        worker.run()
+
+    assert signal.args == [
+        "2 catalogues updated, 12 market reports written, 7 market shares and 9 provider metrics derived"
+    ]
+    assert worker.counts == {CloudProvider.AWS: 1, CloudProvider.SCALEWAY: 1}
+    assert "Background crawl of amazon-web-services, scaleway (catalogue, market history) started." in caplog.messages
+
+
+def test_chosen_catalogues_crawl(qtbot: QtBot) -> None:
+    runner = FakeRunner({CloudProvider.AWS: ["Amazon EC2"], CloudProvider.CIVO: ["K8s"]})
+    worker = CrawlWorker(runner, None, providers=[CloudProvider.AWS, CloudProvider.EXOSCALE])
+
+    with qtbot.waitSignal(worker.succeeded) as signal:
+        worker.run()
+
+    assert signal.args == ["1 catalogues updated, 1 failed (see the logs)"]
+    assert worker.counts == {CloudProvider.AWS: 1}
+
+
+def test_a_companies_crawl_reads_the_companies_picked_and_streams_its_batches(
+    qtbot: QtBot, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    run = AsyncMock(return_value=12)
+    monkeypatch.setattr("gui.crawl_worker.CompaniesRun.run", run)
+    worker = CrawlWorker(
+        FakeRunner({}), None, source=CrawlSource.COMPANIES, company_feeds=[CompanyFeed.OPENALEX], companies=["opera"]
+    )
+    batches: List[Tuple[str, int, int]] = []
+    worker.company_batch.connect(lambda feed, items, rows: batches.append((feed, len(items), rows)))
+
+    with qtbot.waitSignal(worker.succeeded) as blocker:
+        worker.run()
+
+    call = run.await_args
+    assert call is not None
+    feeds, scope = call.args
+    assert feeds == [CompanyFeed.OPENALEX]
+    assert scope.companies == ["opera"]
+    assert call.kwargs["batch_size"] == CrawlWorker.STREAM_BATCH
+    call.kwargs["observer"](CompanyFeed.OPENALEX, [{"kind": "paper"}], 1)
+    assert batches == [("openalex", 1, 1)]
+    assert blocker.args == ["12 companies rows written from openalex"]
+
+
+def test_a_stopped_companies_crawl_says_so(qtbot: QtBot, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("gui.crawl_worker.CompaniesRun.run", AsyncMock(return_value=3))
+    worker = CrawlWorker(FakeRunner({}), None, source=CrawlSource.COMPANIES, company_feeds=[CompanyFeed.OPENALEX])
+
+    worker.request_stop()
+    with qtbot.waitSignal(worker.succeeded) as blocker:
+        worker.run()
+
+    assert worker.stop_event.is_set()
+    assert blocker.args == ["3 companies rows written from openalex (stopped)"]
+
+
+def test_a_refused_companies_crawl_says_why(qtbot: QtBot, monkeypatch: pytest.MonkeyPatch) -> None:
+    async def refused(self: CompaniesRun, *args: JsonValue, **kwargs: JsonValue) -> int:
+        self.refusals = {CompanyFeed.GOOGLE_PATENTS: "Google Patents refused the search (HTTP 429)"}
+        return 4
+
+    monkeypatch.setattr("gui.crawl_worker.CompaniesRun.run", refused)
+    worker = CrawlWorker(FakeRunner({}), None, source=CrawlSource.COMPANIES, company_feeds=[CompanyFeed.GOOGLE_PATENTS])
+
+    with qtbot.waitSignal(worker.succeeded) as blocker:
+        worker.run()
+
+    assert blocker.args == [
+        "4 companies rows written from google-patents. Google Patents refused the search (HTTP 429) (refused)"
+    ]

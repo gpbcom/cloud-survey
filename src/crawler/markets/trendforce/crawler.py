@@ -2,7 +2,8 @@ from __future__ import annotations
 
 # Standard Library Imports.
 from datetime import date, datetime
-from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Tuple
+from pathlib import Path
+from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Tuple, Union
 from urllib.parse import urljoin
 
 # Third Party Imports.
@@ -15,7 +16,9 @@ from crawler.enums import HtmlAttribute
 from crawler.markets.base import MarketFact
 from crawler.markets.press.base import BasePressCrawler
 from crawler.markets.trendforce.enums import TrendForceMeta, TrendForcePage, TrendForceSelector
+from models.markets.crawl_scope import CrawlScope
 from models.markets.enums import MarketFeed, ShareSource
+from models.markets.markets_catalog import MarketsCatalog
 
 type ListedRelease = Tuple[str, str, date]
 
@@ -50,6 +53,26 @@ class TrendForceCrawler(BasePressCrawler):
     share_source: ClassVar[ShareSource] = ShareSource.TRENDFORCE
     catalogue_url: ClassVar[str] = "https://www.trendforce.com/"
     download_delay: float = 2.0
+
+    def __init__(
+        self,
+        catalog: Optional[MarketsCatalog] = None,
+        scope: Optional[CrawlScope] = None,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            catalog (Optional[MarketsCatalog]): What is read, `data/curated/markets.json` by default.
+            scope (Optional[CrawlScope]): The part read: the releases published since `scope.since` only.
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+
+        Raises:
+            MarketsCatalogError: If the default catalogue cannot be loaded.
+        """
+        super().__init__(catalog=catalog, scope=scope, crawldir=crawldir, interval=interval)
 
     ############################
     # Internal Helpers Methods #

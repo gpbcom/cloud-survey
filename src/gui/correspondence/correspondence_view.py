@@ -221,7 +221,10 @@ class CorrespondenceView(QWidget):
             entry = menu.addAction(label)
             if entry is not None:
                 entry.triggered.connect(action)
+            else:
+                self.logger.warning("The export entry %r cannot be added to the diagram menu.", label)
         button.setMenu(menu)
+        self.logger.debug("Diagram export button built with %d entries.", len(menu.actions()))
         return button
 
     def _view_switch(self) -> QWidget:
@@ -267,6 +270,7 @@ class CorrespondenceView(QWidget):
             layout.addWidget(width_button)
         layout.addSpacing(8)
         layout.addWidget(self._export_button())
+        self.logger.debug("Diagram view switch built.")
         return tools
 
     def _build_layout(self) -> None:
@@ -374,6 +378,10 @@ class CorrespondenceView(QWidget):
             color = labels.series_color(SeriesGrouping.DOMAIN, domain).name() if domain else self.theme.TEXT_MUTED
             rows = sorted(grouped[domain], key=lambda concept: (-concept.covered(columns), concept.name.casefold()))
             groups.append(DiagramGroup(title, color, rows))
+        ungrouped = len(grouped.get("", []))
+        if ungrouped:
+            self.logger.debug("%d concepts have no taxonomy domain: grouped under %r.", ungrouped, self.UNGROUPED)
+        self.logger.debug("%d concepts grouped into %d domains.", len(concepts), len(groups))
         return groups
 
     def _query(self) -> CorrespondenceQuery:
@@ -407,6 +415,7 @@ class CorrespondenceView(QWidget):
         if sip.isdeleted(self):
             return
         if generation != self.generation:
+            self.logger.debug("Outdated concepts of read %d dropped (latest %d).", generation, self.generation)
             return
         self.concepts = concepts
         message = (
@@ -418,6 +427,8 @@ class CorrespondenceView(QWidget):
             message = "No category matches the filters."
         title = "Taxonomy category" if query.mode is ViewMode.CATEGORIES else "Service concept"
         self.diagram.set_rows(self._groups(concepts, query.columns), query.columns, query.strength, message, title)
+        if not concepts:
+            self.logger.warning("No row to show in the correspondence diagram: %s", message)
         self.logger.debug("%d concepts shown.", len(concepts))
 
     def _on_stats(self, generation: int, query: CorrespondenceQuery, stats: CorrespondenceStats) -> None:
@@ -431,6 +442,7 @@ class CorrespondenceView(QWidget):
         if sip.isdeleted(self):
             return
         if generation != self.generation:
+            self.logger.debug("Outdated figures of read %d dropped (latest %d).", generation, self.generation)
             return
         if self.auto_mode:
             self.auto_mode = False
@@ -451,6 +463,13 @@ class CorrespondenceView(QWidget):
         self.pending_card.set_value(f"{stats.pending:,}", "new or changed services")
         checked = stats.last_checked.astimezone().strftime("%d %b %H:%M") if stats.last_checked else "never"
         self.checked_card.set_value(checked, "by the AI")
+        self.logger.debug(
+            "Correspondence figures shown: %d rows, %d of %d services matched, %d waiting for the AI.",
+            stats.concepts,
+            stats.matched,
+            stats.services,
+            stats.pending,
+        )
 
     def _on_classes(self, generation: int, counts: Dict[CardinalityClass, int]) -> None:
         """Show the number of concepts of each class on the filter buttons.
@@ -461,8 +480,11 @@ class CorrespondenceView(QWidget):
         """
         if sip.isdeleted(self):
             return
-        if generation == self.generation:
-            self.filters.set_class_counts(counts)
+        if generation != self.generation:
+            self.logger.debug("Outdated class counts of read %d dropped (latest %d).", generation, self.generation)
+            return
+        self.filters.set_class_counts(counts)
+        self.logger.debug("Concept counts of %d correspondence classes shown.", len(counts))
 
     def _on_coverage(self, providers: List[CloudProvider], cells: List[CoverageCell]) -> None:
         """Show the coverage matrix.
@@ -474,6 +496,7 @@ class CorrespondenceView(QWidget):
         if sip.isdeleted(self):
             return
         self.coverage.set_cells(providers, cells)
+        self.logger.debug("Coverage matrix of %d providers shown, %d cells.", len(providers), len(cells))
 
     def _on_sizes(self, sizes: Dict[CloudProvider, int]) -> None:
         """Know the catalogue sizes, for the column presets.
@@ -484,6 +507,7 @@ class CorrespondenceView(QWidget):
         if sip.isdeleted(self):
             return
         self.columns.set_sizes(sizes)
+        self.logger.debug("Catalogue sizes of %d providers known for the column presets.", len(sizes))
 
     def _on_category_counts(self, counts: Dict[str, int]) -> None:
         """Show the number of services of each category in the category picker.
@@ -494,6 +518,7 @@ class CorrespondenceView(QWidget):
         if sip.isdeleted(self):
             return
         self.filters.category_picker.set_counts(counts)
+        self.logger.debug("Service counts of %d taxonomy nodes shown in the category picker.", len(counts))
 
     def _on_spent(self, spent: Decimal) -> None:
         """Show what the language model calls spent.
@@ -505,6 +530,12 @@ class CorrespondenceView(QWidget):
             return
         budget = self.llm_settings.llm_budget
         self.cost_label.setText(f"AI: {spent:.2f} of {budget.ceiling:.2f} {budget.currency}")
+        if spent >= budget.ceiling:
+            self.logger.warning(
+                "The language model budget is spent: %.2f of %.2f %s.", spent, budget.ceiling, budget.currency
+            )
+        else:
+            self.logger.debug("Language model spending shown: %.2f of %.2f %s.", spent, budget.ceiling, budget.currency)
 
     def _load(self) -> None:
         """Read the concepts, the figures and the coverage of the columns."""
@@ -519,7 +550,7 @@ class CorrespondenceView(QWidget):
             self._on_error,
         )
         self.loop.submit(
-            lambda storage: storage.correspondences.rows(query),
+            lambda storage: storage.correspondences.list(query),
             partial(self._on_rows, generation, query),
             self._on_error,
         )
@@ -544,6 +575,7 @@ class CorrespondenceView(QWidget):
 
     def _on_changed(self) -> None:
         """Read again once the columns or the filters change."""
+        self.logger.debug("Columns or filters changed: reading the correspondences again.")
         self.search_timer.stop()
         self._load()
 
@@ -566,6 +598,10 @@ class CorrespondenceView(QWidget):
         """
         if sip.isdeleted(self):
             return
+        if concept is None:
+            self.logger.warning("The concept no longer exists: the details are cleared.")
+        else:
+            self.logger.debug("Showing the concept %d in the details panel.", concept.id)
         path = self.taxonomy.path(concept.node_slug) if concept is not None and concept.node_slug else ""
         self.details.show_concept(concept, path)
         self.diagram.select(concept.id if concept is not None else None)
@@ -576,7 +612,8 @@ class CorrespondenceView(QWidget):
         Args:
             concept_id (int): The concept.
         """
-        self.loop.submit(lambda storage: storage.correspondences.concept(concept_id), self._on_concept, self._on_error)
+        self.logger.debug("Reading the concept %d.", concept_id)
+        self.loop.submit(lambda storage: storage.correspondences.read(concept_id), self._on_concept, self._on_error)
 
     def _on_selected(self, row_id: int) -> None:
         """Show the clicked row: a stored concept (read again), or a taxonomy category (read-only).
@@ -584,10 +621,13 @@ class CorrespondenceView(QWidget):
         Args:
             row_id (int): The identifier of the row.
         """
+        self.logger.debug("Row %d selected in the %s view.", row_id, self.mode.value)
         if self.mode is ViewMode.CONCEPTS:
             self._show(row_id)
             return
         row = next((concept for concept in self.concepts if concept.id == row_id), None)
+        if row is None:
+            self.logger.warning("The selected category row %d is no longer shown.", row_id)
         path = self.taxonomy.path(row.node_slug) if row is not None and row.node_slug else ""
         self.details.show_concept(row, path, editable=False)
 
@@ -617,13 +657,16 @@ class CorrespondenceView(QWidget):
         """
         concept = self.details.concept
         if concept is None:
+            self.logger.warning("No concept shown: the concept %d cannot be renamed.", concept_id)
             return
         answer = self.editor.ask_name(self, "Rename the concept", concept.name, concept.description)
         if answer is None:
+            self.logger.debug("Renaming of the concept %d cancelled.", concept_id)
             return
         name, description = answer
+        self.logger.info("Renaming the concept %d to %r.", concept_id, name)
         self.loop.submit(
-            lambda storage: storage.correspondences.rename(concept_id, name, description),
+            lambda storage: storage.correspondences.update(concept_id, name, description),
             partial(self._on_edited, concept_id, f"Concept renamed {name!r}."),
             self._on_error,
         )
@@ -636,7 +679,9 @@ class CorrespondenceView(QWidget):
         """
         target = self.editor.pick_concept(self, self.concepts, concept_id)
         if target is None:
+            self.logger.debug("Merging of the concept %d cancelled.", concept_id)
             return
+        self.logger.info("Merging the concept %d into the concept %d.", concept_id, target)
         self.loop.submit(
             lambda storage: storage.correspondences.merge(target, concept_id),
             partial(self._on_edited, target, "Concepts merged."),
@@ -652,10 +697,14 @@ class CorrespondenceView(QWidget):
         """
         if sip.isdeleted(self):
             return
+        if not services:
+            self.logger.warning("The category of the concept %d holds no service to add.", concept_id)
         picked = self.editor.pick_service(self, services)
         if picked is None:
+            self.logger.debug("Adding a service to the concept %d cancelled.", concept_id)
             return
         product_id, role = picked
+        self.logger.info("Adding the service %d to the concept %d as %s.", product_id, concept_id, role.value)
         self.loop.submit(
             lambda storage: storage.correspondences.link(concept_id, product_id, role),
             partial(self._on_edited, concept_id, "Service added to the concept."),
@@ -671,8 +720,10 @@ class CorrespondenceView(QWidget):
         concept = self.details.concept
         slug = concept.node_slug if concept is not None else None
         if not slug:
+            self.logger.warning("The concept %d has no category: its services cannot be listed.", concept_id)
             self.status_label.setText("The concept has no category: its services cannot be listed.")
             return
+        self.logger.debug("Reading the services of the category %s, for the concept %d.", slug, concept_id)
         self.loop.submit(
             lambda storage: storage.correspondences.services(slug),
             partial(self._on_services, concept_id),
@@ -686,7 +737,9 @@ class CorrespondenceView(QWidget):
             concept_id (int): The concept.
         """
         if not self.editor.confirm(self, "Delete the concept? Its services are no longer matched through it."):
+            self.logger.debug("Deletion of the concept %d cancelled.", concept_id)
             return
+        self.logger.info("Deleting the concept %d.", concept_id)
         self.loop.submit(
             lambda storage: storage.correspondences.delete(concept_id),
             partial(self._on_edited, None, "Concept deleted."),
@@ -700,6 +753,7 @@ class CorrespondenceView(QWidget):
             slug (str): The category.
         """
         name = self.taxonomy.name(slug)
+        self.logger.info("Forgetting the matches of the category %s: the next AI run matches it again.", slug)
         self.loop.submit(
             lambda storage: storage.correspondences.invalidate(slug),
             partial(self._on_edited, None, f"{name}: matched again by the next AI run."),
@@ -713,6 +767,7 @@ class CorrespondenceView(QWidget):
             concept_id (int): The concept.
             product_id (int): The service.
         """
+        self.logger.info("Removing the service %d from the concept %d.", product_id, concept_id)
         self.loop.submit(
             lambda storage: storage.correspondences.unlink(concept_id, product_id),
             partial(self._on_edited, concept_id, "Service removed from the concept."),
@@ -728,6 +783,7 @@ class CorrespondenceView(QWidget):
             role (str): The `MemberRole` value.
         """
         member_role = MemberRole(role)
+        self.logger.info("Marking the service %d of the concept %d %s.", product_id, concept_id, member_role.value)
         self.loop.submit(
             lambda storage: storage.correspondences.link(concept_id, product_id, member_role),
             partial(self._on_edited, concept_id, f"Service marked {member_role.value}."),
@@ -743,11 +799,13 @@ class CorrespondenceView(QWidget):
         Returns:
             str: What happened, for the status line.
         """
+        self.logger.debug("Matching the waiting services with the AI.")
         try:
             matched = await ServiceMatcher(storage, self.llm_settings).run()
         except LLMError as e:
             self.logger.warning("The service matching stopped: %s", e)
             return f"The AI matching stopped: {e}"
+        self.logger.info("%d services matched with their equivalents by the AI.", matched)
         return f"{matched:,} services matched with their equivalents by the AI."
 
     def _on_matched(self, message: str) -> None:
@@ -779,6 +837,7 @@ class CorrespondenceView(QWidget):
         self.details.unlink_requested.connect(self._on_unlink)
         self.details.role_requested.connect(self._on_role)
         self.taxonomy.changed.connect(self._load)
+        self.logger.debug("Correspondence view signals connected.")
 
     ############################
     # Publicly Exposed Methods #
@@ -793,6 +852,7 @@ class CorrespondenceView(QWidget):
     def match(self) -> None:
         """Match the services waiting in every category with the AI."""
         if not self.llm_settings.is_configured(LLMTask.SERVICE_CORRESPONDENCE):
+            self.logger.warning("No language model is configured: the services cannot be matched with the AI.")
             self.status_label.setText("No AI model is configured (set the API key named in conf/llm.yaml).")
             return
         self.logger.info("Service matching requested.")
@@ -806,4 +866,5 @@ class CorrespondenceView(QWidget):
         Args:
             concept_id (int): The concept.
         """
+        self.logger.debug("Concept %d selected from another view.", concept_id)
         self._show(concept_id)

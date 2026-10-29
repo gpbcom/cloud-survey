@@ -175,6 +175,7 @@ class ChartLabels:
         OptionBlock.NO_MARKETPLACES: "No marketplace stored yet: crawl the marketplaces first",
         OptionBlock.NO_STATISTICS: "No market statistics yet: refresh them from Synergy first",
         OptionBlock.SAME_AS_SERIES: "Already the grouping of the series",
+        OptionBlock.NEEDS_LINE_CHART: "Needs a line chart",
     }
     NOTE_LABELS: ClassVar[Dict[ChartNote, str]] = {
         ChartNote.FIRST_CRAWL_DATES: "Items without a published date are dated by the crawl which first found them",
@@ -184,6 +185,10 @@ class ChartLabels:
         ChartNote.PUBLISHERS_FIRST_SEEN: "Publishers count from their first listing and are never removed",
         ChartNote.FORECAST_METHOD: "Forecast: least-squares trend of the last 8 points, not a prediction",
         ChartNote.CRAWL_HISTORY: "Crawl records start with the first crawl stored in the database",
+        ChartNote.DERIVATIVE: (
+            "Rate of change: the change between two consecutive points divided by the time between them (per year), "
+            "shown at the later point; gaps are not bridged"
+        ),
     }
     UNIT_SUFFIXES: ClassVar[Dict[MetricUnit, str]] = {
         MetricUnit.PERCENT: "%",
@@ -285,17 +290,27 @@ class ChartLabels:
             return f"{self.METRIC_LABELS[metric]} {noun}"
         return self.METRIC_LABELS[metric]
 
-    def axis_title(self, metric: ChartMetric, scope: ChartScope, transform: ValueTransform = ValueTransform.RAW) -> str:
-        """Title an axis: its metric, transform and unit.
+    def axis_title(
+        self,
+        metric: ChartMetric,
+        scope: ChartScope,
+        transform: ValueTransform = ValueTransform.RAW,
+        rate: Optional[str] = None,
+    ) -> str:
+        """Title an axis: its metric, transform and unit, or the rate of change of them.
 
         Args:
             metric (ChartMetric): The metric of the axis.
             scope (ChartScope): The chart scope.
             transform (ValueTransform): How its values are transformed.
+            rate (Optional[str]): What the rate of change is per (`year`, or the x metric), `None` for the values.
 
         Returns:
-            str: e.g. `Market share (%)`, `Listed products, share of total (%)` or `Rank by marketplace size`.
+            str: e.g. `Market share (%)`, `Listed products, share of total (%)`, `Rank by marketplace size` or
+                `Change per year of: Market share (%)`.
         """
+        if rate is not None:
+            return f"Change per {rate} of: {self.axis_title(metric, scope, transform)}"
         label = self.metric_label(metric, scope)
         match transform:
             case ValueTransform.SHARE_OF_TOTAL:

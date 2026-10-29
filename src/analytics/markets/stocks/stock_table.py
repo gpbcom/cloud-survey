@@ -74,6 +74,7 @@ class StockTable:
             value = self.converter.convert(point.close, point.currency, target, point.day)
             if value is not None:
                 values.append((point.day, value))
+        self.logger.debug("%d of %d prices converted to %s.", len(values), len(points), currency)
         return values
 
     def _rebased(self, values: List[Tuple[date, float]]) -> List[Tuple[date, float]]:
@@ -86,8 +87,10 @@ class StockTable:
             List[Tuple[date, float]]: The line, its first point at 100.
         """
         if not values or values[0][1] <= 0:
+            self.logger.warning("No positive first price among %d prices: nothing to rebase.", len(values))
             return []
         base = values[0][1]
+        self.logger.debug("%d prices rebased to 100 on %s.", len(values), values[0][0])
         return [(day, value / base * 100.0) for day, value in values]
 
     ############################
@@ -108,6 +111,7 @@ class StockTable:
             month = day.replace(day=1)
             if month not in ends or day >= ends[month][0]:
                 ends[month] = (day, value)
+        self.logger.debug("%d month-end values out of %d daily values.", len(ends), len(values))
         return {month: value for month, (_, value) in sorted(ends.items())}
 
     def listing_lines(

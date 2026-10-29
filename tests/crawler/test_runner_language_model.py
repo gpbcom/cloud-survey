@@ -13,6 +13,7 @@ from pydantic import JsonValue
 from crawler.factory import CrawlerFactory
 from crawler.runner import CatalogueRunner
 from models.cloud.enums import CloudProvider
+from models.cloud.launch.launch_catalog import LaunchCatalog
 from models.configuration.llm.llm_settings import LLMSettings
 from storage.storage import Storage
 
@@ -23,6 +24,9 @@ KEY_VARIABLE = "TEST_LLM_KEY"
 
 class FakeCrawler:
     """Stand-in for a marketplace crawler, streaming one listing with a pending Russian label."""
+
+    def use_launches(self, catalog: LaunchCatalog) -> None:
+        self.launches = catalog
 
     async def stream(self) -> AsyncIterator[Dict[str, JsonValue]]:
         item: Dict[str, JsonValue] = {

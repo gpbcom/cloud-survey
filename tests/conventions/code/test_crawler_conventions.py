@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import ast
+import importlib
+import pkgutil
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Type, Union
 
 import pytest
+from scrapling.spiders import Spider
 
 PROJECT_ROOT = Path(__file__).parents[3]
 SRC_DIR = PROJECT_ROOT / "src"
@@ -160,6 +163,28 @@ def test_checker_reports_misplaced_sections_and_special_methods() -> None:
 
     assert any("must come before the public section" in violation for violation in convention_violations(swapped))
     assert any("special methods come before" in violation for violation in convention_violations(late_init))
+
+
+def crawler_classes() -> List[Type[Spider]]:
+    """Get the crawlers (Scrapling spiders) defined in the `crawler` package."""
+    package = importlib.import_module("crawler")
+    modules = [importlib.import_module(info.name) for info in pkgutil.walk_packages(package.__path__, "crawler.")]
+    return [
+        value
+        for module in modules
+        for value in vars(module).values()
+        if isinstance(value, type) and issubclass(value, Spider) and value.__module__ == module.__name__
+    ]
+
+
+def test_crawlers_declare_their_constructor() -> None:
+    crawlers = crawler_classes()
+    missing = sorted(
+        f"{crawler.__module__}.{crawler.__qualname__}" for crawler in crawlers if "__init__" not in vars(crawler)
+    )
+
+    assert crawlers
+    assert missing == [], f"These crawlers must declare `__init__`: {missing}"
 
 
 GUI_FILES = sorted((SRC_DIR / "gui").rglob("*.py"))

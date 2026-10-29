@@ -170,6 +170,7 @@ class CorrespondenceFilters(QWidget):
         box = CompactCombo(logger=self.logger)
         for label, value in entries:
             box.addItem(label, value)
+        self.logger.debug("Filter combo box built with %d entries.", len(entries))
         return box
 
     ############################
@@ -186,6 +187,12 @@ class CorrespondenceFilters(QWidget):
             CorrespondenceQuery: The columns and the filters.
         """
         audience = self.audience_box.currentData() or ""
+        self.logger.debug(
+            "Correspondence query of %d columns, mode %s, search %r.",
+            len(columns),
+            self.mode_box.currentData(),
+            self.search_box.text(),
+        )
         return CorrespondenceQuery(
             columns=list(columns),
             mode=ViewMode(self.mode_box.currentData()),
@@ -208,6 +215,7 @@ class CorrespondenceFilters(QWidget):
         """
         for kind, button in self.class_buttons.items():
             button.setText(f"{kind.value}  {counts.get(kind, 0):,}")
+        self.logger.debug("Class counts shown: %s.", ", ".join(f"{kind.value} {count}" for kind, count in counts.items()))
 
     def set_mode(self, mode: ViewMode) -> None:
         """Choose what the rows stand for (e.g. the taxonomy categories while the AI matched nothing yet).
@@ -215,7 +223,11 @@ class CorrespondenceFilters(QWidget):
         Args:
             mode (ViewMode): The mode.
         """
-        self.mode_box.setCurrentIndex(max(self.mode_box.findData(mode.value), 0))
+        index = self.mode_box.findData(mode.value)
+        if index < 0:
+            self.logger.warning("The mode %s is not offered: the first mode is chosen.", mode.value)
+        self.logger.debug("Correspondence mode set to %s.", mode.value)
+        self.mode_box.setCurrentIndex(max(index, 0))
 
     def set_coverage(self, coverage: CoverageFilter) -> None:
         """Choose the coverage filter (e.g. the gaps of two providers picked in the coverage matrix).
@@ -223,7 +235,11 @@ class CorrespondenceFilters(QWidget):
         Args:
             coverage (CoverageFilter): The filter.
         """
-        self.coverage_box.setCurrentIndex(max(self.coverage_box.findData(coverage.value), 0))
+        index = self.coverage_box.findData(coverage.value)
+        if index < 0:
+            self.logger.warning("The coverage filter %s is not offered: the first one is chosen.", coverage.value)
+        self.logger.debug("Coverage filter set to %s.", coverage.value)
+        self.coverage_box.setCurrentIndex(max(index, 0))
 
     def reset(self) -> None:
         """Clear every filter, then tell once."""

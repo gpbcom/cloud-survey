@@ -1,0 +1,386 @@
+{
+ "task_id": "b44e9f47-986e-42d4-b283-fb6921c3ae2e",
+ "status": "SUCCESS",
+ "progress": 100,
+ "page": 1,
+ "limit": -1,
+ "item_count": 2,
+ "execution_time": 0.38,
+ "result": [
+  {
+   "config_name": "Intel Xeon E3-1230: 4 × 3.4GHz, 16 GB DDR4 ECC, 2 × 240 GB SSD SATA",
+   "cpu": {
+    "name": "Intel Xeon E3-1230",
+    "base_freq": 3.4,
+    "count": 1,
+    "cores_per_cpu": 4
+   },
+   "ram": [
+    {
+     "type": "DDR4 ECC",
+     "size": 8,
+     "count": 2
+    }
+   ],
+   "disk": [
+    {
+     "type": "SSD SATA",
+     "size": 240,
+     "count": 2
+    }
+   ],
+   "gpu": {
+    "name": "",
+    "count": 0
+   },
+   "is_manual_erase": false,
+   "is_manual_os_install": false,
+   "config": [
+    {
+     "id": 33,
+     "count": 1,
+     "feature": null
+    },
+    {
+     "id": 50,
+     "count": 1,
+     "feature": null
+    },
+    {
+     "id": 140,
+     "count": 2,
+     "feature": null
+    },
+    {
+     "id": 65,
+     "count": 1,
+     "feature": null
+    },
+    {
+     "id": 144,
+     "count": 1,
+     "feature": null
+    }
+   ],
+   "is_configurable": false,
+   "arch_type": "x86_64",
+   "price_plan_available": [
+    "15205ff1-73dc-4315-bfda-6f78a36046b5",
+    "be6c2a5f-4160-5145-8695-c628496b208d",
+    "74566568-dae2-48e4-97da-0b4a7ef7fff0",
+    "72027fea-a923-4f09-ae3d-e9105f76ac98",
+    "a476d5c1-b48f-4205-8f8e-569c09abfdde",
+    "abf0b1eb-9e84-4c6a-8555-fc42d784fe69"
+   ],
+   "addition": null,
+   "primary": null,
+   "uuid": "00835804-bbfa-531d-94c2-bac286fa24ed",
+   "name": "AEL10-SSD",
+   "tariff_line": "Entry Line",
+   "model": "server",
+   "tags": [],
+   "tag_list": [
+    {
+     "uuid": "6a15f30d-0bda-4f8a-a01e-16c2f6fa87f4",
+     "name": "cpu_vendor:Intel",
+     "text": "cpu_vendor:Intel",
+     "is_hide": true,
+     "is_filter": false,
+     "sort_weight": 0,
+     "style_key": ""
+    }
+   ],
+   "state": "Discount",
+   "available": null,
+   "setup_fee_collection": {
+    "RUB": {
+     "year": null,
+     "day": null,
+     "month": null,
+     "hour": null
+    },
+    "EUR": {
+     "year": null,
+     "day": null,
+     "month": null,
+     "hour": null
+    },
+    "USD": {
+     "year": null,
+     "day": null,
+     "month": null,
+     "hour": null
+    },
+    "UZS": {
+     "year": null,
+     "day": null,
+     "month": null,
+     "hour": null
+    },
+    "KZT": {
+     "year": null,
+     "day": null,
+     "month": null,
+     "hour": null
+    },
+    "KES": {
+     "year": null,
+     "day": null,
+     "month": null,
+     "hour": null
+    }
+   },
+   "price_collection": {
+    "RUB": {
+     "year": null,
+     "day": 569.0,
+     "month": 9500.0,
+     "hour": null
+    },
+    "EUR": {
+     "year": null,
+     "day": 7.0,
+     "month": 114.0,
+     "hour": null
+    },
+    "USD": {
+     "year": null,
+     "day": 8.0,
+     "month": 127.0,
+     "hour": null
+    },
+    "UZS": {
+     "year": null,
+     "day": 76513.0,
+     "month": 1350381.0,
+     "hour": null
+    },
+    "KZT": {
+     "year": null,
+     "day": 3107.0,
+     "month": 54832.0,
+     "hour": null
+    },
+    "KES": {
+     "year": null,
+     "day": 949.0,
+     "month": 16744.0,
+     "hour": null
+    }
+   },
+   "location_price_collection": {
+    "07ff5ae1-7e8b-4c85-af2c-219798aa0d46": {
+     "RUB": {
+      "year": null,
+      "day": 1170.0,
+      "month": 20900.0,
+      "hour": null
+     },
+     "EUR": {
+      "year": null,
+      "day": 8.0,
+      "month": 157.0,
+      "hour": null
+     },
+     "USD": {
+      "year": null,
+      "day": 10.0,
+      "month": 179.0,
+      "hour": null
+     },
+     "UZS": {
+      "year": null,
+      "day": 112741.0,
+      "month": 1990000.0,
+      "hour": null
+     },
+     "KZT": {
+      "year": null,
+      "day": 3967.0,
+      "month": 70000.0,
+      "hour": null
+     },
+     "KES": {
+      "year": null,
+      "day": 1635.0,
+      "month": 28840.0,
+      "hour": null
+     }
+    }
+   },
+   "service_tag": "default",
+   "quantity": 1,
+   "eol_date": null,
+   "is_primary": true,
+   "is_order": true,
+   "is_preorder": false,
+   "is_single_prolonged": false,
+   "is_qchange": false,
+   "is_user_discount_enabled": true,
+   "is_price_plan_discount_enabled": true,
+   "is_editable": false
+  },
+  {
+   "config_name": "Intel Xeon E3-1245v6: 4 × 3.7GHz, 32 GB DDR4 ECC, 2 × 480 GB SSD SATA",
+   "cpu": {
+    "name": "Intel Xeon E3-1245v6",
+    "base_freq": 3.7,
+    "count": 1,
+    "cores_per_cpu": 4
+   },
+   "ram": [
+    {
+     "type": "DDR4 ECC",
+     "size": 16,
+     "count": 2
+    }
+   ],
+   "disk": [
+    {
+     "type": "SSD SATA",
+     "size": 480,
+     "count": 2
+    }
+   ],
+   "gpu": {
+    "name": "",
+    "count": 0
+   },
+   "is_manual_erase": false,
+   "is_manual_os_install": false,
+   "config": [
+    {
+     "id": null,
+     "count": null,
+     "feature": null
+    }
+   ],
+   "is_configurable": false,
+   "arch_type": "x86_64",
+   "price_plan_available": [
+    "a476d5c1-b48f-4205-8f8e-569c09abfdde",
+    "74566568-dae2-48e4-97da-0b4a7ef7fff0",
+    "72027fea-a923-4f09-ae3d-e9105f76ac98",
+    "15205ff1-73dc-4315-bfda-6f78a36046b5",
+    "abf0b1eb-9e84-4c6a-8555-fc42d784fe69"
+   ],
+   "addition": null,
+   "primary": null,
+   "uuid": "0ef94426-1247-4ec3-a9a8-f822ee6c0518",
+   "name": "AEL14-SSD",
+   "tariff_line": "Discount Line",
+   "model": "server",
+   "tags": [],
+   "tag_list": [
+    {
+     "uuid": "6a15f30d-0bda-4f8a-a01e-16c2f6fa87f4",
+     "name": "cpu_vendor:Intel",
+     "text": "cpu_vendor:Intel",
+     "is_hide": true,
+     "is_filter": false,
+     "sort_weight": 0,
+     "style_key": ""
+    },
+    {
+     "uuid": "cb701c5e-6909-4d3f-b72f-3d762802b6e6",
+     "name": "for_ml",
+     "text": "ML and AI",
+     "is_hide": true,
+     "is_filter": false,
+     "sort_weight": 0,
+     "style_key": ""
+    }
+   ],
+   "state": "EOL",
+   "available": null,
+   "setup_fee_collection": {
+    "RUB": {
+     "year": null,
+     "day": null,
+     "month": null,
+     "hour": null
+    },
+    "EUR": {
+     "year": null,
+     "day": null,
+     "month": null,
+     "hour": null
+    },
+    "USD": {
+     "year": null,
+     "day": null,
+     "month": null,
+     "hour": null
+    },
+    "UZS": {
+     "year": null,
+     "day": null,
+     "month": null,
+     "hour": null
+    },
+    "KZT": {
+     "year": null,
+     "day": null,
+     "month": null,
+     "hour": null
+    },
+    "KES": {
+     "year": null,
+     "day": null,
+     "month": null,
+     "hour": null
+    }
+   },
+   "price_collection": {
+    "RUB": {
+     "year": null,
+     "day": 356.0,
+     "month": 9110.0,
+     "hour": null
+    },
+    "EUR": {
+     "year": null,
+     "day": 7.0,
+     "month": 109.0,
+     "hour": null
+    },
+    "USD": {
+     "year": null,
+     "day": 7.0,
+     "month": 122.0,
+     "hour": null
+    },
+    "UZS": {
+     "year": null,
+     "day": 73372.0,
+     "month": 1294944.0,
+     "hour": null
+    },
+    "KZT": {
+     "year": null,
+     "day": 2980.0,
+     "month": 52581.0,
+     "hour": null
+    },
+    "KES": {
+     "year": null,
+     "day": 910.0,
+     "month": 16056.1,
+     "hour": null
+    }
+   },
+   "location_price_collection": null,
+   "service_tag": "default",
+   "quantity": 1,
+   "eol_date": null,
+   "is_primary": true,
+   "is_order": true,
+   "is_preorder": false,
+   "is_single_prolonged": false,
+   "is_qchange": false,
+   "is_user_discount_enabled": true,
+   "is_price_plan_discount_enabled": true,
+   "is_editable": false
+  }
+ ]
+}

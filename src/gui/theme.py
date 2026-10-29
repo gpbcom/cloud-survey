@@ -301,6 +301,11 @@ class Theme:
         MarketPlayer.DEUTSCHE_TELEKOM: "Deutsche Telekom",
         MarketPlayer.NEOCLOUDS: "Neoclouds",
         MarketPlayer.OTHERS: "Others (computed)",
+        MarketPlayer.ALIBABA: "Alibaba",
+        MarketPlayer.IBM: "IBM",
+        MarketPlayer.ORACLE: "Oracle",
+        MarketPlayer.HUAWEI: "Huawei",
+        MarketPlayer.TENCENT: "Tencent",
     }
     PLAYER_COLORS: ClassVar[Dict[MarketPlayer, str]] = {
         MarketPlayer.BIG_THREE: "#f0b429",
@@ -368,6 +373,12 @@ class Theme:
         DateCaveat.ASSUMED_TIMEZONE: "it is read from the product identifier in China's time, it may be hours off",
         DateCaveat.YEAR_ONLY: "only the launch year is published, the day is unknown",
         DateCaveat.OLDEST_VERSION: "it is the release of the oldest version still listed, older ones may be gone",
+        DateCaveat.FIRST_ANNOUNCEMENT: (
+            "it is the first mention of the product in the provider's updates or release notes, the launch may be "
+            "earlier"
+        ),
+        DateCaveat.FEED_START: "it is near the start of the provider's updates feed, the product may be older",
+        DateCaveat.CURATED: "it is read by hand from the cited launch announcement",
     }
 
     def __init__(self) -> None:

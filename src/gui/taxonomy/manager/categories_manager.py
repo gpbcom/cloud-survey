@@ -144,6 +144,12 @@ class CategoriesManager(QDialog):
         """
         budget = self.llm_settings.llm_budget
         self.cost_label.setText(f"Language model: {spent:.2f} of {budget.ceiling:.2f} {budget.currency}")
+        if spent >= budget.ceiling:
+            self.logger.warning(
+                "The language model budget is spent: %.2f of %.2f %s.", spent, budget.ceiling, budget.currency
+            )
+        else:
+            self.logger.debug("Language model spending shown: %.2f of %.2f %s.", spent, budget.ceiling, budget.currency)
 
     def _on_cost_error(self, error: StorageError) -> None:
         """Leave the spending unknown when it cannot be read.
@@ -163,11 +169,13 @@ class CategoriesManager(QDialog):
         Returns:
             Decimal: The cost of the recorded calls.
         """
+        self.logger.debug("Reading the language model spending.")
         return await storage.llm_usage.spent(self.llm_settings.llm_budget.currency)
 
     def _refresh_cost(self) -> None:
         """Read the language model spending again, when a model is offered."""
         if self.translate_button.isHidden() and self.classify_button.isHidden():
+            self.logger.debug("No language model is offered: its spending is not read.")
             return
         self.loop.submit(self._spent_job, self._on_spent, self._on_cost_error)
 
@@ -218,6 +226,7 @@ class CategoriesManager(QDialog):
         Returns:
             int: The number of items whose categorization changed.
         """
+        self.logger.debug("Categorizing every stored item again.")
         return await storage.recategorize()
 
     async def _translate_job(self, storage: Storage) -> str:
@@ -229,11 +238,13 @@ class CategoriesManager(QDialog):
         Returns:
             str: What happened, for the status line.
         """
+        self.logger.debug("Translating the pending labels with the language model.")
         try:
             translated = await LabelTranslator(storage, self.llm_settings, logger=self.logger).run()
         except LLMError as e:
             self.logger.warning("The label translation stopped: %s", e)
             return f"The label translation stopped: {e}"
+        self.logger.info("%d labels translated by the language model.", translated)
         return f"{translated:,} labels translated by the language model."
 
     async def _classify_job(self, storage: Storage) -> str:
@@ -245,11 +256,13 @@ class CategoriesManager(QDialog):
         Returns:
             str: What happened, for the status line.
         """
+        self.logger.debug("Categorizing the unclassified items with the language model.")
         try:
             classified = await ItemClassifier(storage, self.llm_settings, logger=self.logger).run()
         except LLMError as e:
             self.logger.warning("The item classification stopped: %s", e)
             return f"The item classification stopped: {e}"
+        self.logger.info("%d items categorized by the language model.", classified)
         return f"{classified:,} items categorized by the language model."
 
     def _on_model_done(self, message: str) -> None:
@@ -293,6 +306,9 @@ class CategoriesManager(QDialog):
         Args:
             tab (int): The tab shown: 0 categories, 1 source labels, 2 unclassified items.
         """
+        self.logger.debug("Opening the Categories manager on the tab %d.", tab)
+        if not 0 <= tab < self.tabs.count():
+            self.logger.warning("The Categories manager has no tab %d: the current tab is kept.", tab)
         self.tabs.setCurrentIndex(tab)
         self._load()
         self.show()

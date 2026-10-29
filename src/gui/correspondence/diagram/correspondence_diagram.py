@@ -126,6 +126,13 @@ class CorrespondenceDiagram(QWidget):
         self.layout_ = DiagramLayout(self.groups, self.columns, self.strength, self.logger, drawn)
         self.setFixedSize(QSize(max(int(self.layout_.width), width), max(int(self.layout_.height), height)))
         self.update()
+        self.logger.debug(
+            "Correspondence diagram laid out: %d rows, %d columns, %.0f x %.0f px.",
+            len(self.layout_.rows),
+            len(self.columns),
+            self.layout_.width,
+            self.layout_.height,
+        )
         self.laid_out.emit()
 
     def _set_column_target(self, column: Optional[float]) -> None:
@@ -296,6 +303,7 @@ class CorrespondenceDiagram(QWidget):
         Args:
             message (str): The message.
         """
+        self.logger.debug("Correspondence diagram message: %s", message)
         self.message = message
         self.groups = []
         self._relayout()
@@ -310,6 +318,7 @@ class CorrespondenceDiagram(QWidget):
         if (width, height) == self.available:
             return
         self.available = (max(width, 200), max(height, 80))
+        self.logger.debug("Correspondence diagram fitted to %d x %d px.", *self.available)
         self._relayout()
 
     def select(self, concept_id: Optional[int]) -> None:
@@ -318,6 +327,8 @@ class CorrespondenceDiagram(QWidget):
         Args:
             concept_id (Optional[int]): The concept, `None` for none.
         """
+        if concept_id is not None and self.layout_ is not None and concept_id not in self.layout_.rows:
+            self.logger.debug("The concept %d is not shown in the diagram: nothing is highlighted.", concept_id)
         self.selected = concept_id
         self.update()
 
@@ -347,6 +358,7 @@ class CorrespondenceDiagram(QWidget):
         """
         layout = self.layout_
         if layout is None or not layout.rows:
+            self.logger.warning("No row shown: the correspondence CSV is empty.")
             return ""
         buffer = io.StringIO()
         writer = csv.writer(buffer)
@@ -361,6 +373,7 @@ class CorrespondenceDiagram(QWidget):
                     for provider in layout.columns
                 ]
                 writer.writerow([concept.name, group.title, *cells])
+        self.logger.info("Correspondence CSV written: %d rows, %d provider columns.", len(layout.rows), len(layout.columns))
         return buffer.getvalue()
 
     def sizeHint(self) -> QSize:
@@ -402,6 +415,7 @@ class CorrespondenceDiagram(QWidget):
                 if event.button() is Qt.MouseButton.LeftButton:
                     concept_id = layout.concept_at(event.position())
                     if concept_id is not None:
+                        self.logger.debug("Concept %d clicked in the diagram.", concept_id)
                         self.select(concept_id)
                         self.concept_selected.emit(concept_id)
                     pill = layout.pill_at(event.position())

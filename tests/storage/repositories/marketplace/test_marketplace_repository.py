@@ -64,7 +64,7 @@ async def test_the_stored_software_is_classified_again(
             text("UPDATE software SET service_categories = '{}', service_domains = '{}' WHERE name = 'Postgres'")
         )
         await connection.commit()
-    stamp = {stamp.dataset: stamp for stamp in await storage.datasets.stamps()}["civo"]
+    stamp = {stamp.dataset: stamp for stamp in await storage.datasets.list()}["civo"]
 
     changed = await storage.marketplaces.reclassify(CloudProvider.CIVO)
     again = await storage.marketplaces.reclassify(CloudProvider.CIVO)
@@ -77,7 +77,7 @@ async def test_the_stored_software_is_classified_again(
     postgres = next(item for item in marketplace.software if item.name == "Postgres")
     assert postgres.service_categories != []
     assert postgres.service_domains != []
-    assert {stamp.dataset: stamp for stamp in await storage.datasets.stamps()}["civo"].revision > stamp.revision
+    assert {stamp.dataset: stamp for stamp in await storage.datasets.list()}["civo"].revision > stamp.revision
 
 
 async def test_a_marketplace_not_stored_or_being_crawled_is_not_classified_again(

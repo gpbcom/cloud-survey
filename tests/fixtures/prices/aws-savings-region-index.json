@@ -1,0 +1,11 @@
+{
+ "disclaimer": "This pricing list is for informational purposes only. All prices are subject to the additional terms included in the pricing pages on http://aws.amazon.com. All Free Tier prices are also subject to the terms included at https://aws.amazon.com/free/",
+ "publicationDate": "2026-10-28T18:02:49Z",
+ "regions": [
+  {
+   "regionCode": "eu-west-3",
+   "versionUrl": "/savingsPlan/v1.0/aws/AWSComputeSavingsPlan/20261028180249/eu-west-3/index.json"
+  }
+ ],
+ "formatVersion": "v1.0"
+}

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # Standard Library Imports.
+from pathlib import Path
 from typing import AsyncGenerator, ClassVar, Dict, FrozenSet, Iterator, List, Optional, Union
 from urllib.parse import quote
 
@@ -9,6 +10,7 @@ from pydantic import JsonValue
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
+from classifier.software_classifier import SoftwareClassifier
 from crawler.cloud.stackit.enums import StackitDeliveryMethod, StackitProductField, StackitRequestMeta
 from crawler.exception import CatalogueFormatError, EmptyCatalogueError
 from crawler.marketplace.base import BaseMarketplaceCrawler
@@ -55,6 +57,21 @@ class STACKITMarketplaceCrawler(BaseMarketplaceCrawler):
 
     name = "stackit-marketplace"
     catalogue_url: ClassVar[str] = f"{API_URL}?limit={PAGE_SIZE}&locale=en"
+
+    def __init__(
+        self,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+        classifier: Optional[SoftwareClassifier] = None,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+            classifier (Optional[SoftwareClassifier]): The software classifier, the project rules by default.
+        """
+        super().__init__(crawldir=crawldir, interval=interval, classifier=classifier)
 
     ############################
     # Internal Helpers Methods #

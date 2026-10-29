@@ -66,6 +66,6 @@ async def test_the_output_folder_is_imported_once(
     assert [product.name for product in catalogue.products] == ["Compute", "Storage"]
     assert await storage.catalogues.load(CloudProvider.SCALEWAY) is None, "an invalid file is skipped"
     assert await storage.catalogues.load(CloudProvider.OVH) is None, "a file of another provider is skipped"
-    statistics = await storage.statistics.load("synergy")
+    statistics = await storage.statistics.read("synergy")
     assert statistics is not None
     assert len(statistics.reports) == 1

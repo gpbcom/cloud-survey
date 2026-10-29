@@ -138,7 +138,7 @@ class JsonImporter:
             StorageError: If the statistics cannot be written.
         """
         statistics = await self._read(path, MarketStatistics)
-        stamps = await self.storage.datasets.stamps()
+        stamps = await self.storage.datasets.list()
         stored = any(stamp.kind is DatasetKind.STATISTICS and stamp.dataset == path.stem for stamp in stamps)
         if stored and not replace:
             self.logger.warning("The %s statistics are already stored: %s is not imported.", path.stem, path)

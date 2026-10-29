@@ -20,6 +20,7 @@ class CrawlScope(BaseModel):
         CHECK (ClassVar[MarketFieldCheck]): The checks of the raw fields.
         areas (List[str]): Only these areas (StatCounter), every one when empty.
         listings (List[str]): Only these listings (Google Finance), every one when empty.
+        companies (List[str]): Only these companies (the companies crawl), every one when empty.
         since (Optional[str]): Only the months from this one, `YYYY-MM` (StatCounter, FRED), the whole history when
             `None`. A later run reading the last months only is how the stored series are kept up to date.
     """
@@ -31,9 +32,10 @@ class CrawlScope(BaseModel):
 
     areas: List[str] = Field(default_factory=list, description="Only these areas.")
     listings: List[str] = Field(default_factory=list, description="Only these listings.")
+    companies: List[str] = Field(default_factory=list, description="Only these companies.")
     since: Optional[str] = Field(default=None, description="Only the months from this one, YYYY-MM.")
 
-    @field_validator("areas", "listings", mode="before")
+    @field_validator("areas", "listings", "companies", mode="before")
     def validate_keys(cls, value: JsonValue, info: ValidationInfo) -> JsonValue:
         """Validate raw keys: a comma-separated text is split, each key trimmed and kept once.
 

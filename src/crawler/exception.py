@@ -165,3 +165,64 @@ class MarketsCatalogError(CrawlerError):
         """
         self.path, self.reason = path, reason
         super().__init__(f"The markets catalogue {path} cannot be loaded: {reason}")
+
+
+class LaunchCatalogError(CrawlerError):
+    """Raised when the launch dates catalogue cannot be loaded.
+
+    Attributes:
+        path (str): The catalogue file.
+        reason (str): Why it cannot be loaded.
+    """
+
+    def __init__(self, path: str, reason: str) -> None:
+        """Initialize the error.
+
+        Args:
+            path (str): The catalogue file.
+            reason (str): Why it cannot be loaded.
+        """
+        self.path, self.reason = path, reason
+        super().__init__(f"The launch dates catalogue {path} cannot be loaded: {reason}")
+
+
+class CompaniesCatalogError(CrawlerError):
+    """Raised when the catalogue of the companies' statements, patents and papers cannot be loaded.
+
+    Attributes:
+        path (str): The catalogue file.
+        reason (str): Why it cannot be loaded.
+    """
+
+    def __init__(self, path: str, reason: str) -> None:
+        """Initialize the error.
+
+        Args:
+            path (str): The catalogue file.
+            reason (str): Why it cannot be loaded.
+        """
+        self.path, self.reason = path, reason
+        super().__init__(f"The companies catalogue {path} cannot be loaded: {reason}")
+
+
+class PriceDownloadError(CrawlerError):
+    """Raised when a price file streamed by a crawler cannot be downloaded.
+
+    Attributes:
+        crawler (str): The crawler name.
+        url (str): The price file URL.
+        reason (str): Why it cannot be downloaded.
+    """
+
+    def __init__(self, crawler: str, url: str, reason: str) -> None:
+        """Initialize the error.
+
+        Args:
+            crawler (str): The crawler name.
+            url (str): The price file URL.
+            reason (str): Why it cannot be downloaded.
+        """
+        self.crawler = crawler
+        self.url = url
+        self.reason = reason
+        super().__init__(f"{crawler}: the price file {url} cannot be downloaded: {reason}")

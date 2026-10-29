@@ -87,6 +87,8 @@ class CategoryTree(QTreeWidget):
         for domain_item in self.domain_items.values():
             children = [domain_item.child(index) for index in range(domain_item.childCount())]
             domain_item.setHidden(all(child is None or child.isHidden() for child in children))
+        hidden = sum(item.isHidden() for item in self.category_items.values())
+        self.logger.debug("%d of %d categories hidden (empty hidden nodes).", hidden, len(self.category_items))
 
     ############################
     # Publicly Exposed Methods #
@@ -145,6 +147,7 @@ class CategoryTree(QTreeWidget):
                     for child in children
                     if child.checkState(0) == Qt.CheckState.Checked
                 )
+        self.logger.debug("%d taxonomy nodes picked in the tree.", len(picked))
         return picked
 
     def set_picked(self, slugs: Sequence[str]) -> None:

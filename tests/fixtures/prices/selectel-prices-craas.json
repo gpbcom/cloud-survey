@@ -1,0 +1,18 @@
+[
+ {
+  "resource": "craas_registry_storage",
+  "group": "ru-9",
+  "currency": "rub",
+  "value": 0.00044143,
+  "unit": "MB",
+  "threshold": 0
+ },
+ {
+  "resource": "craas_registry_traffic_tx",
+  "group": "ru-9",
+  "currency": "rub",
+  "value": 0.11,
+  "unit": "MB",
+  "threshold": 0
+ }
+]

@@ -138,3 +138,29 @@ class TestSeriesTransformer:
         (extended,) = SeriesTransformer().extend([series("aws", [(0, 2)])], 9)
 
         assert values([extended]) == {"aws": [(0, 2), (9, 2)]}
+
+
+class TestDerivative:
+    def test_the_rate_of_change_is_per_year_at_the_later_point(self) -> None:
+        quarterly = series("aws", [(24000, 10), (24003, 13), (24006, 12), (24009, 18)])
+
+        (derived,) = SeriesTransformer().derivative([quarterly], time_axis=True)
+
+        assert values([derived]) == {"aws": [(24003, 12.0), (24006, -4.0), (24009, 24.0)]}
+
+    def test_a_measured_axis_gives_the_slope_per_unit_of_x(self) -> None:
+        (derived,) = SeriesTransformer().derivative([series("aws", [(30, 10), (32, 14), (33, 14)])], time_axis=False)
+
+        assert values([derived]) == {"aws": [(32, 2.0), (33, 0.0)]}
+
+    def test_a_gap_is_not_bridged_and_a_projected_end_stays_projected(self) -> None:
+        points = [MetricPoint(x=x, y=float(x)) for x in (0, 3, 6, 9, 60)] + [MetricPoint(x=63, y=70, projected=True)]
+
+        (derived,) = SeriesTransformer().derivative([MetricSeries(key="aws", points=points)], time_axis=True)
+
+        assert [point.x for point in derived.points] == [3, 6, 9, 63], "no rate across the four-year gap"
+        assert [point.projected for point in derived.points] == [False, False, False, True]
+
+    def test_rates_skip_points_at_the_same_x_and_lone_points(self) -> None:
+        assert SeriesTransformer().rates([(1.0, 5.0)]) == []
+        assert SeriesTransformer().rates([(1.0, 5.0), (1.0, 6.0), (2.0, 8.0)]) == [(2.0, 2.0)]

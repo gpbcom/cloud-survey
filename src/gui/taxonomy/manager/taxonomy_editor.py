@@ -219,7 +219,7 @@ class TaxonomyEditor(QWidget):
             int: The number of items categorized again (none: the items store the slugs).
         """
         await storage.seeder.seed()
-        await storage.taxonomy.update_node(slug, *names)
+        await storage.taxonomy.update(slug, *names)
         return 0
 
     async def _hide_job(self, storage: Storage, slug: str, hidden: bool) -> int:   # noqa: E501
@@ -277,7 +277,7 @@ class TaxonomyEditor(QWidget):
             int: The number of items categorized again (none: no label links it yet).
         """
         await storage.seeder.seed()
-        await storage.taxonomy.add_node(name, parent)
+        await storage.taxonomy.create(name, parent)
         return 0
 
     def _on_save(self) -> None:

@@ -4,8 +4,11 @@ from __future__ import annotations
 import html
 import json
 import re
+from datetime import UTC, datetime
+from decimal import Decimal
+from pathlib import Path
 from typing import AsyncGenerator, ClassVar, Dict, FrozenSet, Iterator, List, Optional, Sequence, Tuple, Union
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 # Third Party Imports.
 from pydantic import JsonValue
@@ -13,18 +16,23 @@ from scrapling.fetchers import FetcherSession
 from scrapling.spiders import Request, Response
 from scrapling.spiders.session import SessionManager
 
-from crawler.cloud.base import BaseCloudCrawler
+from crawler.cloud.base import BaseCloudCrawler, PriceFact
 from crawler.cloud.yandex.enums import (
     YandexHttpHeader,
     YandexLocale,
     YandexPageStateField,
+    YandexPriceField,
     YandexServiceField,
     YandexServiceGroup,
+    YandexUnitPart,
 )
 from crawler.exception import CatalogueFormatError
 
 # First Party Imports.
 from crawler.tls.ca_bundle import CaBundle
+from models.cloud.enums import PriceModel, PriceSourceKind, PriceUnit
+from models.cloud.prices.facts.service_price import ServicePrice
+from models.cloud.prices.price_field_check import RawValue
 from models.cloud.products.product import CloudProduct
 
 
@@ -54,6 +62,19 @@ class YandexCloudCrawler(BaseCloudCrawler):
         dates_sitemaps (ClassVar[Tuple[str, ...]]): The sitemap of the website pages.
         name_prefixes (ClassVar[Tuple[str, ...]]): The brand prefixes of the service names.
         lazy_browser (ClassVar[bool]): The stealth browser is only started when a request uses it (none does).
+        PRICE_HEADERS (ClassVar[Dict[str, str]]): The headers of the price session (the crawler named, as for the
+            pages).
+        PRICES_URL (ClassVar[str]): The public price list API (no key) of the Russian installation, in rubles.
+        PRICE_CURRENCY (ClassVar[str]): Its currency.
+        UNIT_COUNT (ClassVar[re.Pattern[str]]): The count a pricing unit may start with, e.g. `10k`.
+        MULTIPLIERS (ClassVar[Dict[str, Decimal]]): The value of a count multiplier.
+        THING_PERIOD_UNITS (ClassVar[Dict[Tuple[str, str], Tuple[PriceUnit, Decimal]]]): The unit of a thing per
+            period with a unit of its own (`core*hour`, `gbyte*month`, `server*month`).
+        PERIOD_UNITS (ClassVar[Dict[str, Tuple[PriceUnit, Decimal]]]): The unit of another thing per period.
+        THING_UNITS (ClassVar[Dict[str, Tuple[PriceUnit, Decimal]]]): The unit of a bare thing or period.
+        VAT_ATTRIBUTE (ClassVar[str]): The attribute telling whether the price includes the VAT.
+        VAT_INCLUDED (ClassVar[str]): The ruble prices include it.
+        price_rows (int): The prices read, in price mode.
 
     Notes:
         The website redirects the requests of web browsers (and of any client announcing a browser user agent) to a
@@ -70,6 +91,10 @@ class YandexCloudCrawler(BaseCloudCrawler):
         A service without description is read from its page (meta description), filed under its groups.
         The Russian services page completes the English one with the services it is the only one to list, named
         and described in Russian. The service pages are dated by the last modification the sitemap gives them.
+        In price mode it reads the public price list API (`PRICES_URL`, the crawler named as for the pages): every
+        SKU of every service, one price per rate (tier, a free first tier being free), in rubles VAT included,
+        page by page (`nextPageToken`). Its pricing unit is normalized from its parts (`10k*request`). The list is
+        one source, recorded once its last page is read.
     """
 
     SITE_URL: ClassVar[str] = "https://yandex.cloud"
@@ -91,6 +116,80 @@ class YandexCloudCrawler(BaseCloudCrawler):
     dates_sitemaps: ClassVar[Tuple[str, ...]] = (SITEMAP_URL,)
     name_prefixes: ClassVar[Tuple[str, ...]] = ("Yandex Cloud ", "Yandex ")
     lazy_browser: ClassVar[bool] = True
+    PRICE_HEADERS: ClassVar[Dict[str, str]] = {YandexHttpHeader.USER_AGENT: USER_AGENT}
+    PRICES_URL: ClassVar[str] = (
+        f"{SITE_URL}/api/priceList/getPriceList?installationCode=ru&currency=RUB&lang=en&pageSize=1000"
+    )
+    PRICE_CURRENCY: ClassVar[str] = "RUB"
+    UNIT_COUNT: ClassVar[re.Pattern[str]] = re.compile(r"^(\d+)([km])?$")
+    MULTIPLIERS: ClassVar[Dict[str, Decimal]] = {"k": Decimal(1000), "m": Decimal(1_000_000)}
+    THING_PERIOD_UNITS: ClassVar[Dict[Tuple[str, str], Tuple[PriceUnit, Decimal]]] = {
+        (YandexUnitPart.CORE, YandexUnitPart.HOUR): (PriceUnit.VCPU_HOUR, Decimal(1)),
+        (YandexUnitPart.GBYTE, YandexUnitPart.HOUR): (PriceUnit.GIB_HOUR, Decimal(1)),
+        (YandexUnitPart.GBYTE, YandexUnitPart.DAY): (PriceUnit.GIB_HOUR, Decimal(24)),
+        (YandexUnitPart.GBYTE, YandexUnitPart.MONTH): (PriceUnit.GIB_MONTH, Decimal(1)),
+        (YandexUnitPart.SERVER, YandexUnitPart.MONTH): (PriceUnit.MONTH, Decimal(1)),
+    }
+    PERIOD_UNITS: ClassVar[Dict[str, Tuple[PriceUnit, Decimal]]] = {
+        YandexUnitPart.HOUR: (PriceUnit.UNIT_HOUR, Decimal(1)),
+        YandexUnitPart.DAY: (PriceUnit.UNIT_HOUR, Decimal(24)),
+        YandexUnitPart.MONTH: (PriceUnit.UNIT_MONTH, Decimal(1)),
+    }
+    THING_UNITS: ClassVar[Dict[str, Tuple[PriceUnit, Decimal]]] = {
+        YandexUnitPart.GBYTE: (PriceUnit.GIB, Decimal(1)),
+        YandexUnitPart.HOUR: (PriceUnit.HOUR, Decimal(1)),
+        YandexUnitPart.MONTH: (PriceUnit.MONTH, Decimal(1)),
+        YandexUnitPart.MINUTE: (PriceUnit.MINUTE, Decimal(1)),
+        YandexUnitPart.SECOND: (PriceUnit.SECOND, Decimal(1)),
+        YandexUnitPart.SECONDS: (PriceUnit.SECOND, Decimal(1)),
+        YandexUnitPart.FIFTEEN_SECONDS: (PriceUnit.SECOND, Decimal(15)),
+        YandexUnitPart.TOKEN: (PriceUnit.TOKEN, Decimal(1)),
+        YandexUnitPart.SYMBOL: (PriceUnit.CHARACTER, Decimal(1)),
+        YandexUnitPart.SYMBOLS: (PriceUnit.CHARACTER, Decimal(1)),
+        YandexUnitPart.IMAGE: (PriceUnit.IMAGE, Decimal(1)),
+        **{
+            word: (PriceUnit.REQUEST, Decimal(1))
+            for word in (
+                YandexUnitPart.REQUEST,
+                YandexUnitPart.REQUEST_UNIT,
+                YandexUnitPart.EVENT,
+                YandexUnitPart.MESSAGE,
+                YandexUnitPart.INVOCATION,
+                YandexUnitPart.CALL,
+                YandexUnitPart.PHONE_CALL,
+                YandexUnitPart.ROW,
+                YandexUnitPart.SCAN,
+                YandexUnitPart.OBJECTS,
+                YandexUnitPart.EMAIL,
+                YandexUnitPart.SMS,
+                YandexUnitPart.DIALOG,
+                YandexUnitPart.SESSION,
+                YandexUnitPart.POINT,
+                YandexUnitPart.POINTS,
+            )
+        },
+        **{
+            word: (PriceUnit.UNIT, Decimal(1))
+            for word in (
+                YandexUnitPart.USER,
+                YandexUnitPart.UNIT,
+                YandexUnitPart.APPLICATION,
+                YandexUnitPart.RESOURCE,
+            )
+        },
+    }
+    VAT_ATTRIBUTE: ClassVar[str] = "vat"
+    VAT_INCLUDED: ClassVar[str] = "included"
+
+    def __init__(self, crawldir: Optional[Union[str, Path]] = None, interval: float = 300.0) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+        """
+        super().__init__(crawldir=crawldir, interval=interval)
+        self.price_rows = 0
 
     ############################
     # Internal Helpers Methods #
@@ -344,6 +443,136 @@ class YandexCloudCrawler(BaseCloudCrawler):
         self.logger.info("%d %s service pages requested for their description.", len(requests), self.name)
         return requests
 
+    def _pricing_unit(self, unit: str) -> Tuple[PriceUnit, Decimal]:
+        """Normalize a Yandex Cloud pricing unit, e.g. `core*hour`, `10k*request`, `gbyte*month`.
+
+        Args:
+            unit (str): The pricing unit.
+
+        Returns:
+            Tuple[PriceUnit, Decimal]: The normalized unit and the normalized units in one: its leading count (`10k`
+                is 10,000), a thing per period (`core*hour` a vCPU-hour, `gpu*hour` a unit-hour), or a bare thing
+                (`token`, `gbyte`), other when unknown.
+        """
+        parts = unit.split("*")
+        count = self.UNIT_COUNT.match(parts[0]) if len(parts) > 1 else None
+        factor = Decimal(1)
+        if count is not None:
+            factor = Decimal(count[1]) * self.MULTIPLIERS.get(count[2] or "", Decimal(1))
+            parts = parts[1:]
+        thing, period = (parts[0], parts[-1]) if len(parts) > 1 else (parts[0], None)
+        if period is not None:
+            if (thing, period) in self.THING_PERIOD_UNITS:
+                normalized, scale = self.THING_PERIOD_UNITS[(thing, period)]
+                return normalized, factor * scale
+            if period in self.PERIOD_UNITS:
+                normalized, scale = self.PERIOD_UNITS[period]
+                return normalized, factor * scale
+        elif thing in self.THING_UNITS:
+            normalized, scale = self.THING_UNITS[thing]
+            return normalized, factor * scale
+        self.logger.debug("The Yandex Cloud pricing unit %r has no known unit: kept as other.", unit)
+        return PriceUnit.OTHER, factor
+
+    def _sku_prices(self, sku: Dict[str, JsonValue]) -> Iterator[ServicePrice]:
+        """Read the prices of a SKU of the price list, one per rate (tier).
+
+        Args:
+            sku (Dict[str, JsonValue]): The SKU.
+
+        Yields:
+            ServicePrice: One price per rate, a free first tier being free (a rate without end ends where the next
+                one starts).
+        """
+        name = sku.get(YandexPriceField.NAME)
+        service = sku.get(YandexPriceField.SERVICE)
+        service = service if isinstance(service, dict) else {}
+        version = sku.get(YandexPriceField.PRICING_VERSION)
+        version = version if isinstance(version, dict) else {}
+        expression = version.get(YandexPriceField.PRICING_EXPRESSION)
+        rates = expression.get(YandexPriceField.RATES) if isinstance(expression, dict) else None
+        effective = version.get(YandexPriceField.EFFECTIVE_TIME)
+        effective_day = (
+            datetime.fromtimestamp(effective / 1000, tz=UTC).date().isoformat() if isinstance(effective, int) else None
+        )
+        unit_text = str(sku.get(YandexPriceField.PRICING_UNIT) or "")
+        unit, factor = self._pricing_unit(unit_text)
+        tiers = [rate for rate in rates if isinstance(rate, dict)] if isinstance(rates, list) else []
+        for index, rate in enumerate(tiers):
+            try:
+                price = Decimal(str(rate.get(YandexPriceField.UNIT_PRICE)))
+            except ArithmeticError:
+                self.logger.debug("A rate of the Yandex Cloud SKU %s has no price: skipped.", name)
+                continue
+            start = rate.get(YandexPriceField.START_PRICING_QUANTITY)
+            end = rate.get(YandexPriceField.END_PRICING_QUANTITY) or (
+                tiers[index + 1].get(YandexPriceField.START_PRICING_QUANTITY) if index + 1 < len(tiers) else None
+            )
+            fields: Dict[str, RawValue] = {
+                "sku_key": f"{name}/{index}",
+                "service": service.get(YandexPriceField.DESCRIPTION) or service.get(YandexPriceField.NAME),
+                "family": service.get(YandexPriceField.GROUP),
+                "attributes": {
+                    YandexPriceField.TRANSLATED_NAME.value: sku.get(YandexPriceField.TRANSLATED_NAME),
+                    YandexPriceField.TRANSLATED_PRICING_UNIT.value: sku.get(YandexPriceField.TRANSLATED_PRICING_UNIT),
+                    self.VAT_ATTRIBUTE: self.VAT_INCLUDED,
+                },
+                "unit": unit,
+                "unit_raw": unit_text,
+                "unit_factor": factor,
+                "price": price,
+                "currency": self.PRICE_CURRENCY,
+                "model": PriceModel.FREE if price == 0 else PriceModel.ON_DEMAND,
+                "tier_start": Decimal(str(start)) if isinstance(start, str) and start else Decimal(0),
+                "tier_end": Decimal(str(end)) if isinstance(end, str) and end else None,
+                "effective_from": effective_day,
+                "source_url": self.PRICES_URL,
+                "source_kind": PriceSourceKind.API,
+            }
+            fact = self._price_fact(fields)
+            if fact is not None:
+                yield fact
+
+    async def _price_requests(self) -> AsyncGenerator[Request]:
+        """Request the first page of the price list.
+
+        Yields:
+            Request: The request of the first page.
+        """
+        self.price_rows = 0
+        self.logger.info("Reading the Yandex Cloud prices from %s.", self.PRICES_URL)
+        yield self._price_request(self.PRICES_URL)
+
+    async def _extract_prices(self, response: Response) -> AsyncGenerator[PriceFact]:
+        """Read a page of the price list: the next page first, then its prices.
+
+        Args:
+            response (Response): The page.
+
+        Yields:
+            PriceFact: The request of the next page, then the prices of the page.
+
+        Raises:
+            CatalogueFormatError: If the page lists no SKUs.
+        """
+        data = self._json_body(response)
+        skus = data.get(YandexPriceField.SKUS) if isinstance(data, dict) else None
+        if not isinstance(data, dict) or not isinstance(skus, list):
+            self.logger.error("The Yandex Cloud price list page %s lists no SKUs.", response.url)
+            raise CatalogueFormatError(self.name, response.url, "the price list page lists no SKUs")
+        token = data.get(YandexPriceField.NEXT_PAGE_TOKEN)
+        if isinstance(token, str) and token:
+            yield self._price_request(f"{self.PRICES_URL}&{urlencode({YandexPriceField.PAGE_TOKEN.value: token})}")
+        found = 0
+        for sku in skus:
+            for fact in self._sku_prices(sku) if isinstance(sku, dict) else iter(()):
+                found += 1
+                yield fact
+        self.price_rows += found
+        if not (isinstance(token, str) and token):
+            self._record_price_source(self.PRICES_URL, self.price_rows)
+            self.logger.info("The Yandex Cloud price list is read whole: %d prices.", self.price_rows)
+
     ############################
     # Publicly Exposed Methods #
     ############################
@@ -383,6 +612,7 @@ class YandexCloudCrawler(BaseCloudCrawler):
         Returns:
             Iterator[CloudProduct]: The valid products of the page.
         """
+        self.logger.debug("Reading the %s services of %s.", self.name, response.url)
         return self._service_products(response)
 
     async def parse(self, response: Response) -> AsyncGenerator[Union[Dict[str, JsonValue], Request]]:
@@ -403,5 +633,6 @@ class YandexCloudCrawler(BaseCloudCrawler):
         async for item in super().parse(response):
             yield item
         if self.PRODUCT_PAGE not in response.meta and self.PAGE_DATES not in response.meta:
+            self.logger.debug("Requesting the %s service pages missing a description.", self.name)
             for request in self._description_requests(response):
                 yield request

@@ -1,0 +1,476 @@
+{
+ "deployment_id": "databases-for-postgresql-standard:au-syd",
+ "deployment_location": "au-syd",
+ "deployment_region": "au-syd",
+ "origin": "pricing_catalog",
+ "type": "paygo",
+ "url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-postgresql-standard:au-syd/pricing",
+ "i18n": {},
+ "starting_price": {},
+ "effective_from": "2026-10-01T00:00:00Z",
+ "effective_until": "2026-10-31T23:59:59.999Z",
+ "metrics": [
+  {
+   "part_ref": "",
+   "metric_id": "databases-for-postgresql-16-64",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "Databases for PostgreSQL 16 by 64",
+   "charge_unit_display_name": "16 by 64 Instance(s)",
+   "charge_unit_name": "HOST_SIXTEEN_SIXTYFOUR",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 870.8559
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 759.94229920656
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "databases-for-postgresql-30-240",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "Databases for PostgreSQL 30 by 240",
+   "charge_unit_display_name": "30 by 240 Instance(s)",
+   "charge_unit_name": "HOST_THIRTY_TWOHUNDREDFORTY",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 2285.747
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 1994.6306048848
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "databases-for-postgresql-8-64",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "Databases for PostgreSQL 8 by 64",
+   "charge_unit_display_name": "8 by 64 Instance(s)",
+   "charge_unit_name": "HOST_EIGHT_SIXTYFOUR",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 609.5326
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 531.90155281184
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "databases-for-postgresql-backup",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "Databases for PostgreSQL Backup",
+   "charge_unit_display_name": "GB-Backups",
+   "charge_unit_name": "GIGABYTE_MONTHS_BACKUP",
+   "charge_unit": "Gigabyte-Month",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0.03225
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0.0281425884
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "databases-for-postgresql-cpu",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "Databases for PostgreSQL CPU",
+   "charge_unit_display_name": "CPU",
+   "charge_unit_name": "VIRTUAL_PROCESSOR_CORES",
+   "charge_unit": "Virtual Processor Core-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 32.665
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 28.504733336
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "databases-for-postgresql-disk",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "Databases for PostgreSQL Disk",
+   "charge_unit_display_name": "GB-Disk",
+   "charge_unit_name": "GIGABYTE_MONTHS_DISK",
+   "charge_unit": "Gigabyte-Month",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0.6346
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0.55377632864
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "databases-for-postgresql-ram",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "Databases for PostgreSQL RAM",
+   "charge_unit_display_name": "GB-RAM",
+   "charge_unit_name": "GIGABYTE_MONTHS_RAM",
+   "charge_unit": "Gigabyte-Month",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 5.4408
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 4.74785100672
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "databases-for-postgresql-ram-new",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "Databases for PostgreSQL RAM",
+   "charge_unit_display_name": "GB-RAM",
+   "charge_unit_name": "GIGABYTE_MONTHS_RAM_NEW",
+   "charge_unit": "Gigabyte-Month",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 5.4408
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 4.74785100672
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-databases-for-postgresql-32-128",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "Databases for PostgreSQL 32 by 128",
+   "charge_unit_display_name": "32 by 128 Instance(s)",
+   "charge_unit_name": "HOST_THIRTYTWO_ONEHUNDREDTWENTYEIGHT",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 1741.7119
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 1519.88468567696
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "postgresql-isolated-4-16",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "Databases for PostgreSQL 4 by 16",
+   "charge_unit_display_name": "4 by 16 Instance(s)",
+   "charge_unit_name": "HOST_FOUR_SIXTEEN",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 217.714
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 189.9855966176
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "postgresql-isolated-8-32",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "Databases for PostgreSQL 8 by 32",
+   "charge_unit_display_name": "8 by 32 Instance(s)",
+   "charge_unit_name": "HOST_EIGHT_THIRTYTWO",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 435.428
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 379.9711932352
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,9 @@
+FormatVersion,v1.0
+Disclaimer,This pricing list is for informational purposes only. All prices are subject to the additional terms included in the pricing pages on http://aws.amazon.com. All Free Tier prices are also subject to the terms included at https://aws.amazon.com/free/
+Publication Date,2026-10-28T18:02:49Z
+Version,20261028180249
+OfferCode,AmazonComputeSavingsPlan
+SKU,RateCode,Unit,EffectiveDate,DiscountedRate,Currency,DiscountedSKU,DiscountedServiceCode,DiscountedUsageType,DiscountedOperation,PurchaseOption,LeaseContractLength,LeaseContractLengthUnit,ServiceCode,UsageType,Operation,Description,Instance Family,Location,Location Type,Granularity,Product Family,DiscountedRegionCode,DiscountedInstanceType
+9YXW8M33H4UKWPMX,9YXW8M33H4UKWPMX.5CY42GXBRZGVE7ER,Hrs,2025-11-25T02:35:30Z,0.368,USD,5CY42GXBRZGVE7ER,AmazonEC2,EUW3-BoxUsage:c5d.4xlarge,RunInstances,Partial Upfront,3,year,ComputeSavingsPlans,EUW3-EC2SP:c5d.3yrPartialUpfront,,3 year Partial Upfront c5d EC2 Instance Savings Plan in eu-west-3,c5d,EU (Paris),AWS Region,hourly,EC2InstanceSavingsPlans,eu-west-3,c5d.4xlarge
+HE9D855SSP4H8E9P,HE9D855SSP4H8E9P.2GYDP59G7TAXF426,Hrs,2025-10-09T21:02:19Z,2.12269,USD,2GYDP59G7TAXF426,AmazonEC2,EUW3-UnusedBox:m8g.16xlarge,RunInstances:000g,All Upfront,1,year,ComputeSavingsPlans,EUW3-EC2SP:m8g.1yrAllUpfront,,1 year All Upfront m8g EC2 Instance Savings Plan in eu-west-3,m8g,EU (Paris),AWS Region,hourly,EC2InstanceSavingsPlans,eu-west-3,m8g.16xlarge
+9YXW8M33H4UKWPMX,9YXW8M33H4UKWPMX.2C6W9EJ26PN52FUE,Hrs,2025-11-25T02:35:30Z,4.968,USD,2C6W9EJ26PN52FUE,AmazonEC2,EUW3-DedicatedUsage:c5d.18xlarge,RunInstances:0002,Partial Upfront,3,year,ComputeSavingsPlans,EUW3-EC2SP:c5d.3yrPartialUpfront,,3 year Partial Upfront c5d EC2 Instance Savings Plan in eu-west-3,c5d,EU (Paris),AWS Region,hourly,EC2InstanceSavingsPlans,eu-west-3,c5d.18xlarge

@@ -22,9 +22,9 @@ class ChronologyRenderer:
         logger (Logger): The renderer logger.
 
     Notes:
-        The guide is generated, never edited: `uv run render-chronology` writes it from `conf/history/chronology.yaml`,
-        and a test checks the committed guide is what the renderer prints. Pipes in the texts are escaped for the
-        Markdown tables.
+        The guide is generated, never edited: `uv run render-chronology` writes it from the bundle
+        (`data/curated/chronology.json`), and a test checks the committed guide is what the renderer prints. Pipes in
+        the texts are escaped for the Markdown tables.
     """
 
     SOURCE: ClassVar[str] = "sources/computing-leaders-1964-2026.md"
@@ -90,7 +90,10 @@ class ChronologyRenderer:
             str: Its label.
         """
         company = chronology.company(key)
-        return company.label if company else key
+        if company is None:
+            self.logger.warning("No company %s in the chronology: its key is printed.", key)
+            return key
+        return company.label
 
     def _header(self, chronology: Chronology) -> List[str]:
         """Write the title and the introduction.
@@ -108,8 +111,9 @@ class ChronologyRenderer:
             "",
             f"# {title}",
             "",
-            "> Generated from `src/conf/history/chronology.yaml` by `uv run render-chronology`. Edit the YAML and run "
-            "it again: a test checks that this page matches.",
+            "> Generated from `data/curated/chronology.json` by `uv run render-chronology`. Edit the chronology in "
+            "the Catalogues explorer, export it (`uv run curated export`) and run it again: a test checks that this "
+            "page matches.",
             "",
             'This page prints the chronology drawn in the Analysis tab, card "Leaders of digital infrastructure": '
             "who led each segment of computing and digital infrastructure, from when to when, and the notable events "
@@ -143,6 +147,7 @@ class ChronologyRenderer:
             ]
             for segment in chronology.segments
         ]
+        self.logger.debug("Successive leaders of %d segments.", len(rows))
         return ["## Successive leaders", "", *self._table(["Segment", "Leaders, in order"], rows), ""]
 
     def _segments(self, chronology: Chronology) -> List[str]:
@@ -178,6 +183,7 @@ class ChronologyRenderer:
                 for reign in chronology.reigns_of(segment.key)
             ]
             lines += [f"### {segment.label}", "", segment.description, "", *self._table(headers, rows), ""]
+            self.logger.debug("Segment %s: %d leaders.", segment.key, len(rows))
         return lines
 
     def _chronology(self, chronology: Chronology) -> List[str]:
@@ -194,6 +200,7 @@ class ChronologyRenderer:
             for entry in self.timeline.entries(chronology)
         ]
         headers = ["Date", "Kind", "Segment", "Companies", "What happened", "Effect", "Source"]
+        self.logger.debug("Chronology table of %d entries.", len(rows))
         return ["## Chronology", "", *self._table(headers, rows), ""]
 
     def _synthesis(self, chronology: Chronology) -> List[str]:
@@ -212,6 +219,12 @@ class ChronologyRenderer:
         written = ", ".join(f"{self.timeline.name(criterion)} {count}" for criterion, count in criteria.most_common())
         events = ", ".join(f"{self.timeline.name(kind)} {count}" for kind, count in kinds.most_common())
         verdicts = ", ".join(f"{self.timeline.name(outcome)} {count}" for outcome, count in outcomes.most_common())
+        self.logger.debug(
+            "Synthesis of %d reigns, %d events and %d interventions.",
+            len(chronology.reigns),
+            len(chronology.events),
+            len(interventions),
+        )
         return [
             "## What the chronology shows",
             "",

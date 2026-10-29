@@ -114,6 +114,12 @@ class ChartSection(QFrame):
         Args:
             expanded (bool): Whether the section is expanded.
         """
+        self.logger.debug(
+            "Chart section %s shown %s%s.",
+            self.key,
+            "expanded" if expanded else "collapsed",
+            " (in its own window)" if self.chart_window is not None else "",
+        )
         self.toggle.setChecked(expanded)
         self.toggle.setArrowType(Qt.ArrowType.DownArrow if expanded else Qt.ArrowType.RightArrow)
         self.toggle.setToolTip("Collapse the chart" if expanded else "Expand the chart")
@@ -131,6 +137,7 @@ class ChartSection(QFrame):
         """Bring the chart back into its card once its window is closed."""
         window = self.chart_window
         if window is None:
+            self.logger.debug("Chart %s not in its own window: nothing to bring back.", self.key)
             return
         self.chart_window = None
         body = window.release()
@@ -170,6 +177,7 @@ class ChartSection(QFrame):
             title (str): The title.
             subtitle (str): What the chart shows exactly, empty for none.
         """
+        self.logger.debug("Chart section %s titled %s.", self.key, title)
         self.toggle.setText(title)
         self.subtitle.setText(subtitle)
         self.subtitle.setVisible(self.is_expanded() and bool(subtitle))
@@ -190,8 +198,10 @@ class ChartSection(QFrame):
             Optional[ChartWindow]: The window, `None` when the chart cannot leave its card.
         """
         if self.widen_button is None:
+            self.logger.warning("The section %s cannot open in its own window.", self.key)
             return None
         if self.chart_window is not None:
+            self.logger.debug("Chart %s already in its own window: brought to the front.", self.key)
             self.chart_window.raise_()
             self.chart_window.activateWindow()
             return self.chart_window

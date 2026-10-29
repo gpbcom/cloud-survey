@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 # Standard Library Imports.
-from typing import ClassVar, Dict, Iterator, List, Optional, Tuple
+from pathlib import Path
+from typing import ClassVar, Dict, Iterator, List, Optional, Tuple, Union
 from urllib.parse import urljoin
 
 # Third Party Imports.
@@ -9,6 +10,7 @@ from pydantic import JsonValue
 from scrapling.spiders import Response
 
 # First Party Imports.
+from classifier.software_classifier import SoftwareClassifier
 from crawler.cloud.vkcloud.enums import (
     VkCloudCatalogueField,
     VkCloudProductType,
@@ -67,6 +69,21 @@ class VKCloudMarketplaceCrawler(BaseMarketplaceCrawler):
 
     name = "vkcloud-marketplace"
     catalogue_url: ClassVar[str] = "https://cloud.vk.ru/api/v-s/getCatalog/"
+
+    def __init__(
+        self,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+        classifier: Optional[SoftwareClassifier] = None,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+            classifier (Optional[SoftwareClassifier]): The software classifier, the project rules by default.
+        """
+        super().__init__(crawldir=crawldir, interval=interval, classifier=classifier)
 
     ############################
     # Internal Helpers Methods #

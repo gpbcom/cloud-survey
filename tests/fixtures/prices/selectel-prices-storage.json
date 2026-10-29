@@ -1,0 +1,18 @@
+[
+ {
+  "resource": "space-mb",
+  "group": "gis-1",
+  "currency": "rub",
+  "value": 0.000679489535,
+  "unit": "MB*H",
+  "threshold": 0
+ },
+ {
+  "resource": "space-mb",
+  "group": "kz-1",
+  "currency": "rub",
+  "value": 0.0005241066,
+  "unit": "MB*H",
+  "threshold": 0
+ }
+]

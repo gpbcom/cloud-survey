@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections.abc import AsyncIterator
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple, Union
 from unittest.mock import MagicMock, patch
@@ -16,7 +17,8 @@ from conftest import CRAWLED_AT
 from crawler.exception import CrawlerError, EmptyCrawlError, UnknownCrawlerTargetError
 from crawler.factory import CrawlerFactory
 from crawler.runner import CatalogueRunner
-from models.cloud.enums import CloudProvider, DateSource, SoftwareCategory
+from models.cloud.enums import CloudProvider, DateCaveat, DateSource, SoftwareCategory
+from models.cloud.launch.launch_catalog import LaunchCatalog
 from models.cloud.products.product import CloudProduct
 from models.cloud.software.marketplace_software import MarketplaceSoftware
 from models.drivers.enums import MetricSource
@@ -28,6 +30,9 @@ DEV = SoftwareCategory.DEVELOPER_TOOL
 
 class FakeCrawler:
     """Stand-in for a crawler, streaming pre-defined items."""
+
+    def use_launches(self, catalog: LaunchCatalog) -> None:
+        self.launches = catalog
 
     source = "Synergy Research Group"
 
@@ -238,7 +243,7 @@ async def test_a_running_crawl_is_visible_to_the_readers(
         async def stream(self) -> AsyncIterator[Dict[str, JsonValue]]:
             for item in self.items:
                 yield item
-                stamps = {stamp.dataset: stamp for stamp in await storage.datasets.stamps()}
+                stamps = {stamp.dataset: stamp for stamp in await storage.datasets.list()}
                 stamp = stamps["civo"]
                 seen.append((stamp.in_progress, stamp.size))
 
@@ -247,7 +252,7 @@ async def test_a_running_crawl_is_visible_to_the_readers(
     await runner.run(CloudProvider.CIVO)
 
     assert seen == [(True, 1), (True, 2)]
-    (stamp,) = await storage.datasets.stamps()
+    (stamp,) = await storage.datasets.list()
     assert (stamp.in_progress, stamp.size) == (False, 2)
 
 
@@ -405,6 +410,43 @@ async def test_reclassify_catalogues(runner: CatalogueRunner, storage: Storage) 
 
 
 @pytest.mark.db
+async def test_date_launches_writes_the_curated_launches(
+    runner: CatalogueRunner, factory: MagicMock, storage: Storage
+) -> None:
+    launched = datetime(2006, 8, 25, tzinfo=UTC)
+    products = [
+        CloudProduct(name="Elastic Compute", description="Virtual machines"),
+        CloudProduct(name="Acme", description="CRM"),
+    ]
+    await storage.catalogues.import_items(CloudProvider.AWS, CRAWLED_AT, products)
+    crawler = MagicMock()
+    crawler.curated_launch.side_effect = lambda name: (
+        (launched, DateCaveat.CURATED) if name == "Elastic Compute" else None
+    )
+    factory.CRAWLER_MAP = {CloudProvider.AWS: object}
+    factory.get.return_value = crawler
+
+    changed = await runner.date_launches()
+    again = await runner.date_launches()
+
+    assert changed == {CloudProvider.AWS: 1}
+    assert again == {CloudProvider.AWS: 0}
+    catalogue = await storage.catalogues.load(CloudProvider.AWS)
+    assert catalogue is not None
+    dates = {item.name: (item.added_at, item.added_from, item.added_caveat) for item in catalogue.products}
+    assert dates["Elastic Compute"] == (launched, DateSource.WEBSITE, DateCaveat.CURATED)
+    assert dates["Acme"][0] != launched
+
+
+@pytest.mark.db
+async def test_date_launches_skips_a_failing_provider(runner: CatalogueRunner, factory: MagicMock) -> None:
+    factory.CRAWLER_MAP = {CloudProvider.AWS: object}
+    factory.get.side_effect = CrawlerError("the launch dates catalogue cannot be loaded")
+
+    assert await runner.date_launches() == {}
+
+
+@pytest.mark.db
 async def test_run_statistics(runner: CatalogueRunner, factory: MagicMock, storage: Storage) -> None:
     factory.get_statistics.return_value = FakeCrawler(
         [market_report("2026Q2"), market_report("2026Q1", 128.6), market_report("2026Q2", 143.4)]
@@ -414,7 +456,7 @@ async def test_run_statistics(runner: CatalogueRunner, factory: MagicMock, stora
     summary = await runner.run_statistics(on_report=lambda report: received.append(report.period))
 
     assert (summary.dataset, summary.found) == ("synergy", 2)
-    statistics = await storage.statistics.load("synergy")
+    statistics = await storage.statistics.read("synergy")
     assert statistics is not None
     assert [(report.period, report.market_size_bn) for report in statistics.reports] == [
         ("2026Q1", 128.6),

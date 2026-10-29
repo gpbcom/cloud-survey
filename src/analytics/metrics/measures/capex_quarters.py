@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 # Standard Library Imports.
-import itertools
 from datetime import date
 from logging import Logger, getLogger
 from typing import ClassVar, Dict, List, Optional, Tuple
 
 # First Party Imports.
+from analytics.companies.financials.flow_quarters import FlowQuarters
 from models.cloud.enums import CloudProvider
 from models.drivers.enums import MetricSource, ProviderMetric
 from models.drivers.facts.capex_fact import CapexFact
@@ -19,8 +19,8 @@ class CapexQuarters:
     """Turn the capex facts of the filings into the quarterly capex of each provider's group.
 
     Attributes:
-        QUARTER_DAYS (ClassVar[Tuple[int, int]]): The lengths of a fiscal quarter, in days.
         BILLION (ClassVar[float]): The dollars of a billion (the unit of the capex metric).
+        flows (FlowQuarters): Derives the quarters of the year-to-date facts (shared with the companies' statements).
         logger (Logger): The measure logger.
 
     Notes:
@@ -32,7 +32,6 @@ class CapexQuarters:
           (Amazon moved from `PaymentsToAcquirePropertyPlantAndEquipment` to `PaymentsToAcquireProductiveAssets`).
     """
 
-    QUARTER_DAYS: ClassVar[Tuple[int, int]] = (80, 100)
     BILLION: ClassVar[float] = 1e9
 
     def __init__(self, logger: Optional[Logger] = None) -> None:
@@ -42,23 +41,11 @@ class CapexQuarters:
             logger (Optional[Logger]): The measure logger.
         """
         self.logger = logger if logger else getLogger(__name__)
+        self.flows = FlowQuarters(logger=self.logger)
 
     ############################
     # Internal Helpers Methods #
     ############################
-
-    def _is_quarter(self, start: date, end: date) -> bool:
-        """Tell whether a period is a fiscal quarter long.
-
-        Args:
-            start (date): Its first day.
-            end (date): Its last day.
-
-        Returns:
-            bool: Whether it lasts about 3 months.
-        """
-        low, high = self.QUARTER_DAYS
-        return low <= (end - start).days <= high
 
     def _quarters(self, durations: Dict[Duration, float]) -> Dict[date, float]:
         """Get the value of each fiscal quarter, published or derived from the year-to-date facts.
@@ -69,16 +56,8 @@ class CapexQuarters:
         Returns:
             Dict[date, float]: The value of each quarter, by its last day.
         """
-        quarters = {end: value for (start, end), value in durations.items() if self._is_quarter(start, end)}
-        by_start: Dict[date, List[Tuple[date, float]]] = {}
-        for (start, end), value in durations.items():
-            by_start.setdefault(start, []).append((end, value))
-        for ends in by_start.values():
-            ends.sort()
-            for (first, before), (last, after) in itertools.pairwise(ends):
-                if last not in quarters and self._is_quarter(first, last):
-                    quarters[last] = after - before
-        return quarters
+        filed, derived = self.flows.quarters(durations)
+        return {**derived, **filed}
 
     def _quarter(self, moment: date) -> str:
         """Write the quarter of a date.

@@ -1,0 +1,95 @@
+# Curated price coverage of Scaleway (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: scaleway
+currency: EUR
+row_links:
+  'General Purpose Instances': ['^Instance \|.*"range": "General Purpose"']
+  'Development Instances': ['^Instance \|.*"range": "Development"']
+  'Compute Optimized Instances': ['^Instance \| /instance/server/(compute3|pop2_hc)_']
+  'Memory Optimized Instances': ['^Instance \| /instance/server/(memory3|pop2_hm)_']
+  'L4 GPU Instance': ['^Instance \| /instance/server/l4_']
+  'L40S GPU Instance': ['^Instance \| /instance/server/l40s_']
+  'H100-SXM GPU Instance': ['^Instance \| /instance/server/h100_sxm_']
+  'H100 GPU instances': ['^Instance \| /instance/server/h100_[0-9]']
+  'B300-SXM GPU Instances': ['^Instance \| /instance/server/b300_']
+  'GPU Render Instances': ['^Instance \| /instance/server/render_']
+  'Mac mini M1': ['^Apple Silicon \|.*"product": "Mac Mini M1 - ']
+  'Mac mini M2': ['^Apple Silicon \|.*"product": "Mac Mini M2 - ']
+  'Mac mini M2 Pro': ['^Apple Silicon \|.*"product": "Mac Mini M2 Pro']
+  'Mac mini M4': ['^Apple Silicon \|.*"product": "Mac Mini M4 - ']
+  'Mac mini M4 Pro': ['^Apple Silicon \|.*"product": "Mac Mini M4 Pro']
+  'Dedibox Core': ['^Dedibox \|.*"range": "Core"']
+  'Dedibox GPU': ['^Dedibox \|.*"range": "GPU"']
+  'Dedibox Pro': ['^Dedibox \|.*"range": "Pro"']
+  'Dedibox Start': ['^Dedibox \|.*"range": "Start"']
+  'Dedibox Store': ['^Dedibox \|.*"range": "Store"']
+  'Elastic Metal Aluminium': ['^Elastic Metal \|.*"range": "Aluminium"']
+  'Elastic Metal Beryllium': ['^Elastic Metal \|.*"range": "Beryllium"']
+  'Elastic Metal Iridium': ['^Elastic Metal \|.*"range": "Iridium"']
+  'Elastic Metal Lithium': ['^Elastic Metal \|.*"range": "Lithium"']
+  'Elastic Metal Titanium': ['^Elastic Metal \|.*"range": "Titanium"']
+  'RISC-V': ['^Elastic Metal \| /baremetal/em-rv1-']
+  'Kubernetes Kapsule': ['^Kubernetes \| /k8s/control-plane/(fr|nl|pl|it|kapsule)']
+  'Kubernetes Kosmos': ['^Kubernetes \| /k8s/(multicloud/|control-plane/multicloud)']
+  'VPC Peering': ['^VPC \| /network/vpc/peering/']
+  'Queues': [' \| /paas/messaging/sqs/']
+  'Topics & Events': [' \| /paas/messaging/sns/']
+  'Scaleway Glacier': [' \| /storage/obj/usage-glacier/']
+  'WAF (Web Application Firewall)': [' \| /network/edge-services/waf']
+links:
+  'Domain names': ['^Domains and DNS$']
+  'Managed Document Database': ['^MongoDB$']
+  'Managed Inference': ['^Inference Dedicated$']
+  'Quantum as a Service': ['^QaaS$']
+  'Serverless Jobs': ['^Jobs$']
+  'Site-to-Site VPN': ['^VPN$']
+  'Virtual Private Cloud': ['^VPC$']
+  'Clusters for Apache Spark™': ['^Distributed Data Lab$']
+statements:
+  - product: 'Identity and Access Management (IAM)'
+    model: free
+    reason: 'The IAM FAQ answers that IAM is free and available to all Scaleway users.'
+    source: 'https://www.scaleway.com/en/docs/iam/faq/'
+  - product: 'H100 GPU Instance'
+    model: included
+    reason: 'A try-it-now landing page for the H100 PCIe GPU Instances, priced under H100 GPU instances.'
+    source: 'https://www.scaleway.com/en/h100-pcie-try-it-now/'
+  - product: 'Custom-built Clusters'
+    model: not-public
+    reason: 'No SKU in the public Scaleway product catalogue API and the product page refuses automated reads (HTTP 403).'
+    source: 'https://api.scaleway.com/product-catalog/v2alpha1/public-catalog/products'
+  - product: 'Data Orchestrator'
+    model: not-public
+    reason: 'No SKU in the public Scaleway product catalogue API and the product page refuses automated reads (HTTP 403).'
+    source: 'https://api.scaleway.com/product-catalog/v2alpha1/public-catalog/products'
+  - product: 'Dedibox VPS'
+    model: not-public
+    reason: 'No SKU in the public Scaleway product catalogue API and the product page refuses automated reads (HTTP 403).'
+    source: 'https://api.scaleway.com/product-catalog/v2alpha1/public-catalog/products'
+  - product: 'Dedirack'
+    model: not-public
+    reason: 'No SKU in the public Scaleway product catalogue API and the product page refuses automated reads (HTTP 403).'
+    source: 'https://api.scaleway.com/product-catalog/v2alpha1/public-catalog/products'
+  - product: 'GPU Clusters'
+    model: not-public
+    reason: 'No SKU in the public Scaleway product catalogue API and the product page refuses automated reads (HTTP 403).'
+    source: 'https://api.scaleway.com/product-catalog/v2alpha1/public-catalog/products'
+  - product: 'Managed Inference for Moshi'
+    model: not-public
+    reason: 'No SKU in the public Scaleway product catalogue API and the product page refuses automated reads (HTTP 403).'
+    source: 'https://api.scaleway.com/product-catalog/v2alpha1/public-catalog/products'
+  - product: 'Moshi (Labs)'
+    model: not-public
+    reason: 'No SKU in the public Scaleway product catalogue API and the product page refuses automated reads (HTTP 403).'
+    source: 'https://api.scaleway.com/product-catalog/v2alpha1/public-catalog/products'
+  - product: 'On Demand Cluster'
+    model: not-public
+    reason: 'No SKU in the public Scaleway product catalogue API and the product page refuses automated reads (HTTP 403).'
+    source: 'https://api.scaleway.com/product-catalog/v2alpha1/public-catalog/products'
+  - product: 'Unified Computing Service'
+    model: not-public
+    reason: 'No SKU in the public Scaleway product catalogue API and the product page refuses automated reads (HTTP 403).'
+    source: 'https://api.scaleway.com/product-catalog/v2alpha1/public-catalog/products'
+  - product: 'Web Platform powered by Clever Cloud'
+    model: not-public
+    reason: 'No SKU in the public Scaleway product catalogue API and the product page refuses automated reads (HTTP 403).'
+    source: 'https://api.scaleway.com/product-catalog/v2alpha1/public-catalog/products'

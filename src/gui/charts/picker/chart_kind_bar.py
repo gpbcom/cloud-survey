@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 # Standard Library Imports.
-from typing import Dict, List, Tuple
+from logging import Logger, getLogger
+from typing import Dict, List, Optional, Tuple
 
 # Third Party Imports.
 from PyQt6.QtCore import pyqtSignal
@@ -17,13 +18,19 @@ class ChartKindBar(QWidget):
         kind_changed (pyqtSignal): Emitted with the value of the chosen kind, when the user chooses one.
         group (QButtonGroup): The exclusive group of the buttons.
         buttons (Dict[str, QToolButton]): The button of each kind value.
+        logger (Logger): The bar logger.
     """
 
     kind_changed = pyqtSignal(str)
 
-    def __init__(self) -> None:
-        """Build the bar, without buttons."""
+    def __init__(self, logger: Optional[Logger] = None) -> None:
+        """Build the bar, without buttons.
+
+        Args:
+            logger (Optional[Logger]): The bar logger.
+        """
         super().__init__()
+        self.logger = logger if logger else getLogger(__name__)
         self.group = QButtonGroup(self)
         self.group.setExclusive(True)
         self.buttons: Dict[str, QToolButton] = {}
@@ -42,6 +49,7 @@ class ChartKindBar(QWidget):
         Args:
             value (str): The kind value.
         """
+        self.logger.info("Chart kind %s chosen.", value)
         self.kind_changed.emit(value)
 
     ############################
@@ -55,7 +63,11 @@ class ChartKindBar(QWidget):
             kinds (List[KindOption]): The value, label and tooltip of each kind.
             selected (str): The value of the chosen kind.
         """
+        self.logger.debug("Showing %d chart kinds, %s chosen.", len(kinds), selected)
+        if selected not in {value for value, _, _ in kinds}:
+            self.logger.warning("The chosen chart kind %s is not offered: no button is checked.", selected)
         if list(self.buttons) != [value for value, _, _ in kinds]:
+            self.logger.debug("Chart kind buttons rebuilt: %d buttons.", len(kinds))
             for button in self.buttons.values():
                 self.group.removeButton(button)
                 button.deleteLater()

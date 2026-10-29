@@ -5,7 +5,7 @@ import logging
 # Standard Library Imports.
 from functools import partial
 from logging import Logger, getLogger
-from typing import ClassVar, Dict, FrozenSet, List, Optional, Tuple
+from typing import ClassVar, Dict, FrozenSet, List, Optional, Sequence, Tuple
 
 # Third Party Imports.
 from PyQt6.QtCore import QItemSelectionModel, QModelIndex, Qt, QThread, QTimer
@@ -32,10 +32,15 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from analytics.companies.companies_run import CompaniesRun
+
 # First Party Imports.
 from crawler.enums import CrawlSource
 from crawler.runner import CatalogueRunner
+from curated.bundle.bundle_catalogs import BundleCatalogs
+from curated.exception import CuratedError
 from gui.analysis.analysis_view import AnalysisView
+from gui.catalogues.catalogues_manager import CataloguesManager
 from gui.charts.sections.chart_state_store import ChartStateStore
 from gui.charts.sections.section.chart_section import ChartSection
 from gui.correspondence.correspondence_view import CorrespondenceView
@@ -51,6 +56,7 @@ from gui.marketplace.widgets.advanced_filters import AdvancedSoftwareFilters
 from gui.marketplace.widgets.marketplace_view import MarketplaceView
 from gui.product_model.product_row import ProductRow
 from gui.product_model.product_table_model import ProductTableModel
+from gui.research.research_view import ResearchView
 from gui.selection.bulk.selection_actions import SelectionActions
 from gui.selection.taxonomy.category_picker import CategoryPicker
 from gui.statistics.view.statistics_view import StatisticsView
@@ -66,12 +72,15 @@ from gui.widgets.marketplace_menu import MarketplaceMenu
 from gui.widgets.provider_sidebar import ProviderSidebar
 from models.cloud.enums import CloudProvider, Country
 from models.cloud.products.product import CloudProduct
+from models.companies.enums import CompanyFeed
+from models.curated.records.catalogue_set import CatalogueSet
 from models.markets.enums import MarketFeed
 from models.stats.market_statistics import MarketStatistics
 from models.storage.dataset_stamp import DatasetStamp
 from models.storage.enums import DatasetKind, ItemFilter, ItemSort
 from models.storage.pages.item_query import ItemQuery
 from storage.exception import StorageError
+from storage.storage import Storage
 
 
 class MainWindow(QMainWindow):
@@ -82,6 +91,10 @@ class MainWindow(QMainWindow):
         STATISTICS_SOURCE (ClassVar[str]): The market statistics source shown in the statistics view.
         MARKET_FEEDS (ClassVar[Dict[MarketFeed, Tuple[str, str]]]): The menu entry and the tooltip of each markets
             source.
+        COMPANY_FEEDS (ClassVar[Dict[CompanyFeed, Tuple[str, str]]]): The menu entry and the tooltip of each
+            companies source.
+        COMPOUNDING_PROVIDERS (ClassVar[Tuple[CloudProvider, ...]]): The providers whose catalogues "Crawl all
+            compounding sources" crawls by default (the public clouds kept by the compounding analysis).
         POLL_INTERVAL_MS (ClassVar[int]): How often the state of the stored datasets is read.
         SEARCH_DELAY_MS (ClassVar[int]): How long the search text must stay unchanged before it is searched.
         loop (StorageLoop): The storage thread of the GUI.
@@ -96,6 +109,8 @@ class MainWindow(QMainWindow):
         crawl_thread (Optional[QThread]): The thread of the running crawl.
         crawl_worker (Optional[CrawlWorker]): The running crawl.
         crawl_source (CrawlSource): What the running (or last) crawl crawls.
+        crawl_with_history (bool): Whether the running (or last) crawl ends with the Synergy market history and
+            its derivations (the `cloud` market shares and the provider metrics).
         statistics (Optional[MarketStatistics]): The stored market statistics, `None` before the first crawl.
         storage_error (Optional[str]): Why the storage is unavailable, `None` while it answers.
         taxonomy (TaxonomyCache): The unified taxonomy and the names of the source labels, shared by the views.
@@ -124,7 +139,15 @@ class MainWindow(QMainWindow):
         markets_menu (QMenu): Crawls the market shares, stock prices and exchange rates, a source or every one.
         markets_box (CompactCombo): The markets source the toolbar button crawls, or every one.
         markets_button (QPushButton): Crawls the markets source chosen in `markets_box`.
+        history_action (QAction): Crawls the Synergy cloud market history, then derives the cloud shares and the
+            provider metrics.
+        compounding_action (QAction): Crawls the catalogues of the compounding providers, then the Synergy history
+            and its derivations.
+        companies_menu (QMenu): Crawls the companies' statements, patents and papers, a source or every one.
         categories_manager (Optional[CategoriesManager]): The Categories manager, built when first opened.
+        catalogues_manager (Optional[CataloguesManager]): The Catalogues manager, built when first opened.
+        curated (Optional[CatalogueSet]): The curated catalogues the Analysis and Patents & Papers tabs were built
+            from, `None` for those of the bundle.
         logs_button (QToolButton): Shows the logs again from the status bar, while they are folded or hidden.
 
     Notes:
@@ -161,6 +184,67 @@ class MainWindow(QMainWindow):
             "The monthly search, browser, OS, vendor and AI chatbot shares of every area and device (about 2.5 hours)",
         ),
     }
+    COMPANY_FEEDS: ClassVar[Dict[CompanyFeed, Tuple[str, str]]] = {
+        CompanyFeed.EDGAR: (
+            "SEC EDGAR: statements",
+            "The statements filed in XBRL since 2009 by the SEC filers of the companies, R&D included (a minute)",
+        ),
+        CompanyFeed.EDGAR_SCHEDULES: (
+            "SEC EDGAR: 1993-2001 schedules",
+            "The financial data schedules (EX-27) of the reports filed from 1993 to 2001 "
+            "(needs CRAWLER_SEC_USER_AGENT, about an hour)",
+        ),
+        CompanyFeed.REPORTED: (
+            "Researched figures",
+            "The figures researched from the annual reports (data/curated/figures.json), without network",
+        ),
+        CompanyFeed.GOOGLE_FINANCE: (
+            "Google Finance: statements",
+            "The last 10 years and 8 quarters of statements of the listed companies, R&D included (a few minutes)",
+        ),
+        CompanyFeed.GOOGLE_PATENTS: (
+            "Google Patents: publications",
+            "Every publication of the companies' assignees, window by window, resumed run after run (Google stops "
+            "the searches after a few requests: hours to weeks overall)",
+        ),
+        CompanyFeed.GOOGLE_PATENT_PAGES: (
+            "Google Patents: citations",
+            "The citations, families and classes of the next publications waiting (CRAWLER_PATENT_PAGES of them)",
+        ),
+        CompanyFeed.OPENALEX: (
+            "OpenAlex: research papers",
+            "The papers of the companies' researchers and their profiles (OPENALEX_API_KEY_1/2 lift the free limits)",
+        ),
+        CompanyFeed.SEC_IDENTITY: (
+            "Find SEC filers",
+            "Propose the listed SEC filers whose ticker or name is a company's (those stating its ticker are "
+            "confirmed at once, the others wait in Curated catalogues… > Companies > Identifiers)",
+        ),
+        CompanyFeed.OPENALEX_IDENTITY: (
+            "Find OpenAlex institutions",
+            "Propose the OpenAlex company institutions named as a company, for a person to accept or reject",
+        ),
+        CompanyFeed.ASSIGNEE_IDENTITY: (
+            "Find patent homonyms",
+            "Propose to leave out the assignees of the stored patents none of a company's searches names, without "
+            "network",
+        ),
+        CompanyFeed.FIGURE_CHECK: (
+            "Check the researched figures",
+            "Read the SEC filings and archived pages the researched figures cite, and mark each fiscal year as "
+            "matching its document or not (Curated catalogues… > Researched figures > Fiscal years)",
+        ),
+    }
+    COMPOUNDING_PROVIDERS: ClassVar[Tuple[CloudProvider, ...]] = (
+        CloudProvider.AWS,
+        CloudProvider.AZURE,
+        CloudProvider.GCP,
+        CloudProvider.ORACLE,
+        CloudProvider.HUAWEI,
+        CloudProvider.SCALEWAY,
+        CloudProvider.STACKIT,
+        CloudProvider.EXOSCALE,
+    )
     POLL_INTERVAL_MS: ClassVar[int] = 2000
     SEARCH_DELAY_MS: ClassVar[int] = 300
 
@@ -195,6 +279,7 @@ class MainWindow(QMainWindow):
         self.crawl_thread: Optional[QThread] = None
         self.crawl_worker: Optional[CrawlWorker] = None
         self.crawl_source = CrawlSource.CATALOGUE
+        self.crawl_with_history = False
         self.statistics: Optional[MarketStatistics] = None
         self.storage_error: Optional[str] = None
         self.store = store if store else ChartStateStore(logger=self.logger)
@@ -211,8 +296,11 @@ class MainWindow(QMainWindow):
         self._build_log_dock()
         self._build_view_menu()
         self.categories_manager: Optional[CategoriesManager] = None
+        self.catalogues_manager: Optional[CataloguesManager] = None
+        self.curated: Optional[CatalogueSet] = None
         self._build_taxonomy_menu()
         self._build_markets_menu()
+        self._build_companies_menu()
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
         self.search_timer.setInterval(self.SEARCH_DELAY_MS)
@@ -226,6 +314,7 @@ class MainWindow(QMainWindow):
         self.logger.info("%s started on %s.", self.TITLE, self.loop.storage.url)
         self.poll_timer.start()
         self._poll()
+        self.loop.submit(self._curated_job, self._on_curated, self._on_curated_error)
 
     ############################
     # Internal Helpers Methods #
@@ -311,6 +400,34 @@ class MainWindow(QMainWindow):
         self.provider_box.blockSignals(False)
         self.logger.debug("Provider filter filled: %d providers.", len(providers))
 
+    def _analysis_view(self, curated: Optional[CatalogueSet]) -> AnalysisView:
+        """Build the Analysis tab.
+
+        Args:
+            curated (Optional[CatalogueSet]): The curated catalogues of its cards, those of the bundle when `None`.
+
+        Returns:
+            AnalysisView: The tab, connected to the window.
+        """
+        view = AnalysisView(self.theme, self.loop, self.store, self.STATISTICS_SOURCE, self.logger, curated)
+        view.compounding.crawl_requested.connect(self.crawl_compounding)
+        return view
+
+    def _research_view(self, curated: Optional[CatalogueSet]) -> ResearchView:
+        """Build the Patents & Papers tab.
+
+        Args:
+            curated (Optional[CatalogueSet]): The curated catalogues naming its companies, those of the bundle when
+                `None`.
+
+        Returns:
+            ResearchView: The tab, connected to the window.
+        """
+        view = ResearchView(self.theme, self.loop, self.logger, curated)
+        view.search_requested.connect(self.search_companies)
+        view.stop_requested.connect(self.stop_crawl)
+        return view
+
     def _build_central(self) -> None:
         """Build the provider sidebar, the dashboard, the searchable and filterable product table and the details."""
         self.sidebar = ProviderSidebar(self.theme)
@@ -363,7 +480,7 @@ class MainWindow(QMainWindow):
         self.table.setColumnWidth(ProductTableModel.LABELS, 200)
         self.table.setColumnWidth(ProductTableModel.DESCRIPTION, 420)
         self.table.setColumnWidth(ProductTableModel.ADDED, 100)
-        self.details = ProductDetails(self.theme, taxonomy=self.taxonomy)
+        self.details = ProductDetails(self.theme, taxonomy=self.taxonomy, loop=self.loop)
         self.details_pane = SidePane("catalogue/details", "Product details", self.details, self.store, self.logger)
         self.product_actions = ItemActions[CloudProduct, ProductRow](
             self.theme,
@@ -446,12 +563,16 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.marketplace_view, "Marketplaces")
         self.statistics_view = StatisticsView(self.theme, store=self.store)
         self.tabs.addTab(self.statistics_view, "Statistics")
-        self.analysis_view = AnalysisView(self.theme, self.loop, self.store, self.STATISTICS_SOURCE, self.logger)
+        self.analysis_view = self._analysis_view(None)
         self.tabs.addTab(self.analysis_view, "Analysis")
         self.correspondence_view = CorrespondenceView(
             self.theme, self.loop, self.taxonomy, self.store, logger=self.logger
         )
         self.tabs.addTab(self.correspondence_view, "Correspondences")
+        self.research_view = self._research_view(None)
+        # A single "&" would mark a keyboard mnemonic (shown as an underlined space): "&&" shows the ampersand.
+        self.tabs.addTab(self.research_view, "Patents && Papers")
+        self.tabs.currentChanged.connect(self._on_tab_changed)
         self.statistics_view.refresh_requested.connect(self.crawl_statistics)
         self.setCentralWidget(self.tabs)
         self.marketplace_view.copied.connect(
@@ -562,6 +683,14 @@ class MainWindow(QMainWindow):
         if recompute is not None:
             recompute.setToolTip("Categorize every stored item again with the current taxonomy and labels")
             recompute.triggered.connect(self.recompute_categories)
+        self.taxonomy_menu.addSeparator()
+        catalogues = self.taxonomy_menu.addAction("Curated catalogues…")
+        if catalogues is not None:
+            catalogues.setShortcut(QKeySequence("Ctrl+Shift+K"))
+            catalogues.setToolTip(
+                "Edit the chronology, the markets, the companies, the researched figures and the launch dates"
+            )
+            catalogues.triggered.connect(self.open_catalogues_manager)
         self.taxonomy_menu.addSeparator()
         correspondences = self.taxonomy_menu.addAction("Service correspondences")
         if correspondences is not None:
@@ -822,7 +951,7 @@ class MainWindow(QMainWindow):
             self.marketplace_menu.set_counts({provider: stamp.size for provider, stamp in self.marketplaces.items()})
         if self._changed(DatasetKind.STATISTICS, by_kind[DatasetKind.STATISTICS]) or first:
             self.loop.submit(
-                lambda storage: storage.statistics.load(self.STATISTICS_SOURCE),
+                lambda storage: storage.statistics.read(self.STATISTICS_SOURCE),
                 self._on_statistics,
                 self._on_storage_error,
             )
@@ -967,7 +1096,10 @@ class MainWindow(QMainWindow):
         for action in (self.crawl_selected_action, self.crawl_all_action):
             action.setEnabled(not running)
         self.markets_button.setEnabled(not running)
+        for action in (self.history_action, self.compounding_action):
+            action.setEnabled(not running)
         self.progress.setVisible(running)
+        self.research_view.set_crawling(running)
         self.status_bar.showMessage(message)
 
     def _on_product_crawled(self, provider_value: str, count: int) -> None:
@@ -984,7 +1116,7 @@ class MainWindow(QMainWindow):
     def _poll(self) -> None:
         """Read the state of the stored datasets in the storage thread."""
         self.logger.debug("Polling the state of the stored datasets.")
-        self.loop.submit(lambda storage: storage.datasets.stamps(), self._on_stamps, self._on_storage_error)
+        self.loop.submit(lambda storage: storage.datasets.list(), self._on_stamps, self._on_storage_error)
 
     def _on_items_changed(self, message: str) -> None:
         """Show items created, edited or deleted by hand: the changed datasets are read again.
@@ -1020,6 +1152,21 @@ class MainWindow(QMainWindow):
                 action.setToolTip(tooltip)
                 action.setData(feed.value)
                 action.triggered.connect(partial(self.crawl_markets, [feed]))
+        self.markets_menu.addSeparator()
+        self.history_action = QAction("Crawl cloud market history (Synergy)", self)
+        self.history_action.setToolTip(
+            "The Synergy Research Group releases since 2013, then the cloud market shares and the provider metrics "
+            "(a few minutes)"
+        )
+        self.history_action.triggered.connect(self.crawl_market_history)
+        self.compounding_action = QAction("Crawl all compounding sources", self)
+        self.compounding_action.setToolTip(
+            "The catalogues of the compounding providers (with their launch dates), then the Synergy history, the "
+            "cloud market shares and the provider metrics (an hour or more)"
+        )
+        self.compounding_action.triggered.connect(self.crawl_all_compounding_sources)
+        self.markets_menu.addAction(self.history_action)
+        self.markets_menu.addAction(self.compounding_action)
         self.markets_menu.setToolTipsVisible(True)
         menu_bar = self.menuBar()
         if menu_bar is not None:
@@ -1038,6 +1185,30 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(self.markets_button)
         self.logger.debug("Markets menu and toolbar list built with %d sources.", len(self.MARKET_FEEDS))
 
+    def _build_companies_menu(self) -> None:
+        """Build the Companies menu: crawl the companies' statements, patents and papers, a source or every one."""
+        self.companies_menu = QMenu("&Companies", self)
+        every = self.companies_menu.addAction("Crawl every companies source")
+        if every is not None:
+            every.setToolTip("Every source below, then the indicator series (the patents take hours to weeks)")
+            every.triggered.connect(
+                partial(
+                    self.crawl_companies, [feed for feed in CompanyFeed if feed not in CompaniesRun.ON_DEMAND_FEEDS]
+                )
+            )
+        self.companies_menu.addSeparator()
+        for feed, (text, tooltip) in self.COMPANY_FEEDS.items():
+            action = self.companies_menu.addAction(text)
+            if action is not None:
+                action.setToolTip(tooltip)
+                action.setData(feed.value)
+                action.triggered.connect(partial(self.crawl_companies, [feed]))
+        self.companies_menu.setToolTipsVisible(True)
+        menu_bar = self.menuBar()
+        if menu_bar is not None:
+            menu_bar.addMenu(self.companies_menu)
+        self.logger.debug("Companies menu built with %d sources.", len(self.COMPANY_FEEDS))
+
     def _on_crawl_succeeded(self, summary: str) -> None:
         """Show the written datasets after a successful crawl.
 
@@ -1046,9 +1217,111 @@ class MainWindow(QMainWindow):
         """
         self.logger.info("Crawl over: %s.", summary)
         self._poll()
-        if self.crawl_source is CrawlSource.MARKETS:
+        if self.crawl_source is CrawlSource.MARKETS or self.crawl_with_history:
             self.analysis_view.markets.refresh()
+            self.analysis_view.compounding.refresh()
+        if self.crawl_source is CrawlSource.COMPANIES:
+            status = (
+                "stopped" if summary.endswith("(stopped)") else "refused" if summary.endswith("(refused)") else "done"
+            )
+            self.research_view.finish(f"Search over: {summary}.", status)
         self.status_bar.showMessage(f"Crawl over: {summary}.", 10000)
+
+    def _on_tab_changed(self, index: int) -> None:
+        """Read again what the Patents & Papers tab shows when it is opened.
+
+        Args:
+            index (int): The tab shown.
+        """
+        if self.tabs.widget(index) is self.research_view:
+            self.logger.debug("Patents & Papers tab opened: reading what is stored.")
+            self.research_view.refresh()
+
+    async def _curated_job(self, storage: Storage) -> Optional[CatalogueSet]:
+        """Read the curated catalogues of the views from the database (storage thread).
+
+        Args:
+            storage (Storage): The open storage.
+
+        Returns:
+            Optional[CatalogueSet]: The catalogues, `None` when they cannot be assembled (the bundle's are kept).
+        """
+        try:
+            return CatalogueSet(
+                chronology=await storage.catalogs.chronology(),
+                markets=await storage.catalogs.markets(),
+                companies=await storage.catalogs.companies(),
+            )
+        except CuratedError as e:
+            self.logger.warning(
+                "The curated catalogues cannot be read from the database: the bundle's are shown: %s", e
+            )
+            return None
+
+    def _bundled(self) -> Optional[CatalogueSet]:
+        """Read the curated catalogues of the bundle, those the views are built from by default.
+
+        Returns:
+            Optional[CatalogueSet]: The catalogues, `None` when the bundle cannot be read.
+        """
+        try:
+            bundled = BundleCatalogs(logger=self.logger)
+            return CatalogueSet(
+                chronology=bundled.chronology(), markets=bundled.markets(), companies=bundled.companies()
+            )
+        except CuratedError as e:
+            self.logger.warning("The curated catalogues of the bundle cannot be read: %s", e)
+            return None
+
+    def _on_curated(self, curated: Optional[CatalogueSet]) -> None:
+        """Build the Analysis and Patents & Papers tabs again from the catalogues of the database, when they differ.
+
+        Args:
+            curated (Optional[CatalogueSet]): The catalogues of the database, `None` when they cannot be read.
+
+        Notes:
+            The catalogues are read once, at start: the tabs are built from the bundle, then again from the database
+            when an edit made it differ. They are not built again after an edit of the Catalogues manager, since a
+            chart opened in its own window would be left behind.
+        """
+        if curated is None or curated == (self.curated or self._bundled()):
+            self.logger.debug("The views show the curated catalogues of the database.")
+            return
+        if self.crawl_thread is not None:
+            self.logger.warning("A crawl runs: the views show the edited catalogues at the next start.")
+            return
+        self.curated = curated
+        current = self.tabs.currentIndex()
+        analysis, research = self._analysis_view(curated), self._research_view(curated)
+        for old, new, title in (
+            (self.analysis_view, analysis, "Analysis"),
+            (self.research_view, research, "Patents && Papers"),
+        ):
+            index = self.tabs.indexOf(old)
+            self.tabs.removeTab(index)
+            self.tabs.insertTab(index, new, title)
+            old.deleteLater()
+        self.analysis_view, self.research_view = analysis, research
+        self.tabs.setCurrentIndex(current)
+        if self.available is not None:
+            self.analysis_view.set_available(self.available)
+        self.analysis_view.refresh()
+        self.logger.info("The Analysis and Patents & Papers tabs show the curated catalogues of the database.")
+
+    def _on_curated_error(self, error: StorageError) -> None:
+        """Keep the catalogues of the bundle when the database cannot be read.
+
+        Args:
+            error (StorageError): The error.
+        """
+        self.logger.warning("The curated catalogues cannot be read: the bundle's are shown: %s", error)
+
+    def _on_curated_edited(self) -> None:
+        """Tell where an edit of the Catalogues manager applies."""
+        self.logger.info("A curated catalogue was edited: the crawls use it, the Analysis tab at the next start.")
+        self.status_bar.showMessage(
+            "Catalogue saved: the crawls use it now, the Analysis and Patents & Papers tabs at the next start.", 8000
+        )
 
     def _on_crawl_failed(self, message: str) -> None:
         """Report a failed crawl.
@@ -1056,6 +1329,8 @@ class MainWindow(QMainWindow):
         Args:
             message (str): Why the crawl failed.
         """
+        if self.crawl_source is CrawlSource.COMPANIES:
+            self.research_view.finish(f"The search failed: {message}", "failed")
         self.status_bar.showMessage(f"Crawl failed: {message}", 10000)
         QMessageBox.warning(self, "Crawl failed", f"{message}\n\nSee the logs panel for the details.")
 
@@ -1079,6 +1354,9 @@ class MainWindow(QMainWindow):
         source: CrawlSource = CrawlSource.CATALOGUE,
         providers: Optional[List[CloudProvider]] = None,
         feeds: Optional[List[MarketFeed]] = None,
+        company_feeds: Optional[List[CompanyFeed]] = None,
+        market_history: bool = False,
+        companies: Optional[List[str]] = None,
     ) -> None:
         """Start a crawl in a background thread, unless one is running.
 
@@ -1090,6 +1368,11 @@ class MainWindow(QMainWindow):
             providers (Optional[List[CloudProvider]]): The crawled providers when no provider is given, `None` for
                 every provider.
             feeds (Optional[List[MarketFeed]]): The markets sources crawled (`CrawlSource.MARKETS`).
+            company_feeds (Optional[List[CompanyFeed]]): The companies sources crawled (`CrawlSource.COMPANIES`).
+            market_history (bool): Whether the Synergy market history and its derivations end the crawl (after
+                the catalogues, or as the statistics crawl).
+            companies (Optional[List[str]]): The companies crawled (`CrawlSource.COMPANIES`), every one when `None`
+                or empty.
         """
         if self.crawl_thread is not None:
             self.logger.warning("A crawl is already running: the new one is ignored.")
@@ -1109,13 +1392,37 @@ class MainWindow(QMainWindow):
             label = "the market statistics (Synergy Research Group)"
         elif source is CrawlSource.MARKETS:
             label = "the markets sources (" + ", ".join(feed.value for feed in feeds or list(MarketFeed)) + ")"
+        elif source is CrawlSource.COMPANIES:
+            chosen = company_feeds or list(CompanyFeed)
+            label = "the companies sources (" + ", ".join(feed.value for feed in chosen) + ")"
+            if companies:
+                others = f" and {len(companies) - 4} others" if len(companies) > 4 else ""
+                label += " of " + ", ".join(companies[:4]) + others
+        if market_history and source is CrawlSource.STATISTICS:
+            label = "the cloud market history (Synergy Research Group)"
+        elif market_history:
+            label = f"{label}, then the cloud market history"
         self.logger.info("Crawl of %s requested from the GUI.", label)
         thread = QThread(self)
-        worker = CrawlWorker(self.runner, provider, country=country, source=source, providers=providers, feeds=feeds)
+        worker = CrawlWorker(
+            self.runner,
+            provider,
+            country=country,
+            source=source,
+            providers=providers,
+            feeds=feeds,
+            company_feeds=company_feeds,
+            market_history=market_history,
+            companies=companies,
+        )
         self.crawl_source = source
+        self.crawl_with_history = market_history
         worker.moveToThread(thread)
         thread.started.connect(worker.run)
         worker.product_crawled.connect(self._on_product_crawled)
+        if source is CrawlSource.COMPANIES:
+            worker.company_batch.connect(self.research_view.add_batch)
+            self.research_view.start(companies or [], company_feeds or list(CompanyFeed))
         worker.succeeded.connect(self._on_crawl_succeeded)
         worker.failed.connect(self._on_crawl_failed)
         worker.stopped.connect(thread.quit)
@@ -1181,6 +1488,14 @@ class MainWindow(QMainWindow):
         self.logger.info("Categories manager opened (tab %d).", tab)
         self._manager().open_on(tab)
 
+    def open_catalogues_manager(self) -> None:
+        """Open the Catalogues manager (the curated chronology, markets, companies, figures and launch dates)."""
+        self.logger.info("Catalogues manager opened.")
+        if self.catalogues_manager is None:
+            self.catalogues_manager = CataloguesManager(self.theme, self.loop, self.logger)
+            self.catalogues_manager.edited.connect(self._on_curated_edited)
+        self.catalogues_manager.open_on()
+
     def recompute_categories(self) -> None:
         """Categorize every stored item again with the current taxonomy and labels."""
         self.logger.info("Every item is categorized again from the Taxonomy menu.")
@@ -1197,6 +1512,66 @@ class MainWindow(QMainWindow):
         self.logger.info("Crawl of the market statistics requested.")
         self._start_crawl(None, None, CrawlSource.STATISTICS)
 
+    def crawl_market_history(self) -> None:
+        """Crawl the Synergy cloud market history, then derive the cloud market shares and the provider metrics.
+
+        Notes:
+            One worker thread runs the statistics crawl (every release since 2013), writes the `cloud` segment of
+            `market_shares` from the stored reports, then refreshes `provider_metrics` (market share and revenue of
+            each quantified provider). The Markets menu action and the Analysis panels call it.
+        """
+        self.logger.info("Crawl of the cloud market history requested.")
+        self._start_crawl(None, None, CrawlSource.STATISTICS, market_history=True)
+
+    def compounding_providers(self) -> List[CloudProvider]:
+        """Get the providers whose catalogues "Crawl all compounding sources" crawls by default.
+
+        Returns:
+            List[CloudProvider]: The providers analysed and excluded of `conf/analysis/compounding.yaml`, or
+                `COMPOUNDING_PROVIDERS` when the configuration cannot be read.
+        """
+        config = self.analysis_view.compounding.config
+        if config is None:
+            self.logger.warning("No compounding configuration: the default compounding providers are crawled.")
+            return list(self.COMPOUNDING_PROVIDERS)
+        return [*config.kept(), *(entry.provider for entry in config.excluded)]
+
+    def crawl_compounding_sources(self, providers: Sequence[CloudProvider]) -> None:
+        """Crawl the catalogues of providers, then the Synergy history and its derivations, in one worker thread.
+
+        Args:
+            providers (Sequence[CloudProvider]): The providers whose catalogues are crawled (their launch dates
+                included), several at a time.
+
+        Notes:
+            The progress, the logs and the failure dialog are those of every crawl. A failed catalogue is logged and
+            the others go on. The Synergy history and the derivations follow, as `crawl_market_history`.
+        """
+        chosen = list(providers)
+        self.logger.info("Crawl of the compounding sources of %d providers requested.", len(chosen))
+        if not chosen:
+            self.logger.warning("No provider given: only the cloud market history is crawled.")
+            self.crawl_market_history()
+            return
+        self._start_crawl(None, None, CrawlSource.CATALOGUE, providers=chosen, market_history=True)
+
+    def crawl_all_compounding_sources(self) -> None:
+        """Crawl the compounding sources of the default providers (`compounding_providers`)."""
+        self.logger.debug("Crawl of every compounding source requested from the menu.")
+        self.crawl_compounding_sources(self.compounding_providers())
+
+    def crawl_compounding(self, kind: str) -> None:
+        """Run a crawl asked for by the Service compounding section of the Analysis tab.
+
+        Args:
+            kind (str): `history` for the cloud market history, `all` for every compounding source.
+        """
+        self.logger.info("Compounding crawl %s requested from the Analysis tab.", kind)
+        if kind == "all":
+            self.crawl_all_compounding_sources()
+        else:
+            self.crawl_market_history()
+
     def crawl_markets(self, feeds: List[MarketFeed]) -> None:
         """Crawl markets sources (shares, stock prices, exchange rates), then derive the EU-27 and stock measures.
 
@@ -1205,6 +1580,34 @@ class MainWindow(QMainWindow):
         """
         self.logger.info("Crawl of the markets sources %s requested.", ", ".join(feed.value for feed in feeds))
         self._start_crawl(None, None, CrawlSource.MARKETS, feeds=feeds)
+
+    def crawl_companies(self, feeds: List[CompanyFeed]) -> None:
+        """Crawl companies sources (statements, patents, papers), then derive the indicator series.
+
+        Args:
+            feeds (List[CompanyFeed]): The sources.
+        """
+        self.logger.info("Crawl of the companies sources %s requested.", ", ".join(feed.value for feed in feeds))
+        self._start_crawl(None, None, CrawlSource.COMPANIES, company_feeds=feeds)
+
+    def search_companies(self, companies: List[str], feeds: List[str]) -> None:
+        """Search the patents and papers of some companies (the Patents & Papers tab), streamed into the tab.
+
+        Args:
+            companies (List[str]): The companies searched.
+            feeds (List[str]): The values of the sources searched.
+        """
+        chosen = [CompanyFeed(feed) for feed in feeds]
+        self.logger.info("Search of %d companies in %s requested.", len(companies), ", ".join(feeds))
+        self._start_crawl(None, None, CrawlSource.COMPANIES, company_feeds=chosen, companies=list(companies))
+
+    def stop_crawl(self) -> None:
+        """Ask the running companies crawl to end gracefully (the facts read are kept)."""
+        if self.crawl_worker is None:
+            self.logger.warning("No crawl to stop.")
+            return
+        self.logger.info("Stop of the running crawl requested.")
+        self.crawl_worker.request_stop()
 
     def crawl_chosen_markets(self) -> None:
         """Crawl the markets source chosen in the toolbar list, every one when "Every markets source" is chosen."""

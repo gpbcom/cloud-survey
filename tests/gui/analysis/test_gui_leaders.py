@@ -8,8 +8,8 @@ import pytest
 from PyQt6.QtCore import QPoint, Qt
 from pytestqt.qtbot import QtBot
 
-from analytics.history.chronology_loader import ChronologyLoader
-from analytics.history.exception import ChronologyFileError
+from curated.bundle.bundle_catalogs import BundleCatalogs
+from curated.exception import CuratedBundleError
 from gui.analysis.analysis_view import AnalysisView
 from gui.analysis.history.history_panel import HistoryPanel
 from gui.analysis.history.leadership_chart import LeadershipChart
@@ -21,7 +21,7 @@ from models.history.enums import EventKind
 
 @pytest.fixture(scope="module")
 def shipped() -> Chronology:
-    return ChronologyLoader().load()
+    return BundleCatalogs().chronology()
 
 
 def painted(qtbot: QtBot, panel: HistoryPanel, width: int = 1400) -> LeadershipChart:
@@ -155,15 +155,15 @@ class TestChronologyTable:
 class TestHistoryPanel:
     def test_a_broken_chronology_is_said(self, qtbot: QtBot, monkeypatch: pytest.MonkeyPatch) -> None:
         def broken(*_: Path) -> Chronology:
-            raise ChronologyFileError(Path("chronology.yaml"), "the file is not valid YAML.")
+            raise CuratedBundleError("data/curated/chronology.json", "the file is not valid JSON.")
 
-        monkeypatch.setattr(ChronologyLoader, "load", broken)
+        monkeypatch.setattr(BundleCatalogs, "chronology", broken)
 
         panel = HistoryPanel(Theme())
         qtbot.addWidget(panel.chart)
 
         assert panel.chronology is None
-        assert "not valid YAML" in panel.chart.message
+        assert "not valid JSON" in panel.chart.message
         assert panel.table.rowCount() == 0
         assert not panel.chart.grab().isNull()
 

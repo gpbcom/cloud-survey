@@ -150,6 +150,7 @@ class FieldEditors:
                 delivery value, or the list of the marketplace categories or checked values.
         """
         editor = self.editors[field]
+        self.logger.debug("Reading the %s of the item.", field.value)
         match editor:
             case QPlainTextEdit():
                 return editor.toPlainText().strip()

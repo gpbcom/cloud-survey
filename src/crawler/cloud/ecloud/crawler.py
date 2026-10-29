@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import re
+from pathlib import Path
 from typing import AsyncGenerator, ClassVar, Dict, FrozenSet, Iterator, List, Optional, Set, Tuple, Union
 from urllib.parse import quote, urljoin, urlparse
 
@@ -25,7 +26,7 @@ from crawler.cloud.ecloud.enums import (
 from crawler.exception import CatalogueFormatError
 
 # First Party Imports.
-from models.cloud.enums import DateCaveat
+from models.cloud.enums import DateCaveat, PriceModel
 from models.cloud.products.product import CloudProduct
 
 # A menu product: its name, description (`None` for a placeholder), page URL, type (page template slug) and menu
@@ -53,6 +54,8 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
         fetch_retries (ClassVar[int]): How many times a failed fetch is attempted: the website drops connections.
         retry_delay (ClassVar[float]): The delay between two attempts, in seconds, long enough for a ban to expire.
         download_delay (float): The delay between two requests, in seconds: the website bans the faster clients.
+        UNPRICED_REASON (ClassVar[Optional[str]]): Why the provider has no public price.
+        UNPRICED_MODEL (ClassVar[PriceModel]): How its products are priced (not published).
 
     Notes:
         The website is a JavaScript application. The main source is its public products menu, a JSON document
@@ -69,6 +72,8 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
         and descriptions are in Chinese. A product gets the names of the menu nodes above it (e.g. `弹性计算` >
         `云服务器`), of every place it is listed in, the recommendation nodes (`推荐产品`, `热门产品`, `精选AI产品`)
         excepted.
+        China Mobile Cloud publishes no public price list: in price mode its product menu is read as the evidence,
+        and each live product is stated not public.
     """
 
     SITE_URL: ClassVar[str] = "https://ecloud.10086.cn/"
@@ -89,12 +94,26 @@ class ChinaMobileCloudCrawler(BaseCloudCrawler):
     PLACEHOLDER: ClassVar[re.Pattern[str]] = re.compile(r"介绍页|菜单")
     PARENTHESES: ClassVar[re.Pattern[str]] = re.compile(r"[()\uff08\uff09]")
 
+    UNPRICED_REASON: ClassVar[Optional[str]] = (
+        "China Mobile Cloud publishes its prices in its console and order pages only, not in a public price list."
+    )
+    UNPRICED_MODEL: ClassVar[PriceModel] = PriceModel.NOT_PUBLIC
+
     name = "ecloud"
     catalogue_url: ClassVar[str] = "https://ecloud.10086.cn/api/query/menu/v4/menu/tree?situationCode=product"
     name_prefixes: ClassVar[Tuple[str, ...]] = ("移动云", "中国移动", "和云")
     fetch_retries: ClassVar[int] = 4
     retry_delay: ClassVar[float] = 60.0
     download_delay: float = 3.0
+
+    def __init__(self, crawldir: Optional[Union[str, Path]] = None, interval: float = 300.0) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+        """
+        super().__init__(crawldir=crawldir, interval=interval)
 
     ############################
     # Internal Helpers Methods #

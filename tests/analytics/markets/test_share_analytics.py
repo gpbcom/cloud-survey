@@ -9,7 +9,7 @@ from analytics.markets.shares.share_mapper import ShareMapper
 from analytics.markets.shares.share_table import ShareTable
 from analytics.markets.shares.union_estimator import UnionEstimator
 from conftest import build_report
-from models.cloud.enums import MarketPlayer
+from models.cloud.enums import MarketPlayer, MarketSegment
 from models.markets.catalog.market_area import MarketArea
 from models.markets.enums import AreaKind, Device, Granularity, ShareMetric, ShareSource, WeightIndicator
 from models.markets.facts.release_share import ReleaseShare
@@ -94,6 +94,30 @@ class TestShareMapper:
         assert {value.granularity for value in values} == {Granularity.QUARTER}
         assert {value.company for value in values if value.label == "amazon"} == {"amazon"}
         assert {value.area for value in values} == {"ww"}
+
+    def test_synergy_other_players_get_their_chronology_company(self, markets_catalog: MarketsCatalog) -> None:
+        players = (
+            MarketPlayer.AMAZON,
+            MarketPlayer.ALIBABA,
+            MarketPlayer.IBM,
+            MarketPlayer.ORACLE,
+            MarketPlayer.HUAWEI,
+            MarketPlayer.TENCENT,
+        )
+        report = build_report("2019Q4", [(player, 5.0) for player in players])
+        public = build_report("2019Q3", [(MarketPlayer.AMAZON, 40.0)], segment=MarketSegment.PUBLIC_IAAS_PAAS)
+
+        values = ShareMapper(markets_catalog).synergy([report, public])
+
+        assert {value.label: value.company for value in values} == {
+            "amazon": "amazon",
+            "alibaba": "alibaba",
+            "ibm": "ibm",
+            "oracle": "oracle",
+            "huawei": "huawei",
+            "tencent": "tencent",
+        }
+        assert {value.period for value in values} == {date(2019, 10, 1)}, "the public IaaS and PaaS shares are left out"
 
     def test_a_period_takes_the_shares_of_a_single_release(self, markets_catalog: MarketsCatalog) -> None:
         def release(label: str, value: float, published: date, url: str) -> ReleaseShare:

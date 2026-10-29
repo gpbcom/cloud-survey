@@ -1,0 +1,890 @@
+# Curated price coverage of Baidu AI Cloud (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: baidu-ai-cloud
+currency: CNY
+row_links:
+  'NAT网关': ['^私有网络 VPC \| page/product-price/vpc\.html/([0-9]|1[0-9]|2[0-3])/']
+  '服务网卡': ['^私有网络 VPC \| page/product-price/vpc\.html/7[2-7]/']
+  '通用场景文字识别': ['^文字识别 \| page/product-price/ocr\.html/(2|5|8|11|14|17|21|24|27|32)/']
+  '卡证场景文字识别': ['^文字识别 \| page/product-price/ocr\.html/(35|38|41)/']
+  '交通场景文字识别': ['^文字识别 \| page/product-price/ocr\.html/(54|57)/']
+  '教育场景文字识别': ['^文字识别 \| page/product-price/ocr\.html/85/']
+  '人脸实名认证': ['^人脸识别 \| page/product-price/face\.html/(8|9|10|11|12|13|14)/']
+  '人脸识别SDK': ['^人脸识别 \| page/product-price/face\.html/28/']
+links:
+  '函数计算': ['^函数计算 CFC$']
+  '容器实例': ['^容器实例BCI$']
+  '云防火墙': ['^云防火墙 CFW$']
+  'Web应用防火墙': ['^应用防火墙 WAF$']
+  '日志服务': ['^日志服务 BLS$']
+  '流式计算': ['^流式计算 BSC$']
+  '消息服务 for Kafka': ['^消息服务$']
+  '人体与行为分析': ['^人体分析$']
+  '数字藏品SAAS平台': ['^数字商品可信登记平台$']
+  '内容分析': ['^媒体内容分析$']
+  '多模态检索': ['^多模态媒资检索$']
+  '商标注册': ['^商标服务$']
+pages:
+  '号码安全服务': ['https://cloud.baidu.com/product-price/spns.html']
+  '智能门户': ['https://cloud.baidu.com/product-price/aipage.html']
+  '云编排服务': ['https://cloud.baidu.com/doc/COS/s/wk04ljdqj']
+  '共享带宽': ['https://cloud.baidu.com/doc/EIP/s/Jjwvz35ib']
+  '向量数据库 VectorDB': ['https://cloud.baidu.com/doc/VDB/s/elr8wjbbb']
+  '大模型声音复刻': ['https://cloud.baidu.com/doc/SPEECH/s/vm9sbp4z9']
+  '大模型文档解析': ['https://cloud.baidu.com/doc/OCR/s/rmvt5uvkv']
+  '微服务引擎': ['https://cloud.baidu.com/doc/MSE/s/3lzqvqwcc']
+  '文档图像处理': ['https://cloud.baidu.com/doc/OCR/s/Altmpe6ah']
+  '短文本语音合成': ['https://cloud.baidu.com/doc/SPEECH/s/Ql9misjot']
+  '长文本语音合成': ['https://cloud.baidu.com/doc/SPEECH/s/Ql9misjot']
+  '语音合成离线SDK': ['https://cloud.baidu.com/doc/SPEECH/s/Ql9misjot']
+  '端到端语音语言大模型': ['https://cloud.baidu.com/doc/SPEECH/s/Tmq8y6vdh']
+  '轻量应用服务器': ['https://cloud.baidu.com/doc/LS/s/vknznns3n']
+  '域名服务': ['https://cloud.baidu.com/product/bcd/price.html']
+statements:
+  - product: 'Elasticsearch'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/bes.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/bes.html'
+  - product: 'MapReduce'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/bmr.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/bmr.html'
+  - product: 'Palo for Apache Doris'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/palo.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/palo.html'
+  - product: 'SSL证书'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/cas.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/cas.html'
+  - product: '专属服务器'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/dcc.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/dcc.html'
+  - product: '专线接入'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/et.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/et.html'
+  - product: '云堡垒机'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/cag.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/cag.html'
+  - product: '云数据库 DocDB for MongoDB'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/mongodb.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/mongodb.html'
+  - product: '云智能网'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/csn.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/csn.html'
+  - product: '动态加速'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/drcdn.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/drcdn.html'
+  - product: '史宾格安全及隐私合规平台'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/springer.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/springer.html'
+  - product: '号码安全服务'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/spns.html) (not listed in the price navigation), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/spns.html'
+  - product: '存储网关 BSG'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/bsg.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/bsg.html'
+  - product: '实时音视频'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/rtc.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/rtc.html'
+  - product: '容器镜像服务'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/ccr.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/ccr.html'
+  - product: '应用加固与安全检测'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/iap.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/iap.html'
+  - product: '度家-AIOT语音平台'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/shc.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/shc.html'
+  - product: '弹性裸金属服务器'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/bbc.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/bbc.html'
+  - product: '数据可视化Sugar BI'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/sugar.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/sugar.html'
+  - product: '时序时空数据库 TSDB'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/tsdb.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/tsdb.html'
+  - product: '智能流量管理'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/itm.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/itm.html'
+  - product: '智能门户'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/aipage.html) (not listed in the price navigation), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/aipage.html'
+  - product: '极速文件缓存 RapidFS'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/rapidfs.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/rapidfs.html'
+  - product: '消息服务 for RabbitMQ'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/rabbitmq.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/rabbitmq.html'
+  - product: '物联网核心套件 IoT Core'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/iotre.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/iotre.html'
+  - product: '表格存储 TableStorage'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/bts.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/bts.html'
+  - product: '短信服务'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/sms.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/sms.html'
+  - product: '百度云手机'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/armcm.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/armcm.html'
+  - product: 'VPN网关'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/vpc.html) (VPN gateway tables), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/vpc.html'
+  - product: '对等连接'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/vpc.html) (peer connection tables), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/vpc.html'
+  - product: '医疗票据文字识别'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/ocr.html) (medical invoice tables), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/ocr.html'
+  - product: '财务票据文字识别'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/ocr.html) (finance receipt tables), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/ocr.html'
+  - product: '实时语音识别'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/speech.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/speech.html'
+  - product: '短语音识别极速版'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/speech.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/speech.html'
+  - product: '短语音识别标准版'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/speech.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/speech.html'
+  - product: '音频文件转写'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/speech.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/speech.html'
+  - product: '语言理解'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/nlp.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/nlp.html'
+  - product: '语言生成'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/nlp.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/nlp.html'
+  - product: '图像识别'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/imagerecognition.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/imagerecognition.html'
+  - product: '图像增强'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/imageenhancement.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/imageenhancement.html'
+  - product: '图像特效'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/imageenhancement.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/imageenhancement.html'
+  - product: '播放器SDK'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/vcsdk.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/vcsdk.html'
+  - product: '移动直播SDK'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/vcsdk.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/vcsdk.html'
+  - product: '数字水印'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/mct.html) (digital watermark tables), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/mct.html'
+  - product: '视频质量检测'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/mct.html) (quality check table), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/mct.html'
+  - product: '智感超清'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/mct.html) (perceptual encoding tables), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/mct.html'
+  - product: '云导播台'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/lsps.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/lsps.html'
+  - product: '智能赛事直播平台'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/lsps.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/lsps.html'
+  - product: '智能集锦'
+    model: not-public
+    reason: 'Priced on its public price page (https://cloud.baidu.com/product-price/lsps.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-price/lsps.html'
+  - product: '云原生数据库 GaiaDB'
+    model: not-public
+    reason: 'Priced in the Baidu price calculator (https://cloud.baidu.com/price/calculator?product=gaiadb), which loads prices client-side and is not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/price/calculator?product=gaiadb'
+  - product: '云数据库 RDS MySQL'
+    model: not-public
+    reason: 'Priced in the Baidu price calculator (https://cloud.baidu.com/price/calculator?product=rds), which loads prices client-side and is not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/price/calculator?product=rds'
+  - product: '云数据库 RDS PostgreSQL'
+    model: not-public
+    reason: 'Priced in the Baidu price calculator (https://cloud.baidu.com/price/calculator?product=rds), which loads prices client-side and is not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/price/calculator?product=rds'
+  - product: '云数据库 RDS SQL Server'
+    model: not-public
+    reason: 'Priced in the Baidu price calculator (https://cloud.baidu.com/price/calculator?product=rds), which loads prices client-side and is not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/price/calculator?product=rds'
+  - product: '云数据库 Redis'
+    model: not-public
+    reason: 'Priced in the Baidu price calculator (https://cloud.baidu.com/price/calculator?product=scs), which loads prices client-side and is not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/price/calculator?product=scs'
+  - product: '云磁盘'
+    model: not-public
+    reason: 'Priced in the Baidu price calculator (https://cloud.baidu.com/price/calculator?product=cds), which loads prices client-side and is not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/price/calculator?product=cds'
+  - product: '对象存储 BOS'
+    model: not-public
+    reason: 'Priced in the Baidu price calculator (https://cloud.baidu.com/price/calculator?product=bos), which loads prices client-side and is not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/price/calculator?product=bos'
+  - product: '并行文件存储 PFS'
+    model: not-public
+    reason: 'Priced in the Baidu price calculator (https://cloud.baidu.com/price/calculator?product=pfs), which loads prices client-side and is not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/price/calculator?product=pfs'
+  - product: '弹性公网IP'
+    model: not-public
+    reason: 'Priced in the Baidu price calculator (https://cloud.baidu.com/price/calculator?product=eip), which loads prices client-side and is not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/price/calculator?product=eip'
+  - product: '文件存储 CFS'
+    model: not-public
+    reason: 'Priced in the Baidu price calculator (https://cloud.baidu.com/price/calculator?product=cfs), which loads prices client-side and is not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/price/calculator?product=cfs'
+  - product: '负载均衡'
+    model: not-public
+    reason: 'Priced in the Baidu price calculator (https://cloud.baidu.com/price/calculator?product=blb), which loads prices client-side and is not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/price/calculator?product=blb'
+  - product: '短网址服务'
+    model: not-public
+    reason: 'Priced in the Baidu price calculator (https://cloud.baidu.com/price/calculator?product=dwz), which loads prices client-side and is not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/price/calculator?product=dwz'
+  - product: '云编排服务'
+    model: not-public
+    reason: 'Priced in its documentation (https://cloud.baidu.com/doc/COS/s/wk04ljdqj), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/doc/COS/s/wk04ljdqj'
+  - product: '共享带宽'
+    model: not-public
+    reason: 'Priced in its documentation (https://cloud.baidu.com/doc/EIP/s/Jjwvz35ib), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/doc/EIP/s/Jjwvz35ib'
+  - product: '向量数据库 VectorDB'
+    model: not-public
+    reason: 'Priced in its documentation (https://cloud.baidu.com/doc/VDB/s/elr8wjbbb), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/doc/VDB/s/elr8wjbbb'
+  - product: '大模型声音复刻'
+    model: not-public
+    reason: 'Priced in its documentation (https://cloud.baidu.com/doc/SPEECH/s/vm9sbp4z9), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/doc/SPEECH/s/vm9sbp4z9'
+  - product: '大模型文档解析'
+    model: not-public
+    reason: 'Priced in its documentation (https://cloud.baidu.com/doc/OCR/s/rmvt5uvkv), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/doc/OCR/s/rmvt5uvkv'
+  - product: '微服务引擎'
+    model: not-public
+    reason: 'Priced in its documentation (https://cloud.baidu.com/doc/MSE/s/3lzqvqwcc), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/doc/MSE/s/3lzqvqwcc'
+  - product: '文档图像处理'
+    model: not-public
+    reason: 'Priced in its documentation (https://cloud.baidu.com/doc/OCR/s/Altmpe6ah), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/doc/OCR/s/Altmpe6ah'
+  - product: '短文本语音合成'
+    model: not-public
+    reason: 'Priced in its documentation (https://cloud.baidu.com/doc/SPEECH/s/Ql9misjot), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/doc/SPEECH/s/Ql9misjot'
+  - product: '长文本语音合成'
+    model: not-public
+    reason: 'Priced in its documentation (https://cloud.baidu.com/doc/SPEECH/s/Ql9misjot), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/doc/SPEECH/s/Ql9misjot'
+  - product: '语音合成离线SDK'
+    model: not-public
+    reason: 'Priced in its documentation (https://cloud.baidu.com/doc/SPEECH/s/Ql9misjot), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/doc/SPEECH/s/Ql9misjot'
+  - product: '端到端语音语言大模型'
+    model: not-public
+    reason: 'Priced in its documentation (https://cloud.baidu.com/doc/SPEECH/s/Tmq8y6vdh), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/doc/SPEECH/s/Tmq8y6vdh'
+  - product: '轻量应用服务器'
+    model: not-public
+    reason: 'Priced in its documentation (https://cloud.baidu.com/doc/LS/s/vknznns3n), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/doc/LS/s/vknznns3n'
+  - product: '域名服务'
+    model: not-public
+    reason: 'Priced on its public price overview (https://cloud.baidu.com/product/bcd/price.html), not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product/bcd/price.html'
+  - product: '云安全中心'
+    model: not-public
+    reason: 'Edition prices per host per month are shown on its product page, not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product/hosteye.html'
+  - product: '图像内容理解'
+    model: not-public
+    reason: 'A per-thousand-calls price is shown on its product page, not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product/imagerecognition/image_understanding'
+  - product: '文字识别离线SDK'
+    model: not-public
+    reason: 'Per-device licence prices are shown on its product page, not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product/OCR/sdk.html'
+  - product: '通用卡证票据识别'
+    model: not-public
+    reason: 'A per-call price is shown on its product page, not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product/OCR/general_ocr.html'
+  - product: '百度搭子企业版'
+    model: not-public
+    reason: 'Per-seat monthly prices are shown on its product page, not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product/dumate.html'
+  - product: '百度千帆·大模型服务及Agent开发平台'
+    model: not-public
+    reason: 'Model input and output token prices are shown on its product page, not yet read by the crawl.'
+    source: 'https://cloud.baidu.com/product-s/qianfan_home'
+  - product: '代理记账'
+    model: not-public
+    reason: 'Advertised from 99.9 CNY a month on Baidu product pages, the product page itself loads client-side and is not read by the crawl.'
+    source: 'https://cloud.baidu.com/product/ssl.html'
+  - product: '公司注册'
+    model: not-public
+    reason: 'Advertised from 9.9 CNY on Baidu product pages, the product page itself loads client-side and is not read by the crawl.'
+    source: 'https://cloud.baidu.com/product/ssl.html'
+  - product: '私有网络'
+    model: free
+    reason: 'The VPC price page states that VPC, subnets, route tables, security groups, ACLs and ENIs are free.'
+    source: 'https://cloud.baidu.com/product-price/vpc.html'
+  - product: '数据流转平台'
+    model: free
+    reason: 'Its price page states the CloudFlow product itself is free (traffic or API calls may be billed by other products).'
+    source: 'https://cloud.baidu.com/product-price/cloudflow.html'
+  - product: '云监控 BCM'
+    model: free
+    reason: 'Cloud monitoring needs no separate purchase (无需额外购买), site monitoring and APM modules excepted.'
+    source: 'https://cloud.baidu.com/product/bcm.html'
+  - product: 'AI原生网关'
+    model: free
+    reason: 'The product page states the AI gateway is free during its public beta (公测期间免费).'
+    source: 'https://cloud.baidu.com/product/aigw.html'
+  - product: '语音自训练平台'
+    model: free
+    reason: 'The product page states model training and use are free during the public beta (公测免费模型训用).'
+    source: 'https://cloud.baidu.com/product/SPEECH/smartasr.html'
+  - product: 'AI医生助手'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/cdss.html'
+  - product: '交通专家系统'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/JG_DA/highway.html'
+  - product: '位置服务'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/dm.html'
+  - product: '千帆大模型一体机'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/ape.html'
+  - product: '可信计算平台'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/tcp.html'
+  - product: '城市时空大数据分析服务'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/dmi.html'
+  - product: '天工边云融合物联网平台'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/iotstack.html'
+  - product: '应急响应服务'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/cps.html'
+  - product: '座舱大模型'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/clm.html'
+  - product: '数字孪生地图'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/dugisdt.html'
+  - product: '数据库平台 DBStack'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/dbstack.html'
+  - product: '智慧招采'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/AI_TM/bidding.html'
+  - product: '智慧离线地图'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/dg.html'
+  - product: '智能体红队评估'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/srs.html'
+  - product: '智能信控'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/jg-xk.html'
+  - product: '智能空间停车导航服务'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/aispace.html'
+  - product: '智能网格管理'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/sgm.html'
+  - product: '渗透测试服务'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/sts.html'
+  - product: '灵医开放平台'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/ly-open-platform.html'
+  - product: '物流地图'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/lps.html'
+  - product: '物流运输管理系统'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/tms-plus.html'
+  - product: '百度linux服务器操作系统'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/linux.html'
+  - product: '百度伐谋'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/famou.html'
+  - product: '百度天池超节点'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/tianchi.html'
+  - product: '百度百舸·Al Stack'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/AIHC_PRIVATE/ai_stack.html'
+  - product: '百度百舸一体机'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/aihc-private.html'
+  - product: '离线地图数据产品'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/DG/daas.html'
+  - product: '终端与车安全服务平台'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/endpointsec.html'
+  - product: '钓鱼演练平台'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/HOSTEYE/phisher.html'
+  - product: '边缘计算单元'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/rscu.html'
+  - product: '云暴露面分析'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/sas.html'
+  - product: '专有云ABC Stack'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/abc-stack.html'
+  - product: '云迁移中心'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/cmc.html'
+  - product: 'Hogee数字员工'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/hogee.html'
+  - product: '客户洞察'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product-s/keyue_insight'
+  - product: '智能客服'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product-s/keyue_unit'
+  - product: '智能语音'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product-s/keyue_voice'
+  - product: '智能通信'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product-s/keyue_communication'
+  - product: '百度办公安全平台'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/bd-ztna.html'
+  - product: '百度智能云福宝'
+    model: quote
+    reason: 'The product page offers only a consultation request (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/acsp.html'
+  - product: 'AI翻译配音'
+    model: quote
+    reason: 'The product page offers only a business consultation (商务咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/SPEECH/ai_trans_tts.html'
+  - product: '呼叫中心语音解决方案'
+    model: quote
+    reason: 'The product page offers only a business consultation (商务咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/SPEECH/bsic.html'
+  - product: '语音私有化部署方案'
+    model: quote
+    reason: 'The product page offers only a business consultation (商务咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/SPEECH/speechprivatization.html'
+  - product: '语音合成定制音库'
+    model: quote
+    reason: 'The product page offers only a cooperation consultation (合作咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/SPEECH/customized-tts.html'
+  - product: 'iCoding-AI Cloud IDE'
+    model: quote
+    reason: 'The product page offers only a consultation with a dedicated advisor (立即咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/COMATE_PUBLIC/ide.html'
+  - product: '全球网络加速服务'
+    model: quote
+    reason: 'The product page offers only a cooperation consultation (合作咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/sna.html'
+  - product: '智能搜推'
+    model: quote
+    reason: 'The product page offers only a cooperation consultation (合作咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/ai-rec.html'
+  - product: '商标交易'
+    model: quote
+    reason: 'The product page offers only a purchase consultation (求购咨询), no public price.'
+    source: 'https://cloud.baidu.com/product/tms/transaction?track=portal&pageResource=portal'
+  - product: '大模型安全评测平台'
+    model: quote
+    reason: 'The product page offers only a consultation or trial request, no public price.'
+    source: 'https://cloud.baidu.com/product/AIGCSEC/benchmark.html'
+  - product: '数字员工'
+    model: quote
+    reason: 'Enterprise plans are quoted on request (详询报价), the page shows no list price.'
+    source: 'https://cloud.baidu.com/product-s/keyue_home/digital-employees'
+  - product: '人脸私有化部署包'
+    model: quote
+    reason: 'Its price page lists the private deployment package as contact sales (联系商务).'
+    source: 'https://cloud.baidu.com/product-price/face.html'
+  - product: 'Noah运维产品'
+    model: quote
+    reason: 'The product page offers only an application form (立即申请), no public price.'
+    source: 'https://cloud.baidu.com/product/noahee.html'
+  - product: '数据标注服务'
+    model: quote
+    reason: 'The product page offers only an application for a custom service (立即申请), no public price.'
+    source: 'https://cloud.baidu.com/product/dcs.html'
+  - product: '数据采集服务'
+    model: quote
+    reason: 'The product page offers only an application for a custom service (立即申请), no public price.'
+    source: 'https://cloud.baidu.com/product/dc.html'
+  - product: '私有化存储'
+    model: quote
+    reason: 'The product page offers only an application form (立即申请), no public price.'
+    source: 'https://cloud.baidu.com/product/abc-storage.html'
+  - product: '语音通话'
+    model: quote
+    reason: 'The product page offers only an application form (立即申请), no public price.'
+    source: 'https://cloud.baidu.com/product/vcs.html'
+  - product: '边缘服务器'
+    model: quote
+    reason: 'The product page offers only an application form (申请使用), no public price.'
+    source: 'https://cloud.baidu.com/product/ecs.html'
+  - product: '广目混合云管理平台'
+    model: quote
+    reason: 'The product page offers only a trial application (申请试用), no public price.'
+    source: 'https://cloud.baidu.com/product/bhcmp.html'
+  - product: '本地计算集群'
+    model: quote
+    reason: 'The product page offers only a trial application (申请试用), no public price.'
+    source: 'https://cloud.baidu.com/product/lcc.html'
+  - product: '弹性池化推理缓存 PreCache'
+    model: quote
+    reason: 'The product page offers only a trial application and an advisor contact, no public price.'
+    source: 'https://cloud.baidu.com/product/precache.html'
+  - product: '文字识别私有化部署'
+    model: quote
+    reason: 'The product page offers only a trial application (申请试用), no public price.'
+    source: 'https://cloud.baidu.com/product/OCR/private.html'
+  - product: '磐玉·蜂巢服务器'
+    model: quote
+    reason: 'The product page offers only a trial application and a contact form, no public price.'
+    source: 'https://cloud.baidu.com/product/pycs.html'
+  - product: '磐玉·边缘计算盒'
+    model: quote
+    reason: 'The product page offers only a trial application and a contact form, no public price.'
+    source: 'https://cloud.baidu.com/product/PYCS/py-aibox.html'
+  - product: '数据保险箱'
+    model: quote
+    reason: 'The product page offers only a purchase application and an advisor contact, no public price.'
+    source: 'https://cloud.baidu.com/product/DASD_PRIVATE/airealm.html'
+  - product: '智能合规平台'
+    model: quote
+    reason: 'The product page offers only a purchase application and an advisor contact, no public price.'
+    source: 'https://cloud.baidu.com/product/DASD_PRIVATE/grc.html'
+  - product: '点石隐私计算'
+    model: quote
+    reason: 'The product page offers only applications for the private or SaaS edition, no public price.'
+    source: 'https://cloud.baidu.com/product/dsad.html'
+  - product: '百度搭子开发平台'
+    model: quote
+    reason: 'The product page offers only a contact form (联系我们), no public price.'
+    source: 'https://cloud.baidu.com/product-s/dumate_developement_platform.html'
+  - product: '百战・营销代运营服务'
+    model: quote
+    reason: 'The product page offers only a contact form (联系我们), no public price.'
+    source: 'https://cloud.baidu.com/product/baizhan.html'
+  - product: '资质代办'
+    model: quote
+    reason: 'The product page offers only a free consultation with an advisor, no public price.'
+    source: 'https://cloud.baidu.com/product/bla'
+  - product: '百度智能风控'
+    model: quote
+    reason: 'The product page offers only a consultation for a custom risk-control plan, no public price.'
+    source: 'https://cloud.baidu.com/product-s/afd_s.html'
+  - product: '百度网盘企业版'
+    model: quote
+    reason: 'The custom edition is sold through sales (请咨询销售), the page shows no list price.'
+    source: 'https://cloud.baidu.com/product/bnd-e.html'
+  - product: 'Hogee 品牌声量优化专家'
+    model: quote
+    reason: 'The product page offers only a consultation and a contact form, no public price.'
+    source: 'https://cloud.baidu.com/product/Hogee/geo.html'
+  - product: '5G消息服务'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/fifthg-ms.html'
+  - product: 'AI安全护栏'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/AIGCSEC/platform.html'
+  - product: 'API网关'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/apigw.html'
+  - product: 'AgentWorks'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/agentworks.html'
+  - product: 'Agent安全中心'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/asc.html'
+  - product: 'OpenAPI Explorer'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/api_explorer.html'
+  - product: 'PaddleOCR企业版'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/OCR/ppocr.html'
+  - product: 'Palo for PostgreSQL'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/PALO/postgresql.html'
+  - product: 'Prometheus 监控服务'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/cprom.html'
+  - product: 'RedClaw'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://operator.gc.com.cn/'
+  - product: '云SSO'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/sso.html'
+  - product: '云治理中心'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/landing_zone.html'
+  - product: '云资源运营管理系统'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/comp.html'
+  - product: '云高性能计算平台'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/chpc.html'
+  - product: '司南AI审核'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/sinan?from=navigation'
+  - product: '多模态实时互动平台'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/RTC/multimodal.html'
+  - product: '大模型语音合成'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/SPEECH/tts.html'
+  - product: '容器引擎'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/cce.html'
+  - product: '弹性伸缩'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/as.html'
+  - product: '数字员工-组件开放平台'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://xiling.cloud.baidu.com/portal/platform'
+  - product: '数字员工-营销内容创作'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://xiling.cloud.baidu.com/main/home'
+  - product: '数据库智能驾驶舱'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/dbaudit.html'
+  - product: '智算网络平台'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/aicp.html'
+  - product: '智能代码助手文心快码'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/comate-public.html'
+  - product: '智能体身份与权限平台'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/agent_id.html'
+  - product: '智能可信数据空间'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/dscmprivate.html'
+  - product: '智能文档分析平台'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/textmind.html'
+  - product: '智能网络接入服务'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/smart-wan.html'
+  - product: '智金·金融智能体'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://zhijin.cloud.baidu.com/home'
+  - product: '服务网格'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/csm.html'
+  - product: '机器翻译'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/mt'
+  - product: '流式文本在线合成'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/SPEECH/ws-tts.html'
+  - product: '消息服务 for RocketMQ'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/rocketmq.html'
+  - product: '百度一见'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product-s/yijian_home'
+  - product: '百度一镜数字人'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/huiboxing-api.html'
+  - product: '百度百舸 · AI计算平台'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/aihc.html'
+  - product: '看图识万物'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/imagerecognition/object_recognition'
+  - product: '私有化网盘'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/becd.html'
+  - product: '秒哒'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://www.miaoda.cn/'
+  - product: '见微·多模态视频分析盒'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product-s/yijian_aiBox'
+  - product: '见睿·多模态视频分析一体机'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product-s/yijian_allInOne'
+  - product: '视觉应用平台'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product-s/yijian_home/purchase'
+  - product: '视频生成'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/VOD/gen-video.html'
+  - product: '语音通知'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/vns.html'
+  - product: '资源管理'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/res-manager.html'
+  - product: '超级链可信存证'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/xuperevid.html'
+  - product: '软件著作权'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/ruanzhu.html'
+  - product: 'ICP备案服务'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/beian/index.html'
+  - product: '验证码 Captcha'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product-s/afd_s/captcha.html'
+  - product: '智能体沙箱'
+    model: not-public
+    reason: 'No price on its product page and no price page in the Baidu price navigation.'
+    source: 'https://cloud.baidu.com/product/ax.html'
+  - product: '云备份'
+    model: not-public
+    reason: 'In invitation-only testing (申请邀测), no public price on its product page or in the price navigation.'
+    source: 'https://cloud.baidu.com/product/bcb.html'
+  - product: '云数据库 DDC OceanBase 版'
+    model: not-public
+    reason: 'Available on application (申请使用), no public price on its product page or in the price navigation.'
+    source: 'https://cloud.baidu.com/product/ddc.html'
+  - product: '运维编排'
+    model: not-public
+    reason: 'In whitelist trial (白名单试用), no public price on its product page or in the price navigation.'
+    source: 'https://cloud.baidu.com/product/oos.html'

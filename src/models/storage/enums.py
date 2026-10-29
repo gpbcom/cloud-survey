@@ -12,11 +12,13 @@ class DatasetKind(StrEnum):
         CATALOGUE (str): The product catalogue of a cloud provider.
         MARKETPLACE (str): The software of the marketplace of a cloud provider.
         STATISTICS (str): The cloud market statistics of a source (e.g. Synergy Research Group).
+        PRICES (str): The service prices of a cloud provider.
     """
 
     CATALOGUE = "catalogue"
     MARKETPLACE = "marketplace"
     STATISTICS = "statistics"
+    PRICES = "prices"
 
 
 @unique
@@ -90,6 +92,36 @@ class StorageTable(StrEnum):
         MARKET_SHARES (str): The market shares of the companies, by segment, area, device and period.
         STOCK_PRICES (str): The weekly closing prices of the listings.
         FX_RATES (str): The daily exchange rates against the US dollar.
+        COMPANY_FINANCIALS (str): The statement lines of the companies, per period and source.
+        COMPANY_INDICATORS (str): The time series of the companies' wealth and research indicators.
+        PATENTS (str): The patent publications of the companies.
+        PATENT_COMPANIES (str): The companies whose searches returned each publication.
+        PATENT_INVENTORS (str): The inventors of each publication.
+        PATENT_ASSIGNEES (str): The assignees of each publication.
+        PATENT_CLASSIFICATIONS (str): The CPC classes of each publication.
+        PATENT_CITATIONS (str): The citations read on each publication page.
+        PATENT_WINDOWS (str): The windows of the patents search, searched or split.
+        INVENTOR_PROFILES (str): The profiles of the inventors, derived from the publications.
+        ASSIGNEE_PROFILES (str): The profiles of the assignee names, derived from the publications.
+        RESEARCH_PAPERS (str): The research papers of the companies' researchers.
+        PAPER_COMPANIES (str): The companies each paper is affiliated with.
+        PAPER_AUTHORS (str): The authors of each paper.
+        RESEARCHER_PROFILES (str): The OpenAlex profiles of the companies' researchers.
+        CURATED_RECORDS (str): The curated records of the chronology and the markets catalogue.
+        CURATED_STATE (str): The seed state and the revision of each curated dataset.
+        COMPANY_PROFILES (str): The curated companies crawled (statements, market capitalization, patent search).
+        COMPANY_IDENTIFIERS (str): The identifiers of the companies at their sources (SEC, OpenAlex, Google Patents).
+        REPORTED_COMPANIES (str): The companies whose figures were researched by hand.
+        REPORTED_YEARS (str): The fiscal years researched by hand.
+        REPORTED_EVENTS (str): The dated figures researched by hand (private companies).
+        PRODUCT_LAUNCHES (str): The curated launch dates of the cloud products.
+        SERVICE_PRICES (str): The prices of the cloud services, with their history.
+        SERVICE_PRICE_STAGE (str): The prices a running price crawl read, waiting to be merged (unlogged).
+        FREE_TIERS (str): The free offers of the cloud providers, with their history.
+        FREE_TIER_STAGE (str): The free offers a running price crawl read, waiting to be merged (unlogged).
+        PRICE_SOURCES (str): The price sources as last read (their version, for the incremental crawls).
+        USAGE_PROFILES (str): The workloads whose cost is compared across the providers.
+        PRICE_QUOTES (str): The monthly cost of each workload at each provider and region (a cache).
     """
 
     CRAWLS = "crawls"
@@ -112,6 +144,36 @@ class StorageTable(StrEnum):
     MARKET_SHARES = "market_shares"
     STOCK_PRICES = "stock_prices"
     FX_RATES = "fx_rates"
+    COMPANY_FINANCIALS = "company_financials"
+    COMPANY_INDICATORS = "company_indicators"
+    PATENTS = "patents"
+    PATENT_COMPANIES = "patent_companies"
+    PATENT_INVENTORS = "patent_inventors"
+    PATENT_ASSIGNEES = "patent_assignees"
+    PATENT_CLASSIFICATIONS = "patent_classifications"
+    PATENT_CITATIONS = "patent_citations"
+    PATENT_WINDOWS = "patent_windows"
+    INVENTOR_PROFILES = "inventor_profiles"
+    ASSIGNEE_PROFILES = "assignee_profiles"
+    RESEARCH_PAPERS = "research_papers"
+    PAPER_COMPANIES = "paper_companies"
+    PAPER_AUTHORS = "paper_authors"
+    RESEARCHER_PROFILES = "researcher_profiles"
+    CURATED_RECORDS = "curated_records"
+    CURATED_STATE = "curated_state"
+    COMPANY_PROFILES = "company_profiles"
+    COMPANY_IDENTIFIERS = "company_identifiers"
+    REPORTED_COMPANIES = "reported_companies"
+    REPORTED_YEARS = "reported_years"
+    REPORTED_EVENTS = "reported_events"
+    PRODUCT_LAUNCHES = "product_launches"
+    SERVICE_PRICES = "service_prices"
+    SERVICE_PRICE_STAGE = "service_price_stage"
+    FREE_TIERS = "free_tiers"
+    FREE_TIER_STAGE = "free_tier_stage"
+    PRICE_SOURCES = "price_sources"
+    USAGE_PROFILES = "usage_profiles"
+    PRICE_QUOTES = "price_quotes"
 
 
 @unique

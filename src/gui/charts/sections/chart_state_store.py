@@ -58,9 +58,12 @@ class ChartStateStore:
             bool: Whether the section is expanded.
         """
         if self.settings is None:
+            self.logger.debug("Expanded state of the chart %s read from the session.", key)
             return self.expanded_states.get(key, default)
         value = self.settings.value(f"{key}/expanded", default)
-        return value if isinstance(value, bool) else str(value).lower() == "true"
+        expanded = value if isinstance(value, bool) else str(value).lower() == "true"
+        self.logger.debug("Chart %s left %s.", key, "expanded" if expanded else "collapsed")
+        return expanded
 
     def set_expanded(self, key: str, expanded: bool) -> None:
         """Remember whether the section of a chart is expanded.
@@ -85,9 +88,11 @@ class ChartStateStore:
             Optional[ChartAxes]: The axes, `None` for a chart never configured (or saved by another version).
         """
         if self.settings is None:
+            self.logger.debug("Axes of the chart %s read from the session.", key)
             return self.saved_axes.get(key)
         raw = self.settings.value(f"{key}/axes", "")
         if not raw:
+            self.logger.debug("No saved axes for the chart %s: its default is shown.", key)
             return None
         try:
             axes = ChartAxes.model_validate_json(str(raw))
@@ -96,6 +101,7 @@ class ChartStateStore:
             return None
         version = self.settings.value(f"{key}/version", 1)
         if str(version).isdigit() and int(str(version)) >= self.VERSION:
+            self.logger.debug("Saved axes of the chart %s restored: a %s chart.", key, axes.chart.value)
             return axes
         self.logger.info("The saved axes of the chart %s are upgraded: every series is shown.", key)
         return axes.model_copy(update={"top": None})
@@ -107,6 +113,7 @@ class ChartStateStore:
             key (str): The chart key.
             axes (ChartAxes): The chart axes.
         """
+        self.logger.debug("Axes of the chart %s saved: a %s chart of %s.", key, axes.chart.value, axes.y.value)
         if self.settings is None:
             self.saved_axes[key] = axes
         else:

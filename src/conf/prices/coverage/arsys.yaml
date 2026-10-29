@@ -1,0 +1,96 @@
+# Curated price coverage of Arsys (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: arsys
+currency: EUR
+statements:
+  - product: 'Backup PC and Mobile'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/security/backup/pc'
+  - product: 'Backup Server'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/security/backup'
+  - product: 'Backup Website'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/security/backup/web'
+  - product: 'Backup email'
+    model: included
+    reason: '5 GB of Email Backup included free with the Arsys hosting and email plans, larger plans priced client-side.'
+    source: 'https://www.arsys.net/security/backup/email'
+  - product: 'Business Email'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/email'
+  - product: 'Buy Domain'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/domains'
+  - product: 'Domain Protection'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/domains/protection'
+  - product: 'Domain Transfer'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/domains/transfer'
+  - product: 'Microsoft Office 365'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/office'
+  - product: 'Professional Antivirus'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/security/antivirus'
+  - product: 'SSL Certificate'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/security/ssl'
+  - product: 'Game Servers'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/servers/games'
+  - product: 'Server Virtualization'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/servers/virtualisation'
+  - product: 'Private Cloud with VMware'
+    model: not-public
+    reason: 'No plan price in its page, neither in the HTML nor once rendered in a browser with cookies accepted.'
+    source: 'https://www.arsys.net/cloud/private'
+  - product: 'Corporate Domains'
+    model: quote
+    reason: 'Contact Arsys for a customised study of the extensions to register.'
+    source: 'https://www.arsys.net/domains/corporate'
+  - product: 'Domain Reseller'
+    model: not-public
+    reason: 'Special domain prices after a 100 euro top-up, the price list is behind the reseller account.'
+    source: 'https://www.arsys.net/domains/management'
+  - product: 'Special Domains'
+    model: quote
+    reason: 'The price varies with the premium domain, negotiated with its registry.'
+    source: 'https://www.arsys.net/domains/specials'
+  - product: 'Email Migration'
+    model: free
+    reason: 'Migrate my email for free, offered with the Arsys email plans.'
+    source: 'https://www.arsys.net/email/migrator'
+  - product: 'IT Solutions'
+    model: quote
+    reason: 'Managed hybrid cloud projects priced per project.'
+    source: 'https://www.arsys.net/managed-services/hybrid-cloud'
+  - product: 'Managed Services'
+    model: quote
+    reason: 'Managed services priced per project.'
+    source: 'https://www.arsys.net/managed-services'
+  - product: 'Passive Security'
+    model: quote
+    reason: 'Managed security services priced per project.'
+    source: 'https://www.arsys.net/managed-services/passive-security'
+  - product: 'Professional Services'
+    model: quote
+    reason: 'Consulting priced per project.'
+    source: 'https://www.arsys.net/managed-services/consulting'
+  - product: 'Veeam Cloud Backup'
+    model: quote
+    reason: 'Fill out the form and Arsys will contact you.'
+    source: 'https://www.arsys.net/security/backup/cloud-connect'

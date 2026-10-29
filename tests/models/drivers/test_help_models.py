@@ -5,11 +5,23 @@ from typing import Dict
 import pytest
 from pydantic import JsonValue, ValidationError
 
-from models.drivers.enums import DriverColumn, DriverRole, DriverWarningKind, ProviderMetric, WarningSeverity
+from models.drivers.enums import (
+    DriverColumn,
+    DriverRole,
+    DriverWarningKind,
+    MetricSource,
+    MetricValueColumn,
+    ProviderMetric,
+    WarningSeverity,
+)
+from models.drivers.exception import InvalidHelpTextError, UnknownHelpChoiceError
+from models.drivers.help.choice_help import ChoiceHelp
 from models.drivers.help.column_help import ColumnHelp
 from models.drivers.help.driver_help import DriverHelp
 from models.drivers.help.role_help import RoleHelp
+from models.drivers.help.value_column_help import ValueColumnHelp
 from models.drivers.help.warning_help import WarningHelp
+from models.drivers.metrics.metric_coverage import MetricCoverage
 from models.drivers.results.driver_warning import DriverWarning
 
 
@@ -117,3 +129,91 @@ class TestColumnHelp:
         assert granger is not None
         assert granger.title == "G"
         assert help_.column(DriverColumn.BETA) is None
+
+
+class TestValueColumnHelp:
+    def test_a_column(self) -> None:
+        column = ValueColumnHelp.model_validate({"column": "fetched", "title": " Fetched ", "summary": " The\n day. "})
+
+        assert (column.column, column.title, column.summary) == (MetricValueColumn.FETCHED, "Fetched", "The day.")
+
+    @pytest.mark.parametrize(
+        ("field", "value"), [("column", "colour"), ("title", "x" * 30), ("title", " "), ("summary", 3)]
+    )
+    def test_invalid_columns_are_refused(self, field: str, value: JsonValue) -> None:
+        raw: Dict[str, JsonValue] = {"column": "url", "title": "Read from", "summary": "The page."}
+        raw[field] = value
+
+        with pytest.raises(ValidationError):
+            ValueColumnHelp.model_validate(raw)
+
+    def test_an_empty_text_is_reported(self) -> None:
+        with pytest.raises(ValidationError) as caught:
+            ValueColumnHelp.model_validate({"column": "url", "title": "Read from", "summary": "  "})
+
+        assert isinstance(caught.value.errors()[0]["ctx"]["error"], InvalidHelpTextError)
+
+    def test_the_lookup(self) -> None:
+        help_ = DriverHelp.model_validate({"value_columns": [{"column": "source", "title": "S", "summary": "s"}]})
+
+        source = help_.value_column(MetricValueColumn.SOURCE)
+        assert source is not None
+        assert source.title == "S"
+        assert help_.value_column(MetricValueColumn.URL) is None
+
+
+class TestChoiceHelp:
+    def test_a_scale_and_a_scope_are_explained(self) -> None:
+        scale = ChoiceHelp.model_validate({"choice": " count ", "summary": "log(1 + x)\n  for counts."})
+        scope = ChoiceHelp.model_validate({"choice": "panel", "summary": "Yearly changes."})
+
+        assert (scale.choice, scale.summary) == ("count", "log(1 + x) for counts.")
+        assert DriverHelp(choices=[scale, scope]).choice("panel") == scope
+        assert DriverHelp().choice("panel") is None
+
+    @pytest.mark.parametrize(
+        ("field", "value", "error"),
+        [("choice", "weekly", UnknownHelpChoiceError), ("summary", " ", InvalidHelpTextError)],
+    )
+    def test_invalid_choices_are_refused(self, field: str, value: JsonValue, error: type[Exception]) -> None:
+        raw: Dict[str, JsonValue] = {"choice": "share", "summary": "As it is."}
+        raw[field] = value
+
+        with pytest.raises(ValidationError) as caught:
+            ChoiceHelp.model_validate(raw)
+
+        assert isinstance(caught.value.errors()[0]["ctx"]["error"], error)
+
+
+class TestMetricCoverage:
+    def test_a_coverage(self) -> None:
+        coverage = MetricCoverage.model_validate(
+            {
+                "metric": "usage-search",
+                "providers": 6,
+                "first": "2009q1",
+                "last": "2026Q3",
+                "observations": 420,
+                "sources": ["statcounter"],
+            }
+        )
+
+        assert (coverage.metric, coverage.first, coverage.sources) == (
+            ProviderMetric.USAGE_SEARCH,
+            "2009Q1",
+            [MetricSource.STATCOUNTER],
+        )
+
+    @pytest.mark.parametrize(("field", "value"), [("first", "2009-01"), ("last", 2026), ("providers", -1)])
+    def test_invalid_coverages_are_refused(self, field: str, value: JsonValue) -> None:
+        raw: Dict[str, JsonValue] = {
+            "metric": "usage-search",
+            "providers": 6,
+            "first": "2009Q1",
+            "last": "2026Q3",
+            "observations": 420,
+        }
+        raw[field] = value
+
+        with pytest.raises(ValidationError):
+            MetricCoverage.model_validate(raw)

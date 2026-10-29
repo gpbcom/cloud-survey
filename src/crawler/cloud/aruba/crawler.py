@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import re
+from decimal import Decimal
 from pathlib import Path
 from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Tuple, Union
 from urllib.parse import urljoin, urlparse
@@ -12,9 +13,13 @@ from scrapling.parser import Selector
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
-from crawler.cloud.aruba.enums import ArubaMenuMarkup, ArubaPricingCardName
-from crawler.cloud.base import BaseCloudCrawler
+from crawler.cloud.aruba.enums import ArubaMenuMarkup, ArubaPriceColumn, ArubaPricePeriod, ArubaPricingCardName
+from crawler.cloud.base import BaseCloudCrawler, PriceFact
 from crawler.enums import HtmlAttribute
+from crawler.exception import CatalogueFormatError
+from models.cloud.enums import PriceModel, PriceSourceKind, PriceTerm, PriceUnit
+from models.cloud.prices.facts.service_price import ServicePrice
+from models.cloud.prices.price_field_check import RawValue
 from models.cloud.products.product import CloudProduct
 
 
@@ -28,6 +33,27 @@ class ArubaCloudCrawler(BaseCloudCrawler):
         ITALIAN_WORDS (ClassVar[re.Pattern[str]]): Common Italian words, revealing an untranslated menu description.
         HTML_TAG (ClassVar[re.Pattern[str]]): An HTML tag left in a meta description, e.g. `<br/>`.
         MENU_ITEM (ClassVar[ArubaMenuMarkup]): The class of the menu items, whose links label the menu groups.
+        PRICE_PAGE (ClassVar[re.Pattern[str]]): The path of a product pricing page, `/pricing/<family>/<product>`.
+        PRICE_CELL (ClassVar[re.Pattern[str]]): A price of a pricing table, e.g. `€ 13.20 + VAT / month`,
+            `€ 0.0164 + VAT / Mtoken (input)` or `€ 0.00028 + VAT / hour every 10 GB`.
+        FREE_CELL (ClassVar[str]): The text of a free price.
+        AMOUNT_FIRST (ClassVar[re.Pattern[str]]): A price written amount first, its period being its column header,
+            e.g. `19.99 € + VAT` under `Monthly price`.
+        HEADER_PERIODS (ClassVar[Dict[str, ArubaPricePeriod]]): The period of such a price, by its column header.
+        SOLD_OUT (ClassVar[str]): The mark of a server no longer sold.
+        PAGE_TITLE (ClassVar[re.Pattern[str]]): The brand suffix of the page titles.
+        PERIOD_UNITS (ClassVar[Dict[ArubaPricePeriod, Tuple[PriceUnit, Decimal]]]): The unit of a price by its
+            period, and the normalized units in one.
+        SIZE_UNITS (ClassVar[Dict[ArubaPricePeriod, PriceUnit]]): The unit of a price of a storage size by its
+            period.
+        SPEC_COLUMNS (ClassVar[Tuple[ArubaPriceColumn, ...]]): The columns read as the hot columns of a server.
+        SIZE (ClassVar[re.Pattern[str]]): A size in GB or TB, e.g. `4 TB`.
+        PRICE_CURRENCY (ClassVar[str]): The currency of the prices.
+        REGION (ClassVar[str]): The region of the prices (one price for every data center).
+        SERVICE_META (ClassVar[str]): The request meta holding the service of a pricing page.
+        PRODUCT_PAGE_PRICES (ClassVar[bool]): The product pages are read too: several show prices (e.g. the
+            Container Registry) the pricing pages do not.
+        PAGE_TEXT_PRICES (ClassVar[bool]): A product page without price table is read for the prices in its text.
         untranslated (List[Tuple[str, str, List[str]]]): The product pages (URL, menu name and menu categories) of
             the menu entries described in Italian, to read for their English description.
 
@@ -42,6 +68,12 @@ class ArubaCloudCrawler(BaseCloudCrawler):
         The catalogue categories of a menu product are the labels of the menu items holding it: its top menu (e.g.
         `Public Cloud`), then its menu group (e.g. `Container`), gathered over all the menu entries of the product.
         Those of a pricing card are the title of its pricing family section (e.g. `Public Cloud`).
+        In price mode it reads the product pricing pages linked by the pricing cards (the service being the card
+        name, renamed as above): each table row prices a model (a server, a resource, a license, a domain) in euros
+        without VAT, one price per price cell (hourly, monthly, yearly or per million tokens, a price of a storage
+        size being per GB). A yearly price next to a monthly one is a one-year commitment, alone a yearly fee. The
+        specification cells are attributes, the vCPUs, memory and storage of a server its hot columns. Each page is
+        a source.
     """
 
     PRICING_URL: ClassVar[str] = "https://www.arubacloud.com/pricing"
@@ -59,6 +91,41 @@ class ArubaCloudCrawler(BaseCloudCrawler):
     )
     HTML_TAG: ClassVar[re.Pattern[str]] = re.compile(r"<[^>]*>")
     MENU_ITEM: ClassVar[ArubaMenuMarkup] = ArubaMenuMarkup.NAV_ITEM
+    PRICE_PAGE: ClassVar[re.Pattern[str]] = re.compile(r"^/pricing/[^/]+/[^/]+$")
+    PRICE_CELL: ClassVar[re.Pattern[str]] = re.compile(
+        r"€\s*(?P<amount>\d[\d,]*(?:\.\d+)?)\s*\+\s*VAT\s*/\s*(?P<period>hour|month|year|Mtoken)"
+        r"(?:\s*\((?P<side>input|output)\))?(?:\s*every\s*(?P<count>\d+)\s*(?P<size>GB|TB))?"
+    )
+    FREE_CELL: ClassVar[str] = "FREE"
+    AMOUNT_FIRST: ClassVar[re.Pattern[str]] = re.compile(r"(?P<amount>\d[\d,]*(?:\.\d+)?)\s*€\s*\+\s*VAT")
+    HEADER_PERIODS: ClassVar[Dict[str, ArubaPricePeriod]] = {
+        "Monthly price": ArubaPricePeriod.MONTH,
+        "Hourly price": ArubaPricePeriod.HOUR,
+        "Annual price": ArubaPricePeriod.YEAR,
+    }
+    SOLD_OUT: ClassVar[str] = "SOLD OUT"
+    PAGE_TITLE: ClassVar[re.Pattern[str]] = re.compile(r"\s*\|\s*Cloud\s*$")
+    PERIOD_UNITS: ClassVar[Dict[ArubaPricePeriod, Tuple[PriceUnit, Decimal]]] = {
+        ArubaPricePeriod.HOUR: (PriceUnit.HOUR, Decimal(1)),
+        ArubaPricePeriod.MONTH: (PriceUnit.MONTH, Decimal(1)),
+        ArubaPricePeriod.YEAR: (PriceUnit.YEAR, Decimal(1)),
+        ArubaPricePeriod.MILLION_TOKENS: (PriceUnit.TOKEN, Decimal(1_000_000)),
+    }
+    SIZE_UNITS: ClassVar[Dict[ArubaPricePeriod, PriceUnit]] = {
+        ArubaPricePeriod.HOUR: PriceUnit.GIB_HOUR,
+        ArubaPricePeriod.MONTH: PriceUnit.GIB_MONTH,
+    }
+    SPEC_COLUMNS: ClassVar[Tuple[ArubaPriceColumn, ...]] = (
+        ArubaPriceColumn.VCPUS,
+        ArubaPriceColumn.RAM,
+        ArubaPriceColumn.STORAGE,
+    )
+    SIZE: ClassVar[re.Pattern[str]] = re.compile(r"(?P<size>\d+(?:[.,]\d+)?)\s*(?P<unit>GB|TB)")
+    PRICE_CURRENCY: ClassVar[str] = "EUR"
+    REGION: ClassVar[str] = "global"
+    SERVICE_META: ClassVar[str] = "price_service"
+    PRODUCT_PAGE_PRICES: ClassVar[bool] = True
+    PAGE_TEXT_PRICES: ClassVar[bool] = True
 
     name = "aruba"
     catalogue_url: ClassVar[str] = "https://www.arubacloud.com/"
@@ -89,7 +156,10 @@ class ArubaCloudCrawler(BaseCloudCrawler):
             Optional[str]: The description, `None` when the page has none.
         """
         description = super()._page_description(response)
-        return self._clean_text(self.HTML_TAG.sub(" ", description)) if description else None
+        if not description:
+            self.logger.debug("The %s product page %s has no description.", self.name, response.url)
+            return None
+        return self._clean_text(self.HTML_TAG.sub(" ", description))
 
     def _is_italian(self, text: str) -> bool:
         """Tell whether a menu description is written in Italian (at least two common Italian words).
@@ -219,6 +289,204 @@ class ArubaCloudCrawler(BaseCloudCrawler):
             if product := self._build_product(name, text, url, categories=families):
                 yield product
 
+    def _price_pages(self, response: Response) -> Dict[str, str]:
+        """Read the product pricing pages linked by the pricing cards, with their service.
+
+        Args:
+            response (Response): The pricing page.
+
+        Returns:
+            Dict[str, str]: The service of each pricing page (its card name, renamed after the menu product when
+                aliased), by URL.
+        """
+        pages: Dict[str, str] = {}
+        for card in response.css("div.card-body"):
+            heading = card.css(":scope > h3").first
+            name = self._clean_text(heading.get_all_text(separator=" ", strip=True)) if heading is not None else ""
+            for link in card.css("a[href]"):
+                url = urljoin(response.url, link.attrib.get(HtmlAttribute.HREF, ""))
+                if name and self.PRICE_PAGE.match(urlparse(url).path):
+                    pages.setdefault(url, self.PRICING_ALIASES.get(name, name))
+        for link in response.css("a[href]"):
+            url = urljoin(response.url, link.attrib.get(HtmlAttribute.HREF, ""))
+            if self.PRICE_PAGE.match(urlparse(url).path) and url not in pages:
+                pages[url] = ""
+        return pages
+
+    def _size_gib(self, text: str) -> Optional[Decimal]:
+        """Read a size in GiB.
+
+        Args:
+            text (str): The cell, e.g. `RAM 4 GB` or `Storage 4 TB`.
+
+        Returns:
+            Optional[Decimal]: The size in GiB, None when not written.
+        """
+        match = self.SIZE.search(text)
+        if match is None:
+            return None
+        size = Decimal(match.group("size").replace(",", "."))
+        return size * 1024 if match.group("unit") == "TB" else size
+
+    def _cell_price(
+        self, base: Dict[str, RawValue], header: str, text: str, yearly_commitment: bool
+    ) -> Optional[ServicePrice]:
+        """Read a price cell of a pricing table row.
+
+        Args:
+            base (Dict[str, RawValue]): The fields of the row.
+            header (str): The header of the cell column.
+            text (str): The cell.
+            yearly_commitment (bool): Whether a yearly price is a one-year commitment (the row has a monthly price).
+
+        Returns:
+            Optional[ServicePrice]: The price, None when the cell holds none.
+        """
+        attributes: Dict[str, JsonValue] = dict(base["attributes"]) if isinstance(base["attributes"], dict) else {}
+        if header and header != ArubaPriceColumn.PRICE:
+            attributes["column"] = header
+        if text == self.FREE_CELL:
+            price, period, unit, factor = Decimal(0), header, PriceUnit.UNIT, Decimal(1)
+            term, model = PriceTerm.NONE, PriceModel.FREE
+        else:
+            match = self.PRICE_CELL.search(text)
+            if match is None:
+                return None
+            price = Decimal(match.group("amount").replace(",", ""))
+            period = match.group("period")
+            unit, factor = self.PERIOD_UNITS[ArubaPricePeriod(period)]
+            if match.group("size"):
+                size = Decimal(match.group("count")) * (1024 if match.group("size") == "TB" else 1)
+                unit, factor = self.SIZE_UNITS.get(ArubaPricePeriod(period), PriceUnit.GIB), size
+            if match.group("side"):
+                attributes["side"] = match.group("side")
+            term, model = PriceTerm.NONE, PriceModel.FREE if price == 0 else PriceModel.ON_DEMAND
+            if period == ArubaPricePeriod.YEAR and yearly_commitment:
+                unit, factor, term = PriceUnit.MONTH, Decimal(12), PriceTerm.ONE_YEAR
+                model = PriceModel.FREE if price == 0 else PriceModel.COMMITMENT
+        return self._price_fact(
+            {
+                **base,
+                "sku_key": f"{base['sku_key']}/{header}/{period}/{attributes.get('side', '')}".rstrip("/"),
+                "attributes": attributes,
+                "unit": unit,
+                "unit_raw": text[:120],
+                "unit_factor": factor,
+                "price": price,
+                "model": model,
+                "term": term,
+            }
+        )
+
+    def _table_prices(self, url: str, service: str, group: str, rows: List[List[str]]) -> Iterator[ServicePrice]:
+        """Read the prices of a pricing table.
+
+        Args:
+            url (str): Its pricing page.
+            service (str): The service of the page.
+            group (str): The heading of the table.
+            rows (List[List[str]]): Its rows, the first being its header.
+
+        Yields:
+            ServicePrice: One price per price cell of each row.
+        """
+        if len(rows) < 2:
+            return
+        header = rows[0]
+        path = urlparse(url).path.removeprefix("/pricing/")
+        for row in rows[1:]:
+            model = row[0]
+            cells = dict(zip(header, row, strict=False))
+            attributes: Dict[str, JsonValue] = {"vat": "excluded", "group": group}
+            for column, cell in list(cells.items())[1:]:
+                if (
+                    not self.PRICE_CELL.search(cell)
+                    and not self.AMOUNT_FIRST.search(cell)
+                    and cell not in (self.FREE_CELL, column, self.SOLD_OUT)
+                ):
+                    attributes[column] = cell.removeprefix(column).strip()
+            vcpus = re.search(r"\d+", cells.get(ArubaPriceColumn.VCPUS, ""))
+            base: Dict[str, RawValue] = {
+                "sku_key": f"{path}/{group}/{model}",
+                "service": service,
+                "family": path.split("/")[0],
+                "region": self.REGION,
+                "instance_type": model if vcpus else None,
+                "vcpu": int(vcpus.group()) if vcpus else None,
+                "memory_gib": self._size_gib(cells.get(ArubaPriceColumn.RAM, "")),
+                "storage_gib": self._size_gib(cells.get(ArubaPriceColumn.STORAGE, "")),
+                "attributes": attributes,
+                "currency": self.PRICE_CURRENCY,
+                "source_url": url,
+                "source_kind": PriceSourceKind.PAGE,
+            }
+            yearly_commitment = any(f"/ {ArubaPricePeriod.MONTH.value}" in cell for cell in row)
+            for index, cell in enumerate(row[1:], start=1):
+                column = header[index] if index < len(header) else header[-1]
+                for part in self.PRICE_CELL.finditer(cell):
+                    fact = self._cell_price(base, column, part.group(0), yearly_commitment)
+                    if fact is not None:
+                        yield fact
+                first = self.AMOUNT_FIRST.search(cell) if not self.PRICE_CELL.search(cell) else None
+                if first is not None and column in self.HEADER_PERIODS:
+                    written = f"€ {first.group('amount')} + VAT / {self.HEADER_PERIODS[column].value}"
+                    sold_out = self.SOLD_OUT in cell
+                    fact = self._cell_price(
+                        {**base, "attributes": {**attributes, "status": "sold out"}} if sold_out else base,
+                        column,
+                        written,
+                        yearly_commitment,
+                    )
+                    if fact is not None:
+                        yield fact
+                if cell == self.FREE_CELL and (fact := self._cell_price(base, column, cell, False)) is not None:
+                    yield fact
+
+    async def _price_requests(self) -> AsyncGenerator[Request]:
+        """Request the pricing page, whose cards link to the product pricing pages.
+
+        Yields:
+            Request: Its request.
+        """
+        self.logger.info("Reading the %s pricing pages from %s.", self.name, self.PRICING_URL)
+        yield self._price_request(self.PRICING_URL)
+
+    async def _extract_prices(self, response: Response) -> AsyncGenerator[PriceFact]:
+        """Read the pricing page, or a product pricing page.
+
+        Args:
+            response (Response): The page.
+
+        Yields:
+            PriceFact: The requests of the product pricing pages, or the prices of one.
+
+        Raises:
+            CatalogueFormatError: If the pricing page links to no product pricing page.
+        """
+        service = response.meta.get(self.SERVICE_META)
+        if not isinstance(service, str):
+            pages = self._price_pages(response)
+            if not pages:
+                self.logger.error("The %s pricing page %s links to no product pricing page.", self.name, response.url)
+                raise CatalogueFormatError(self.name, response.url, "the pricing page links to no product pricing")
+            self.logger.info("%d %s product pricing pages to read.", len(pages), self.name)
+            for url, name in pages.items():
+                yield self._price_request(url, {self.SERVICE_META: name})
+            return
+        url = str(response.url)
+        title = self._clean_text(response.css("title::text").get())
+        service = service or self.PAGE_TITLE.sub("", title) or urlparse(url).path.rsplit("/", 1)[-1]
+        found = 0
+        seen: Dict[str, int] = {}
+        for group, rows in self._price_tables(response):
+            for fact in self._table_prices(url, service, group, rows):
+                count = seen.get(fact.sku_key, 0)
+                seen[fact.sku_key] = count + 1
+                found += 1
+                yield fact if not count else fact.model_copy(update={"sku_key": f"{fact.sku_key}#{count}"})
+        self._record_price_source(url, found)
+        self.logger.debug("The %s pricing page %s gave %d prices.", self.name, url, found)
+
     ############################
     # Publicly Exposed Methods #
     ############################
@@ -233,7 +501,9 @@ class ArubaCloudCrawler(BaseCloudCrawler):
             Iterator[CloudProduct]: The valid products of the page.
         """
         if urlparse(response.url).path.rstrip("/") == urlparse(self.PRICING_URL).path:
+            self.logger.debug("Extracting the %s products of the pricing page %s.", self.name, response.url)
             return self._pricing_products(response)
+        self.logger.debug("Extracting the %s products of the menu of %s.", self.name, response.url)
         return self._menu_products(response)
 
     async def parse(self, response: Response) -> AsyncGenerator[Union[Dict[str, JsonValue], Request]]:
@@ -250,5 +520,6 @@ class ArubaCloudCrawler(BaseCloudCrawler):
         """
         async for item in super().parse(response):
             yield item
+        self.logger.debug("Read the %s page %s, looking for the products still untranslated.", self.name, response.url)
         for request in self._untranslated_requests():
             yield request

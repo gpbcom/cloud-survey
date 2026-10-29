@@ -1,0 +1,647 @@
+{
+ "catalogId": 9694,
+ "locale": {
+  "currencyCode": "EUR",
+  "subsidiary": "FR",
+  "taxRate": 20
+ },
+ "plans": [
+  {
+   "planCode": "credit",
+   "invoiceName": "Public Cloud credit",
+   "addonFamilies": [],
+   "product": "voucher",
+   "pricingType": "purchase",
+   "consumptionConfiguration": null,
+   "pricings": [
+    {
+     "phase": 0,
+     "capacities": [
+      "installation"
+     ],
+     "commitment": 0,
+     "description": "purchase (only applicable 1 time)",
+     "interval": 0,
+     "intervalUnit": "none",
+     "quantity": {
+      "min": 1,
+      "max": null
+     },
+     "repeat": {
+      "min": 1,
+      "max": 1
+     },
+     "price": 1000000,
+     "formattedPrice": "0.01 €",
+     "tax": 200000,
+     "mode": "default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "purchase",
+     "promotions": [],
+     "engagementConfiguration": null
+    }
+   ],
+   "configurations": [
+    {
+     "name": "type",
+     "isCustom": false,
+     "isMandatory": true,
+     "values": [
+      "public_cloud"
+     ]
+    }
+   ],
+   "family": null,
+   "blobs": null
+  }
+ ],
+ "addons": [
+  {
+   "planCode": "storage-standard.consumption",
+   "invoiceName": "storage-standard",
+   "addonFamilies": [],
+   "product": "publiccloud-storage",
+   "pricingType": "consumption",
+   "consumptionConfiguration": {
+    "billingStrategy": "sum",
+    "prorataUnit": "hour",
+    "pingEndPolicy": null
+   },
+   "pricings": [
+    {
+     "phase": 0,
+     "capacities": [
+      "consumption"
+     ],
+     "commitment": 0,
+     "description": "hourly prices",
+     "interval": 0,
+     "intervalUnit": "none",
+     "quantity": {
+      "min": 1,
+      "max": null
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 972,
+     "formattedPrice": "0.00 €",
+     "tax": 194,
+     "mode": "default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "consumption",
+     "promotions": [],
+     "engagementConfiguration": null
+    }
+   ],
+   "configurations": [],
+   "family": null,
+   "blobs": {
+    "commercial": {
+     "brick": "storage",
+     "brickSubtype": "Standard object storage - S3 API",
+     "name": "high-storage-replicated",
+     "price": {
+      "interval": "PT1H",
+      "precision": 8,
+      "unit": "GiB*h"
+     }
+    },
+    "tags": [
+     "active"
+    ]
+   }
+  },
+  {
+   "planCode": "ai-endpoints.llama-3-3-70b-instruct-output_tokens.unit.consumption",
+   "invoiceName": "Amount of output tokens for AI Endpoints Meta-Llama-3_3-70B-Instruct model",
+   "addonFamilies": [],
+   "product": "publiccloud-ai-endpoints-llama-3-3-70b-instruct-output-tokens",
+   "pricingType": "consumption",
+   "consumptionConfiguration": {
+    "billingStrategy": "sum",
+    "prorataUnit": "hour",
+    "pingEndPolicy": null
+   },
+   "pricings": [
+    {
+     "phase": 0,
+     "capacities": [
+      "consumption"
+     ],
+     "commitment": 0,
+     "description": "price for one unit",
+     "interval": 0,
+     "intervalUnit": "none",
+     "quantity": {
+      "min": 1,
+      "max": null
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 67,
+     "formattedPrice": "0.00 €",
+     "tax": 13,
+     "mode": "default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "consumption",
+     "promotions": [],
+     "engagementConfiguration": null
+    }
+   ],
+   "configurations": [],
+   "family": null,
+   "blobs": {
+    "commercial": {
+     "brick": "ai-endpoints",
+     "brickSubtype": "AI Endpoints LLM",
+     "price": {
+      "interval": "P1M",
+      "precision": 3,
+      "unit": "million_token_output"
+     }
+    },
+    "tags": [
+     "active"
+    ],
+    "technical": {
+     "modelUnit": "output tokens",
+     "name": "Meta-Llama-3_3-70B-Instruct",
+     "quantization": "fp8"
+    }
+   }
+  },
+  {
+   "planCode": "bandwidth_instance_out.consumption.SGP1",
+   "invoiceName": "bandwidth_instance_out",
+   "addonFamilies": [],
+   "product": "publiccloud-bandwidth-instance-out",
+   "pricingType": "consumption",
+   "consumptionConfiguration": {
+    "billingStrategy": "sum",
+    "prorataUnit": "hour",
+    "pingEndPolicy": null
+   },
+   "pricings": [
+    {
+     "phase": 0,
+     "capacities": [
+      "consumption"
+     ],
+     "commitment": 0,
+     "description": "hourly prices",
+     "interval": 0,
+     "intervalUnit": "none",
+     "quantity": {
+      "min": 1,
+      "max": 1024
+     },
+     "repeat": {
+      "min": 1,
+      "max": 1
+     },
+     "price": 0,
+     "formattedPrice": "0.00 €",
+     "tax": 0,
+     "mode": "default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "consumption",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 0,
+     "capacities": [
+      "consumption"
+     ],
+     "commitment": 0,
+     "description": "hourly prices",
+     "interval": 0,
+     "intervalUnit": "none",
+     "quantity": {
+      "min": 1025,
+      "max": null
+     },
+     "repeat": {
+      "min": 1,
+      "max": 1
+     },
+     "price": 1000000,
+     "formattedPrice": "0.01 €",
+     "tax": 200000,
+     "mode": "default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "consumption",
+     "promotions": [],
+     "engagementConfiguration": null
+    }
+   ],
+   "configurations": [
+    {
+     "name": "region",
+     "isCustom": false,
+     "isMandatory": false,
+     "values": [
+      "SGP1"
+     ]
+    }
+   ],
+   "family": null,
+   "blobs": {
+    "commercial": {
+     "brick": "bandwidth-instance",
+     "brickSubtype": null,
+     "name": "bandwidth-instance-out",
+     "price": {
+      "interval": "PT1H",
+      "precision": 4,
+      "unit": "GiB"
+     }
+    },
+    "tags": [
+     "active"
+    ]
+   }
+  },
+  {
+   "planCode": "quantum-notebook.a10-1-gpu.minute.consumption",
+   "invoiceName": "Per minute usage for Public Cloud Quantum Notebooks instance a10-1-gpu (Model: 1xA10, vCores: 28, Memory: 40 GiB) on #REGION#",
+   "addonFamilies": [],
+   "product": "publiccloud-quantum-notebook-a10-1-gpu",
+   "pricingType": "consumption",
+   "consumptionConfiguration": {
+    "billingStrategy": "sum",
+    "prorataUnit": "hour",
+    "pingEndPolicy": null
+   },
+   "pricings": [
+    {
+     "phase": 0,
+     "capacities": [
+      "consumption"
+     ],
+     "commitment": 0,
+     "description": "price for one minute",
+     "interval": 0,
+     "intervalUnit": "none",
+     "quantity": {
+      "min": 1,
+      "max": null
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 1500000,
+     "formattedPrice": "0.02 €",
+     "tax": 300000,
+     "mode": "default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "consumption",
+     "promotions": [],
+     "engagementConfiguration": null
+    }
+   ],
+   "configurations": [],
+   "family": null,
+   "blobs": {
+    "commercial": {
+     "brick": "ai-serving",
+     "brickSubtype": "quantum-emulator-gpu",
+     "name": "a10-1-gpu",
+     "price": {
+      "interval": "PT1H",
+      "precision": 2
+     }
+    },
+    "tags": [
+     "active"
+    ],
+    "technical": {
+     "bandwidth": {
+      "level": 5000
+     },
+     "cpu": {
+      "cores": 28
+     },
+     "ephemeralLocalStorage": {
+      "disks": [
+       {
+        "capacity": 1536,
+        "sizeUnit": "GiB"
+       }
+      ]
+     },
+     "gpu": {
+      "memory": {
+       "size": 24,
+       "sizeUnit": "GiB"
+      },
+      "model": "NVIDIA Ampere A10",
+      "number": 1,
+      "performance": 31.2
+     },
+     "memory": {
+      "size": 40,
+      "sizeUnit": "GiB"
+     }
+    }
+   }
+  },
+  {
+   "planCode": "b3-8.consumption.3AZ",
+   "invoiceName": "b3-8",
+   "addonFamilies": [
+    {
+     "name": "license",
+     "exclusive": false,
+     "mandatory": false,
+     "addons": [
+      "instance.windows-vcore-license.hour.consumption"
+     ],
+     "default": null
+    },
+    {
+     "name": "local-storage",
+     "exclusive": false,
+     "mandatory": false,
+     "addons": [
+      "instance.local-storage-gen3-gb.hour.consumption"
+     ],
+     "default": null
+    }
+   ],
+   "product": "publiccloud-instance",
+   "pricingType": "consumption",
+   "consumptionConfiguration": {
+    "billingStrategy": "ping",
+    "prorataUnit": "second",
+    "pingEndPolicy": "prorata"
+   },
+   "pricings": [
+    {
+     "phase": 0,
+     "capacities": [
+      "consumption"
+     ],
+     "commitment": 0,
+     "description": "hourly prices",
+     "interval": 1,
+     "intervalUnit": "hour",
+     "quantity": {
+      "min": 1,
+      "max": null
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 5120000,
+     "formattedPrice": "0.05 €",
+     "tax": 1024000,
+     "mode": "default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "consumption",
+     "promotions": [],
+     "engagementConfiguration": null
+    }
+   ],
+   "configurations": [],
+   "family": null,
+   "blobs": {
+    "commercial": {
+     "brick": "guaranteed-resources",
+     "brickSubtype": "general-purpose",
+     "name": "b3-8",
+     "price": {
+      "interval": "PT1H",
+      "precision": 4,
+      "unit": "h"
+     }
+    },
+    "tags": [
+     "active",
+     "is_top",
+     "savings_plans",
+     "coming_soon"
+    ],
+    "technical": {
+     "bandwidth": {
+      "guaranteed": false,
+      "level": 500,
+      "unlimited": false
+     },
+     "cpu": {
+      "cores": 2,
+      "frequency": 2.3,
+      "model": "vCore",
+      "type": "vCore"
+     },
+     "memory": {
+      "size": 8
+     },
+     "name": "b3-8",
+     "os": {
+      "family": "linux"
+     },
+     "storage": {
+      "disks": [
+       {
+        "capacity": 50,
+        "number": 1,
+        "technology": "NVMe"
+       }
+      ],
+      "raid": "local"
+     },
+     "vrack": {
+      "guaranteed": false,
+      "level": 4000,
+      "unlimited": false
+     }
+    }
+   }
+  },
+  {
+   "planCode": "b3-8.consumption",
+   "invoiceName": "b3-8",
+   "addonFamilies": [
+    {
+     "name": "license",
+     "exclusive": false,
+     "mandatory": false,
+     "addons": [
+      "instance.windows-vcore-license.hour.consumption"
+     ],
+     "default": null
+    },
+    {
+     "name": "local-storage",
+     "exclusive": false,
+     "mandatory": false,
+     "addons": [
+      "instance.local-storage-gen3-gb.hour.consumption"
+     ],
+     "default": null
+    }
+   ],
+   "product": "publiccloud-instance",
+   "pricingType": "consumption",
+   "consumptionConfiguration": {
+    "billingStrategy": "ping",
+    "prorataUnit": "second",
+    "pingEndPolicy": "prorata"
+   },
+   "pricings": [
+    {
+     "phase": 0,
+     "capacities": [
+      "consumption"
+     ],
+     "commitment": 0,
+     "description": "hourly prices",
+     "interval": 1,
+     "intervalUnit": "hour",
+     "quantity": {
+      "min": 1,
+      "max": null
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 5120000,
+     "formattedPrice": "0.05 €",
+     "tax": 1024000,
+     "mode": "default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "consumption",
+     "promotions": [],
+     "engagementConfiguration": null
+    }
+   ],
+   "configurations": [],
+   "family": null,
+   "blobs": {
+    "commercial": {
+     "brick": "guaranteed-resources",
+     "brickSubtype": "general-purpose",
+     "name": "b3-8",
+     "price": {
+      "interval": "PT1H",
+      "precision": 4,
+      "unit": "h"
+     }
+    },
+    "tags": [
+     "active",
+     "coming_soon",
+     "is_top",
+     "savings_plans"
+    ],
+    "technical": {
+     "bandwidth": {
+      "guaranteed": false,
+      "level": 500,
+      "unlimited": false
+     },
+     "cpu": {
+      "cores": 2,
+      "frequency": 2.3,
+      "model": "vCore",
+      "type": "vCore"
+     },
+     "memory": {
+      "size": 8
+     },
+     "name": "b3-8",
+     "os": {
+      "family": "linux"
+     },
+     "storage": {
+      "disks": [
+       {
+        "capacity": 50,
+        "number": 1,
+        "technology": "NVMe"
+       }
+      ],
+      "raid": "local"
+     },
+     "vrack": {
+      "guaranteed": false,
+      "level": 4000,
+      "unlimited": false
+     }
+    }
+   }
+  }
+ ],
+ "products": [
+  {
+   "name": "publiccloud-instance",
+   "description": "Public Cloud Instance",
+   "blobs": null,
+   "configurations": [
+    {
+     "name": "instanceParams",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "instanceId",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    }
+   ]
+  },
+  {
+   "name": "voucher",
+   "description": "Voucher account",
+   "blobs": null,
+   "configurations": []
+  },
+  {
+   "name": "publiccloud-storage",
+   "description": "storage",
+   "blobs": null,
+   "configurations": []
+  },
+  {
+   "name": "publiccloud-bandwidth-instance-out",
+   "description": "bandwidth_instance_out",
+   "blobs": null,
+   "configurations": []
+  },
+  {
+   "name": "publiccloud-ai-endpoints-llama-3-3-70b-instruct-output-tokens",
+   "description": "publiccloud ai-endpoints llama-3-3-70b-instruct-output_tokens",
+   "blobs": null,
+   "configurations": []
+  },
+  {
+   "name": "publiccloud-quantum-notebook-a10-1-gpu",
+   "description": "publiccloud quantum-notebook a10-1-gpu",
+   "blobs": null,
+   "configurations": []
+  }
+ ],
+ "planFamilies": [
+  {
+   "name": "project"
+  }
+ ]
+}

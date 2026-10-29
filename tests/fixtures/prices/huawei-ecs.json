@@ -1,0 +1,1150 @@
+{
+ "product": {
+  "ec2_vm": [
+   {
+    "resourceType": "hws.resource.type.vm",
+    "cloudServiceType": "hws.service.type.ec2",
+    "resourceSpecCode": "m9.6xlarge.8.linux",
+    "productSpecSysDesc": "Memory:196608MB;vCPUs:24CORE;CPU Architecture:x86;Type:Memory-optimized;System Disk:40GB;Series:M9;Image:Linux;Spot Duartion:On Demand, Period, Dynamic Price Spot;Local Disk:No Local-Disk;Remark:normal;accelerator card:No Accelerator Card",
+    "resourceSpecType": "m9",
+    "periodList": 0,
+    "_skuInfo": [
+     "Memory: 196608BSSUNIT.pluralUnit.21",
+     "vCPUs: 24BSSUNIT.pluralUnit.23",
+     "CPU Architecture: x86",
+     "Type: Memory-optimized",
+     "System Disk: 40BSSUNIT.pluralUnit.17",
+     "Series: M9",
+     "Image: Linux",
+     "Spot Duartion: On Demand, Period, Dynamic Price Spot",
+     "Local Disk: No Local-Disk",
+     "Remark: normal",
+     "accelerator card: No Accelerator Card"
+    ],
+    "mem": "192BSSUNIT.pluralUnit.102",
+    "cpu": "24dataInfo_36_",
+    "instanceArch": "x86",
+    "performType": "Memory-optimized",
+    "disk": "40BSSUNIT.pluralUnit.17",
+    "series": "M9",
+    "image": "Linux",
+    "spot_duartion": "On Demand, Period, Dynamic Price Spot",
+    "localDisk": "No Local-Disk",
+    "type": "normal",
+    "acceleratorCard": "No Accelerator Card",
+    "planList": [
+     {
+      "productId": "OFFI1220984534401601541",
+      "billingMode": "MONTHLY",
+      "siteCode": "HWC",
+      "planType": "PRICEPLAN",
+      "periodNum": 1,
+      "billingEvent": "event.type.onetime",
+      "measureUnitStep": null,
+      "measureUnit": null,
+      "amount": 905.71
+     },
+     {
+      "productId": "OFFI1220984534401601536",
+      "billingMode": "YEARLY",
+      "siteCode": "HWC",
+      "planType": "PRICEPLAN",
+      "periodNum": 1,
+      "billingEvent": "event.type.onetime",
+      "measureUnitStep": null,
+      "measureUnit": null,
+      "amount": 9057.1
+     },
+     {
+      "productId": "OFFI1220984534397407238",
+      "billingMode": "ONDEMAND",
+      "siteCode": "HWC",
+      "planType": "PRICEPLAN",
+      "periodNum": null,
+      "billingEvent": "event.type.vmduration",
+      "measureUnitStep": 1,
+      "measureUnit": 4,
+      "usageFactor": "Duration",
+      "usageMeasureId": 6,
+      "amount": 1.7232
+     }
+    ],
+    "arch": "dataInfo_32_",
+    "generation": "M9",
+    "spec": "m9.6xlarge.8",
+    "physical": "dataInfo_44_",
+    "vmType": "dataInfo_6_",
+    "generationType": "dataInfo_6_ M9 dataInfo_44_",
+    "generationTypeMap": "dataInfo_6_",
+    "imageSpec": "linux",
+    "riResourceSepc": "m9.6xlarge.8"
+   },
+   {
+    "resourceType": "hws.resource.type.vm",
+    "cloudServiceType": "hws.service.type.ec2",
+    "resourceSpecCode": "ac8.large.4.byol",
+    "RITime": "nodeData.1_3",
+    "RIType": "nodeData.STANDARD",
+    "_skuInfo": [
+     "Memory: 8192BSSUNIT.pluralUnit.21",
+     "vCPUs: 2BSSUNIT.pluralUnit.23",
+     "CPU Architecture: x86",
+     "Type: General Computing-plus",
+     "System Disk: 40BSSUNIT.pluralUnit.17",
+     "Series: aC8",
+     "Image: Byol",
+     "Spot Duartion: On Demand, Period, Dynamic Price Spot",
+     "Local Disk: No Local-Disk",
+     "Remark: normal",
+     "accelerator card: No Accelerator Card"
+    ],
+    "mem": "8BSSUNIT.pluralUnit.102",
+    "cpu": "2dataInfo_36_",
+    "instanceArch": "x86",
+    "performType": "General Computing-plus",
+    "disk": "40BSSUNIT.pluralUnit.17",
+    "series": "aC8",
+    "image": "detail_77_",
+    "spot_duartion": "On Demand, Period, Dynamic Price Spot",
+    "localDisk": "No Local-Disk",
+    "type": "normal",
+    "acceleratorCard": "No Accelerator Card",
+    "planList": [
+     {
+      "productId": "196493b3bd0c42cabd119f931c338a18",
+      "billingMode": "RI",
+      "originType": "price",
+      "skuCode": "feab7dbfa5aa4bad8670984820116a43",
+      "planId": "3e9433633c134a2daf4b56d5aab2853f",
+      "amount": 0,
+      "amountType": "nodeData.price",
+      "paymentType": "nodeData.NO_UPFRONT",
+      "paymentTypeKey": "NO_UPFRONT"
+     },
+     {
+      "productId": "196493b3bd0c42cabd119f931c338a18",
+      "billingMode": "RI",
+      "originType": "perEffectivePrice",
+      "skuCode": "feab7dbfa5aa4bad8670984820116a43",
+      "planId": "3e9433633c134a2daf4b56d5aab2853f",
+      "amount": 0.0595,
+      "amountType": "nodeData.perEffectivePrice",
+      "paymentType": "nodeData.NO_UPFRONT",
+      "paymentTypeKey": "NO_UPFRONT"
+     },
+     {
+      "productId": "196493b3bd0c42cabd119f931c338a18",
+      "billingMode": "RI",
+      "originType": "perPrice",
+      "skuCode": "feab7dbfa5aa4bad8670984820116a43",
+      "planId": "3e9433633c134a2daf4b56d5aab2853f",
+      "amount": 43.44,
+      "amountType": "nodeData.perPrice",
+      "paymentType": "nodeData.NO_UPFRONT",
+      "paymentTypeKey": "NO_UPFRONT"
+     }
+    ],
+    "periodList": 6,
+    "arch": "dataInfo_32_",
+    "generation": "aC8",
+    "spec": "ac8.large.4",
+    "physical": "dataInfo_44_",
+    "vmType": "dataInfo_3_",
+    "generationType": "dataInfo_3_ aC8 dataInfo_44_",
+    "imageSpec": "byol",
+    "riResourceSepc": "ac8.large.4",
+    "paymentType": "nodeData.NO_UPFRONT"
+   }
+  ],
+  "ebs_volume": [
+   {
+    "resourceType": "hws.resource.type.volume",
+    "cloudServiceType": "hws.service.type.ebs",
+    "resourceSpecCode": "GPSSD2.storage",
+    "productSpecSysDesc": "Disk Specifications:General Purpose SSD V2 for storage",
+    "resourceSpecType": "General_Purpose_SSD_V2",
+    "periodList": 4,
+    "_skuInfo": [
+     "Disk Specifications: General Purpose SSD V2 for storage",
+     "Disk Size: nullBSSUNIT.unit.17"
+    ],
+    "volumeType": "General Purpose SSD V2 for storage",
+    "linearDisk": "nullBSSUNIT.unit.17",
+    "planList": [
+     {
+      "productId": "OFFI885710938139074561",
+      "billingMode": "MONTHLY",
+      "siteCode": "HWC",
+      "planType": "PRICEPLAN",
+      "periodNum": 1,
+      "billingEvent": "event.type.onetime",
+      "measureUnitStep": null,
+      "measureUnit": null,
+      "amount": 0.1
+     },
+     {
+      "productId": "OFFI885710938139074560",
+      "billingMode": "YEARLY",
+      "siteCode": "HWC",
+      "planType": "PRICEPLAN",
+      "periodNum": 1,
+      "billingEvent": "event.type.onetime",
+      "measureUnitStep": null,
+      "measureUnit": null,
+      "amount": 1
+     },
+     {
+      "productId": "OFFI885710616830844930",
+      "billingMode": "ONDEMAND",
+      "siteCode": "HWC",
+      "planType": "PRICEPLAN",
+      "periodNum": null,
+      "billingEvent": "event.type.volumeduration",
+      "measureUnitStep": 1,
+      "measureUnit": 4,
+      "usageFactor": "Duration",
+      "usageMeasureId": 6,
+      "amount": 0.000137
+     }
+    ],
+    "billingItem": "detail_68_",
+    "type": "dataInfo_48_",
+    "info": "dataInfo_26_",
+    "specifications": "dataInfo_27_",
+    "tableUnit": "detail_26_"
+   }
+  ],
+  "vpc_bandwidth": [
+   {
+    "resourceType": "hws.resource.type.bandwidth",
+    "cloudServiceType": "hws.service.type.vpc",
+    "resourceSpecCode": "19_bgp",
+    "productSpecSysDesc": "Package Validity:unknown;type:19_bgp",
+    "resourceSpecType": "DEFAULT",
+    "periodList": 2,
+    "_skuInfo": [
+     "Package Validity: unknown",
+     "type: 19_bgp"
+    ],
+    "PackageValidity": "unknown",
+    "type": "19_bgp",
+    "planList": [
+     {
+      "productId": "00301-33916-0--0",
+      "billingMode": "YEARLY",
+      "siteCode": "HWC",
+      "planType": "PRICEPLAN",
+      "periodNum": 1,
+      "billingEvent": "event.type.onetime",
+      "measureUnitStep": null,
+      "measureUnit": null,
+      "divisionList": [
+       {
+        "amount": 48.6,
+        "division": {
+         "measureUnitStep": null,
+         "beginUnit": 15,
+         "endUnit": 15,
+         "beginValue": 0,
+         "endValue": 5
+        }
+       },
+       {
+        "amount": 162,
+        "division": {
+         "measureUnitStep": null,
+         "beginUnit": 15,
+         "endUnit": 15,
+         "beginValue": 5,
+         "endValue": -1
+        }
+       }
+      ],
+      "divisionType": "DIVISION_STEP"
+     },
+     {
+      "productId": "00301-34543-0--0",
+      "billingMode": "MONTHLY",
+      "siteCode": "HWC",
+      "planType": "PRICEPLAN",
+      "periodNum": 1,
+      "billingEvent": "event.type.onetime",
+      "measureUnitStep": null,
+      "measureUnit": null,
+      "divisionList": [
+       {
+        "amount": 4.86,
+        "division": {
+         "measureUnitStep": null,
+         "beginUnit": 15,
+         "endUnit": 15,
+         "beginValue": 0,
+         "endValue": 5
+        }
+       },
+       {
+        "amount": 16.2,
+        "division": {
+         "measureUnitStep": null,
+         "beginUnit": 15,
+         "endUnit": 15,
+         "beginValue": 5,
+         "endValue": -1
+        }
+       }
+      ],
+      "divisionType": "DIVISION_STEP"
+     },
+     {
+      "productId": "00301-34542-0--0",
+      "billingMode": "ONDEMAND",
+      "siteCode": "HWC",
+      "planType": "PRICEPLAN",
+      "periodNum": null,
+      "billingEvent": "event.type.bandwidthduration",
+      "measureUnitStep": null,
+      "measureUnit": null,
+      "usageFactor": "Duration",
+      "usageMeasureId": 6,
+      "divisionList": [
+       {
+        "amount": 0.01,
+        "division": {
+         "measureUnitStep": 1,
+         "beginUnit": 15,
+         "endUnit": 15,
+         "beginValue": 0,
+         "endValue": 5
+        }
+       },
+       {
+        "amount": 0.034,
+        "division": {
+         "measureUnitStep": 1,
+         "beginUnit": 15,
+         "endUnit": 15,
+         "beginValue": 5,
+         "endValue": -1
+        }
+       }
+      ],
+      "divisionType": "DIVISION_STEP"
+     }
+    ],
+    "eipSpec": "dataInfo_14_",
+    "shareType": "dataInfo_16_",
+    "eipType": "dataInfo_18_",
+    "name": "dataInfo_14_"
+   }
+  ],
+  "vpc_ip": [
+   {
+    "resourceType": "hws.resource.type.ip",
+    "cloudServiceType": "hws.service.type.vpc",
+    "resourceSpecCode": "5_bgp",
+    "productSpecSysDesc": "EIPType:Dynamic BGP",
+    "resourceSpecType": "DEFAULT",
+    "periodList": 0,
+    "_skuInfo": [
+     "EIPType: Dynamic BGP"
+    ],
+    "EIPType": "Dynamic BGP",
+    "planList": [
+     {
+      "productId": "00301-01072-0--0",
+      "billingMode": "ONDEMAND",
+      "siteCode": "HWC",
+      "planType": "PRICEPLAN",
+      "periodNum": null,
+      "billingEvent": "event.type.ipduration",
+      "measureUnitStep": 1,
+      "measureUnit": 4,
+      "usageFactor": "duration",
+      "usageMeasureId": 6,
+      "amount": 0.009
+     }
+    ],
+    "name": "dataInfo_30_"
+   }
+  ]
+ },
+ "period": {
+  "ec2_vm": [
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": true
+    }
+   ],
+   [
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": true
+    }
+   ],
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    }
+   ],
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 10,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 11,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": false
+    }
+   ],
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": true
+    },
+    {
+     "periodType": "YEAR",
+     "value": 2,
+     "hasPromotion": true
+    },
+    {
+     "periodType": "YEAR",
+     "value": 3,
+     "hasPromotion": true
+    }
+   ],
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": false
+    }
+   ],
+   []
+  ],
+  "ec2_vm.image": [
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": false
+    }
+   ],
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": true
+    },
+    {
+     "periodType": "YEAR",
+     "value": 2,
+     "hasPromotion": true
+    },
+    {
+     "periodType": "YEAR",
+     "value": 3,
+     "hasPromotion": true
+    }
+   ]
+  ],
+  "ebs_volume": [
+   [],
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": true
+    }
+   ],
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 10,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 11,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": true
+    }
+   ],
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": false
+    }
+   ],
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 10,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 11,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": true
+    },
+    {
+     "periodType": "YEAR",
+     "value": 2,
+     "hasPromotion": true
+    },
+    {
+     "periodType": "YEAR",
+     "value": 3,
+     "hasPromotion": true
+    }
+   ]
+  ],
+  "vpc_ip": [
+   []
+  ],
+  "vpc_bandwidth": [
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": true
+    }
+   ],
+   [],
+   [
+    {
+     "periodType": "MONTH",
+     "value": 1,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 2,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 3,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 4,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 5,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 6,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 7,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 8,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 9,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 10,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "MONTH",
+     "value": 11,
+     "hasPromotion": false
+    },
+    {
+     "periodType": "YEAR",
+     "value": 1,
+     "hasPromotion": true
+    },
+    {
+     "periodType": "YEAR",
+     "value": 2,
+     "hasPromotion": true
+    },
+    {
+     "periodType": "YEAR",
+     "value": 3,
+     "hasPromotion": true
+    }
+   ]
+  ],
+  "ec2_vm.image.special": []
+ },
+ "region": "ap-southeast-1",
+ "tag": "general.online.portal",
+ "urlPath": "ecs",
+ "tab": "calc"
+}

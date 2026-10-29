@@ -3,7 +3,7 @@ from __future__ import annotations
 # Standard Library Imports.
 from dataclasses import replace
 from logging import Logger, getLogger
-from typing import ClassVar, List, Optional
+from typing import ClassVar, List, Optional, Tuple
 
 # Third Party Imports.
 import numpy
@@ -16,7 +16,7 @@ from analytics.drivers.matrix.driver_panel import DriverPanel
 from analytics.drivers.panel.granger_test import GrangerTest
 from analytics.drivers.panel.panel_regression import PanelRegression
 from analytics.drivers.regression.driver_regression import DriverRegression, RegressionOutcome
-from models.drivers.enums import DriverScope, DriverWarningKind, ProviderMetric
+from models.drivers.enums import DriverScope, DriverWarningKind, MetricFamily, ProviderMetric
 from models.drivers.metrics.metric_catalog import MetricCatalog
 from models.drivers.metrics.provider_metric_value import ProviderMetricValue
 from models.drivers.query.driver_query import DriverQuery
@@ -32,6 +32,8 @@ class DriverAnalysis:
         FEW_PROVIDERS (ClassVar[int]): The providers measuring the target below which a criterion cannot be told
             apart from the identity of a provider.
         FEW_OBSERVATIONS (ClassVar[int]): The observations below which the results are fragile.
+        COMMON_FAMILIES (ClassVar[Tuple[MetricFamily, ...]]): The families whose criteria take the same value for
+            every provider in a quarter (a market context).
         catalog (MetricCatalog): The definitions of the criteria and the targets.
         panel (DriverPanel): The observations, from the stored measures.
         correlations (CorrelationAnalysis): The correlations of the criteria with the target.
@@ -51,6 +53,7 @@ class DriverAnalysis:
 
     FEW_PROVIDERS: ClassVar[int] = 3
     FEW_OBSERVATIONS: ClassVar[int] = 8
+    COMMON_FAMILIES: ClassVar[Tuple[MetricFamily, ...]] = (MetricFamily.SUPPLY_CONTEXT,)
 
     def __init__(self, catalog: Optional[MetricCatalog] = None, logger: Optional[Logger] = None) -> None:
         """Initialize the analysis.
@@ -117,6 +120,36 @@ class DriverAnalysis:
                     subjects=[ProviderMetric(name) for _, name in coverage[:3]],
                 )
             )
+        common = [
+            metric
+            for metric in [*query.criteria, *query.controls]
+            if (definition := self.catalog.get(metric)) is not None and definition.family in self.COMMON_FAMILIES
+        ]
+        if common:
+            names = ", ".join(self.catalog.label(metric) for metric in common)
+            reach = (
+                "on the latest quarter they differ between providers only when their latest quarters differ: "
+                "their correlation there says nothing about the providers"
+                if query.scope is DriverScope.CROSS_SECTION
+                else "the panel correlations and Granger tests use their changes over time, the regression's quarter "
+                "effects absorb them"
+            )
+            warnings.append(
+                DriverWarning(
+                    kind=DriverWarningKind.COMMON_CRITERION,
+                    message=f"{names}: the same value for every provider in a quarter; {reach}.",
+                    subjects=common,
+                )
+            )
+        if warnings:
+            self.logger.warning(
+                "%d caveats on the analysis of %s: %s.",
+                len(warnings),
+                query.target,
+                ", ".join(warning.kind for warning in warnings),
+            )
+        else:
+            self.logger.debug("No caveat on the analysis of %s.", query.target)
         return warnings
 
     def _usable(self, matrix: DriverMatrix, usable: List[ProviderMetric]) -> DriverMatrix:
@@ -132,6 +165,9 @@ class DriverAnalysis:
         columns = [column for column, criterion in enumerate(matrix.criteria) if criterion in usable]
         kept = replace(matrix, criteria=[matrix.criteria[column] for column in columns], x=matrix.x[:, columns])
         complete = int(kept.complete_rows().sum())
+        self.logger.debug(
+            "%d of %d criteria usable, %d complete observations.", len(columns), len(matrix.criteria), complete
+        )
         return replace(kept, dropped=int(numpy.isfinite(kept.y).sum()) - complete)
 
     def _leads(

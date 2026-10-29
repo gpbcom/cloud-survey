@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 # Standard Library Imports.
-from typing import AsyncGenerator, ClassVar, Iterator
+from pathlib import Path
+from typing import AsyncGenerator, ClassVar, Iterator, Optional, Union
 
 # Third Party Imports.
 from pydantic import ValidationError
@@ -11,6 +12,7 @@ from scrapling.spiders import Request, Response
 from crawler.enums import RequestMeta
 from crawler.metrics.base import BaseMetricsCrawler, MetricFact
 from crawler.metrics.github.enums import GithubField
+from models.drivers.collectors.collector_catalog import CollectorCatalog
 from models.drivers.enums import MetricSource
 from models.drivers.facts.repository_fact import RepositoryFact
 
@@ -35,6 +37,25 @@ class GithubCrawler(BaseMetricsCrawler):
     name = "github"
     source: ClassVar[MetricSource] = MetricSource.GITHUB
     catalogue_url: ClassVar[str] = "https://api.github.com/"
+
+    def __init__(
+        self,
+        catalog: Optional[CollectorCatalog] = None,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            catalog (Optional[CollectorCatalog]): Where each provider is found, `conf/metrics/collectors.yaml` by
+                default.
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+
+        Raises:
+            CollectorCatalogError: If the default catalogue cannot be loaded.
+        """
+        super().__init__(catalog=catalog, crawldir=crawldir, interval=interval)
 
     ############################
     # Publicly Exposed Methods #

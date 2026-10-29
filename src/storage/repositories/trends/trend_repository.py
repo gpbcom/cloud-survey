@@ -10,6 +10,7 @@ from sqlalchemy import ColumnElement, Row
 from sqlalchemy.exc import SQLAlchemyError
 
 # First Party Imports.
+from models.cloud.enums import CloudProvider
 from models.storage.enums import DatasetKind
 from models.storage.pages.item_query import ItemQuery
 from models.trends.enums import ChartMetric, SeriesGrouping
@@ -18,6 +19,7 @@ from models.trends.metric_series import MetricSeries
 from storage.engine.database import Database
 from storage.exception import StorageReadError
 from storage.mappers.item_query_builder import ItemQueryBuilder
+from storage.repositories.trends.stored_items import StoredItems, StoredTrendItem, TrendItem, TrendPage
 from storage.repositories.trends.trend_statements import TrendStatements
 from storage.tables.base import Base
 from storage.tables.datasets.crawl_row import CrawlRow
@@ -28,7 +30,7 @@ TrendRow = Row[str, str, datetime, int]
 
 
 class TrendRepository:
-    """Read the chart trends of the stored catalogues and marketplaces: counts per series key and calendar bucket.
+    """Read the chart trends of the stored items (counts per series key and bucket), and CRUDL the items counted.
 
     Attributes:
         METRICS (ClassVar[FrozenSet[ChartMetric]]): The metrics counted from the stored items.
@@ -36,12 +38,15 @@ class TrendRepository:
             (the audience is known for the products too, the products being classified).
         GRAIN_MONTHS (ClassVar[Dict[ChartMetric, int]]): The number of months of each calendar bucket.
         database (Database): The open database.
+        items (StoredItems): The counted items (the CRUDL operations of the repository).
         statements (Dict[DatasetKind, TrendStatements]): The statement builder of each items table.
         builders (Dict[DatasetKind, ItemQueryBuilder]): The filter builder of each items table.
         logger (Logger): The repository logger.
 
     Notes:
-        The deleted items are always read: the deletions and the listed items over time count them.
+        - The deleted items are always read: the deletions and the listed items over time count them.
+        - The trends own no table: `create`, `read`, `update`, `delete` and `list` are those of the counted items
+          (see `StoredItems`).
     """
 
     METRICS: ClassVar[FrozenSet[ChartMetric]] = frozenset(
@@ -54,23 +59,25 @@ class TrendRepository:
         ChartMetric.MONTH: 1,
     }
 
-    def __init__(self, database: Database, logger: Optional[Logger] = None) -> None:
+    def __init__(self, database: Database, items: StoredItems, logger: Optional[Logger] = None) -> None:
         """Initialize the repository.
 
         Args:
             database (Database): The open database.
+            items (StoredItems): The counted items, whose CRUDL operations the repository exposes.
             logger (Optional[Logger]): The repository logger.
         """
         self.logger = logger if logger else getLogger(__name__)
         self.database = database
+        self.items = items
         tables = Base.metadata.tables
         crawls = tables[CrawlRow.__tablename__]
-        items = {
+        counted = {
             DatasetKind.CATALOGUE: tables[ProductRow.__tablename__],
             DatasetKind.MARKETPLACE: tables[SoftwareRow.__tablename__],
         }
-        self.statements = {kind: TrendStatements(table, crawls, self.logger) for kind, table in items.items()}
-        self.builders = {kind: ItemQueryBuilder(table, self.logger) for kind, table in items.items()}
+        self.statements = {kind: TrendStatements(table, crawls) for kind, table in counted.items()}
+        self.builders = {kind: ItemQueryBuilder(table) for kind, table in counted.items()}
         self.logger.debug("Repository of the chart trends ready.")
 
     ############################
@@ -133,11 +140,15 @@ class TrendRepository:
         """
         months = self.GRAIN_MONTHS[grain]
         points: Dict[Tuple[str, str], List[MetricPoint]] = {}
+        skipped = 0
         for facet, key, bucket, value in rows:
             if key is None or bucket is None or facet is None:
+                skipped += 1
                 continue
             x = float(bucket.year * 12 + bucket.month - 1 + months - 1)
             points.setdefault((str(facet), str(key)), []).append(MetricPoint(x=x, y=float(value)))
+        if skipped:
+            self.logger.debug("%d counted rows without a key or a date left out of the series.", skipped)
         return [
             MetricSeries(key=key, facet=facet or None, points=sorted(found, key=lambda point: point.x))
             for (facet, key), found in points.items()
@@ -146,6 +157,86 @@ class TrendRepository:
     ############################
     # Publicly Exposed Methods #
     ############################
+
+    async def create(self, kind: DatasetKind, provider: CloudProvider, item: TrendItem) -> StoredTrendItem:
+        """Store an item counted by the trends by hand (see `StoredItems.create`).
+
+        Args:
+            kind (DatasetKind): The kind of dataset: `CATALOGUE` for a product, `MARKETPLACE` for a software.
+            provider (CloudProvider): The cloud provider of the item.
+            item (TrendItem): The item.
+
+        Returns:
+            StoredTrendItem: The stored item, with its identifier.
+
+        Raises:
+            StorageWriteError: If the kind holds no such item, or the item cannot be written.
+        """
+        self.logger.debug("Creating a %s item counted by the trends.", kind.value)
+        return await self.items.create(kind, provider, item)
+
+    async def read(self, kind: DatasetKind, item_id: int) -> Optional[StoredTrendItem]:
+        """Read an item counted by the trends.
+
+        Args:
+            kind (DatasetKind): The kind of dataset.
+            item_id (int): The item identifier.
+
+        Returns:
+            Optional[StoredTrendItem]: The item, `None` when it does not exist.
+
+        Raises:
+            StorageReadError: If the item cannot be read.
+        """
+        return await self.items.read(kind, item_id)
+
+    async def update(self, kind: DatasetKind, item_id: int, item: TrendItem) -> Optional[StoredTrendItem]:
+        """Replace an item counted by the trends by hand.
+
+        Args:
+            kind (DatasetKind): The kind of dataset.
+            item_id (int): The item identifier.
+            item (TrendItem): The new item.
+
+        Returns:
+            Optional[StoredTrendItem]: The updated item, `None` when it does not exist.
+
+        Raises:
+            StorageWriteError: If the kind holds no such item, or the item cannot be written.
+        """
+        self.logger.debug("Updating the %s item %d counted by the trends.", kind.value, item_id)
+        return await self.items.update(kind, item_id, item)
+
+    async def delete(self, kind: DatasetKind, item_id: int) -> bool:
+        """Delete an item counted by the trends by hand.
+
+        Args:
+            kind (DatasetKind): The kind of dataset.
+            item_id (int): The item identifier.
+
+        Returns:
+            bool: Whether the item existed.
+
+        Raises:
+            StorageWriteError: If the kind holds no item, or the item cannot be deleted.
+        """
+        self.logger.debug("Deleting the %s item %d counted by the trends.", kind.value, item_id)
+        return await self.items.delete(kind, item_id)
+
+    async def list(self, kind: DatasetKind, query: ItemQuery) -> TrendPage:
+        """List a page of the items counted by the trends.
+
+        Args:
+            kind (DatasetKind): The kind of dataset.
+            query (ItemQuery): The filters, order and bounds of the page.
+
+        Returns:
+            TrendPage: The items of the page, with the number of items matching the query.
+
+        Raises:
+            StorageReadError: If the kind holds no item, or the items cannot be read.
+        """
+        return await self.items.list(kind, query)
 
     async def series(
         self,

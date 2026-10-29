@@ -84,6 +84,8 @@ class SourceLabelPicker(CompactCombo):
             List[int]: Its identifier, empty when any label is accepted.
         """
         index = self.findText(self.currentText())
+        if index < 0:
+            self.logger.debug("The typed label %r is no known label: any label is accepted.", self.currentText())
         data = self.itemData(index) if index >= 0 else None
         return [int(data)] if data is not None else []
 
@@ -113,3 +115,4 @@ class SourceLabelPicker(CompactCombo):
         """Accept any label again."""
         self.setCurrentIndex(0)
         self.setEditText(self.ANY)
+        self.logger.debug("Source label picker reset to any label.")

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # Standard Library Imports.
+import os
 import re
 from datetime import date, datetime
 from pathlib import Path
@@ -28,14 +29,23 @@ class SynergyResearchCrawler(BaseStatsCrawler):
 
     Attributes:
         QUALIFIER (ClassVar[str]): The wording of an approximate figure, e.g. "around 15%" or "well over $27 billion".
-        PERIMETER (ClassVar[str]): The fixed wording of the cloud infrastructure services perimeter.
+        PERIMETER (ClassVar[str]): The wording of the cloud infrastructure services perimeter, the current one
+            (hosted private cloud services) or the one of the articles before 2017 (private & hybrid cloud).
         NUMBER (ClassVar[str]): A figure, with or without decimals.
+        FIGURE (ClassVar[str]): A share, possibly approximate (`qualifier`) or a band (`low`, `high`).
+        NAME_SLOT (ClassVar[str]): The slot of the provider name in the share templates below.
+        WITH_SHARE (ClassVar[str]): The share template "IBM ... with a 7% market share".
+        SHARE_AT (ClassVar[str]): The share template "IBM market share has been relatively stable at around 8%".
+        IN_BRACKETS (ClassVar[str]): The share template "followed by Alibaba (4%)".
         ARTICLES_URL (ClassVar[str]): The press releases page, listing the articles published since 2023.
         CDX_URL (ClassVar[str]): The Wayback Machine CDX query listing every article ever archived, back to 2013.
-        FIRST_YEAR (ClassVar[int]): The first year of the reported periods. The older articles measure a narrower
-            perimeter (the shares are given on public IaaS and PaaS only).
+        FIRST_YEAR (ClassVar[int]): The first year of the reported periods kept by default (the first quarterly
+            releases date from 2013).
+        FIRST_YEAR_VARIABLE (ClassVar[str]): The environment variable overriding the first year kept.
         SHARE_TOTAL (ClassVar[Tuple[float, float]]): The plausible range of the Amazon, Microsoft and Google shares
-            summed, in percent.
+            summed, in percent (about 40% in 2014, 63% in 2025).
+        LEADERS (ClassVar[Tuple[MarketPlayer, ...]]): The three leaders, whose shares are descending and may be part
+            of the big three combined share.
         ORDINALS (ClassVar[Dict[str, int]]): The number of each ordinal word (`SynergyOrdinal`) of the ranks and of
             the quarters or half-years.
         KNOWN_PROVIDERS (ClassVar[Tuple[SynergyPlayerName, ...]]): The provider names reported as mentions when an
@@ -45,6 +55,8 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         EUROPE_LEADER_NAMES (ClassVar[Tuple[SynergyPlayerName, ...]]): The names of the leading European providers
             whose share may be given.
         CLOUD_WORDING (ClassVar[re.Pattern[str]]): The titles (or slug words) of the cloud market articles.
+        ARCHIVE_WORDING (ClassVar[re.Pattern[str]]): The other slug words of the archived cloud market articles
+            (2013 to 2019 titles such as `aws-remains-dominant-despite-microsoft-and-google-growth-surges`).
         ARTICLE_PATH (ClassVar[re.Pattern[str]]): The path of an article, giving its slug.
         DATELINE (ClassVar[re.Pattern[str]]): The dateline of a press release, giving its publication date.
         ALT_QUARTER (ClassVar[re.Pattern[str]]): The quarter of a chart image alt text, e.g. `CIS Q226`.
@@ -56,6 +68,11 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         PLAYER_SHARES (ClassVar[Dict[MarketPlayer, re.Pattern[str]]]): The share of a player stated on its own, e.g.
             the Amazon share band "32-34%".
         BIG_THREE (ClassVar[re.Pattern[str]]): The combined worldwide share of Amazon, Microsoft and Google.
+        LEGACY_PERIMETER (ClassVar[re.Pattern[str]]): The perimeter wording of the articles before 2017
+            (private & hybrid cloud), flagged as a methodology break.
+        PUBLIC_SHARES (ClassVar[re.Pattern[str]]): The wording of an article whose shares are given on the public
+            IaaS and PaaS market only (e.g. the Q3 2019 release).
+        PUBLIC_SIZE (ClassVar[re.Pattern[str]]): The size of the public IaaS and PaaS segment.
         PUBLIC_GROWTH (ClassVar[re.Pattern[str]]): The growth of the public IaaS and PaaS segment.
         PUBLIC_TOP_THREE (ClassVar[re.Pattern[str]]): The combined share of the top three in public IaaS and PaaS.
         METHODOLOGY_BREAK (ClassVar[re.Pattern[str]]): The note of a reclassification, e.g. in the Q3 2024 release.
@@ -73,6 +90,7 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         catalogue_url (ClassVar[str]): The press releases page.
         complement_urls (ClassVar[Tuple[str, ...]]): The Wayback Machine CDX query, for the older articles.
         download_delay (float): The delay between two requests, in seconds.
+        first_year (int): The first year of the reported periods kept.
         requested_slugs (Set[str]): The slugs of the articles already requested.
 
     Notes:
@@ -87,22 +105,39 @@ class SynergyResearchCrawler(BaseStatsCrawler):
           quarter is the calendar quarter before the publication date (a February release covers the fourth quarter of
           the previous year), cross-checked with the chart alt text. The providers named without a share are listed as
           mentions, with their rank when given.
+        - The releases go back to 2013 (`FIRST_YEAR`, `SYNERGY_FIRST_YEAR`). Until 2016 the perimeter reads "IaaS,
+          PaaS and private & hybrid cloud": those reports are kept with `methodology_break` set. An article giving its
+          shares on the public IaaS and PaaS market only (Q3 2019) puts them in the public IaaS and PaaS report, the
+          cloud infrastructure services report keeping the market size, growth and mentions. Besides Amazon,
+          Microsoft and Google, the shares of IBM, Alibaba, Oracle, Huawei and Tencent are read when stated in
+          figures, those named without a figure staying mentions.
     """
 
     QUALIFIER: ClassVar[str] = (
         r"(?:around|almost|close to|nearly|about|approximately|just under|well under|under|just over|well over|over|~)"
     )
     PERIMETER: ClassVar[str] = (
-        r"cloud infrastructure service revenues \(including IaaS, PaaS and hosted private cloud services\)"
+        r"cloud infrastructure service revenues \(including IaaS, PaaS and "
+        r"(?:hosted private cloud services|private & hybrid cloud)\)"
     )
     NUMBER: ClassVar[str] = r"\d+(?:\.\d+)?"
+    FIGURE: ClassVar[str] = rf"(?:(?P<qualifier>{QUALIFIER}) ?)?(?P<low>\d{{1,2}}(?:\.\d)?)(?:-(?P<high>\d{{1,2}}))?%"
+    NAME_SLOT: ClassVar[str] = "<name>"
+    WITH_SHARE: ClassVar[str] = rf"\b{NAME_SLOT}\b[^.%]{{0,60}}?\bwith an? {FIGURE} (?:worldwide )?(?:market )?share"
+    SHARE_AT: ClassVar[str] = (
+        rf"\b{NAME_SLOT}(?: Cloud)?(?:'s)? (?:worldwide )?(?:market )?share[^.%]{{0,60}}?\b(?:at|to|of|was|reached) "
+        rf"{FIGURE}"
+    )
+    IN_BRACKETS: ClassVar[str] = rf"\b{NAME_SLOT}(?: Cloud)? \({FIGURE}\)"
     ARTICLES_URL: ClassVar[str] = "https://www.srgresearch.com/articles"
     CDX_URL: ClassVar[str] = (
         "https://web.archive.org/cdx/search/cdx?url=srgresearch.com/articles/&matchType=prefix&fl=original"
         "&collapse=urlkey&filter=statuscode:200&output=json"
     )
-    FIRST_YEAR: ClassVar[int] = 2021
-    SHARE_TOTAL: ClassVar[Tuple[float, float]] = (55.0, 75.0)
+    FIRST_YEAR: ClassVar[int] = 2013
+    FIRST_YEAR_VARIABLE: ClassVar[str] = "SYNERGY_FIRST_YEAR"
+    SHARE_TOTAL: ClassVar[Tuple[float, float]] = (35.0, 75.0)
+    LEADERS: ClassVar[Tuple[MarketPlayer, ...]] = (MarketPlayer.AMAZON, MarketPlayer.MICROSOFT, MarketPlayer.GOOGLE)
     ORDINALS: ClassVar[Dict[str, int]] = {
         SynergyOrdinal.FIRST: 1,
         SynergyOrdinal.SECOND: 2,
@@ -156,6 +191,11 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         SynergyPlayerName.GOOGLE: MarketPlayer.GOOGLE,
         SynergyPlayerName.SAP: MarketPlayer.SAP,
         SynergyPlayerName.DEUTSCHE_TELEKOM: MarketPlayer.DEUTSCHE_TELEKOM,
+        SynergyPlayerName.IBM: MarketPlayer.IBM,
+        SynergyPlayerName.ALIBABA: MarketPlayer.ALIBABA,
+        SynergyPlayerName.ORACLE: MarketPlayer.ORACLE,
+        SynergyPlayerName.HUAWEI: MarketPlayer.HUAWEI,
+        SynergyPlayerName.TENCENT: MarketPlayer.TENCENT,
     }
     EUROPE_LEADER_NAMES: ClassVar[Tuple[SynergyPlayerName, ...]] = (
         SynergyPlayerName.SAP,
@@ -166,15 +206,21 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         r"|\beuropean cloud\b|\b(?:amazon|aws)\b.*\bmicrosoft\b.*\bmarket\b",
         re.IGNORECASE,
     )
+    ARCHIVE_WORDING: ClassVar[re.Pattern[str]] = re.compile(
+        r"\b(?:amazons?|aws)\b|\bcloud (?:infrastructure|services?|providers)\b|\biaas ?paas\b|\biaaspaas\b"
+        r"|\bchasing pack\b|\b(?:big|gang) four\b|\bleading cloud providers\b",
+        re.IGNORECASE,
+    )
     ARTICLE_PATH: ClassVar[re.Pattern[str]] = re.compile(r"/articles/([^/]+)/?")
     DATELINE: ClassVar[re.Pattern[str]] = re.compile(r"RENO, ?NV,? ([A-Z][a-z]+ \d{1,2}, \d{4})")
     ALT_QUARTER: ClassVar[re.Pattern[str]] = re.compile(r"\bQ([1-4])(\d{2})\b", re.IGNORECASE)
     WORLD_SIZE: ClassVar[re.Pattern[str]] = re.compile(
-        rf"(?<!European ){PERIMETER} were (?:(?P<qualifier>{QUALIFIER}) ?)?\$(?P<value>{NUMBER}) ?billion"
+        rf"(?<!European ){PERIMETER} (?:were|have (?:now )?(?:comfortably )?(?:passed|reached)) "
+        rf"(?:(?P<qualifier>{QUALIFIER}) ?)?(?:the )?\$(?P<value>{NUMBER}) ?billion"
     )
     TWELVE_MONTH: ClassVar[re.Pattern[str]] = re.compile(
-        rf"(?:trailing twelve-month|full[- ]year \d{{4}}) revenues (?:reaching|of) "
-        rf"(?:{QUALIFIER} ?)?\$({NUMBER}) billion"
+        rf"(?:(?:trailing twelve-month|full[- ]year \d{{4}}) revenues|revenues for the last four quarters(?: now)?) "
+        rf"(?:reaching|of|exceeding) (?:{QUALIFIER} ?)?\$({NUMBER}) billion"
     )
     GROWTH: ClassVar[re.Pattern[str]] = re.compile(
         r"year-on-year growth rate (?:was|increased[^.%]*?reaching) (\d{1,3})%"
@@ -182,25 +228,65 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         r"|represents (\d{1,3})% growth"
         rf"|\bup \${NUMBER} billion or (\d{{1,3}})% from"
         r"|\bup (\d{1,3})% from the (?:first|second|third|fourth) quarter"
-        r"|\bthe (\d{1,3})% growth over Q[1-4]",
+        r"|\bthe (\d{1,3})% growth over Q[1-4]"
+        r"|\bmarket grew by (\d{1,3})% from the (?:first|second|third|fourth) quarter"
+        r"|\bjumped (\d{1,3})% from the (?:first|second|third|fourth) quarter",
         re.IGNORECASE,
     )
     SHARES: ClassVar[re.Pattern[str]] = re.compile(
         r"\bQ[1-4](?:'s)? (?:their )?(?:worldwide )?market shares? (?:were|was|of) (?P<first>\d{1,2})%,? "
         r"(?:(?P<second>\d{1,2})%,? )?and (?P<third>\d{1,2})%"
     )
-    PLAYER_SHARES: ClassVar[Dict[MarketPlayer, re.Pattern[str]]] = {
-        MarketPlayer.AMAZON: re.compile(
-            rf"\bAmazon[^.%]{{0,80}}?market share[^.%]{{0,80}}?\b(?:at|to|of) (?:(?P<qualifier>{QUALIFIER}) ?)?"
-            r"(?P<low>\d{1,2})(?:-(?P<high>\d{1,2}))?%"
+    PLAYER_SHARES: ClassVar[Dict[MarketPlayer, Tuple[re.Pattern[str], ...]]] = {
+        MarketPlayer.AMAZON: (
+            re.compile(
+                rf"\b(?:Amazon|AWS)[^.%]{{0,100}}?market share[^.%]{{0,80}}?\b(?:at|to|of) "
+                rf"(?:(?P<qualifier>{QUALIFIER}) ?)?(?P<low>\d{{1,2}})(?:-(?P<high>\d{{1,2}}))?%"
+            ),
+            re.compile(rf"\b(?:Amazon|AWS)\b[^.%]{{0,120}}?\bwith an? {FIGURE} (?:worldwide )?market share"),
         ),
-        MarketPlayer.MICROSOFT: re.compile(
-            rf"\bMicrosoft[^.%]{{0,80}}?market share[^.%]{{0,100}}?\b(?:reaching|reached|to) "
-            rf"(?:(?P<qualifier>{QUALIFIER}) ?)?(?P<low>\d{{1,2}})(?:-(?P<high>\d{{1,2}}))?%"
+        MarketPlayer.MICROSOFT: (
+            re.compile(
+                rf"\bMicrosoft[^.%]{{0,80}}?market share[^.%]{{0,100}}?\b(?:reaching|reached|to) "
+                rf"(?:(?P<qualifier>{QUALIFIER}) ?)?(?P<low>\d{{1,2}})(?:-(?P<high>\d{{1,2}}))?%"
+            ),
+            re.compile(
+                rf"\bMicrosoft\b[^.]{{0,160}}?\bits (?:worldwide )?market share "
+                rf"(?:growing|grew|rising|rose|increasing|increased) to {FIGURE}"
+            ),
+            re.compile(rf"\bMicrosoft (?:was|stood|remained) at {FIGURE}"),
         ),
-        MarketPlayer.GOOGLE: re.compile(
-            rf"\bGoogle(?:'s)? (?:market )?share (?:stood at|was|nudged up to|reached) "
-            rf"(?:(?P<qualifier>{QUALIFIER}) ?)?(?P<low>\d{{1,2}})(?:-(?P<high>\d{{1,2}}))?%"
+        MarketPlayer.GOOGLE: (
+            re.compile(
+                rf"\bGoogle(?:'s)? (?:market )?share (?:stood at|was|nudged up to|reached) "
+                rf"(?:(?P<qualifier>{QUALIFIER}) ?)?(?P<low>\d{{1,2}})(?:-(?P<high>\d{{1,2}}))?%"
+            ),
+            re.compile(WITH_SHARE.replace(NAME_SLOT, SynergyPlayerName.GOOGLE)),
+        ),
+        MarketPlayer.IBM: (
+            re.compile(WITH_SHARE.replace(NAME_SLOT, SynergyPlayerName.IBM)),
+            re.compile(SHARE_AT.replace(NAME_SLOT, SynergyPlayerName.IBM)),
+            re.compile(IN_BRACKETS.replace(NAME_SLOT, SynergyPlayerName.IBM)),
+        ),
+        MarketPlayer.ALIBABA: (
+            re.compile(WITH_SHARE.replace(NAME_SLOT, SynergyPlayerName.ALIBABA)),
+            re.compile(SHARE_AT.replace(NAME_SLOT, SynergyPlayerName.ALIBABA)),
+            re.compile(IN_BRACKETS.replace(NAME_SLOT, SynergyPlayerName.ALIBABA)),
+        ),
+        MarketPlayer.ORACLE: (
+            re.compile(WITH_SHARE.replace(NAME_SLOT, SynergyPlayerName.ORACLE)),
+            re.compile(SHARE_AT.replace(NAME_SLOT, SynergyPlayerName.ORACLE)),
+            re.compile(IN_BRACKETS.replace(NAME_SLOT, SynergyPlayerName.ORACLE)),
+        ),
+        MarketPlayer.HUAWEI: (
+            re.compile(WITH_SHARE.replace(NAME_SLOT, SynergyPlayerName.HUAWEI)),
+            re.compile(SHARE_AT.replace(NAME_SLOT, SynergyPlayerName.HUAWEI)),
+            re.compile(IN_BRACKETS.replace(NAME_SLOT, SynergyPlayerName.HUAWEI)),
+        ),
+        MarketPlayer.TENCENT: (
+            re.compile(WITH_SHARE.replace(NAME_SLOT, SynergyPlayerName.TENCENT)),
+            re.compile(SHARE_AT.replace(NAME_SLOT, SynergyPlayerName.TENCENT)),
+            re.compile(IN_BRACKETS.replace(NAME_SLOT, SynergyPlayerName.TENCENT)),
         ),
     }
     BIG_THREE: ClassVar[re.Pattern[str]] = re.compile(
@@ -208,8 +294,14 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         rf"|combined had an?)) "
         rf"(?:(?P<qualifier>{QUALIFIER}) ?)?(?P<low>\d{{1,2}})%"
     )
+    LEGACY_PERIMETER: ClassVar[re.Pattern[str]] = re.compile(r"\(including IaaS, PaaS and private & hybrid cloud\)")
+    PUBLIC_SHARES: ClassVar[re.Pattern[str]] = re.compile(r"\bmarket for (?:public )?IaaS and PaaS\b")
+    PUBLIC_SIZE: ClassVar[re.Pattern[str]] = re.compile(
+        rf"spending on public IaaS and PaaS (?:reached|was|were) (?:{QUALIFIER} ?)?\$(?P<value>{NUMBER}) ?billion"
+    )
     PUBLIC_GROWTH: ClassVar[re.Pattern[str]] = re.compile(
         r"Public IaaS and PaaS services account for the bulk of[^.]*?grew by (\d{1,3})%"
+        r"|public IaaS and PaaS part of the market[^.]*?growth coming in at (\d{1,3})%"
     )
     PUBLIC_TOP_THREE: ClassVar[re.Pattern[str]] = re.compile(
         rf"top three (?:account for|control) (?:(?P<qualifier>{QUALIFIER}) ?)?(?P<low>\d{{1,2}})% of the market"
@@ -248,15 +340,33 @@ class SynergyResearchCrawler(BaseStatsCrawler):
     complement_urls: ClassVar[Tuple[str, ...]] = (CDX_URL,)
     download_delay: float = 1.5
 
-    def __init__(self, crawldir: Optional[Union[str, Path]] = None, interval: float = 300.0) -> None:
+    def __init__(
+        self, crawldir: Optional[Union[str, Path]] = None, interval: float = 300.0, first_year: Optional[int] = None
+    ) -> None:
         """Initialize the crawler.
 
         Args:
             crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
             interval (float): Seconds between periodic checkpoint saves.
+            first_year (Optional[int]): The first year of the reported periods kept, `SYNERGY_FIRST_YEAR` (or 2013)
+                by default.
         """
         super().__init__(crawldir=crawldir, interval=interval)
         self.requested_slugs: Set[str] = set()
+        if first_year is None:
+            raw = os.getenv(self.FIRST_YEAR_VARIABLE, "").strip()
+            valid = raw.isdigit() and len(raw) == 4
+            if raw and not valid:
+                self.logger.warning(
+                    "%s=%r is not a year: the %s reports are kept from %d.",
+                    self.FIRST_YEAR_VARIABLE,
+                    raw,
+                    self.name,
+                    self.FIRST_YEAR,
+                )
+            first_year = int(raw) if valid else self.FIRST_YEAR
+        self.first_year = first_year
+        self.logger.debug("The %s reports are kept from %d.", self.name, self.first_year)
 
     ############################
     # Internal Helpers Methods #
@@ -339,7 +449,8 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         for row in rows:
             url = self._as_text(row[0]) if isinstance(row, list) and row else None
             slug = self._slug(url) if url else None
-            if slug is None or not self.CLOUD_WORDING.search(slug.replace("-", " ")):
+            words = slug.replace("-", " ") if slug else ""
+            if slug is None or not (self.CLOUD_WORDING.search(words) or self.ARCHIVE_WORDING.search(words)):
                 continue
             if (request := self._article_request(slug)) is not None:
                 requested += 1
@@ -450,22 +561,31 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         )
 
     def _plausible(self, shares: List[MarketShare], response: Response) -> bool:
-        """Check the worldwide shares of Amazon, Microsoft and Google: in this order, and summing to a plausible total.
+        """Check the worldwide shares: the leaders descending and summing to a plausible total, the others smaller.
 
         Args:
-            shares (List[MarketShare]): The shares, in the Amazon, Microsoft, Google order.
+            shares (List[MarketShare]): The shares, the leaders first in the Amazon, Microsoft, Google order.
             response (Response): The article, for the logs.
 
         Returns:
-            bool: Whether the shares are descending and their sum is in the plausible range (when all three are given).
+            bool: Whether the leaders' shares are descending, their sum is in the plausible range (when all three are
+                given), no other player outweighs them and every share sums to 100% at most.
         """
+        leaders = [share.share_pct for share in shares if share.player in self.LEADERS]
         values = [share.share_pct for share in shares]
         low, high = self.SHARE_TOTAL
-        total = sum(values)
-        if values == sorted(values, reverse=True) and total <= high and (len(values) < 3 or total >= low):
+        total = sum(leaders)
+        top = max(leaders, default=100.0)
+        if (
+            leaders == sorted(leaders, reverse=True)
+            and total <= high
+            and (len(leaders) < 3 or total >= low)
+            and all(value <= top for value in values)
+            and sum(values) <= 100
+        ):
             return True
         self.logger.warning(
-            "Dropping the implausible %s shares of %s: %s (sum %g%%).", self.name, response.url, values, total
+            "Dropping the implausible %s shares of %s: %s (leaders sum %g%%).", self.name, response.url, values, total
         )
         return False
 
@@ -478,7 +598,7 @@ class SynergyResearchCrawler(BaseStatsCrawler):
 
         Returns:
             List[MarketShare]: The shares. Amazon, Microsoft and Google are part of the big three when the combined
-                share is given, and dropped when they are implausible.
+                share is given, the other players never are, and every share is dropped when they are implausible.
         """
         big_three = self.BIG_THREE.search(text)
         part_of = MarketPlayer.BIG_THREE if big_three else None
@@ -495,11 +615,13 @@ class SynergyResearchCrawler(BaseStatsCrawler):
             for player, value in zip(players, values, strict=True):
                 by_position[player] = MarketShare(player=player, share_pct=float(value), part_of=part_of)
         shares: List[MarketShare] = []
-        for player, pattern in self.PLAYER_SHARES.items():
+        for player, patterns in self.PLAYER_SHARES.items():
             if player in by_position:
                 shares.append(by_position[player])
-            elif (match := pattern.search(text)) is not None:
-                shares.append(self._share(player, match, part_of))
+                continue
+            match = next((found for pattern in patterns if (found := pattern.search(text)) is not None), None)
+            if match is not None:
+                shares.append(self._share(player, match, part_of if player in self.LEADERS else None))
         if shares and not self._plausible(shares, response):
             shares = []
         if big_three is not None:
@@ -556,6 +678,19 @@ class SynergyResearchCrawler(BaseStatsCrawler):
             mentions.append(ProviderMention(name=name, rank=ranks.get(name)))
         return mentions
 
+    def _first_value(self, match: Optional[re.Match[str]]) -> Optional[float]:
+        """Read the figure of a pattern made of alternatives, each with its own group.
+
+        Args:
+            match (Optional[re.Match[str]]): The match, `None` when nothing matched.
+
+        Returns:
+            Optional[float]: The figure of the matched alternative, `None` when nothing matched.
+        """
+        if match is None:
+            return None
+        return float(next(value for value in match.groups() if value is not None))
+
     def _growth(self, text: str) -> Optional[float]:
         """Extract the year-on-year growth of the worldwide market, from its first statement.
 
@@ -565,10 +700,7 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         Returns:
             Optional[float]: The growth, in percent, `None` when it is not stated in a known wording.
         """
-        match = self.GROWTH.search(text)
-        if match is None:
-            return None
-        return float(next(value for value in match.groups() if value is not None))
+        return self._first_value(self.GROWTH.search(text))
 
     def _report(
         self, fields: Dict[str, JsonValue], shares: List[MarketShare], mentions: List[ProviderMention]
@@ -601,7 +733,8 @@ class SynergyResearchCrawler(BaseStatsCrawler):
             response (Response): The article.
 
         Yields:
-            MarketReport: Each valid report.
+            MarketReport: Each valid report. The shares go to the public IaaS and PaaS report when the article gives
+                them on that market only.
         """
         size = self.WORLD_SIZE.search(text)
         if size is None:
@@ -609,12 +742,19 @@ class SynergyResearchCrawler(BaseStatsCrawler):
         period = self._quarter(date.fromisoformat(str(fields["published"])))
         self._check_quarter(period, response)
         shares = self._world_shares(text, response)
+        public_shares: List[MarketShare] = []
+        if shares and self.PUBLIC_SHARES.search(text) is not None:
+            self.logger.debug("The %s %s shares of %s are public IaaS and PaaS ones.", self.name, period, response.url)
+            shares, public_shares = [], shares
+        legacy = self.LEGACY_PERIMETER.search(text) is not None
+        if legacy:
+            self.logger.debug("The %s %s report of %s has the pre-2017 perimeter.", self.name, period, response.url)
         twelve_month = self.TWELVE_MONTH.search(text)
         world: Dict[str, JsonValue] = {
             **fields,
             "period": period,
             "region": MarketRegion.WORLDWIDE,
-            "methodology_break": self.METHODOLOGY_BREAK.search(text) is not None,
+            "methodology_break": legacy or self.METHODOLOGY_BREAK.search(text) is not None,
         }
         yield from self._report(
             {
@@ -625,19 +765,23 @@ class SynergyResearchCrawler(BaseStatsCrawler):
                 "growth_pct": self._growth(text),
             },
             shares,
-            self._mentions(text, shares),
+            self._mentions(text, [*shares, *public_shares]),
         )
         growth = self.PUBLIC_GROWTH.search(text)
         top_three = self.PUBLIC_TOP_THREE.search(text)
-        if growth is None and top_three is None:
+        public_size = self.PUBLIC_SIZE.search(text)
+        if top_three is not None and all(share.player is not MarketPlayer.BIG_THREE for share in public_shares):
+            public_shares.insert(0, self._share(MarketPlayer.BIG_THREE, top_three, None))
+        if growth is None and public_size is None and not public_shares:
             return
         yield from self._report(
             {
                 **world,
                 "segment": MarketSegment.PUBLIC_IAAS_PAAS,
-                "growth_pct": float(growth.group(1)) if growth else None,
+                "market_size_bn": float(public_size.group(SynergyPatternGroup.VALUE)) if public_size else None,
+                "growth_pct": self._first_value(growth),
             },
-            [self._share(MarketPlayer.BIG_THREE, top_three, None)] if top_three else [],
+            public_shares,
             [],
         )
 
@@ -753,13 +897,13 @@ class SynergyResearchCrawler(BaseStatsCrawler):
             "published": self._published(text, response).isoformat(),
         }
         for report in (*self._world_reports(text, fields, response), *self._europe_reports(text, fields)):
-            if int(report.period[:4]) < self.FIRST_YEAR:
+            if int(report.period[:4]) < self.first_year:
                 self.logger.debug(
                     "Skipping the %s %s report of %s, before %d.",
                     self.name,
                     report.period,
                     response.url,
-                    self.FIRST_YEAR,
+                    self.first_year,
                 )
                 continue
             yield self._enriched(report)

@@ -3,6 +3,7 @@ from __future__ import annotations
 # Standard Library Imports.
 import math
 import re
+from pathlib import Path
 from typing import AsyncGenerator, ClassVar, Dict, FrozenSet, Iterator, List, Optional, Union
 
 # Third Party Imports.
@@ -10,6 +11,7 @@ from pydantic import JsonValue
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
+from classifier.software_classifier import SoftwareClassifier
 from crawler.cloud.oracle.enums import (
     OracleCategoryField,
     OracleHeader,
@@ -84,6 +86,21 @@ class OracleMarketplaceCrawler(BaseMarketplaceCrawler):
 
     name = "oracle-marketplace"
     catalogue_url: ClassVar[str] = f"{API_URL}/listings?limit={PAGE_SIZE}&page=1"
+
+    def __init__(
+        self,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+        classifier: Optional[SoftwareClassifier] = None,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+            classifier (Optional[SoftwareClassifier]): The software classifier, the project rules by default.
+        """
+        super().__init__(crawldir=crawldir, interval=interval, classifier=classifier)
 
     ############################
     # Internal Helpers Methods #
@@ -180,8 +197,14 @@ class OracleMarketplaceCrawler(BaseMarketplaceCrawler):
         pages = pagination.get(OracleListingsPageField.TOTAL_PAGES)
         total = pagination.get(OracleListingsPageField.TOTAL_ITEMS)
         if isinstance(pages, int) and pages > 0:
+            self.logger.debug("The %s listings span %d pages.", self.name, pages)
             return pages
-        return max(1, math.ceil(total / self.PAGE_SIZE)) if isinstance(total, int) else 1
+        if isinstance(total, int):
+            count = max(1, math.ceil(total / self.PAGE_SIZE))
+            self.logger.debug("No %s page count: %d pages computed from %d listings.", self.name, count, total)
+            return count
+        self.logger.warning("No %s page count nor listing total in %s: one page is assumed.", self.name, response.url)
+        return 1
 
     def _listing_requests(self, response: Response) -> Iterator[Request]:
         """Request the details of the software listings of a listings page, and the next pages from the first one.
@@ -337,8 +360,10 @@ class OracleMarketplaceCrawler(BaseMarketplaceCrawler):
             CatalogueFormatError: If a page is not JSON, or if a listings page has no `items` list.
         """
         if self.DETAIL not in response.meta:
+            self.logger.debug("Reading the %s listings page %s.", self.name, response.url)
             for request in self._listing_requests(response):
                 yield request
             return
+        self.logger.debug("Reading the %s listing details %s.", self.name, response.url)
         async for item in super().parse(response):
             yield item

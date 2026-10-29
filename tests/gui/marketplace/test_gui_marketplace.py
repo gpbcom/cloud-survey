@@ -243,7 +243,7 @@ class TestMarketplaceView:
     ) -> Dict[CloudProvider, DatasetStamp]:
         for provider, items in software.items():
             await seed_marketplace(storage, provider, items)
-        return {CloudProvider(stamp.dataset): stamp for stamp in await storage.datasets.stamps()}
+        return {CloudProvider(stamp.dataset): stamp for stamp in await storage.datasets.list()}
 
     @pytest.fixture
     def view(self, qtbot: QtBot, gui_loop: StorageLoop, stamps: Dict[CloudProvider, DatasetStamp]) -> MarketplaceView:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # Standard Library Imports.
+from logging import Logger, getLogger
 from typing import List, Optional, Tuple
 
 # Third Party Imports.
@@ -16,15 +17,18 @@ class OptionCombo(QComboBox):
 
     Attributes:
         options (QStandardItemModel): The options.
+        logger (Logger): The combo box logger.
     """
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, logger: Optional[Logger] = None) -> None:
         """Build an empty combo box.
 
         Args:
             name (str): What the combo box chooses, for the screen readers.
+            logger (Optional[Logger]): The combo box logger.
         """
         super().__init__()
+        self.logger = logger if logger else getLogger(__name__)
         self.options = QStandardItemModel(self)
         self.setModel(self.options)
         self.setAccessibleName(name)
@@ -43,6 +47,9 @@ class OptionCombo(QComboBox):
                 option.
             selected (str): The value of the chosen option.
         """
+        self.logger.debug(
+            "Showing %d options in %s, %s chosen.", len(options), self.accessibleName(), selected or "none"
+        )
         self.blockSignals(True)
         self.options.clear()
         for value, label, reason in options:
@@ -52,7 +59,12 @@ class OptionCombo(QComboBox):
                 item.setEnabled(False)
                 item.setToolTip(reason)
             self.options.appendRow(item)
-        self.setCurrentIndex(max(self.findData(selected), 0))
+        index = self.findData(selected)
+        if options and index < 0:
+            self.logger.warning(
+                "The chosen option %s is not offered in %s: the first option is shown.", selected, self.accessibleName()
+            )
+        self.setCurrentIndex(max(index, 0))
         self.blockSignals(False)
 
     def value(self) -> str:

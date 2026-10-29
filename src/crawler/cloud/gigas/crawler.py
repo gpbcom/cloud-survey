@@ -15,6 +15,7 @@ from crawler.cloud.base import BaseCloudCrawler
 from crawler.cloud.gigas.enums import GigasMenuMarkup
 from crawler.enums import HtmlAttribute
 from crawler.exception import CatalogueFormatError
+from models.cloud.enums import PriceModel
 from models.cloud.products.product import CloudProduct
 
 
@@ -30,6 +31,8 @@ class GigasCrawler(BaseCloudCrawler):
         SEGMENT (ClassVar[GigasMenuMarkup]): The class of the heading (a link or a label) of a menu column.
         listing_categories (Dict[str, List[str]]): The menu categories of the listing pages linked by the menu (the
             add-ons page), by normalized URL, given to the products they list.
+        UNPRICED_REASON (ClassVar[Optional[str]]): Why the provider has no public price.
+        UNPRICED_MODEL (ClassVar[PriceModel]): How its products are priced (on request).
 
     Notes:
         The main source is the main menu of the https://gigas.com/en/ home page: its product groups (cloud, security,
@@ -39,6 +42,8 @@ class GigasCrawler(BaseCloudCrawler):
         The catalogue categories of a menu product are its menu group (e.g. `Cloud`), then the heading of its menu
         column (e.g. `Solutions`), unless it is that heading. Those of an add-on are the menu group and the label of
         the add-ons page link (`Cloud`, `Cloud Addons`), when the menu was read first.
+        Gigas publishes no price: in price mode its home page is read as the evidence, and each live product is
+        priced on request (a quote).
     """
 
     ADDONS_URL: ClassVar[str] = "https://gigas.com/en/addons-cloud.html"
@@ -48,6 +53,11 @@ class GigasCrawler(BaseCloudCrawler):
     ADDON_NAME: ClassVar[re.Pattern[str]] = re.compile(r"\(([^()]+)\)\s*$")
     SPACE_BEFORE_PUNCTUATION: ClassVar[re.Pattern[str]] = re.compile(r"\s+([.,:!?])")
     SEGMENT: ClassVar[GigasMenuMarkup] = GigasMenuMarkup.SEGMENT
+
+    UNPRICED_REASON: ClassVar[Optional[str]] = (
+        "Gigas publishes no price: its cloud services are quoted on request (contact sales)."
+    )
+    UNPRICED_MODEL: ClassVar[PriceModel] = PriceModel.QUOTE
 
     name = "gigas"
     catalogue_url: ClassVar[str] = "https://gigas.com/en/"

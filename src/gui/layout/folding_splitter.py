@@ -36,6 +36,7 @@ class FoldingSplitter(QSplitter):
         self.logger = logger if logger else getLogger(__name__)
         self.saved: Dict[int, int] = {}
         self.setChildrenCollapsible(False)
+        self.logger.debug("Folding splitter ready (%s).", orientation.name)
 
     ############################
     # Internal Helpers Methods #
@@ -70,7 +71,12 @@ class FoldingSplitter(QSplitter):
             for other in range(len(sizes))
             if other != index and not ((pane := self._folding(other)) is not None and pane.is_folded())  # noqa: E501
         ]
-        return max(candidates, key=lambda other: sizes[other]) if candidates else None  # noqa: E501
+        if not candidates:
+            self.logger.debug("No unfolded pane takes the room of the pane %d.", index)
+            return None
+        receiver = max(candidates, key=lambda other: sizes[other])
+        self.logger.debug("The pane %d takes the room of the pane %d.", receiver, index)
+        return receiver
 
     def _on_folded(self, pane: FoldingPane, folded: bool) -> None:
         """Give the room of a pane to the others when it folds, and take it back when it unfolds.
@@ -82,6 +88,7 @@ class FoldingSplitter(QSplitter):
         index = self.indexOf(pane)
         sizes = self.sizes()
         if index < 0 or pane.folds_along() is not self.orientation():
+            self.logger.debug("The folded pane does not fold along this splitter: sizes left as they are.")
             return
         if folded:
             extent = pane.folded_extent()

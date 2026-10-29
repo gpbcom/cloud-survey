@@ -1,0 +1,304 @@
+{
+ "body": [
+  [
+   {
+    "location": "Warsaw-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2x4114-64-2x960gb-2x1nic ",
+    "pricePerHour": "0.203",
+    "pricePerMonth": "148.27",
+    "cpu": "2xSilver 4114",
+    "ram": "64GB RAM",
+    "disks": "2x960GB SSD",
+    "network": "2x1Gbit NIC"
+   },
+   {
+    "location": "Warsaw-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2x4114-64-4x960gb-2x1nic ",
+    "pricePerHour": "0.208",
+    "pricePerMonth": "152.00",
+    "cpu": "2xSilver 4114",
+    "ram": "64GB RAM",
+    "disks": "4x960GB SSD",
+    "network": "2x1Gbit NIC"
+   },
+   {
+    "location": "Warsaw-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2x4114-128-4x960gb-2x1nic ",
+    "pricePerHour": "0.212",
+    "pricePerMonth": "154.99",
+    "cpu": "2xSilver 4114",
+    "ram": "128GB RAM",
+    "disks": "4x960GB SSD",
+    "network": "2x1Gbit NIC"
+   },
+   {
+    "location": "Amsterdam-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2xe5-2660v4-192-2x480gb-2x10nic ",
+    "pricePerHour": "0.233",
+    "pricePerMonth": "170.00",
+    "cpu": "2xE5-2660v4",
+    "ram": "192GB RAM",
+    "disks": "2x480GB SSD",
+    "network": "2x10Gbit NIC"
+   },
+   {
+    "location": "Amsterdam-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-hf-1x2136-32-2x480gb-2x10nic ",
+    "pricePerHour": "0.256",
+    "pricePerMonth": "187.11",
+    "cpu": "E-2136",
+    "ram": "32GB RAM",
+    "disks": "2x480GB SSD",
+    "network": "2x10Gbit NIC"
+   },
+   {
+    "location": "Amsterdam-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2xe5-2690v4-192-2x480gb-2x10nic ",
+    "pricePerHour": "0.274",
+    "pricePerMonth": "200.00",
+    "cpu": "2xE5-2690v4",
+    "ram": "192GB RAM",
+    "disks": "2x480GB SSD",
+    "network": "2x10Gbit NIC"
+   },
+   {
+    "location": "Amsterdam-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2xe5-2660v4-192-2x960gb-2x10nic ",
+    "pricePerHour": "0.288",
+    "pricePerMonth": "210.00",
+    "cpu": "2xE5-2660v4",
+    "ram": "192GB RAM",
+    "disks": "2x960GB SSD",
+    "network": "2x10Gbit NIC"
+   },
+   {
+    "location": "Amsterdam-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2xe5-2680v4-192-2x960gb-2x10nic ",
+    "pricePerHour": "0.295",
+    "pricePerMonth": "215.00",
+    "cpu": "2xE5-2680v4",
+    "ram": "192GB RAM",
+    "disks": "2x960GB SSD",
+    "network": "2x10Gbit NIC"
+   },
+   {
+    "location": "Johannesburg-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-medium ",
+    "pricePerHour": "0.313",
+    "pricePerMonth": "228.14",
+    "cpu": "2xSilver 4214",
+    "ram": "128GB RAM",
+    "disks": "2x960GB SSD",
+    "network": "2x1Gbit NIC"
+   },
+   {
+    "location": "Santa-Clara-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2xe5-2690v4-256-2x480gb-2x10nic ",
+    "pricePerHour": "0.315",
+    "pricePerMonth": "230.00",
+    "cpu": "2xE5-2690v4",
+    "ram": "256GB RAM",
+    "disks": "2x480GB SSD",
+    "network": "2x10Gbit NIC"
+   },
+   {
+    "location": "Amsterdam-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2xe5-2695v2-192-2x960gb-2x10nic ",
+    "pricePerHour": "0.315",
+    "pricePerMonth": "230.00",
+    "cpu": "2xE5-2695v2",
+    "ram": "192GB RAM",
+    "disks": "2x960GB SSD",
+    "network": "2x10Gbit NIC"
+   },
+   {
+    "location": "Dubai-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-hf-1x2136-64-2x480gb-2x1nic ",
+    "pricePerHour": "0.363",
+    "pricePerMonth": "265.00",
+    "cpu": "E-2136",
+    "ram": "64GB RAM",
+    "disks": "2x480GB SSD",
+    "network": "2x1Gbit NIC"
+   },
+   {
+    "location": "Manassas-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2x5120-192-2x960gb-2x10nic-2x1nic ",
+    "pricePerHour": "0.385",
+    "pricePerMonth": "280.70",
+    "cpu": "2x Intel Xeon Gold 5120",
+    "ram": "192GB RAM",
+    "disks": "2x960GB SSD",
+    "network": "2x10Gbit NIC"
+   },
+   {
+    "location": "Amsterdam-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2x5120-192-2x480gb-2x10nic ",
+    "pricePerHour": "0.479",
+    "pricePerMonth": "350.00",
+    "cpu": "2xGold 5120",
+    "ram": "192GB RAM",
+    "disks": "2x480GB SSD",
+    "network": "2x10Gbit NIC"
+   },
+   {
+    "location": "Amsterdam-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2x4114-128-r1-2x480gb-rn-2x7680gb-2x10nic ",
+    "pricePerHour": "0.518",
+    "pricePerMonth": "378.33",
+    "cpu": "2xSilver 4114",
+    "ram": "128GB RAM",
+    "disks": "2x480 SSD + 2x7680 SSD",
+    "network": "2x10Gbit NIC"
+   },
+   {
+    "location": "Amsterdam-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2x4114-128-r1-2x960gb-rn-2x7680gb-2x10nic ",
+    "pricePerHour": "0.524",
+    "pricePerMonth": "382.51",
+    "cpu": "2xSilver 4114",
+    "ram": "128GB RAM",
+    "disks": "2x960 SSD + 2x7680 SSD",
+    "network": "2x10Gbit NIC"
+   },
+   {
+    "location": "Warsaw-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2x4214-128-2x960gb-2x1nic ",
+    "pricePerHour": "0.549",
+    "pricePerMonth": "400.49",
+    "cpu": "2xSilver 4214",
+    "ram": "128GB RAM",
+    "disks": "2x960GB SSD",
+    "network": "2x1Gbit NIC"
+   },
+   {
+    "location": "Tashkent-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2x5120-512-2x960gb-6x3840gb-2x10nic ",
+    "pricePerHour": "0.587",
+    "pricePerMonth": "428.87",
+    "cpu": "2x5120",
+    "ram": "512GB RAM",
+    "disks": "2x960GB + 2x3.84TB",
+    "network": "2x10Gbit NIC"
+   },
+   {
+    "location": "Warsaw-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2x4214-256-2x960gb-2x1nic ",
+    "pricePerHour": "0.693",
+    "pricePerMonth": "506.05",
+    "cpu": "2xSilver 4214",
+    "ram": "256GB RAM",
+    "disks": "2x960GB SSD",
+    "network": "2x1Gbit NIC"
+   },
+   {
+    "location": "Hong Kong-1",
+    "period": "hour",
+    "tableType": "bm0",
+    "name": " bm0-infrastructure-2x5120-512-2x960gb-2x10nic ",
+    "pricePerHour": "0.753",
+    "pricePerMonth": "550.00",
+    "cpu": "2x Intel Xeon Gold 5120",
+    "ram": "512GB RAM",
+    "disks": "2x960GB SSD",
+    "network": "2x10Gbit NIC"
+   }
+  ],
+  [
+   {
+    "location": "Santa-Clara-1",
+    "period": "hour",
+    "tableType": "egress",
+    "name": "Egress traffic Bare Metal Santa Clara-1 - PAY",
+    "pricePerTraffic": "0.001"
+   },
+   {
+    "location": "Paris-2",
+    "period": "hour",
+    "tableType": "egress",
+    "name": "Egress traffic Bare Metal ",
+    "pricePerTraffic": "0.0013"
+   }
+  ],
+  [
+   {
+    "location": "Paris-2",
+    "period": "hour",
+    "tableType": "lb1",
+    "name": " lb1-1-2 ",
+    "pricePerHour": "0.021",
+    "pricePerMonth": "15.18",
+    "vcpus": "1vCPU",
+    "ram": "2GB RAM"
+   },
+   {
+    "location": "Paris-2",
+    "period": "hour",
+    "tableType": "lb1",
+    "name": " lb1-2-4 ",
+    "pricePerHour": "0.042",
+    "pricePerMonth": "30.44",
+    "vcpus": "2vCPU",
+    "ram": "4GB RAM"
+   },
+   {
+    "location": "Santa-Clara-1",
+    "period": "hour",
+    "tableType": "lb1",
+    "name": " lb1-4-8 ",
+    "pricePerHour": "0.083",
+    "pricePerMonth": "60.81",
+    "vcpus": "4vCPU",
+    "ram": "8GB RAM"
+   },
+   {
+    "location": "Istanbul-1",
+    "period": "hour",
+    "tableType": "lb1",
+    "name": " lb1-8-16 ",
+    "pricePerHour": "0.167",
+    "pricePerMonth": "121.69",
+    "vcpus": "8vCPU",
+    "ram": "16GB RAM"
+   }
+  ]
+ ]
+}

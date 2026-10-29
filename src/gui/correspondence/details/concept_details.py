@@ -116,13 +116,19 @@ class ConceptDetails(QFrame):
         Args:
             signal (pyqtBoundSignal): The signal of the action.
         """
-        if self.concept is not None:
-            signal.emit(self.concept.id)
+        if self.concept is None:
+            self.logger.warning("No stored concept is shown: the action is ignored.")
+            return
+        self.logger.debug("Action requested on the concept %d.", self.concept.id)
+        signal.emit(self.concept.id)
 
     def _on_rematch(self) -> None:
         """Ask for the category of the shown concept to be matched again."""
-        if self.concept is not None and self.concept.node_slug:
-            self.rematch_requested.emit(self.concept.node_slug)
+        if self.concept is None or not self.concept.node_slug:
+            self.logger.warning("The shown concept has no category: it cannot be matched again.")
+            return
+        self.logger.debug("Matching again the category %s of the concept %d.", self.concept.node_slug, self.concept.id)
+        self.rematch_requested.emit(self.concept.node_slug)
 
     def _on_link(self, link: str) -> None:
         """Run an action of the services list: open a page, change a role, remove a service.
@@ -132,7 +138,9 @@ class ConceptDetails(QFrame):
         """
         action, _, value = link.partition(":")
         if self.concept is None:
+            self.logger.warning("No stored concept is shown: the %r action is ignored.", action)
             return
+        self.logger.debug("Action %r of the services list of the concept %d.", action, self.concept.id)
         match action:
             case "open":
                 QDesktopServices.openUrl(QUrl(value))
@@ -196,6 +204,9 @@ class ConceptDetails(QFrame):
             lines = [f"<span style='color:{color};'>●</span> <b>{html.escape(self.theme.provider_label(provider))}</b>"]
             lines += [self._member(member, editable) for member in concept.members_of(provider)]
             blocks.append("<br>".join(lines))
+        if not blocks:
+            self.logger.warning("The concept %d holds no service.", concept.id)
+        self.logger.debug("Services of the concept %d written for %d providers.", concept.id, len(blocks))
         return "<br><br>".join(blocks) if blocks else f"<span style='color:{self.theme.TEXT_MUTED};'>No service</span>"
 
     ############################
@@ -219,6 +230,7 @@ class ConceptDetails(QFrame):
             self.path_label.setText("")
             self.description_label.setText(self.PLACEHOLDER)
             self.members_label.setText("")
+            self.logger.debug("No concept selected: the placeholder is shown.")
             return
         providers = len({member.provider for member in concept.members})
         origin = "created by hand" if concept.source is ConceptSource.USER else "found by the AI"

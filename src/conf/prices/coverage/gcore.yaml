@@ -1,0 +1,82 @@
+# Curated price coverage of Gcore (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: gcore
+currency: EUR
+row_links:
+  'GPU Cloud': ['^Bare Metal \| bm/[^/]+/[a-z0-9]+/[a-z0-9]+-ai-']
+links:
+  'Cloud Virtual Machine Hosting': ['^Virtual Machines$']
+  'GPU Cloud': ['^GPU Virtual Machines$']
+  'Compute': ['^Bare Metal$', '^Egress traffic$']
+statements:
+  - product: 'AI Cloud'
+    model: not-public
+    reason: 'An AI cloud stack deployed for the client with Gcore operations, no price on the page.'
+    source: 'https://gcore.com/ai-cloud-stack'
+  - product: 'API Security'
+    model: not-public
+    reason: 'No price on the product page and not in the Gcore cloud pricing API.'
+    source: 'https://bff.gcore.pro/cloud/pricing-cloud?location=all&currency=EUR&vmType=vm'
+  - product: 'Bot Management'
+    model: not-public
+    reason: 'No price on the product page and not in the Gcore cloud pricing API.'
+    source: 'https://bff.gcore.pro/cloud/pricing-cloud?location=all&currency=EUR&vmType=vm'
+  - product: 'Container Registry'
+    model: not-public
+    reason: 'No price on the product page and not in the Gcore cloud pricing API.'
+    source: 'https://bff.gcore.pro/cloud/pricing-cloud?location=all&currency=EUR&vmType=vm'
+  - product: 'Everywhere AI'
+    model: not-public
+    reason: 'No price on the product page and not in the Gcore cloud pricing API.'
+    source: 'https://bff.gcore.pro/cloud/pricing-cloud?location=all&currency=EUR&vmType=vm'
+  - product: 'White Label Solutions'
+    model: not-public
+    reason: 'No price on the product page and not in the Gcore cloud pricing API.'
+    source: 'https://bff.gcore.pro/cloud/pricing-cloud?location=all&currency=EUR&vmType=vm'
+  - product: 'Automated DDoS Protection with Gcore + FastNetMon'
+    model: quote
+    reason: 'The page gives no price and asks to contact the Gcore team.'
+    source: 'https://gcore.com/gcore-fastnetmon-ddos-protection'
+  - product: 'Cloud App Marketplace'
+    model: quote
+    reason: 'The page offers no price, only a contact form to get a personalized offer.'
+    source: 'https://gcore.com/cloud/marketplace'
+  - product: 'Cloud Networking'
+    model: quote
+    reason: 'The page offers no price, only a contact form to get a personalized offer.'
+    source: 'https://gcore.com/cloud/vp'
+  - product: 'Disaster Recovery'
+    model: quote
+    reason: 'The page offers no price, only a contact form to get a personalized offer.'
+    source: 'https://gcore.com/cloud/recovery'
+  - product: 'IT Infrastructure Management'
+    model: quote
+    reason: 'The page offers no price, only a contact form to get a personalized offer.'
+    source: 'https://gcore.com/it-infrastructure-management'
+  - product: 'Software Development'
+    model: quote
+    reason: 'The page asks to contact sales to estimate the project cost.'
+    source: 'https://gcore.com/development'
+  - product: 'Traffic Gate'
+    model: quote
+    reason: 'Usage-based on clean requests, the page asks to talk to sales for a plan matched to the traffic pattern.'
+    source: 'https://gcore.com/security/traffic-gate'
+  - product: 'Web Application Penetration Testing'
+    model: quote
+    reason: 'The page asks to request a quote.'
+    source: 'https://gcore.com/pentest'
+  - product: 'Databases'
+    model: free
+    reason: 'Managed PostgreSQL is offered as a free public beta according to the product page.'
+    source: 'https://gcore.com/cloud/managed-database-postgresql'
+  - product: 'Gcore Free Public DNS'
+    model: free
+    reason: 'The page presents the public DNS resolver as fast, secure and free.'
+    source: 'https://gcore.com/public-dns'
+  - product: 'Gcore Peering'
+    model: free
+    reason: 'Gcore states it invites providers to peer with it for free under a selective peering policy.'
+    source: 'https://gcore.com/internet-peering'
+  - product: 'Hosting'
+    model: included
+    reason: 'A hub page for Gcore hosting, priced through VDS Hosting and Dedicated server hosting.'
+    source: 'https://gcore.com/hosting'

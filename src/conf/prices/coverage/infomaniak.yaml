@@ -1,0 +1,38 @@
+# Curated price coverage of Infomaniak (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: infomaniak
+currency: EUR
+links:
+  'Database Service': ['^Database as a Service$']
+statements:
+  - product: 'Chk'
+    model: free
+    reason: 'The page presents Chk as a free and ad-free URL shortener and QR code generator.'
+    source: 'https://chk.infomaniak.com'
+  - product: 'kMeet'
+    model: free
+    reason: 'The page presents kMeet as a secure, unlimited and free video-conferencing service.'
+    source: 'https://www.infomaniak.com/en/ksuite/kmeet'
+  - product: 'DynDNS'
+    model: included
+    reason: 'Included free of charge with every domain managed at Infomaniak (Domain Name).'
+    source: 'https://www.infomaniak.com/en/domains/dyndns'
+  - product: 'kChat'
+    model: included
+    reason: 'The FAQ states kChat is included in kSuite by default at no additional cost.'
+    source: 'https://www.infomaniak.com/en/ksuite/kchat'
+  - product: 'Euria, the ethical AI'
+    model: included
+    reason: 'The page offers Euria with my kSuite and kSuite PRO, it has no price of its own.'
+    source: 'https://www.infomaniak.com/en/euria'
+  - product: 'SwissTransfer'
+    model: free
+    reason: 'The page presents SwissTransfer as a free file transfer tool, up to 250 downloads free. A paid offer adds unlimited downloads.'
+    source: 'https://www.infomaniak.com/en/swisstransfer'
+  - product: 'Renewal Warranty'
+    model: not-public
+    reason: 'The FAQ says the price depends on the product, typically no more than 5% of the service value, no fixed price.'
+    source: 'https://www.infomaniak.com/en/secure/renewal-warranty'
+  - product: 'kPaste'
+    model: not-public
+    reason: 'The kPaste page shows no price and the service is not on the Infomaniak price pages.'
+    source: 'https://kpaste.infomaniak.com/'

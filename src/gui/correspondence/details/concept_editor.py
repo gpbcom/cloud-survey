@@ -44,6 +44,7 @@ class ConceptEditor:
         """
         self.theme = theme
         self.logger = logger if logger else getLogger(__name__)
+        self.logger.debug("Concept editor ready.")
 
     ############################
     # Internal Helpers Methods #
@@ -66,6 +67,7 @@ class ConceptEditor:
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         buttons.accepted.connect(dialog.accept)
         buttons.rejected.connect(dialog.reject)
+        self.logger.debug("Dialog %r built.", title)
         return dialog, QVBoxLayout(dialog), buttons
 
     def _filter_list(self, items: QListWidget, text: str) -> None:
@@ -76,10 +78,13 @@ class ConceptEditor:
             text (str): The text, case-insensitive.
         """
         wanted = text.strip().casefold()
+        hidden = 0
         for row in range(items.count()):
             item = items.item(row)
             if item is not None:
                 item.setHidden(bool(wanted) and wanted not in item.text().casefold())
+                hidden += item.isHidden()
+        self.logger.debug("List filtered on %r: %d of %d entries hidden.", wanted, hidden, items.count())
 
     ############################
     # Publicly Exposed Methods #
@@ -106,8 +111,13 @@ class ConceptEditor:
         form.addRow("Description", description_box)
         layout.addLayout(form)
         layout.addWidget(buttons)
-        if dialog.exec() != QDialog.DialogCode.Accepted or not name_box.text().strip():
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            self.logger.debug("Naming of the concept cancelled.")
             return None
+        if not name_box.text().strip():
+            self.logger.warning("The concept was left without a name: nothing is changed.")
+            return None
+        self.logger.debug("Concept name %r entered.", name_box.text().strip())
         return name_box.text().strip(), description_box.text().strip()
 
     def pick_concept(self, parent: QWidget, concepts: Sequence[ConceptRow], excluded: int) -> Optional[int]:
@@ -131,15 +141,21 @@ class ConceptEditor:
             item = QListWidgetItem(f"{concept.name}  ({len(concept.members)} services)")
             item.setData(Qt.ItemDataRole.UserRole, concept.id)
             items.addItem(item)
+        if not items.count():
+            self.logger.warning("No other concept to merge the concept %d into.", excluded)
+        self.logger.debug("%d concepts offered to merge the concept %d into.", items.count(), excluded)
         search.textChanged.connect(lambda text: self._filter_list(items, text))
         layout.addWidget(QLabel("The services of the concept move to the chosen one, then the concept is deleted."))
         layout.addWidget(search)
         layout.addWidget(items, 1)
         layout.addWidget(buttons)
         if dialog.exec() != QDialog.DialogCode.Accepted or items.currentItem() is None:
+            self.logger.debug("No concept chosen to merge the concept %d into.", excluded)
             return None
         current = items.currentItem()
-        return int(current.data(Qt.ItemDataRole.UserRole)) if current is not None else None
+        target = int(current.data(Qt.ItemDataRole.UserRole)) if current is not None else None
+        self.logger.debug("Concept %s chosen to merge the concept %d into.", target, excluded)
+        return target
 
     def pick_service(self, parent: QWidget, services: Sequence[ConceptMember]) -> Optional[Tuple[int, MemberRole]]:
         """Ask for a service to file under a concept, and its role.
@@ -171,10 +187,14 @@ class ConceptEditor:
         layout.addWidget(items, 1)
         layout.addWidget(role)
         layout.addWidget(buttons)
+        self.logger.debug("%d services offered to add to the concept.", items.count())
         current = items.currentItem() if dialog.exec() == QDialog.DialogCode.Accepted else None
         if current is None:
+            self.logger.debug("No service chosen to add to the concept.")
             return None
-        return int(current.data(Qt.ItemDataRole.UserRole)), MemberRole(role.currentData())
+        product_id, member_role = int(current.data(Qt.ItemDataRole.UserRole)), MemberRole(role.currentData())
+        self.logger.debug("Service %d chosen as %s.", product_id, member_role.value)
+        return product_id, member_role
 
     def confirm(self, parent: QWidget, question: str) -> bool:
         """Ask for a confirmation.
@@ -187,4 +207,6 @@ class ConceptEditor:
             bool: Whether the person confirmed.
         """
         answer = QMessageBox.question(parent, "Correspondences", question)
-        return answer == QMessageBox.StandardButton.Yes
+        confirmed = answer == QMessageBox.StandardButton.Yes
+        self.logger.debug("Confirmation %s: %r.", "given" if confirmed else "refused", question)
+        return confirmed

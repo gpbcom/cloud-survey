@@ -1,0 +1,59 @@
+)]}'
+{
+ "skus": [
+  {
+   "cloud_service_id": "EE2F-D110-890C",
+   "category": "Cloud Key Management Service (KMS)",
+   "skus": [
+    {
+     "sku_id": "1017-1BAF-7159",
+     "description": "Active HSM ECDSA P-256 key versions",
+     "service_regions": [
+      "global"
+     ],
+     "prices": [
+      "2.50 USD per 1 month, for 0 month to 2,000 month, per 1 month per account",
+      "1.00 USD per 1 month, for 2,000 month and above, per 1 month per account"
+     ]
+    }
+   ]
+  },
+  {
+   "cloud_service_id": "1A35-C5C7-1D7C",
+   "category": "Drupal",
+   "skus": [
+    {
+     "sku_id": "A8F1-B2B0-44BC",
+     "description": "Licensing Fee for Standard Plan",
+     "service_regions": [
+      "global"
+     ],
+     "prices": [
+      "0.00 USD (Free) per 1 hour"
+     ]
+    }
+   ]
+  },
+  {
+   "cloud_service_id": "57D6-8E6B-2DE0",
+   "category": "Cloud Dataflow",
+   "skus": [
+    {
+     "sku_id": "84B1-65B8-1DAD",
+     "description": "Local Disk Time PD SSD",
+     "service_regions": [
+      "asia-east1",
+      "europe-west1",
+      "us-central1",
+      "us-east1",
+      "us-west1"
+     ],
+     "prices": [
+      "0.000298 USD per 1 gibibyte hour"
+     ]
+    }
+   ]
+  }
+ ],
+ "pageToken": "Cn8KcXR5cGUuZ29vZ2xlYXBpcy5jb20vZW50ZXJwcmlzZS5jcm0ub2hhcmEuZW50aXR5LnByb3RvLnN0b3JhZ2UuZ3JhcGguc2VydmluZy52MS5TdG9yYWdlU2VhcmNoUHJvZHVjdHNSZXF1ZXN0UGFyYW1zEgoKASoQARgBIgEBEgAigAIKbHR5cGUuZ29vZ2xlYXBpcy5jb20vZW50ZXJwcmlzZS5jcm0ub2hhcmEuZW50aXR5LnByb3RvLnN0b3JhZ2UuZ3JhcGguc2VydmluZy52MS5TdG9yYWdlU2VhcmNoUHJvZHVjdHNNZXRhZGF0YRKPAQqMATAsNzM3NzI4Nzg1NzE0OTg1MTE4NCwiZmFkODM4NjAtOWMyZi00NDQwLTliYzUtNGUwZGU1ZjVjNzhhIiwiMzFjNGM5OGQtZmQ1OC00OTI1LTgyYjQtNDg4MzE4NzEzMWY1IiwiMDJkZjEyMWItODUyMy00MjIyLWJjYjUtMzZkMGRmMDhlN2VjIiwx"
+}

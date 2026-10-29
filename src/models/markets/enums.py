@@ -198,3 +198,55 @@ class StockView(StrEnum):
     LISTINGS = "listings"
     REGIONS = "regions"
     VALUATIONS = "valuations"
+
+
+@unique
+class CorrelationCounterpart(StrEnum):
+    """Enums representing what a company's share changes are correlated with in the "Share vs …" card.
+
+    Attributes:
+        STOCK (str): The returns of the company's primary listing, in US dollars (Google Finance, FRED).
+        SHARE (str): The changes of the company's share in another segment, area or source.
+        CURRENCY (str): The changes of the home currency of the company against the US dollar (FRED).
+        CONTEXT (str): The changes of a chip supplier concentration (TrendForce HHI), a market context.
+    """
+
+    STOCK = "stock"
+    SHARE = "share"
+    CURRENCY = "currency"
+    CONTEXT = "context"
+
+
+@unique
+class MarketControl(StrEnum):
+    """Enums representing the controls of the markets cards, each explained by a tooltip (`conf/help.yaml`).
+
+    Attributes:
+        SEGMENT (str): The segment of the share chart.
+        AREA (str): The area of the share chart.
+        DEVICE (str): The devices of the share chart.
+        TOP (str): How many companies the share chart draws on their own line.
+        VIEW (str): What the stock chart shows.
+        COMPANIES (str): The companies of the stock chart.
+        CURRENCY (str): The currency of the stock chart.
+        SCALE (str): The scale of the stock chart.
+        SECONDARY (str): Whether the stock chart draws the secondary listings.
+        COMPANY (str): The company of the correlation card.
+        AGAINST (str): What the company's share changes are correlated with.
+        CORRELATE (str): The button running the correlation.
+        DERIVATIVE (str): Whether a time chart draws the rate of change of each line instead of its values.
+    """
+
+    SEGMENT = "segment"
+    AREA = "area"
+    DEVICE = "device"
+    TOP = "top"
+    VIEW = "view"
+    COMPANIES = "companies"
+    CURRENCY = "currency"
+    SCALE = "scale"
+    SECONDARY = "secondary"
+    COMPANY = "company"
+    AGAINST = "against"
+    CORRELATE = "correlate"
+    DERIVATIVE = "derivative"

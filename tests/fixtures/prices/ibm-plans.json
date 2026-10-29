@@ -1,0 +1,732 @@
+{
+ "offset": 0,
+ "limit": 100,
+ "count": 3,
+ "resource_count": 7,
+ "first": "https://globalcatalog.cloud.ibm.com/api/v1/dff97f5c-bc5e-4455-b470-411c3edbe49c/plan?_limit=100&languages=%2A",
+ "resources": [
+  {
+   "id": "1e4e33e4-cfa6-4f12-9016-be594a6d5f87",
+   "_id": "1e4e33e4-cfa6-4f12-9016-be594a6d5f87",
+   "_rev": "10-2b5f706855cc235dd8b143b706d74e39",
+   "catalog_crn": "crn:v1:bluemix:public:globalcatalog::::plan:1e4e33e4-cfa6-4f12-9016-be594a6d5f87",
+   "name": "cos-one-rate-plan",
+   "kind": "plan",
+   "overview_ui": {
+    "en": {
+     "display_name": "One-Rate",
+     "long_description": "---",
+     "description": "---"
+    }
+   },
+   "parent_id": "dff97f5c-bc5e-4455-b470-411c3edbe49c",
+   "children_url": "https://globalcatalog.cloud.ibm.com/api/v1/1e4e33e4-cfa6-4f12-9016-be594a6d5f87/%2A",
+   "parent_url": "https://globalcatalog.cloud.ibm.com/api/v1/dff97f5c-bc5e-4455-b470-411c3edbe49c",
+   "disabled": false,
+   "active": true,
+   "tags": [
+    "eu_access",
+    "freemium",
+    "hipaa",
+    "ibm_created",
+    "rc_compatible",
+    "storage"
+   ],
+   "geo_tags": [
+    "global"
+   ],
+   "pricing_tags": [
+    "allow_internal_users",
+    "paid",
+    "paid_only"
+   ],
+   "provider": {
+    "name": "IBM"
+   },
+   "created": "2022-09-20T21:16:25.832Z",
+   "updated": "2025-06-27T12:26:59.178859254-04:00",
+   "complete": true,
+   "url": "https://globalcatalog.cloud.ibm.com/api/v1/1e4e33e4-cfa6-4f12-9016-be594a6d5f87?languages=%2A",
+   "images": {
+    "image": "https://cache.globalcatalog.cloud.ibm.com/api/v1/dff97f5c-bc5e-4455-b470-411c3edbe49c/artifacts/cache/ab6590840944ec508719183950575ae5-public/IBM_CloudObjectStorage.svg"
+   },
+   "metadata": {
+    "rc_compatible": true,
+    "compliance": [
+     "minisd"
+    ],
+    "original_name": "cos-one-rate-plan",
+    "other": {
+     "pricing_schema_url": "https://control.cloud-object-storage.cloud.ibm.com/v2/pricing/1e4e33e4-cfa6-4f12-9016-be594a6d5f87"
+    },
+    "service": {
+     "type": "",
+     "iam_compatible": true,
+     "unique_api_key": false,
+     "rc_provisionable": true,
+     "bindable": true,
+     "async_provisioning_supported": false,
+     "async_unprovisioning_supported": false,
+     "user_defined_service": null,
+     "extension": null,
+     "plan_updateable": true,
+     "state": "",
+     "service_check_enabled": false,
+     "test_check_interval": 0,
+     "service_key_supported": true,
+     "custom_create_page_hybrid_enabled": false,
+     "parameters": []
+    },
+    "plan": {
+     "bindable": false,
+     "reservable": false,
+     "allow_internal_users": true,
+     "async_provisioning_supported": false,
+     "async_unprovisioning_supported": false,
+     "test_check_interval": 0,
+     "single_scope_instance": "",
+     "service_check_enabled": false,
+     "provision_type": "ibm_cloud"
+    },
+    "ui": {
+     "strings": {
+      "en": {
+       "bullets": [
+        {
+         "title": "One-Rate Plan is a Pay-as-You-Go option with a single, flat monthly rate ($/GB) that includes storage, API  operations, retrieval, and outbound bandwidth—making it ideal for high-activity workloads with frequent  access and data transfer, such as analytics, media, and web apps. The plan includes built-in allowances that  scale with stored capacity and offers automatic volume discounts as usage grows"
+        }
+       ]
+      }
+     },
+     "urls": {
+      "doc_url": "https://cloud.ibm.com/objectstorage/create#pricing-onerate"
+     }
+    },
+    "pricing": {
+     "origin": "pricing_catalog",
+     "type": "paid",
+     "url": "https://globalcatalog.cloud.ibm.com/api/v1/1e4e33e4-cfa6-4f12-9016-be594a6d5f87/pricing",
+     "starting_price": {},
+     "metrics": null,
+     "sales_avenue": [
+      "catalog"
+     ]
+    },
+    "sla": {
+     "dr": {
+      "dr": true
+     }
+    }
+   },
+   "visibility": {
+    "restrictions": "public"
+   }
+  },
+  {
+   "id": "2fdf0c08-2d32-4f46-84b5-32e0c92fffd8",
+   "_id": "2fdf0c08-2d32-4f46-84b5-32e0c92fffd8",
+   "_rev": "18-2c1abb75526d46cc16ed46caa8963942",
+   "catalog_crn": "crn:v1:bluemix:public:globalcatalog::::plan:2fdf0c08-2d32-4f46-84b5-32e0c92fffd8",
+   "name": "lite",
+   "kind": "plan",
+   "overview_ui": {
+    "de": {
+     "display_name": "Lite",
+     "long_description": "Der Serviceplan 'Lite' für Cloud Object Storage umfasst regionale und überregionale Mehrfachverfügbarkeit, flexible Datenklassen und integrierte Sicherheitsfunktionen. ",
+     "description": "Der Serviceplan 'Lite' für Cloud Object Storage umfasst regionale und überregionale Mehrfachverfügbarkeit, flexible Datenklassen und integrierte Sicherheitsfunktionen. "
+    },
+    "en": {
+     "display_name": "Lite(deprecated)",
+     "long_description": "None",
+     "description": "Only one Lite plan instance is allowed per account. The Lite plan instance includes up to 25 GB of storage capacity; 2,000 Class A (PUT, COPY, POST, and LIST) requests; 20,000 Class B (GET and all others) requests; 10 GB of data retrieval; 5GB of egress (public outbound bandwidth) each month. These thresholds apply to the aggregate total across all storage class buckets."
+    },
+    "es": {
+     "display_name": "Lite",
+     "long_description": "El plan de servicio Lite para el Almacenamiento de objetos en la nube incluye capacidad de recuperación Regional e Interregional, clases de datos flexibles y seguridad incorporada. ",
+     "description": "El plan de servicio Lite para el Almacenamiento de objetos en la nube incluye capacidad de recuperación Regional e Interregional, clases de datos flexibles y seguridad incorporada. "
+    },
+    "fr": {
+     "display_name": "Lite",
+     "long_description": "L'abonnement Lite au service Cloud Object Storage inclut une résilience résilience régionale et interrégionale, des classes de données flexibles et une sécurité intégrée.",
+     "description": "L'abonnement Lite au service Cloud Object Storage inclut une résilience résilience régionale et interrégionale, des classes de données flexibles et une sécurité intégrée."
+    },
+    "it": {
+     "display_name": "Lite",
+     "long_description": "Il piano di servizio Lite per Cloud Object Storage include la resilienza regionale e interregionale, classi di dati flessibili e sicurezza integrata.",
+     "description": "Il piano di servizio Lite per Cloud Object Storage include la resilienza regionale e interregionale, classi di dati flessibili e sicurezza integrata."
+    },
+    "ja": {
+     "display_name": "ライト",
+     "long_description": "Cloud Object Storage のライト・サービスには、Regional と Cross Regional での回復力、柔軟なデータ・クラス、組み込みセキュリティーが含まれます。",
+     "description": "Cloud Object Storage のライト・サービスには、Regional と Cross Regional での回復力、柔軟なデータ・クラス、組み込みセキュリティーが含まれます。"
+    },
+    "ko": {
+     "display_name": "라이트",
+     "long_description": "Cloud Object Storage의 라이트 서비스 플랜에는 지역 및 교차 지역 복원성, 유연한 데이터 클래스 및 기본제공 보안이 포함됩니다.",
+     "description": "Cloud Object Storage의 라이트 서비스 플랜에는 지역 및 교차 지역 복원성, 유연한 데이터 클래스 및 기본제공 보안이 포함됩니다."
+    },
+    "pt-br": {
+     "display_name": "Lite",
+     "long_description": "O plano de serviço Lite para o Cloud Object Storage inclui resiliência Regional e Regional cruzada, classes de dados flexíveis e segurança integrada.",
+     "description": "O plano de serviço Lite para o Cloud Object Storage inclui resiliência Regional e Regional cruzada, classes de dados flexíveis e segurança integrada."
+    },
+    "zh-cn": {
+     "display_name": "Lite",
+     "long_description": "用于云对象存储器的 Lite 服务计划包括区域和跨区域灾备、灵活的数据类和内置安全性。",
+     "description": "用于云对象存储器的 Lite 服务计划包括区域和跨区域灾备、灵活的数据类和内置安全性。"
+    },
+    "zh-tw": {
+     "display_name": "小型",
+     "long_description": "「雲端物件儲存」的小型服務方案包括「區域」和「跨區域」備援、彈性資料類別及內建安全性。",
+     "description": "「雲端物件儲存」的小型服務方案包括「區域」和「跨區域」備援、彈性資料類別及內建安全性。"
+    }
+   },
+   "parent_id": "dff97f5c-bc5e-4455-b470-411c3edbe49c",
+   "children_url": "https://globalcatalog.cloud.ibm.com/api/v1/2fdf0c08-2d32-4f46-84b5-32e0c92fffd8/%2A",
+   "parent_url": "https://globalcatalog.cloud.ibm.com/api/v1/dff97f5c-bc5e-4455-b470-411c3edbe49c",
+   "disabled": false,
+   "active": true,
+   "tags": [
+    "compute",
+    "g2",
+    "ibm_created",
+    "ibm_iaas_g2"
+   ],
+   "geo_tags": [
+    "global"
+   ],
+   "pricing_tags": [
+    "free",
+    "lite",
+    "paygo"
+   ],
+   "provider": {
+    "name": "IBM"
+   },
+   "created": "2017-08-24T18:16:40.549Z",
+   "updated": "2025-04-15T12:35:23.983019096-04:00",
+   "complete": true,
+   "url": "https://globalcatalog.cloud.ibm.com/api/v1/2fdf0c08-2d32-4f46-84b5-32e0c92fffd8?languages=%2A",
+   "images": {
+    "image": "https://cache.globalcatalog.cloud.ibm.com/api/v1/2fdf0c08-2d32-4f46-84b5-32e0c92fffd8/artifacts/cache/ab6590840944ec508719183950575ae5-public/IBM_CloudObjectStorage.svg"
+   },
+   "metadata": {
+    "rc_compatible": true,
+    "other": {
+     "pricing_schema_url": "https://control.cloud-object-storage.cloud.ibm.com/v2/pricing/2fdf0c08-2d32-4f46-84b5-32e0c92fffd8"
+    },
+    "service": {
+     "type": "",
+     "iam_compatible": true,
+     "unique_api_key": false,
+     "rc_provisionable": true,
+     "bindable": true,
+     "async_provisioning_supported": false,
+     "async_unprovisioning_supported": false,
+     "user_defined_service": null,
+     "extension": null,
+     "plan_updateable": true,
+     "state": "",
+     "service_check_enabled": false,
+     "test_check_interval": 0,
+     "service_key_supported": true,
+     "custom_create_page_hybrid_enabled": false,
+     "parameters": null
+    },
+    "plan": {
+     "bindable": true,
+     "reservable": false,
+     "allow_internal_users": false,
+     "async_provisioning_supported": false,
+     "async_unprovisioning_supported": false,
+     "test_check_interval": 0,
+     "single_scope_instance": "",
+     "service_check_enabled": false,
+     "provision_type": "ibm_cloud"
+    },
+    "ui": {
+     "strings": {
+      "de": {
+       "bullets": [
+        {
+         "title": "1 COS-Serviceinstanz"
+        },
+        {
+         "title": "Speicher von bis zu 25 GB pro Monat"
+        },
+        {
+         "title": "Bis zu 20.000 GET-Anforderungen pro Monat"
+        },
+        {
+         "title": "Bis zu 2.000 PUT-Anforderungen pro Monat"
+        },
+        {
+         "title": "Datenabruf von bis zu 10 GB pro Monat"
+        },
+        {
+         "title": "Bis zu 5 GB öffentlich abgehend"
+        },
+        {
+         "title": "Gilt für die kumulierten Gesamtsummen für alle Speicherbucketklassen"
+        }
+       ]
+      },
+      "en": {
+       "bullets": [
+        {
+         "title": "Lite plan instance is free to use for Storage capacity up to 25 GB per month. Lite plan instance is used for trial, and can be easily upgraded to Standard plan for unlimited scalability and full functionality."
+        }
+       ]
+      },
+      "es": {
+       "bullets": [
+        {
+         "title": "1 Instancia de servicio COS "
+        },
+        {
+         "title": "Almacenamiento de hasta 25 GB/mes."
+        },
+        {
+         "title": "Hasta 20.000 solicitudes GET/mes "
+        },
+        {
+         "title": "Hasta 2.000 solicitudes PUT/mes "
+        },
+        {
+         "title": "Hasta 10 GB de recuperación de datos/mes "
+        },
+        {
+         "title": "Hasta 5GB de salida pública "
+        },
+        {
+         "title": "Se aplica al total agregado en todas las clases de depósito de almacenamiento "
+        }
+       ]
+      },
+      "fr": {
+       "bullets": [
+        {
+         "title": "1 instance de service COS"
+        },
+        {
+         "title": "Stockage jusqu'à 25 Go par mois."
+        },
+        {
+         "title": "Jusqu'à 20 000 demandes GET par mois."
+        },
+        {
+         "title": "Jusqu'à 2 000 demandes PUT par mois."
+        },
+        {
+         "title": "Jusqu'à 10 Go d'extraction de données par mois."
+        },
+        {
+         "title": "Jusqu'à 5 Go publics sortants"
+        },
+        {
+         "title": "Applicable aux totaux agrégés de toutes les classes de compartiment de stockage"
+        }
+       ]
+      },
+      "it": {
+       "bullets": [
+        {
+         "title": "Istanza 1 servizio COS"
+        },
+        {
+         "title": "Storage fino a 25 GB/mo."
+        },
+        {
+         "title": "Fino a 20.000 richieste GET/mo."
+        },
+        {
+         "title": "Fino a 2.000 richieste PUT/m."
+        },
+        {
+         "title": "Fino a 10 GB/mo di richiamo dati."
+        },
+        {
+         "title": "Fino a 5GB in uscita pubblici"
+        },
+        {
+         "title": "Si applica al totale aggregato in tutte le classi bucket di storage"
+        }
+       ]
+      },
+      "ja": {
+       "bullets": [
+        {
+         "title": "1 COS サービス・インスタンス"
+        },
+        {
+         "title": "最大 25 GB/月のストレージ"
+        },
+        {
+         "title": "最大 20,000 GET 要求/月"
+        },
+        {
+         "title": "最大 2,000 PUT 要求/月"
+        },
+        {
+         "title": "最大 10 GB/月 のデータの取得"
+        },
+        {
+         "title": "最大 5GB のパブリック・アウトバウンド"
+        },
+        {
+         "title": "ストレージ・バケット・クラス全体の総計に適用"
+        }
+       ]
+      },
+      "ko": {
+       "bullets": [
+        {
+         "title": "1 COS 서비스 인스턴스"
+        },
+        {
+         "title": "월별 최대 25GB의 스토리지"
+        },
+        {
+         "title": "월별 최대 20,000개의 GET 요청"
+        },
+        {
+         "title": "월별 최대 2,000개의 PUT 요청"
+        },
+        {
+         "title": "월별 최대 10GB의 데이터 검색"
+        },
+        {
+         "title": "최대 5GB의 퍼블릭 아웃바운드"
+        },
+        {
+         "title": "모든 스토리지 버킷 클래스에서 총계를 집계하도록 적용"
+        }
+       ]
+      },
+      "pt-br": {
+       "bullets": [
+        {
+         "title": "1 instância de serviço COS"
+        },
+        {
+         "title": "Armazenamento de até 25 GB/mês."
+        },
+        {
+         "title": "Até 20.000 solicitações de GET/mês."
+        },
+        {
+         "title": "Até 2.000 solicitações de PUT/mês."
+        },
+        {
+         "title": "Até 10 GB/mês de recuperação dos dados."
+        },
+        {
+         "title": "Até 5 GB de saída pública"
+        },
+        {
+         "title": "Aplica-se ao total agregado entre todas as classes de depósito de armazenamento"
+        }
+       ]
+      },
+      "zh-cn": {
+       "bullets": [
+        {
+         "title": "1 COS 服务实例"
+        },
+        {
+         "title": "每月最大存储量为 25 GB"
+        },
+        {
+         "title": "每月最多 20,000 个 GET 请求"
+        },
+        {
+         "title": "每月最多 2,000 个 PUT 请求"
+        },
+        {
+         "title": "每月数据检索最多为 10 GB"
+        },
+        {
+         "title": "最多 5GB 公共出站"
+        },
+        {
+         "title": "应用于所有存储区类的聚合总数"
+        }
+       ]
+      },
+      "zh-tw": {
+       "bullets": [
+        {
+         "title": "1 個 COS 服務實例"
+        },
+        {
+         "title": "儲存高達 25 GB/月。"
+        },
+        {
+         "title": "高達 20,000 個 GET 要求/月。"
+        },
+        {
+         "title": "高達 2,000 個 PUT 要求/月。"
+        },
+        {
+         "title": "高達資料擷取 10 GB/月。"
+        },
+        {
+         "title": "高達 5GB 公用出埠"
+        },
+        {
+         "title": "適用於所有儲存儲存區類別上的聚集總計"
+        }
+       ]
+      }
+     }
+    },
+    "pricing": {
+     "origin": "global_catalog",
+     "type": "free",
+     "starting_price": {},
+     "metrics": null,
+     "sales_avenue": [
+      "catalog"
+     ]
+    }
+   },
+   "visibility": {
+    "restrictions": "public"
+   }
+  },
+  {
+   "id": "744bfc56-d12c-4866-88d5-dac9139e0e5d",
+   "_id": "744bfc56-d12c-4866-88d5-dac9139e0e5d",
+   "_rev": "11-4aaf9a7f61aea7c13cb9876de64343c6",
+   "catalog_crn": "crn:v1:bluemix:public:globalcatalog::::plan:744bfc56-d12c-4866-88d5-dac9139e0e5d",
+   "name": "standard",
+   "kind": "plan",
+   "overview_ui": {
+    "de": {
+     "display_name": "Standard",
+     "long_description": "Es gibt keine Mindestgebühren; Sie zahlen nur für Ihre tatsächliche Nutzung. ",
+     "description": "Es gibt keine Mindestgebühren; Sie zahlen nur für Ihre tatsächliche Nutzung. "
+    },
+    "en": {
+     "display_name": "Standard",
+     "long_description": "---",
+     "description": "---"
+    },
+    "es": {
+     "display_name": "Standard",
+     "long_description": "No hay ninguna tarifa mínima, así que solo paga por lo que usa. ",
+     "description": "No hay ninguna tarifa mínima, así que solo paga por lo que usa. "
+    },
+    "fr": {
+     "display_name": "Standard",
+     "long_description": "Il n'existe pas de redevance minimale ; vous ne payez que ce que vous utilisez.",
+     "description": "Il n'existe pas de redevance minimale ; vous ne payez que ce que vous utilisez."
+    },
+    "it": {
+     "display_name": "Standard",
+     "long_description": "Non esiste una tariffa minima, si paga solo per quello che utilizza.",
+     "description": "Non esiste una tariffa minima, si paga solo per quello che utilizza."
+    },
+    "ja": {
+     "display_name": "Standard",
+     "long_description": "最低料金は設定されていないため、使った分のみをお支払いいただきます。",
+     "description": "最低料金は設定されていないため、使った分のみをお支払いいただきます。"
+    },
+    "ko": {
+     "display_name": "표준",
+     "long_description": "수수료가 없습니다. 사용한 만큼만 지불하십시오.",
+     "description": "수수료가 없습니다. 사용한 만큼만 지불하십시오."
+    },
+    "pt-br": {
+     "display_name": "Padrão",
+     "long_description": "Não há taxa mínima, então você paga somente pelo que usa.",
+     "description": "Não há taxa mínima, então você paga somente pelo que usa."
+    },
+    "zh-cn": {
+     "display_name": "标准",
+     "long_description": "没有最低收费，您只需按用量付款。",
+     "description": "没有最低收费，您只需按用量付款。"
+    },
+    "zh-tw": {
+     "display_name": "標準",
+     "long_description": "不存在費用下限，因此您只需為使用的項目付費。",
+     "description": "不存在費用下限，因此您只需為使用的項目付費。"
+    }
+   },
+   "parent_id": "dff97f5c-bc5e-4455-b470-411c3edbe49c",
+   "children_url": "https://globalcatalog.cloud.ibm.com/api/v1/744bfc56-d12c-4866-88d5-dac9139e0e5d/%2A",
+   "parent_url": "https://globalcatalog.cloud.ibm.com/api/v1/dff97f5c-bc5e-4455-b470-411c3edbe49c",
+   "disabled": false,
+   "active": true,
+   "tags": [
+    "compute",
+    "eu_access",
+    "g2",
+    "hipaa",
+    "ibm_created"
+   ],
+   "geo_tags": [
+    "global"
+   ],
+   "pricing_tags": [
+    "paid_only",
+    "paygo"
+   ],
+   "provider": {
+    "name": "IBM"
+   },
+   "created": "2017-08-24T18:16:40.549Z",
+   "updated": "2025-06-25T15:34:57.686263877-04:00",
+   "complete": true,
+   "url": "https://globalcatalog.cloud.ibm.com/api/v1/744bfc56-d12c-4866-88d5-dac9139e0e5d?languages=%2A",
+   "images": {
+    "image": "https://cache.globalcatalog.cloud.ibm.com/api/v1/744bfc56-d12c-4866-88d5-dac9139e0e5d/artifacts/cache/ab6590840944ec508719183950575ae5-public/IBM_CloudObjectStorage.svg"
+   },
+   "metadata": {
+    "rc_compatible": true,
+    "other": {
+     "pricing_schema_url": "https://control.cloud-object-storage.cloud.ibm.com/v2/pricing/744bfc56-d12c-4866-88d5-dac9139e0e5d"
+    },
+    "service": {
+     "type": "",
+     "iam_compatible": true,
+     "unique_api_key": false,
+     "rc_provisionable": true,
+     "bindable": true,
+     "async_provisioning_supported": false,
+     "async_unprovisioning_supported": false,
+     "user_defined_service": null,
+     "extension": null,
+     "plan_updateable": true,
+     "state": "",
+     "service_check_enabled": false,
+     "test_check_interval": 0,
+     "service_key_supported": true,
+     "custom_create_page_hybrid_enabled": false,
+     "parameters": null
+    },
+    "plan": {
+     "bindable": true,
+     "reservable": false,
+     "allow_internal_users": true,
+     "async_provisioning_supported": false,
+     "async_unprovisioning_supported": false,
+     "test_check_interval": 0,
+     "single_scope_instance": "",
+     "service_check_enabled": false,
+     "provision_type": "ibm_cloud"
+    },
+    "ui": {
+     "strings": {
+      "de": {
+       "bullets": [
+        {
+         "title": "Es gibt keine Mindestgebühren; Sie zahlen nur für Ihre tatsächliche Nutzung. "
+        }
+       ]
+      },
+      "en": {
+       "bullets": [
+        {
+         "title": "Standard Plan is a flexible Pay-as-You-Go option with no minimum fee—ideal for workloads with large storage needs but low or infrequent access and outbound traffic. It includes a Free Tier with 5GB of Smart Tier storage for 12 months. Charges are based on actual usage, with separate billing for storage, outbound bandwidth, API operations, and data retrieval. Multiple storage classes help you optimize costs based on how often data is accessed."
+        },
+        {
+         "title": "Free Tier allowance:"
+        },
+        {
+         "title": "Storage up to 5GB/month"
+        },
+        {
+         "title": "Up to 2000 Class A requests/month"
+        },
+        {
+         "title": "Up to 20,000 Class B requests/month"
+        },
+        {
+         "title": "Up to 10GB/month of data retrieval"
+        },
+        {
+         "title": "Up to 5GB/month of egress"
+        },
+        {
+         "title": "Applies to aggregate total across all smart tier buckets in your account"
+        }
+       ]
+      },
+      "es": {
+       "bullets": [
+        {
+         "title": "No hay ninguna tarifa mínima, así que solo paga por lo que usa. "
+        }
+       ]
+      },
+      "fr": {
+       "bullets": [
+        {
+         "title": "Il n'existe pas de redevance minimale ; vous ne payez que ce que vous utilisez."
+        }
+       ]
+      },
+      "it": {
+       "bullets": [
+        {
+         "title": "Non esiste una tariffa minima, si paga solo per quello che utilizza."
+        }
+       ]
+      },
+      "ja": {
+       "bullets": [
+        {
+         "title": "最低料金は設定されていないため、使った分のみをお支払いいただきます。"
+        }
+       ]
+      },
+      "ko": {
+       "bullets": [
+        {
+         "title": "수수료가 없습니다. 사용한 만큼만 지불하십시오."
+        }
+       ]
+      },
+      "pt-br": {
+       "bullets": [
+        {
+         "title": "Não há taxa mínima, então você paga somente pelo que usa."
+        }
+       ]
+      },
+      "zh-cn": {
+       "bullets": [
+        {
+         "title": "没有最低收费，您只需按用量付款。"
+        }
+       ]
+      },
+      "zh-tw": {
+       "bullets": [
+        {
+         "title": "不存在費用下限，因此您只需為使用的項目付費。"
+        }
+       ]
+      }
+     },
+     "urls": {
+      "doc_url": "https://cloud.ibm.com/objectstorage/create#pricing"
+     }
+    },
+    "pricing": {
+     "origin": "pricing_catalog",
+     "url": "https://globalcatalog.cloud.ibm.com/api/v1/744bfc56-d12c-4866-88d5-dac9139e0e5d/pricing",
+     "starting_price": {},
+     "metrics": null,
+     "sales_avenue": [
+      "catalog"
+     ]
+    }
+   },
+   "visibility": {
+    "restrictions": "public"
+   }
+  }
+ ]
+}

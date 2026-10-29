@@ -1,0 +1,1 @@
+var diskPrice = {"cn-heyuan": {"cn-heyuan": "华南2（河源）", "data100G": [["cn-heyuan", "data", "100", "cloud", ["4.60", "0.01"], null], ["cn-heyuan", "data", "100", "cloud_efficiency", ["7.7", "0.02"], null]]}};

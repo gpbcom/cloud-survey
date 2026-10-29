@@ -8,7 +8,7 @@ from collections.abc import AsyncIterator, Iterator
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Awaitable, Callable, Dict, List, Tuple, Union
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import asyncpg
 import pytest
@@ -18,9 +18,10 @@ from sqlalchemy import text
 from sqlalchemy.engine import make_url
 
 from crawler.cloud.base import BaseCloudCrawler
-from crawler.markets.catalog_loader import MarketsCatalogLoader
+from crawler.companies.catalog_loader import CompaniesCatalogLoader
 from crawler.metrics.catalog_loader import CollectorCatalogLoader
 from crawler.tls.ca_bundle import CaBundle
+from curated.bundle.bundle_catalogs import BundleCatalogs
 from gui.paging.identified_row import IdentifiedRow
 from gui.paging.page.paged_table_model import PagedTableModel
 from gui.storage_bridge.storage_loop import StorageLoop
@@ -36,10 +37,18 @@ from models.cloud.enums import (
     PricingPolicy,
     SoftwareCategory,
 )
+from models.cloud.launch.launch_catalog import LaunchCatalog
 from models.cloud.products.catalogue import CloudCatalogue
 from models.cloud.products.product import CloudProduct
 from models.cloud.software.marketplace import CloudMarketplace
 from models.cloud.software.marketplace_software import MarketplaceSoftware
+from models.companies.companies_catalog import CompaniesCatalog
+from models.companies.concepts.financial_concepts import FinancialConcepts
+from models.compounding.config.compounding_config import CompoundingConfig
+from models.compounding.data.compounding_data import CompoundingData
+from models.compounding.data.dated_product import DatedProduct
+from models.compounding.data.year_value import YearValue
+from models.compounding.enums import ValueOrigin
 from models.configuration.storage.storage_settings import StorageSettings
 from models.drivers.collectors.collector_catalog import CollectorCatalog
 from models.history.chronology import Chronology
@@ -99,6 +108,28 @@ def stealth_session_cls(request: pytest.FixtureRequest) -> Iterator[MagicMock]:
         yield mock_cls
 
 
+@pytest.fixture(autouse=True)
+def bundled_launches(request: pytest.FixtureRequest) -> Iterator[MagicMock]:
+    """Give the catalogue crawlers an empty launch dates catalogue (set its `launches` return value to curate some)."""
+    if request.node.get_closest_marker("live"):
+        yield MagicMock()
+        return
+    with patch("crawler.cloud.base.BundleCatalogs", autospec=True) as catalogs_cls:
+        catalogs_cls.return_value.launches.return_value = LaunchCatalog()
+        yield catalogs_cls
+
+
+@pytest.fixture(autouse=True)
+def dated_source(request: pytest.FixtureRequest) -> Iterator[MagicMock]:
+    """Make the dated sources of the catalogue crawlers answer HTTP 404 (set `get` to serve pages), offline."""
+    if request.node.get_closest_marker("live"):
+        yield MagicMock()
+        return
+    with patch("crawler.cloud.base.AsyncFetcher") as fetcher:
+        fetcher.get = AsyncMock(return_value=MagicMock(status=404))
+        yield fetcher
+
+
 @pytest.fixture
 def make_response() -> Callable[[str, str], Response]:
     """Build an offline scrapling response from a fixture file of `tests/fixtures/crawler`."""
@@ -131,14 +162,14 @@ def metric_page() -> Callable[[str, str, Dict[str, JsonValue]], Response]:
 
 @pytest.fixture(scope="session")
 def markets_catalog() -> MarketsCatalog:
-    """The shipped markets catalogue (`conf/history/markets.yaml`), checked against the chronology."""
-    return MarketsCatalogLoader().load()
+    """The shipped markets catalogue (the curated bundle), checked against the chronology."""
+    return BundleCatalogs().markets()
 
 
 @pytest.fixture(scope="session")
 def markets_chronology() -> Chronology:
     """The shipped chronology naming the companies of the markets catalogue."""
-    return MarketsCatalogLoader().chronology()
+    return BundleCatalogs().chronology()
 
 
 @pytest.fixture
@@ -149,6 +180,44 @@ def market_page() -> Callable[[str, str, Dict[str, JsonValue]], Response]:
         content = (FIXTURES_DIR / "markets" / fixture).read_bytes()
         return Response(
             url=url, content=content, status=200, reason="OK", cookies={}, headers={}, request_headers={}, meta=meta
+        )
+
+    return build
+
+
+@pytest.fixture
+def price_page() -> Callable[[str, str, Dict[str, JsonValue]], Response]:
+    """Build an offline response from a recorded price source of `tests/fixtures/prices`, with its request meta."""
+
+    def build(url: str, fixture: str, meta: Dict[str, JsonValue]) -> Response:
+        content = (FIXTURES_DIR / "prices" / fixture).read_bytes()
+        return Response(
+            url=url, content=content, status=200, reason="OK", cookies={}, headers={}, request_headers={}, meta=meta
+        )
+
+    return build
+
+
+@pytest.fixture(scope="session")
+def companies_catalog() -> CompaniesCatalog:
+    """The shipped companies catalogue (the curated bundle), checked against the chronology."""
+    return BundleCatalogs().companies()
+
+
+@pytest.fixture(scope="session")
+def financial_concepts() -> FinancialConcepts:
+    """The shipped mapping of the statement lines (the `concepts` block of `conf/settings.yaml`)."""
+    return CompaniesCatalogLoader().concepts()
+
+
+@pytest.fixture
+def company_page() -> Callable[..., Response]:
+    """Build an offline response from a recorded document of `tests/fixtures/companies`, with its meta and status."""
+
+    def build(url: str, fixture: str, meta: Dict[str, JsonValue], status: int = 200) -> Response:
+        content = (FIXTURES_DIR / "companies" / fixture).read_bytes() if fixture else b""
+        return Response(
+            url=url, content=content, status=status, reason="OK", cookies={}, headers={}, request_headers={}, meta=meta
         )
 
     return build
@@ -428,3 +497,78 @@ def offline_loop() -> Iterator[StorageLoop]:
     loop = StorageLoop(Storage(StorageSettings()))
     yield loop
     loop.stop()
+
+
+# Service compounding: a small panel of three providers and four categories.
+COMPOUNDING_CATEGORIES = ["virtual-machines", "kubernetes", "object-storage", "data-lake"]
+
+
+def compounding_product(provider: CloudProvider, year: int, *categories: str, held: bool = False) -> DatedProduct:
+    return DatedProduct(provider=provider, year=year, held=held, categories=list(categories))
+
+
+@pytest.fixture
+def compounding_config() -> CompoundingConfig:
+    return CompoundingConfig.model_validate(
+        {
+            "providers": [
+                {"provider": CloudProvider.AWS.value, "start": "2010", "source": "https://example.com/aws"},
+                {"provider": CloudProvider.AZURE.value},
+                {"provider": CloudProvider.GCP.value},
+            ],
+            "excluded": [{"provider": CloudProvider.CTYUN.value, "reason": "A telecom operator, fitted apart."}],
+            "domains": ["compute", "containers-kubernetes", "storage-services", "data-analytics"],
+            "foundations": [
+                {
+                    "category": "kubernetes",
+                    "links": [{"foundation": "virtual-machines", "source": "https://example.com/k"}],
+                },
+                {
+                    "category": "data-lake",
+                    "links": [{"foundation": "object-storage", "source": "https://example.com/d"}],
+                },
+            ],
+            "settings": {
+                "last_year": 2016,
+                "lags": [1, 2],
+                "bootstrap": 0,
+                "placebo": 0,
+                "seed": 1,
+                "min_events": 1,
+                "held_caveats": ["feed-start"],
+                "precedence_share": 0.6,
+                "precedence_providers": 1,
+                "data_driven_size": 2,
+            },
+        }
+    )
+
+
+@pytest.fixture
+def compounding_data() -> CompoundingData:
+    products: List[DatedProduct] = [
+        compounding_product(CloudProvider.AWS, 2008, "virtual-machines"),
+        compounding_product(CloudProvider.AWS, 2011, "object-storage"),
+        compounding_product(CloudProvider.AWS, 2013, "kubernetes"),
+        compounding_product(CloudProvider.AWS, 2014, "data-lake"),
+        compounding_product(CloudProvider.AZURE, 2011, "virtual-machines"),
+        compounding_product(CloudProvider.AZURE, 2013, "object-storage", held=True),
+        compounding_product(CloudProvider.AZURE, 2015, "kubernetes"),
+        compounding_product(CloudProvider.GCP, 2011, "object-storage"),
+        compounding_product(CloudProvider.GCP, 2012, "kubernetes"),
+        compounding_product(CloudProvider.GCP, 2013, "virtual-machines"),
+    ]
+    market = [
+        YearValue(year=year, value=10.0 * 1.3 ** (year - 2009), origin=ValueOrigin.CRAWLED)
+        for year in range(2009, 2017)
+    ]
+    shares = [YearValue(provider=CloudProvider.AWS, year=2012, value=30.0, origin=ValueOrigin.CRAWLED)]
+    snapshot: Dict[CloudProvider, List[str]] = {
+        CloudProvider.AWS: list(COMPOUNDING_CATEGORIES),
+        CloudProvider.AZURE: ["virtual-machines", "kubernetes", "object-storage"],
+        CloudProvider.GCP: ["virtual-machines", "kubernetes", "object-storage"],
+        CloudProvider.OVH: ["virtual-machines", "object-storage"],
+    }
+    return CompoundingData(
+        products=products, shares=shares, market=market, snapshot=snapshot, categories=list(COMPOUNDING_CATEGORIES)
+    )

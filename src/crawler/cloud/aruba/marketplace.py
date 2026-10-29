@@ -2,7 +2,8 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import re
-from typing import ClassVar, Iterator, Optional, Tuple
+from pathlib import Path
+from typing import ClassVar, Iterator, Optional, Tuple, Union
 from urllib.parse import urljoin
 
 # Third Party Imports.
@@ -10,6 +11,7 @@ from scrapling.parser import Selector
 from scrapling.spiders import Response
 
 # First Party Imports.
+from classifier.software_classifier import SoftwareClassifier
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from models.cloud.enums import DeliveryMethod
 from models.cloud.software.marketplace_software import MarketplaceSoftware
@@ -41,6 +43,21 @@ class ArubaCloudMarketplaceCrawler(BaseMarketplaceCrawler):
     name = "aruba-marketplace"
     catalogue_url: ClassVar[str] = "https://www.arubacloud.com/cloud-apps/"
 
+    def __init__(
+        self,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+        classifier: Optional[SoftwareClassifier] = None,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+            classifier (Optional[SoftwareClassifier]): The software classifier, the project rules by default.
+        """
+        super().__init__(crawldir=crawldir, interval=interval, classifier=classifier)
+
     ############################
     # Internal Helpers Methods #
     ############################
@@ -60,7 +77,11 @@ class ArubaCloudMarketplaceCrawler(BaseMarketplaceCrawler):
         if href:
             return urljoin(page_url, href)
         slug = self.SLUG_SEPARATORS.sub("-", self._clean_text(name).casefold()).strip("-")
-        return f"{self.catalogue_url}#{slug}" if slug else None
+        if not slug:
+            self.logger.debug("The %s card %r has neither link nor name, it has no URL.", self.name, name)
+            return None
+        self.logger.debug("The %s card %r has no link, it is anchored as %r.", self.name, name, slug)
+        return f"{self.catalogue_url}#{slug}"
 
     def _card_texts(self, card: Selector) -> Tuple[str, str]:
         """Read the category badge and the description of a card.

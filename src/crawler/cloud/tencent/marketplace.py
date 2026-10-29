@@ -486,7 +486,9 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
             CatalogueFormatError: If the page has no product list, or no SPU goods list.
         """
         if response.meta.get(self.SOURCE) == self.GOODS:
+            self.logger.debug("Reading the %s goods page %s.", self.name, response.url)
             return self._goods(response)
+        self.logger.debug("Reading the %s products page %s.", self.name, response.url)
         return self._product_list(response)
 
     async def parse(self, response: Response) -> AsyncGenerator[Union[Dict[str, JsonValue], Request]]:
@@ -504,6 +506,7 @@ class TencentMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         source = response.meta.get(self.SOURCE, self.CLASSES)
         if source == self.CLASSES:
+            self.logger.debug("Reading the %s classes of %s, then the first products page.", self.name, response.url)
             self._read_classes(response)
             yield self._products_request(1)
             return

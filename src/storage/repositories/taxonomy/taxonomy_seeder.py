@@ -204,6 +204,7 @@ class TaxonomySeeder:
             Dict[str, int]: The identifier of each label, by key.
         """
         if not rows:
+            self.logger.debug("No seed label to write.")
             return {}
         labels = self._table(SourceLabelRow.__tablename__)
         statement = upsert(labels).values(sorted(rows, key=lambda row: str(row["key"])))
@@ -223,7 +224,9 @@ class TaxonomySeeder:
                 },
             ).returning(labels.c.id, labels.c.key)
         )
-        return {str(row[1]): int(row[0]) for row in result.all()}
+        written = {str(row[1]): int(row[0]) for row in result.all()}
+        self.logger.debug("%d seed labels written.", len(written))
+        return written
 
     async def _seed_merges(self, connection: AsyncConnection, seed: LabelSeed, ids: Dict[str, int]) -> None:    # noqa: E501
         """Merge the seed labels into the labels they are the same as, and undo the merges the seed no longer makes.
@@ -333,6 +336,7 @@ class TaxonomySeeder:
                 set_={"revision": state.c.revision + 1, "seed_hash": seed_hash, "seeded_at": func.now()},
             ).returning(state.c.revision)
         )
+        self.logger.debug("Taxonomy state written: revision %s, seed %s.", revision, seed_hash[:12])
         return int(revision or 0)
 
     ############################
@@ -348,7 +352,10 @@ class TaxonomySeeder:
         digest = sha256()
         for path in self.paths:
             digest.update(path.name.encode("utf-8"))
+            if not path.is_file():
+                self.logger.warning("The seed file %s is missing: it counts as empty.", path)
             digest.update(path.read_bytes() if path.is_file() else b"")
+        self.logger.debug("Seed hash of %d files computed: %s.", len(self.paths), digest.hexdigest()[:12])
         return digest.hexdigest()
 
     async def stored_hash(self, connection: AsyncConnection) -> Optional[str]:
@@ -362,7 +369,10 @@ class TaxonomySeeder:
         """
         state = self._table(TaxonomyStateRow.__tablename__)
         stored = await connection.scalar(select(state.c.seed_hash).where(state.c.id == 1))    # noqa: E501
-        return str(stored) if stored is not None else None
+        if stored is None:
+            self.logger.debug("The taxonomy was never seeded.")
+            return None
+        return str(stored)
 
     async def apply(
         self, connection: AsyncConnection, rules: Optional[ClassificationRules] = None, force: bool = False

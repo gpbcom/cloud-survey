@@ -93,3 +93,37 @@ class InvalidFactPeriodError(DriverModelError):
         """
         self.start, self.end = start, end
         super().__init__(f"A fact cannot end ({end}) before it starts ({start}).")
+
+
+class UnknownHelpChoiceError(DriverModelError):
+    """Raised when an explanation of the driver analysis names a choice no list offers (a scale or a scope).
+
+    Attributes:
+        choice (str): The rejected choice.
+    """
+
+    def __init__(self, choice: str) -> None:
+        """Initialize the error.
+
+        Args:
+            choice (str): The rejected choice.
+        """
+        self.choice = choice
+        super().__init__(f"An explained choice must be a metric scale or a driver scope, got {choice!r}.")
+
+
+class InvalidHelpTextError(DriverModelError):
+    """Raised when the text of an explanation of the driver analysis is missing or not a text.
+
+    Attributes:
+        field (str): The field of the explanation.
+    """
+
+    def __init__(self, field: str) -> None:
+        """Initialize the error.
+
+        Args:
+            field (str): The field of the explanation.
+        """
+        self.field = field
+        super().__init__(f"The {field} of an explanation must be a non-empty text.")

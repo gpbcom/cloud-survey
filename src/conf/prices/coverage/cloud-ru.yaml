@@ -1,0 +1,191 @@
+# Curated price coverage of Cloud.ru (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: cloud-ru
+currency: RUB
+row_links:
+  'Advanced Distributed Message Service for Kafka': ['kafka-rabbitmq/[^|]*(kaffka|kafka)']
+  'Advanced Distributed Message Service for RabbitMQ': ['kafka-rabbitmq/[^|]*rabbitmq']
+  'Advanced Relational Database Service for MySQL': ['relational-db/[^|]*mysql']
+  'Advanced Relational Database Service for PostgreSQL': ['relational-db/[^|]*(postgre|rds\.pg)']
+  'Advanced Relational Database Service for SQL Server': ['relational-db/[^|]*mssql']
+  'Evolution Disk': ['evolution-compute/Диск (HDD|SSD)']
+  'Evolution public IP': ['evolution-compute/(Аренда публичного IP|Привязка публичного IP|Публичный IP адрес)']
+  'Evolution SNAT Gateway': ['evolution-compute/Аренда публичного sNAT']
+  'Curator Anti‑DDoS+WAF': ['/crs/qrator/[^|]*WAF']
+  'StormWall: Anti-DDoS+WAF': ['/crs/ddos-protection/[^|]*WAF']
+  'VMware: шифрование виртуальных машин': ['vmware/services/vdc/[^|]*Шифрованных']
+links:
+  'Advanced API Gateway': ['^API Gateway$']
+  'Advanced Application Operation Management': ['^Application Operations Management$']
+  'Advanced Elastic Cloud Server': ['^Elastic Cloud Server$']
+  'Advanced Elastic Cloud Server with GPU': ['^GPU Accelerated Servers$']
+  'Advanced Elastic IP': ['^Virtual Private Cloud & Elastic IP$']
+  'Advanced NAT Gateway': ['^NAT Gateway$']
+  'CDN': ['^Сеть доставки контента \(CDN-Видео\)$']
+  'Cross-platform connection': ['^Межплатформенная связность Cloud.ru Advanced$', '^Evolution Межплатформенная связность$']
+  'Curator Anti-DDoS': ['^Защита от DDoS-атак \(Qrator\), Защита веб-приложений \(Qrator\)$']
+  'StormWall: Anti-DDoS': ['^Защита от DDoS-атак \(Stormwall\), Защита веб-приложений \(Stormwall\)$']
+  'VMware: виртуальный ЦОД': ['^Виртуальный ЦОД$', '^Виртуальный частный ЦОД$']
+  'VMware: резервное копирование виртуальных машин': ['^Резервное копирование ВМ$']
+  'VMware: резервный ЦОД': ['^Резервный ЦОД \(DRAAS\) [AV]$']
+  'Удаленные рабочие столы (VDI)': ['^Виртуальные рабочие места \(VDI\)$']
+statements:
+  - product: 'Advanced Application Orchestration Service'
+    model: not-public
+    reason: 'No Cloud.ru Advanced tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Advanced Auto Scaling'
+    model: included
+    reason: 'No separate fee for the service, only the Elastic Cloud Server instances it launches are billed (Advanced Elastic Cloud Server).'
+    source: 'https://cloud.ru/products/advanced-auto-scaling'
+  - product: 'Advanced Cloud Eye'
+    model: not-public
+    reason: 'No Cloud.ru Advanced tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Advanced Cloud Trace Service'
+    model: not-public
+    reason: 'No Cloud.ru Advanced tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Advanced Container Guard Service'
+    model: not-public
+    reason: 'No Cloud.ru Advanced tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Advanced Domain Name Service'
+    model: not-public
+    reason: 'No Cloud.ru Advanced tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Advanced Enterprise Project Management Service'
+    model: not-public
+    reason: 'No Cloud.ru Advanced tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Advanced Identity and Access Management'
+    model: free
+    reason: 'The product page states that access management to cloud resources is not charged separately.'
+    source: 'https://cloud.ru/products/advanced-identity-and-access-management'
+  - product: 'Advanced Log Tank Service'
+    model: not-public
+    reason: 'No Cloud.ru Advanced tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Advanced Server Migration Service'
+    model: not-public
+    reason: 'No Cloud.ru Advanced tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Advanced Software Repository for Container'
+    model: not-public
+    reason: 'No Cloud.ru Advanced tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Advanced Tag Management Service'
+    model: not-public
+    reason: 'No Cloud.ru Advanced tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Advanced Virtual Private Cloud'
+    model: included
+    reason: 'The Advanced VPC tariff prices only Elastic IP addresses and bandwidth (Advanced Elastic IP), with no line for the VPC itself.'
+    source: 'https://cloud.ru/documents/tariffs/advanced/services/vpc'
+  - product: 'Cloud Advisor'
+    model: not-public
+    reason: 'Only a free trial and a demo are offered. No tariff document and no price on the product page.'
+    source: 'https://cloud.ru/products/cloud-advisor'
+  - product: 'Cloud Logging'
+    model: free
+    reason: 'The product page tags the service as free to use (Бесплатное использование).'
+    source: 'https://cloud.ru/products/cloud-logging'
+  - product: 'Cloud Monitoring'
+    model: not-public
+    reason: 'Not on the public Cloud.ru tariff documents, no price on the product page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Event Bridge'
+    model: quote
+    reason: 'The page says the cost depends on the number of systems, route complexity, custom work and resilience needs, priced per project.'
+    source: 'https://cloud.ru/products/event-bridge'
+  - product: 'Evolution API Gateway'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution Container Security'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution Data Platform'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution Distributed Train'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution Image'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution Managed DocumentDB'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution Managed Flink'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution Migration'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution SSH Keys'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution Security Groups'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution Stack.ML'
+    model: not-public
+    reason: 'An AI platform also deployed on the client''s own infrastructure. No tariff document and no price on the product page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution Tags'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution Task History'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution VDI'
+    model: not-public
+    reason: 'The service is still in testing. No tariff document and no price on the product page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution VM Manager'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Evolution VPC'
+    model: free
+    reason: 'The product page states that creating the VPC itself is free, only add-on services such as Evolution public IP are paid.'
+    source: 'https://cloud.ru/products/evolution-vpc'
+  - product: 'Evolution Virtual IP'
+    model: not-public
+    reason: 'No Cloud.ru Evolution tariff document for this service and no price on its page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Notifications'
+    model: free
+    reason: 'The product page tags the service as free to use (Бесплатное использование).'
+    source: 'https://cloud.ru/products/notification'
+  - product: 'UserGate: виртуальный NGFW'
+    model: not-public
+    reason: 'Not on the public Cloud.ru tariff documents, no price on the product page.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'VMware: миграция виртуальных машин'
+    model: not-public
+    reason: 'The self-service migration tool (VMware Cloud Director Availability) is free, assisted migration has no public price.'
+    source: 'https://cloud.ru/documents/tariffs/index'
+  - product: 'Аренда GPU'
+    model: quote
+    reason: 'The page asks to order through a form, a personal manager then calculates the price.'
+    source: 'https://cloud.ru/products/vychislitelnyye-moschnosti-s-gpu'
+  - product: 'Аудит-логирование'
+    model: free
+    reason: 'The product page tags the service as free to use (Бесплатное использование).'
+    source: 'https://cloud.ru/products/audit-logging'
+  - product: 'Менеджер ресурсов'
+    model: free
+    reason: 'The page states resource management is not charged separately, only the resources created are paid.'
+    source: 'https://cloud.ru/products/resource-manager'

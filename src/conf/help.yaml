@@ -1,0 +1,1025 @@
+# The explanations shown by the Analysis tab: one block per section, every control and column explained.
+
+# The tooltips of the Market shares and Stock values cards.
+markets:
+  # The tooltips of the markets cards of the Analysis tab (Market shares, Stock values, Share vs …): what each control
+  # changes and how the figures behind it are computed. Read by MarketsCatalogLoader.help(); a control or a choice
+  # without an entry shows only its name.
+
+  controls:
+    - control: segment
+      title: Segment
+      summary: >
+        The market whose shares are drawn. Each segment has one source (named in its item and under the chart): StatCounter
+        measures usage (share of page views, monthly since 2009), TrendForce and IDC measure revenue or units shipped
+        (quarterly, from their press releases), Synergy the cloud infrastructure revenue (quarterly), the dossier the
+        pre-2009 points (drawn as dots where the source is silent).
+    - control: area
+      title: Area
+      summary: >
+        Where the shares are measured: worldwide, a continent, a country (StatCounter's own figures), or the EU-27, an
+        estimate (the member states' shares weighted by their internet users, World Bank). Type to search.
+    - control: device
+      title: Devices
+      summary: >
+        Which devices the StatCounter page views come from. "All" mixes desktop, mobile, tablet and console in their real
+        proportions; the analyst sources only publish "all".
+    - control: top
+      title: Top companies
+      summary: >
+        How many companies get their own line, ranked by their highest share in the period shown. The other labels are
+        summed into "Others"; a company's labels (e.g. Chrome and Android for Google) are always summed first.
+    - control: view
+      title: Show
+      summary: What the stock chart draws (see each choice).
+    - control: companies
+      title: Companies
+      summary: >
+        The companies whose listings are drawn, grouped by the region of their headquarters (chronology). The weekly
+        closes come from Google Finance: split-adjusted, not dividend-adjusted.
+    - control: currency
+      title: Currency
+      summary: >
+        Each close is converted on its own day with the FRED rate of that day (the last one within a week before it):
+        no average rate, so the currency moves are part of the line.
+    - control: scale
+      title: Scale
+      summary: >
+        Indexed rebases every line to 100 at its first point inside the window (zoom changes the base); logarithmic
+        shows equal percentage moves as equal heights; linear shows the prices as they are.
+    - control: secondary
+      title: Secondary listings
+      summary: >
+        Also draw the ADRs and second exchanges (dashed), e.g. TSMC's NYSE ADR next to its Taipei shares. The region
+        indexes and the correlations always use the primary listing.
+    - control: company
+      title: Company
+      summary: >
+        The company whose share changes are correlated: every company drawn in the share chart (segment, area and
+        devices of the share card). Its labels are summed in each period.
+    - control: against
+      title: Against
+      summary: >
+        What the company's share changes are correlated with (see each choice): its stock, its share in another
+        segment, area or source, its home currency, or a chip supply context.
+    - control: correlate
+      title: Correlate
+      summary: Run the correlation picked; the exact computation follows.
+    - control: derivative
+      title: Rate of change
+      summary: >
+        Draw the rate of change of each line instead of its values: the change between two consecutive points divided
+        by the time between them, per year, shown at the later point (points of share per year for a share, the
+        currency per year for a price, index points per year when indexed). The axis turns linear and may go below
+        zero; a gap (no release for years) is never bridged, and the lone points (valuations, dossier dots) are not
+        drawn.
+
+  options:
+    - control: segment
+      option: statcounter
+      summary: >
+        StatCounter Global Stats: the share of the page views of 1.5 million websites, by country, monthly since 2009
+        (AI chatbots: of the referrals, since 2025). Usage, not units sold nor revenue.
+    - control: segment
+      option: synergy
+      summary: >
+        Synergy Research Group: the share of the cloud infrastructure services revenue, quarterly, read from its press
+        releases (statistics crawl).
+    - control: segment
+      option: trendforce
+      summary: >
+        TrendForce: the share of the revenue of the suppliers it ranks, quarterly, read from the sentences of its press
+        releases (the unranked rest is not split).
+    - control: segment
+      option: idc
+      summary: >
+        IDC: the share of the units shipped (sell-in) of its top 5 companies, quarterly, read from the tables of its press
+        releases, worldwide and for some countries.
+    - control: segment
+      option: manual
+      summary: >
+        The dossier of the leaders chronology: sourced points (academic, analyst) before 2009, drawn as dots.
+    - control: segment
+      option: usage
+      summary: Measures usage (page views, referrals).
+    - control: segment
+      option: units
+      summary: Measures units shipped.
+    - control: segment
+      option: revenue
+      summary: Measures revenue.
+    - control: device
+      option: all
+      summary: Every device (desktop, mobile, tablet, console), in the proportions of the page views.
+    - control: device
+      option: desktop
+      summary: Desktop and laptop computers only.
+    - control: device
+      option: mobile
+      summary: Phones only.
+    - control: device
+      option: tablet
+      summary: Tablets only.
+    - control: area
+      option: world
+      summary: Worldwide figures, as the source publishes them.
+    - control: area
+      option: continent
+      summary: The continent's own figures at StatCounter (not a sum of its countries).
+    - control: area
+      option: country
+      summary: The country's own figures at StatCounter, or an analyst's country table.
+    - control: area
+      option: union
+      summary: >
+        An estimate: each label's share in the member states, weighted by their internet users (World Bank share of
+        the population using the internet × population, the last known year carried forward). Dashed lines.
+    - control: view
+      option: listings
+      summary: A line per listing of the companies picked, in the currency and the scale chosen.
+    - control: view
+      option: regions
+      summary: >
+        An equal-weight index per region of headquarters, chained from 100: each month it moves by the average return
+        (month-end closes in US dollars) of the primary listings quoted that month and the one before, so a listing
+        joining (an IPO) or leaving does not make it jump.
+    - control: view
+      option: valuations
+      summary: >
+        The sourced valuation points (IPOs, acquisitions, private rounds, peak market caps) in USD bn, for the companies
+        without a price history too. Drawn, never correlated: too sparse.
+    - control: currency
+      option: listing
+      summary: Each listing in the currency it trades in (no conversion).
+    - control: currency
+      option: USD
+      summary: Converted to US dollars on each day (FRED rates).
+    - control: currency
+      option: EUR
+      summary: Converted to euros on each day, through the US dollar (FRED rates).
+    - control: currency
+      option: GBP
+      summary: Converted to pounds sterling on each day, through the US dollar (FRED rates).
+    - control: scale
+      option: indexed
+      summary: Every line rebased to 100 at its first point inside the window, on a logarithmic axis.
+    - control: scale
+      option: log
+      summary: The prices on a logarithmic axis.
+    - control: scale
+      option: linear
+      summary: The prices on a linear axis.
+    - control: against
+      option: stock
+      summary: >
+        The returns of the company's primary listing (Google Finance), converted to US dollars on each day (FRED):
+        log change of the month-end close, or of the quarter-end close when the shares are quarterly.
+    - control: against
+      option: share
+      summary: >
+        The company's share in another segment, area or source, e.g. its smartphone shipments (IDC) against its device
+        usage (StatCounter): change in points. A monthly series is averaged over each quarter when the other is
+        quarterly.
+    - control: against
+      option: currency
+      summary: >
+        The home currency of the company (country of its headquarters) against the US dollar (FRED): log change of the
+        month's mean units per dollar (positive when the currency weakens), averaged over each quarter when the shares
+        are quarterly.
+    - control: against
+      option: context
+      summary: >
+        A chip supply context from the TrendForce rankings: the concentration (HHI, the sum of the squared revenue
+        shares of the suppliers ranked) of foundries, DRAM or NAND flash in each quarter, change in points. Quarterly,
+        so a monthly share is averaged over each quarter.
+
+  method: >
+    Spearman rank correlation of the changes, lag by lag from -{lags} to +{lags} {unit} (positive: the counterpart
+    follows the share); 95% interval from a moving-block bootstrap ({block} {unit} per block, {resamples} resamples);
+    q-values correcting for the lags tested (Benjamini-Hochberg); Granger tests in both directions with {granger}
+    {unit} of past. Needs at least {points} {unit} of each series and no gap over {gap}; otherwise the card says why.
+
+# The tooltips and the menu of the Company financials card.
+financials:
+  # The tooltips and the menu of the "Company financials" card of the Analysis tab: what each control changes, the
+  # families of indicators in the order of the menu, and for every indicator its formula, what it tells and when it
+  # misleads. Read by CompaniesCatalogLoader.help(): every indicator must be explained exactly once (the menu lists the
+  # indicators of each family in the order below).
+
+  controls:
+    - control: companies
+      title: Companies
+      summary: >
+        The companies drawn, grouped by region. Each company gets one line per currency it reported in (a currency change
+        starts a new line rather than mixing two units).
+    - control: indicator
+      title: Indicator
+      summary: >
+        The indicator drawn, grouped by family. Hover an item for its formula. A company without the inputs of an
+        indicator for a period has no point there: gaps are never bridged.
+    - control: period
+      title: Period
+      summary: >
+        Fiscal years, fiscal quarters or trailing twelve months (the last four quarters, at each quarter end). The scores,
+        the growth of the researched years and the private companies' figures exist only yearly or at their date.
+    - control: currency
+      title: Currency
+      summary: >
+        The company's own reporting currency, or US dollars at the exchange rate of the period end (FRED). Amounts without
+        a rate at their date have no US-dollar point. Ratios and percentages do not depend on the currency.
+    - control: derivative
+      title: Rate of change
+      summary: >
+        Draws how fast the indicator changes between two consecutive points, per year, instead of its value. A gap breaks
+        the rate as it breaks the line.
+
+  families:
+    - family: size
+      title: Size and value
+      summary: How big the company is and what the market or its investors value it at.
+    - family: profitability
+      title: Profit
+      summary: What the company earns, before and after its costs, and what it returns to its shareholders.
+    - family: liquidity
+      title: Liquidity
+      summary: Whether the company can pay what it owes within a year from what it holds or collects within a year.
+    - family: solidity
+      title: Debt and solidity
+      summary: How much the company borrows against what it owns and earns, and whether its profit covers the interest.
+    - family: growth
+      title: Growth
+      summary: How fast the revenue, the profit and the research effort grow from one year to the next.
+    - family: scores
+      title: Health scores
+      summary: >
+        Composite scores of financial strength: the Altman Z-scores predict financial distress, the Piotroski F-score
+        counts nine signs of improving strength.
+    - family: rd-effort
+      title: R&D effort
+      summary: What the company spends on research and development, and how much of its revenue that is.
+    - family: rd-output
+      title: R&D results
+      summary: The patents and the research papers the company's research produces.
+    - family: rd-efficiency
+      title: R&D efficiency
+      summary: What the research effort returns, in revenue growth and in citations.
+    - family: private
+      title: Private companies
+      summary: >
+        The figures a company without published accounts makes public: its funding rounds, its valuations, its headcount
+        and the annualized revenue it announces. They are dated points, not fiscal years.
+
+  indicators:
+    # Size and value.
+    - indicator: revenue
+      family: size
+      title: Revenue
+      formula: Revenue line of the period
+      summary: The sales of the period, the first measure of the company's size.
+      caveat: >
+        Researched years (before the SEC's structured filings) come from annual reports and may follow older accounting
+        rules. Estimates of a private company are drawn apart, as dots.
+    - indicator: total-assets
+      family: size
+      title: Total assets
+      formula: Total assets at the period end
+      summary: Everything the company owns or controls, at the end of the period.
+    - indicator: total-equity
+      family: size
+      title: Equity
+      formula: Equity of the shareholders at the period end
+      summary: What the assets are worth beyond the debts, on the books (the shareholders' stake).
+      caveat: Large share repurchases can make it negative while the company stays healthy.
+    - indicator: market-cap
+      family: size
+      title: Market capitalisation
+      formula: Weekly close of the valued listing × shares outstanding ÷ shares per unit
+      summary: What the stock market values the whole company at.
+      caveat: Listed companies only. A private company's valuations are under "Private companies".
+    - indicator: enterprise-value
+      family: size
+      title: Enterprise value
+      formula: Market capitalisation + total debt − cash
+      summary: What buying the whole company would cost, its debt included and its cash deducted.
+    - indicator: employees
+      family: size
+      title: Employees
+      formula: Headcount at the date the company states it
+      summary: How many people the company employs, read from its annual report or its announcements.
+
+    # Profit.
+    - indicator: net-income
+      family: profitability
+      title: Net income (profit)
+      formula: Net income attributable to the shareholders
+      summary: "The profit left after every cost, interest and tax: what the company earned for its shareholders."
+    - indicator: operating-income
+      family: profitability
+      title: Operating income
+      formula: Operating income line
+      summary: The profit of the main activity, before interest and taxes.
+    - indicator: ebitda
+      family: profitability
+      title: EBITDA
+      formula: Operating income + depreciation and amortization (Google's EBITDA when a line lacks)
+      summary: The cash profit of the activity, before investments wear out and before financing and taxes.
+    - indicator: gross-margin
+      family: profitability
+      title: Gross margin
+      formula: (Revenue − cost of revenue) ÷ revenue, in %
+      summary: What is left of each unit of revenue once the goods or services sold are paid for.
+      caveat: Banks state no cost of revenue and have no gross margin.
+    - indicator: operating-margin
+      family: profitability
+      title: Operating margin
+      formula: Operating income ÷ revenue, in %
+      summary: The share of the revenue the main activity keeps as profit.
+    - indicator: net-margin
+      family: profitability
+      title: Net margin
+      formula: Net income ÷ revenue, in %
+      summary: The share of the revenue that ends as profit for the shareholders.
+    - indicator: roe
+      family: profitability
+      title: Return on equity
+      formula: Net income ÷ average equity (opening and closing), in %
+      summary: The profit made on the shareholders' money.
+      caveat: "Meaningless when the equity is small or negative (large repurchases): no point then."
+    - indicator: roa
+      family: profitability
+      title: Return on assets
+      formula: Net income ÷ average total assets, in %
+      summary: The profit made on everything the company owns.
+    - indicator: roic
+      family: profitability
+      title: Return on invested capital
+      formula: Operating income × (1 − effective tax rate) ÷ (equity + debt − cash), in %
+      summary: The profit after tax made on the capital invested in the activity, whoever provided it.
+    - indicator: free-cash-flow
+      family: profitability
+      title: Free cash flow
+      formula: Operating cash flow − capital expenditure
+      summary: The cash the activity generates once its investments are paid, free to repay debt or reward shareholders.
+    - indicator: cash-conversion
+      family: profitability
+      title: Cash conversion
+      formula: Free cash flow ÷ net income, in %
+      summary: How much of the accounting profit turns into cash. Above 100 % the profit is backed by more cash.
+      caveat: No point when the net income is zero or negative.
+    - indicator: payout-ratio
+      family: profitability
+      title: Payout ratio
+      formula: (Dividends paid + share repurchases) ÷ net income, in %
+      summary: The share of the profit returned to the shareholders. Above 100 % the company returns more than it earns.
+      caveat: No point when the net income is zero or negative. A company stating only one of the two counts it alone.
+
+    # Liquidity.
+    - indicator: cash
+      family: liquidity
+      title: Cash and investments
+      formula: Cash and equivalents + short-term investments
+      summary: The money the company can use at once.
+    - indicator: current-ratio
+      family: liquidity
+      title: Current ratio
+      formula: Current assets ÷ current liabilities
+      summary: Whether what the company holds or collects within a year covers what it owes within a year (above 1).
+      caveat: "Banks have no current assets: no point."
+    - indicator: quick-ratio
+      family: liquidity
+      title: Quick ratio
+      formula: (Current assets − inventories) ÷ current liabilities
+      summary: The current ratio without the stocks, which take time to sell.
+    - indicator: working-capital
+      family: liquidity
+      title: Working capital
+      formula: Current assets − current liabilities
+      summary: The short-term cushion of the company, in money.
+
+    # Debt and solidity.
+    - indicator: total-debt
+      family: solidity
+      title: Total debt
+      formula: Current + long-term debt (+ the bonds the IFRS filers state apart)
+      summary: Everything the company has borrowed.
+    - indicator: net-debt
+      family: solidity
+      title: Net debt
+      formula: Total debt − cash and investments
+      summary: The debt left if the company paid it with its cash. Negative means more cash than debt.
+    - indicator: debt-to-equity
+      family: solidity
+      title: Debt to equity
+      formula: Total debt ÷ equity
+      summary: How much the company borrows for each unit of its shareholders' money.
+      caveat: No point when the equity is zero or negative.
+    - indicator: net-debt-to-ebitda
+      family: solidity
+      title: Net debt to EBITDA
+      formula: Net debt ÷ EBITDA of the year (or the last twelve months)
+      summary: How many years of cash profit would repay the net debt. Above 3 or 4 the debt weighs.
+    - indicator: interest-coverage
+      family: solidity
+      title: Interest coverage
+      formula: Operating income ÷ interest expense
+      summary: How many times the operating profit covers the interest. Below 1.5 the interest is a burden.
+      caveat: No point without a stated interest expense. A loss gives a negative coverage.
+
+    # Growth.
+    - indicator: revenue-growth
+      family: growth
+      title: Revenue growth
+      formula: (Revenue − revenue a year before) ÷ revenue a year before, in %
+      summary: How fast the sales grow, the same quarter or the same period a year before.
+      caveat: No point when the period before is missing or in another currency.
+    - indicator: net-income-growth
+      family: growth
+      title: Profit growth
+      formula: (Net income − net income a year before) ÷ net income a year before, in %
+      summary: How fast the profit grows.
+      caveat: No point after a loss (a growth from a negative base means nothing).
+    - indicator: rd-growth
+      family: growth
+      title: R&D growth
+      formula: (R&D expense − R&D expense a year before) ÷ R&D expense a year before, in %
+      summary: How fast the research effort grows.
+
+    # Health scores.
+    - indicator: altman-z
+      family: scores
+      title: Altman Z-score
+      formula: >
+        1.2 × working capital ÷ assets + 1.4 × retained earnings ÷ assets + 3.3 × operating income ÷ assets + 0.6 ×
+        market cap ÷ total liabilities + 1.0 × revenue ÷ assets
+      summary: >
+        The 1968 bankruptcy predictor of listed companies. Below 1.81 the company is in the distress zone, above 2.99 in
+        the safe zone.
+      caveat: >
+        Listed companies only (it uses the market value). Banks are left out. Designed for manufacturers: asset-light
+        software companies score high.
+    - indicator: altman-z-double-prime
+      family: scores
+      title: Altman Z''-score
+      formula: >
+        6.56 × working capital ÷ assets + 3.26 × retained earnings ÷ assets + 6.72 × operating income ÷ assets + 1.05 ×
+        equity ÷ total liabilities
+      summary: >
+        The 1995 version on book values, for every company, listed or not, manufacturer or not. Below 1.1 distress, above
+        2.6 safe. It is the score to compare companies across the whole history.
+      caveat: Banks are left out. No point without the retained earnings (never assumed to be zero).
+    - indicator: piotroski-f
+      family: scores
+      title: Piotroski F-score
+      formula: >
+        One point for each: positive return on assets, positive operating cash flow, rising return on assets, cash
+        flow above the profit, falling leverage, rising current ratio, no new shares, rising gross margin, rising asset
+        turnover
+      summary: >
+        From 0 to 9, the signs that the company's financial strength improves over the year. 8 or 9 is strong, 0 to 2
+        weak.
+      caveat: Needs three fiscal years in a row and all nine tests (no partial score). Banks are left out.
+
+    # R&D effort.
+    - indicator: rd-expense
+      family: rd-effort
+      title: R&D expense
+      formula: Research and development expense line
+      summary: What the company spends on research and development.
+      caveat: "Telecom operators and some Asian groups do not state it apart: no point."
+    - indicator: rd-intensity
+      family: rd-effort
+      title: R&D intensity
+      formula: R&D expense ÷ revenue, in %
+      summary: The share of the revenue reinvested in research and development.
+    - indicator: capitalised-development
+      family: rd-effort
+      title: Capitalised development
+      formula: Software and development costs entered as intangible assets
+      summary: The development spending booked as an asset rather than an expense (SEC filers only).
+    - indicator: papers
+      family: rd-effort
+      title: Research papers
+      formula: Papers of the company's researchers per publication year (OpenAlex)
+      summary: How much the company's researchers publish.
+
+    # R&D results.
+    - indicator: patent-filings
+      family: rd-output
+      title: Patent filings
+      formula: Patent publications by priority year
+      summary: How many patent applications the company files.
+    - indicator: patent-families
+      family: rd-output
+      title: Patent families
+      formula: Patent families by the priority year of their first member
+      summary: How many distinct inventions the company protects (one family covers the same invention in every country).
+    - indicator: patent-grants
+      family: rd-output
+      title: Patents granted
+      formula: Patents granted in the year
+      summary: How many patents the offices grant the company.
+    - indicator: patent-citations
+      family: rd-output
+      title: Patent citations
+      formula: Citations received by the publications of a priority year
+      summary: How much later patents build on the company's inventions.
+    - indicator: paper-citations
+      family: rd-output
+      title: Paper citations
+      formula: Citations received by the papers of a publication year
+      summary: How much the research community builds on the company's papers.
+
+    # R&D efficiency.
+    - indicator: rd-return
+      family: rd-efficiency
+      title: R&D return
+      formula: Revenue growth over a year ÷ R&D expense of the year before
+      summary: The revenue each unit of research spending brought the next year.
+    - indicator: citations-per-patent
+      family: rd-efficiency
+      title: Citations per patent
+      formula: Patent citations ÷ patent publications of the priority year
+      summary: The average influence of an invention of the company.
+    - indicator: paper-fwci
+      family: rd-efficiency
+      title: Paper impact (FWCI)
+      formula: Mean field-weighted citation impact of the papers of a publication year
+      summary: How much the papers are cited compared with papers of the same field and year (1 is the world average).
+
+    # Private companies.
+    - indicator: funding-raised
+      family: private
+      title: Funding raised
+      formula: Capital raised in the funding rounds of the year
+      summary: What investors put into the company in the year.
+    - indicator: funding-total
+      family: private
+      title: Total funding
+      formula: Capital raised since the creation, at each round
+      summary: Everything investors have put into the company so far.
+    - indicator: valuation
+      family: private
+      title: Valuation
+      formula: Value of the company in a deal (a funding round, an acquisition, an IPO), in US dollars
+      summary: What investors or a buyer valued the whole company at, read from the markets catalogue's valuations.
+    - indicator: revenue-run-rate
+      family: private
+      title: Revenue run-rate
+      formula: Annualized revenue the company announces at a date
+      summary: The revenue of a recent month or quarter multiplied to a year, as a private company announces it.
+      caveat: "Not a fiscal year: never mixed with the revenue, drawn as dots."
+
+# The tooltips of the Rise drivers cards.
+drivers:
+  # The explanations of the "Rise drivers" analysis: the role legend and the warning board of the Analysis tab.
+  roles:
+    - role: target
+      title: Target
+      symbol: "◎"
+      summary: The measure of the rise to explain.
+      details: >
+        The analysis asks which criteria go with a higher target. Counts and amounts are compared as logarithms (a
+        provider ten times larger counts once, not ten times), shares as they are. Pick an economic target (market share,
+        revenue) for the market's verdict, or an ecosystem one (launches, listings, publishers) for the provider's own
+        momentum.
+    - role: criterion
+      title: Criteria
+      symbol: "◆"
+      summary: The candidate drivers, ranked by how much of the target they explain.
+      details: >
+        Each criterion is correlated with the target (Spearman, with a 95% interval and a q-value correcting for the
+        number of criteria tested), then regressed together with the others. Their share of the explained variance
+        (Shapley split of the R²) ranks them. Keep about one criterion per 10 providers: beyond that the coefficients
+        become unstable.
+    - role: control
+      title: Controls
+      symbol: "▣"
+      summary: Measures held constant, to see what a criterion adds beyond them.
+      details: >
+        A control (typically the catalogue size) is removed from both the criterion and the target before they are
+        correlated again: the partial correlation (the diamond on the bars). A criterion whose correlation vanishes
+        once size is held constant only reflects size. Controls are not ranked themselves.
+    - role: scope
+      title: Scope
+      symbol: "⧗"
+      summary: Which observations are compared.
+      details: >
+        Latest quarter compares the providers with each other (one observation per provider). Every quarter (panel)
+        follows each provider over time: the yearly changes, with provider and quarter effects removing what is constant
+        per provider and the market-wide trend. The panel answers "does a change of the criterion go with a later change
+        of the target", and needs several quarters of crawls.
+    - role: lag
+      title: Lag
+      symbol: "↦"
+      summary: How many quarters the criteria lead the target (panel only).
+      details: >
+        With a lag of 2, the change of a criterion is compared with the change of the target two quarters later: an
+        investment shows in the results later. The Granger p-value tests whether the criterion leads the target rather
+        than follows it.
+  warnings:
+    - kind: few-providers
+      severity: caution
+      title: Few providers measure the target
+      meaning: >
+        With 3 providers or fewer, any criterion that ranks them in the same order correlates perfectly: the
+        analysis cannot tell a criterion from the identity of a provider.
+      remedy: >
+        Add the target of other providers in conf/metrics/manual-metrics.yaml (annual reports, analyst press
+        releases), or pick an ecosystem target measured for every provider.
+    - kind: few-observations
+      severity: caution
+      title: Few complete observations
+      meaning: >
+        Few observations hold the target and every criterion: one provider more or less can change the ranking.
+      remedy: Choose criteria measured for more providers, or fewer criteria.
+    - kind: missing-values
+      severity: info
+      title: Observations left out
+      meaning: >
+        Some observations miss a criterion. The correlations still use every pair available, but the regression only
+        uses the observations holding them all.
+      remedy: Drop the criteria measured least (named in the warning) to regress more observations.
+    - kind: uncorrelatable
+      severity: info
+      title: Criterion not correlatable
+      meaning: >
+        The criterion has fewer than 3 observations with the target, or the same value everywhere: no correlation
+        can be computed.
+      remedy: Collect the criterion for more providers (CRAWLER_SOURCE=metrics, manual-metrics.yaml), or drop it.
+    - kind: nothing-correlated
+      severity: blocking
+      title: Nothing to correlate
+      meaning: No criterion can be correlated with the target, so nothing can be ranked.
+      remedy: >
+        For a panel, crawl regularly: a yearly change needs the same quarter a year earlier. Otherwise pick criteria
+        measured for the providers measuring the target.
+    - kind: left-out
+      severity: info
+      title: Criteria left out of the regression
+      meaning: >
+        These criteria could not be correlated with the target, so they are left out of the regression instead of
+        shrinking it to the few observations holding them.
+      remedy: Collect them for more providers, or drop them.
+    - kind: constant
+      severity: info
+      title: Constant criteria
+      meaning: >
+        Over the observations of the regression these criteria take a single value: they cannot explain any
+        difference, and are left out.
+      remedy: Drop them, or widen the observations (more providers, every quarter).
+    - kind: too-many-criteria
+      severity: info
+      title: Only the strongest criteria regressed
+      meaning: >
+        The Shapley split of the R² averages over every order of the criteria: it is limited to the 10 most correlated
+        with the target. The others keep their correlation.
+      remedy: Pick at most 10 criteria, ideally about one per 10 providers.
+    - kind: regression-skipped
+      severity: blocking
+      title: No regression
+      meaning: >
+        There are too few observations for the number of criteria: a regression would fit them exactly and explain
+        nothing. Only the correlations answer.
+      remedy: Choose fewer criteria (at most observations minus 3).
+    - kind: unstable
+      severity: caution
+      title: Unstable coefficients
+      meaning: >
+        With fewer than about 10 observations per criterion the coefficients move a lot from one sample to the next.
+        The leave-one-out R² (each provider predicted by a model fitted without it) says how well the model
+        generalizes.
+      remedy: Trust the intervals and the leave-one-out R², or choose fewer criteria.
+    - kind: collinear
+      severity: caution
+      title: Collinear criteria
+      meaning: >
+        These criteria move together (variance inflation above 10): the regression cannot tell which one acts, and
+        their coefficients are unstable. Their shares of the R² remain fair: the Shapley split shares the overlap.
+      remedy: Keep one of them, or hold the common factor constant as a control.
+    - kind: short-panel
+      severity: blocking
+      title: Panel too short
+      meaning: >
+        A panel needs at least 2 providers over 2 quarters of yearly changes to remove the provider and quarter
+        effects.
+      remedy: Crawl the catalogues and marketplaces every week; after 2 to 4 quarters the panel can run.
+    - kind: common-criterion
+      severity: info
+      title: Criteria common to every provider
+      meaning: >
+        A market context (the TrendForce chip supplier concentrations) takes the same value for every provider in a
+        quarter. On the latest quarter it differs between providers only when their latest quarters differ, so its
+        correlation there says nothing about them. In a panel its yearly changes are correlated with the target's and
+        tested for leading it (timing, not differences between providers); the regression's quarter effects absorb
+        it, so it gets no share of R².
+      remedy: >
+        Read its correlation and Granger p-value in a panel only. To explain differences between providers, pick a
+        criterion measured per provider (usage, shipments, home market).
+  columns:
+    - column: criterion
+      title: Criterion
+      summary: The candidate driver of the rise.
+      reading: The rows come ordered by share of R², the most predominant first. Click a header to sort by another figure.
+    - column: importance
+      title: Share of R²
+      summary: >
+        The part of the variance of the target this criterion explains, split fairly between the criteria (Shapley):
+        the shares add up to the R².
+      reading: >
+        The higher, the more predominant. Compare it with the R² of the summary: 0.5 of an R² of 0.8 is 60% of what the
+        criteria explain. "-" when the regression could not run.
+    - column: beta
+      title: β (std.)
+      summary: >
+        The standardized coefficient: by how many standard deviations the target moves when the criterion moves by
+        one, the other criteria held fixed.
+      reading: >
+        Its sign gives the direction. Collinear criteria can show odd signs or sizes: trust their share of R² then.
+    - column: beta-interval
+      title: β 95% CI
+      summary: The range holding the true coefficient 95 times out of 100.
+      reading: When it straddles 0, even the direction of the effect is not established.
+    - column: beta-p
+      title: p (β)
+      summary: How likely a coefficient this large would be if the criterion had no effect.
+      reading: Below 0.05 it is unlikely to be chance. With few observations, read it together with the interval.
+    - column: rho
+      title: Spearman ρ
+      summary: >
+        The rank correlation of the criterion with the target, from -1 to +1, on its own (no other criterion held).
+      reading: >
+        Robust to outliers and to the size gaps between providers. * marks q < 5%, ** q < 1%.
+    - column: rho-q
+      title: q (ρ)
+      summary: >
+        The p-value of the correlation corrected for the number of criteria tested together (Benjamini-Hochberg).
+      reading: >
+        Below 0.05 the correlation is unlikely to be one of the false positives that testing many criteria produces.
+    - column: partial
+      title: Partial ρ
+      summary: The correlation once the controls (e.g. the catalogue size) are held constant.
+      reading: >
+        When it falls near 0 while ρ is strong, the criterion only reflects the control. "-" without a control.
+    - column: observations
+      title: "N"
+      summary: >
+        The observations holding both the criterion and the target: providers, or provider-quarters in a panel.
+      reading: Below about 10 the figures of the row are fragile.
+    - column: granger
+      title: Granger p
+      summary: >
+        Panel only: whether the past changes of the criterion predict the target beyond the target's own past. Tested
+        for each correlated criterion, even when the regression could not run.
+      reading: >
+        Below 0.05 the criterion leads the target rather than follows it. "-" on the latest quarter, or when the
+        criterion and the target lack a year of common history (the lags of both are needed).
+  choices:
+    - choice: count
+      summary: >
+        A count (products, regions, stars): compared as log(1 + x), so a provider ten times larger weighs once, not ten
+        times, and zero stays defined.
+    - choice: amount
+      summary: >
+        An amount (US dollars, people, millions of users): compared as log(x); zero and negative values are left out.
+    - choice: share
+      summary: >
+        A share, a change or an index (percent, HHI from 0 to 1, log change): used as it is.
+    - choice: cross-section
+      summary: >
+        One observation per provider: its latest quarter holding the target and the criteria. Compares the providers
+        with each other; a criterion common to every provider (a market context) says nothing there.
+    - choice: panel
+      summary: >
+        One observation per provider and quarter: the change of each measure over a year (four quarters), the criteria
+        taken the lag before the target. The correlations use these changes; the regression also removes the provider
+        and quarter effects (fixed effects), the Granger tests the provider effects.
+  value_columns:
+    - column: provider
+      title: Provider
+      summary: >
+        The cloud provider measured. Pick some with the provider filter, or type part of a name in the search box.
+    - column: period
+      title: Quarter
+      summary: >
+        The quarter the measure belongs to, written YYYYQn. Sort by it to follow a provider over time.
+    - column: metric
+      title: Metric
+      summary: >
+        What is measured, by the name the Rise drivers pickers give it. Its definition and unit come from the metric
+        catalogue (conf/metrics/metrics.yaml).
+    - column: value
+      title: Value
+      summary: >
+        The measure as stored, with the unit of the metric. It is the raw value: the analysis takes the logarithm of
+        counts and amounts, and the yearly change in a panel.
+    - column: source
+      title: Source
+      summary: >
+        Where the measure comes from: derived from the crawled catalogues and marketplaces, or read from a source
+        (SEC EDGAR, Synergy, Wikidata, PeeringDB, GitHub, Google Finance, StatCounter, IDC, TrendForce, FRED, the World
+        Bank) or typed in by hand (manual). Several sources may give the same measure, each one is kept.
+    - column: fetched
+      title: Fetched
+      summary: >
+        The day the measure was read or computed. The derived measures are computed again at the first run after a crawl.
+    - column: url
+      title: Read from
+      summary: >
+        The page or document the measure was read from, when there is one. Double-click a row to open it in the
+        browser.
+
+# The tooltips of the Service compounding cards.
+compounding:
+  # The explanations of the Analysis tab's "Service compounding" section, shown in its tooltips and card notes.
+  # Every value of CompoundingControl, Specification, FoundationSource, CompoundingColumn, CompoundingWarningKind,
+  # Verdict, CurveKind and CompoundingCard needs an entry (a test checks it). The models are described in
+  # docs/analysis/service-capability-compounding.md, the results in service-capability-compounding-results.md.
+
+  controls:
+    - key: providers
+      title: Providers
+      text: "The public-cloud providers fitted. Each is fitted on its own, and the kept ones also pooled together with one effect per provider. China Telecom Cloud is outside the public-cloud scope and fitted apart, flagged."
+    - key: specification
+      title: Controls
+      text: "Which controls every model holds constant. Both hold the catalogue size, the growth of the worldwide cloud market and the age of the category constant. The second also holds the provider's share of the cloud market constant, on the years that share is known."
+    - key: lag
+      title: Lag
+      text: "How many years a foundation must have been held before the entry for it to count. A longer lag guards against a foundation built for the very service it is supposed to explain."
+    - key: foundations
+      title: Foundations
+      text: "Where the foundations of a category come from. Curated: the links read from architecture documents, each with its source. Data-driven: the categories most other providers entered before it."
+    - key: run
+      title: Run
+      text: "Read the dated catalogues, the market shares and the market sizes from the database, then fit every model. It runs in the background and can take a minute because of the bootstrap and the placebo draws."
+    - key: export
+      title: Export CSV
+      text: "Save the summary table as a CSV file."
+    - key: crawl-history
+      title: Crawl market history
+      text: "Crawl the Synergy Research articles back to 2013 (market size and shares), then write the shares into the market tables and refresh the provider metrics. Run it first, the models need the market growth of every year."
+    - key: crawl-all
+      title: Crawl every source
+      text: "Crawl the catalogues of the providers analysed (their launch dates), then the Synergy market history and its derivations. It takes long: every catalogue is crawled."
+    - key: derivative
+      title: Rate of change
+      text: "Draw the yearly change of each line instead of its level."
+
+  choices:
+    - key: base
+      title: Size, market and age
+      text: "Controls: the catalogue size at the end of the year before, the growth of the cloud market that year and the years since another provider entered the category."
+    - key: share
+      title: Plus market share
+      text: "The same controls plus the provider's share of the worldwide cloud market the year before. Only the provider-years with a known share are fitted."
+    - key: curated
+      title: Curated
+      text: "The foundation sets of conf/analysis/compounding.yaml, read from architecture documents (for example virtual machines and containers under managed Kubernetes)."
+    - key: data-driven
+      title: Data-driven
+      text: "For each category, up to three categories that most of the other kept providers entered strictly before it. The provider explained never counts in its own foundations."
+
+  columns:
+    - key: provider
+      title: Provider
+      text: "The provider fitted, or Pooled for all kept providers fitted together."
+    - key: products
+      title: Products
+      text: "The dated catalogue products in the cloud computing domains."
+    - key: held
+      title: Held
+      text: "Products counted as held at the start of the window, not as launches: dated before the provider's cloud started, or dated only on or before (a feed start, a website record)."
+    - key: window
+      title: Window
+      text: "The years observed, from the start of the provider's public cloud to the last complete year."
+    - key: events
+      title: Entries
+      text: "The categories the provider entered inside its window (a first product in the category). The hazard counts only the categories that have foundations."
+    - key: share-years
+      title: Share years
+      text: "The years of the window with a known share of the worldwide cloud market."
+    - key: heaps
+      title: Heaps slope
+      text: "The slope of the logarithm of the distinct categories on the logarithm of the catalogue size. Below 1, each new product opens fewer new categories, as Heaps' law predicts."
+    - key: growth
+      title: Launches per product
+      text: "The extra launches per year for each product already in the catalogue (b of equation 6.6), the cloud market growth held constant. Positive is self-reinforcing growth."
+    - key: best-curve
+      title: Best curve
+      text: "The growth curve of the catalogue size with the lowest AIC."
+    - key: density
+      title: Density
+      text: "The change of the log-odds of entering a category when the related categories held go from none to all (equation 6.5). Positive means providers enter categories close to those they already offer."
+    - key: foundations
+      title: Foundations
+      text: "The change of the log-odds of entering a category when the foundations held go from none to all (beta 1 of equation 6.13). Positive supports the hypothesis."
+    - key: experience
+      title: Experience
+      text: "The change of the log-odds per unit of the logarithm of 1 plus the mean years the foundations have been held (beta 2)."
+    - key: size
+      title: Size
+      text: "The change of the log-odds per unit of the logarithm of 1 plus the catalogue size of the year before."
+    - key: share
+      title: Share
+      text: "The change of the log-odds per point of cloud-market share of the year before (second specification only)."
+    - key: market
+      title: Market growth
+      text: "The change of the log-odds per unit of growth of the logarithm of the worldwide cloud market that year."
+    - key: placebo
+      title: Placebo p
+      text: "The share of random foundation sets of the same sizes whose coefficient is at least the real one. Below 5 percent, the real foundations beat chance."
+    - key: transfer
+      title: Transfer gain
+      text: "How much the foundation terms of the model fitted on AWS raise the area under the ROC curve when it predicts this provider's entries."
+    - key: verdict
+      title: Verdict
+      text: "What the models say about the provider, read from the foundation hazard, its placebo test and the density model."
+
+  warnings:
+    - key: few-events
+      title: Few entries
+      text: "Too few entries for this fit: it is not estimated, and the provider counts only in the pooled fit."
+    - key: no-share
+      title: No market share
+      text: "No share of the cloud market is known for this provider: the second specification leaves it out. Crawl the market history, or add its shares to the dossier."
+    - key: excluded
+      title: Excluded
+      text: "This provider is outside the public-cloud scope: it is fitted on its own and flagged, never pooled."
+    - key: not-converged
+      title: Not converged
+      text: "The fit did not converge, often because a covariate predicts the entries perfectly. Its coefficients are not shown."
+    - key: market-fallback
+      title: Curated market size
+      text: "Some yearly market sizes come from the curated fallback of the configuration, not from the crawl."
+    - key: no-data
+      title: No data
+      text: "No dated product of this provider is stored in the cloud computing domains. Crawl its catalogue."
+
+  verdicts:
+    - key: supports
+      title: Supports
+      text: "Holding the foundations raises the entry, with an interval above zero, and the real foundations beat random sets."
+    - key: mixed
+      title: Mixed
+      text: "Some evidence: a positive foundation coefficient that is significant or beats chance at 10 percent, or a significant density of related categories."
+    - key: against
+      title: Against
+      text: "Holding the foundations does not raise the entry once size, market growth and age are held constant."
+    - key: insufficient
+      title: Insufficient
+      text: "Too few entries, or a fit that did not converge: no verdict."
+
+  curves:
+    - key: exponential
+      title: Linear rate
+      text: "Launches linear in the catalogue size, without ceiling (equation 6.6). It grows exponentially."
+    - key: logistic
+      title: Logistic
+      text: "Self-reinforcing growth towards a ceiling."
+    - key: bass
+      title: Bass
+      text: "Steady plus self-reinforcing launches towards a ceiling (equation 6.7). The logistic is its limit without steady launches."
+    - key: market
+      title: Market only
+      text: "The catalogue as a power of the cloud-market size: the rival explanation, where the catalogue just follows demand."
+
+  cards:
+    - key: controls
+      title: Controls and coverage
+      text: "Pick the providers, the controls, the lag and the foundations, then run. The table shows what the database holds for each provider, and the buttons crawl the missing sources."
+    - key: launches
+      title: Catalogues per year
+      text: "The products offered at the end of each year (lines) by provider, from their dated launches."
+    - key: market
+      title: Cloud market size
+      text: "The worldwide cloud infrastructure services market per year (billion USD), from the Synergy articles. Years with an older perimeter are flagged."
+    - key: shares
+      title: Cloud market shares
+      text: "The yearly share of the worldwide cloud market of each provider, from the Synergy articles and the dossier."
+    - key: heaps
+      title: Heaps' law
+      text: "Distinct categories against catalogue size, both in logarithms, one point per year and one fitted line per provider (equation 6.8)."
+    - key: growth
+      title: Growth curves
+      text: "The catalogue size of the provider picked, with the fitted growth curves dashed. A Bass or logistic fit beating the market-only curve hints at self-reinforcing growth, without proving it."
+    - key: entry
+      title: Relatedness of entries
+      text: "The density coefficient of each provider and of the pooled fit, with its 95 percent bootstrap interval (equation 6.5)."
+    - key: hazard
+      title: Foundations of entries
+      text: "The foundation and experience coefficients of each provider and of the pooled fit, with their 95 percent bootstrap intervals (equation 6.13)."
+    - key: placebo
+      title: Placebo test
+      text: "The foundation coefficients of random foundation sets of the same sizes (bars), and the real one (line)."
+    - key: lags
+      title: Lags
+      text: "The foundation coefficient of AWS and of the pooled fit when the foundations must have been held 1, 2 or 3 years before."
+    - key: transfer
+      title: Transfer from AWS
+      text: "The area under the ROC curve when the hazard model fitted on AWS predicts each other provider, with and without its foundation terms."
+    - key: summary
+      title: Summary
+      text: "What every model says about each provider and about the pooled fit."
+    - key: foundations
+      title: Foundations catalogue
+      text: "The foundation sets used, the providers and the domains kept, and why a provider is left out."
+

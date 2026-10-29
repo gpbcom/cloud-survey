@@ -83,3 +83,63 @@ class KrystalNextDataField(StrEnum):
     NAME = "name"
     META = "meta"
     DESCRIPTION = "description"
+
+
+@unique
+class KrystalPriceField(StrEnum):
+    """Enums representing the fields of the Next.js data of the Krystal pricing pages, read for the prices.
+
+    Attributes:
+        PROPS (str): The page properties.
+        PAGE_PROPS (str): The properties of the page component.
+        PACKAGES (str): The virtual machine packages of the cloud pricing page, by group.
+        GPUS (str): Its GPUs.
+        PRICE (str): Its unit prices of the cloud resources.
+        PLANS (str): The plans of the hosting page.
+        NAME (str): The name of a package, a GPU or a plan.
+        IDENTIFIER (str): The identifier of a plan.
+        CPU_CORES (str): The cores of a package.
+        MEMORY_IN_GB (str): Its memory.
+        STORAGE_IN_GB (str): Its storage.
+        PRICING (str): Its prices.
+        PRICES (str): The prices of a package, a GPU or a plan.
+        CURRENCY (str): The currency of a price.
+        ISO_CODE (str): Its code.
+        PERFORMANCE (str): The performance of a plan.
+        CPU (str): Its cores.
+        RAM (str): Its memory, e.g. `2GB`.
+    """
+
+    PROPS = "props"
+    PAGE_PROPS = "pageProps"
+    PACKAGES = "packages"
+    GPUS = "gpus"
+    PRICE = "price"
+    PLANS = "plans"
+    NAME = "name"
+    IDENTIFIER = "identifier"
+    CPU_CORES = "cpu_cores"
+    MEMORY_IN_GB = "memory_in_gb"
+    STORAGE_IN_GB = "storage_in_gb"
+    PRICING = "pricing"
+    PRICES = "prices"
+    CURRENCY = "currency"
+    ISO_CODE = "iso_code"
+    PERFORMANCE = "performance"
+    CPU = "cpu"
+    RAM = "ram"
+
+
+@unique
+class KrystalHostingPeriod(StrEnum):
+    """Enums representing the billing periods of a Krystal hosting plan.
+
+    Attributes:
+        MONTHLY (str): A month.
+        ANNUALLY (str): A year, paid at once.
+        BIENNIALLY (str): Two years, paid at once.
+    """
+
+    MONTHLY = "monthly"
+    ANNUALLY = "annually"
+    BIENNIALLY = "biennially"

@@ -73,7 +73,9 @@ class ChartTitles:
             str: e.g. `Listed products by provider`, `Market share vs marketplace size` or `Delivery mix by bloc`.
         """
         if axes.preset is not None:
+            self.logger.debug("Chart titled after the ready-made chart %s.", axes.preset.value)
             return self.labels.PRESET_LABELS[axes.preset]
+        self.logger.debug("Titling a %s chart of %s.", axes.chart.value, axes.y.value)
         y = self.labels.metric_label(axes.y, axes.scope)
         x = self.labels.metric_label(axes.x, axes.scope).lower()
         match axes.chart:
@@ -106,6 +108,12 @@ class ChartTitles:
         Returns:
             str: e.g. `Quarterly · share of total · forecast to 2027Q4 · top 8 of 23`.
         """
+        self.logger.debug(
+            "Subtitling a %s chart, series read %s, matrix read %s.",
+            axes.chart.value,
+            result is not None,
+            matrix is not None,
+        )
         parts: List[str] = []
         if axes.chart.is_matrix:
             parts.append("Listed software")

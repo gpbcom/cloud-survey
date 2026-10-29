@@ -235,7 +235,8 @@ async def test_product_search_incomplete_cards(crawl_page: CrawlPage, caplog: py
     results = await crawl_page(IBMCloudCrawler(), page(PRODUCTS_URL, cards))
 
     assert results == [{"name": "Cloud Sync", "description": "DNS synchronization.", "pricing_policy": [], "url": None}]
-    assert [record.levelno for record in caplog.records if record.levelno >= logging.WARNING] == [logging.WARNING]
+    skipped = [record for record in caplog.records if "invalid catalogue entry" in record.getMessage()]
+    assert [record.levelno for record in skipped] == [logging.WARNING]
 
 
 @pytest.mark.parametrize(

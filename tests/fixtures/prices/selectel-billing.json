@@ -1,0 +1,61 @@
+[
+ {
+  "id": 1,
+  "name": "Размещение сервера 1U",
+  "name_en": "1U server colocation",
+  "cpu": "",
+  "hdd": "",
+  "cpus": 1,
+  "cores": null,
+  "disks_count": null,
+  "memory": "",
+  "min": 1,
+  "max": 100,
+  "step": 1,
+  "status_id": 3,
+  "group_id": 1,
+  "subtype": 1,
+  "repeat": 1,
+  "prices": {
+   "rub": 739000,
+   "eur": 8801,
+   "usd": 9900,
+   "kes": 1302500,
+   "kzt": 4265400,
+   "uzs": 105045400
+  },
+  "available": null,
+  "start_period_type": "now",
+  "tags": [],
+  "is_custom_price": 0,
+  "debt_write_off": false
+ },
+ {
+  "id": 184,
+  "name": "Уведомление SMS",
+  "name_en": "SMS notification",
+  "cpu": "",
+  "hdd": "",
+  "cpus": 1,
+  "cores": null,
+  "disks_count": null,
+  "memory": "",
+  "min": 5,
+  "max": 1000,
+  "step": 5,
+  "status_id": 4,
+  "group_id": 14,
+  "subtype": 1,
+  "repeat": 0,
+  "prices": {
+   "rub": 3190,
+   "eur": 35,
+   "usd": 45
+  },
+  "available": null,
+  "start_period_type": "now",
+  "tags": [],
+  "is_custom_price": 0,
+  "debt_write_off": false
+ }
+]

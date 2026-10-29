@@ -1,0 +1,137 @@
+# The scope and the curated inputs of the service-compounding analysis (Analysis tab, "Service compounding" section,
+# and `render-compounding-doc`). The models are described in `docs/analysis/service-capability-compounding.md`.
+#
+# providers: the public-cloud providers analysed, each with the year its public cloud started (`start`, optional).
+#   A product dated before the start is counted as held at the start, not as a launch (Azure dates some of its
+#   on-premises products from the 1990s). Without a start, the first dated product opens the window.
+#   - provider: the catalogue provider (`CloudProvider` value).
+#     start: the first year of the public cloud ("YYYY"), with its `source`.
+# excluded: the providers with dated launches left out of the main fits, each with its reason. They are fitted apart
+#   and flagged.
+# domains: the taxonomy domains of the cloud computing market kept. The end-user software domains, the professional
+#   services and `unclassified` are left out.
+# market: yearly sizes of the worldwide cloud infrastructure services market (billion USD), used only for a year the
+#   Synergy crawl gives no figure for. Every value needs its source.
+# foundations: for a dependent category, the categories its services are built on (the foundation set R_s of the
+#   hazard model), every link with the document that shows it.
+# settings: how the models are fitted.
+
+providers:
+  - {provider: amazon-web-services, start: "2006", source: "https://techcrunch.com/2016/07/02/andy-jassys-brief-history-of-the-genesis-of-aws/"}
+  - {provider: microsoft-azure, start: "2010", source: "https://en.wikipedia.org/wiki/Microsoft_Azure"}
+  - {provider: google-cloud-platform, start: "2008", source: "https://en.wikipedia.org/wiki/Google_Cloud_Platform"}
+  - {provider: oracle-cloud, start: "2016", source: "https://en.wikipedia.org/wiki/Oracle_Cloud"}
+  - {provider: huawei-cloud}
+  - {provider: scaleway, start: "2015", source: "https://www.scaleway.com/about-us"}
+  - {provider: stackit}
+  - {provider: exoscale, start: "2013", source: "https://blog.equinix.com/blog/2022/06/01/an-alternative-platform-for-cloud-native-applications/"}
+
+excluded:
+  - {provider: china-telecom-cloud, reason: "A telecom operator's cloud serving mostly the Chinese state market, not a public-cloud business competing worldwide."}
+
+domains:
+  - compute
+  - containers-kubernetes
+  - operating-systems
+  - virtualization-private-cloud
+  - storage-services
+  - backup-resilience
+  - networking-services
+  - domains-web-hosting
+  - databases
+  - data-analytics
+  - application-integration
+  - ai-machine-learning
+  - security-services
+  - identity-access
+  - developer-tools
+  - devops-automation
+  - management-observability
+  - iot-edge
+  - emerging-technologies
+
+market: []
+
+foundations:
+  - category: serverless
+    links:
+      - {foundation: virtual-machines, source: "https://aws.amazon.com/blogs/aws/firecracker-lightweight-virtualization-for-serverless-computing"}
+      - {foundation: virtualization, source: "https://www.usenix.org/conference/nsdi20/presentation/agache"}
+  - category: kubernetes
+    links:
+      - {foundation: virtual-machines, source: "https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-architecture"}
+      - {foundation: container, source: "https://research.google/pubs/borg-omega-and-kubernetes/"}
+  - category: batch-computing
+    links:
+      - {foundation: virtual-machines, source: "https://docs.aws.amazon.com/batch/latest/userguide/what-is-batch.html"}
+      - {foundation: container, source: "https://docs.aws.amazon.com/batch/latest/userguide/what-is-batch.html"}
+  - category: bare-metal
+    links:
+      - {foundation: virtualization, source: "https://siliconangle.com/2021/06/18/aws-secret-weapon-revolutionizing-computing/"}
+  - category: vmware
+    links:
+      - {foundation: bare-metal, source: "https://siliconangle.com/2021/06/18/aws-secret-weapon-revolutionizing-computing/"}
+  - category: virtual-desktops
+    links:
+      - {foundation: virtual-machines, source: "https://docs.aws.amazon.com/workspaces/latest/adminguide/amazon-workspaces.html"}
+  - category: application-platforms
+    links:
+      - {foundation: virtual-machines, source: "https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html"}
+      - {foundation: load-balancing, source: "https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html"}
+  - category: relational-database
+    links:
+      - {foundation: block-storage, source: "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html"}
+      - {foundation: virtual-machines, source: "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html"}
+      - {foundation: container, source: "https://learn.microsoft.com/en-us/azure/service-fabric/service-fabric-overview"}
+  - category: nosql-database
+    links:
+      - {foundation: container, source: "https://learn.microsoft.com/en-us/azure/service-fabric/service-fabric-overview"}
+  - category: archive-storage
+    links:
+      - {foundation: object-storage, source: "https://docs.aws.amazon.com/AmazonS3/latest/userguide/glacier-storage-classes.html"}
+  - category: container-registry
+    links:
+      - {foundation: object-storage, source: "https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html"}
+  - category: data-warehouse
+    links:
+      - {foundation: object-storage, source: "https://cloud.google.com/blog/products/bigquery/bigquery-under-the-hood"}
+      - {foundation: container, source: "https://cloud.google.com/blog/products/bigquery/bigquery-under-the-hood"}
+  - category: data-lake
+    links:
+      - {foundation: object-storage, source: "https://docs.aws.amazon.com/whitepapers/latest/building-data-lakes/amazon-s3-data-lake-storage-platform.html"}
+  - category: big-data
+    links:
+      - {foundation: virtual-machines, source: "https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-overview.html"}
+      - {foundation: object-storage, source: "https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-overview.html"}
+  - category: streaming-analytics
+    links:
+      - {foundation: event-streaming, source: "https://aws.amazon.com/message/11201/"}
+  - category: logging
+    links:
+      - {foundation: event-streaming, source: "https://aws.amazon.com/message/11201/"}
+  - category: customer-identity
+    links:
+      - {foundation: event-streaming, source: "https://aws.amazon.com/message/11201/"}
+  - category: ai-ml
+    links:
+      - {foundation: gpu, source: "https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html"}
+      - {foundation: object-storage, source: "https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html"}
+  - category: generative-ai
+    links:
+      - {foundation: gpu, source: "https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html"}
+      - {foundation: ai-ml, source: "https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html"}
+  - category: ai-agents
+    links:
+      - {foundation: generative-ai, source: "https://docs.aws.amazon.com/bedrock/latest/userguide/agents.html"}
+
+settings:
+  last_year: 2025
+  lags: [1, 2, 3]
+  bootstrap: 300
+  placebo: 300
+  seed: 1
+  min_events: 15
+  held_caveats: [feed-start, website-record]
+  precedence_share: 0.6
+  precedence_providers: 3
+  data_driven_size: 3

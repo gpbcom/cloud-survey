@@ -1,0 +1,6 @@
+{"meta":{"count":4},"results":[
+{"id":"https://openalex.org/I1341412227","display_name":"IBM (United States)","display_name_alternatives":["International Business Machines"],"display_name_acronyms":["IBM"],"country_code":"US","type":"company","works_count":180000,"lineage":["https://openalex.org/I1341412227"]},
+{"id":"https://openalex.org/I999000001","display_name":"IBM (Japan)","display_name_alternatives":[],"display_name_acronyms":[],"country_code":"JP","type":"company","works_count":9000,"lineage":["https://openalex.org/I999000001","https://openalex.org/I1341412227"]},
+{"id":"https://openalex.org/I888000001","display_name":"IBM (Canada)","display_name_alternatives":[],"display_name_acronyms":[],"country_code":"CA","type":"company","works_count":4000,"lineage":["https://openalex.org/I888000001"]},
+{"id":"https://openalex.org/I777000001","display_name":"IBMS Group","display_name_alternatives":[],"display_name_acronyms":[],"country_code":"GB","type":"company","works_count":12,"lineage":["https://openalex.org/I777000001"]}
+]}

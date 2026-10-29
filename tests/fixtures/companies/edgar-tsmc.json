@@ -1,0 +1,77 @@
+{
+ "cik": 1046179,
+ "entityName": "TAIWAN SEMICONDUCTOR MANUFACTURING CO LTD",
+ "facts": {
+  "ifrs-full": {
+   "Revenue": {
+    "units": {
+     "TWD": [
+      {
+       "end": "2024-12-31",
+       "val": 2894307700000,
+       "accn": "0001045810-24-000001",
+       "fy": 2024,
+       "fp": "FY",
+       "form": "20-F",
+       "filed": "2025-04-17",
+       "start": "2024-01-01"
+      },
+      {
+       "end": "2023-12-31",
+       "val": 2161735800000,
+       "accn": "0001045810-24-000001",
+       "fy": 2024,
+       "fp": "FY",
+       "form": "20-F",
+       "filed": "2025-04-17",
+       "start": "2023-01-01"
+      }
+     ],
+     "USD": [
+      {
+       "end": "2024-12-31",
+       "val": 88280000000,
+       "accn": "0001045810-24-000001",
+       "fy": 2024,
+       "fp": "FY",
+       "form": "20-F",
+       "filed": "2025-04-17",
+       "start": "2024-01-01"
+      }
+     ]
+    }
+   },
+   "ResearchAndDevelopmentExpense": {
+    "units": {
+     "TWD": [
+      {
+       "end": "2024-12-31",
+       "val": 204181700000,
+       "accn": "0001045810-24-000001",
+       "fy": 2024,
+       "fp": "FY",
+       "form": "20-F",
+       "filed": "2025-04-17",
+       "start": "2024-01-01"
+      }
+     ]
+    }
+   },
+   "NoncurrentPortionOfNoncurrentBondsIssued": {
+    "units": {
+     "TWD": [
+      {
+       "end": "2024-12-31",
+       "val": 935000000000,
+       "accn": "0001045810-24-000001",
+       "fy": 2024,
+       "fp": "FY",
+       "form": "20-F",
+       "filed": "2025-04-17"
+      }
+     ]
+    }
+   }
+  }
+ }
+}

@@ -145,6 +145,7 @@ class ProviderPicker(QToolButton):
         self.shown = set(providers)
         self.tree.show_only(self.shown)
         self._update_text()
+        self.logger.debug("Provider picker offers %d providers.", len(self.shown))
 
     def set_counts(self, counts: Dict[CloudProvider, int]) -> None:
         """Show the number of items of each provider and country in the drop-down.

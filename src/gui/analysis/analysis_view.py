@@ -8,7 +8,9 @@ from typing import ClassVar, FrozenSet, List, Optional, Tuple
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 # First Party Imports.
+from gui.analysis.compounding.compounding_panel import CompoundingPanel
 from gui.analysis.drivers.drivers_panel import DriversPanel
+from gui.analysis.financials.financials_panel import CompanyFinancialsPanel
 from gui.analysis.history.history_panel import HistoryPanel
 from gui.analysis.markets.markets_panel import MarketsPanel
 from gui.charts.panels.chart_panel import ChartPanel
@@ -19,6 +21,8 @@ from gui.charts.sections.section.sections_toolbar import SectionsToolbar
 from gui.layout.panes.section_stack import SectionStack
 from gui.storage_bridge.storage_loop import StorageLoop
 from gui.theme import Theme
+from models.compounding.enums import CompoundingCard
+from models.curated.records.catalogue_set import CatalogueSet
 from models.storage.enums import DatasetKind
 from models.trends.enums import ChartPreset, ChartScope
 
@@ -41,9 +45,15 @@ class AnalysisView(QWidget):
         markets (MarketsPanel): The market shares and stock values of the leaders, worldwide and by area, and their
             correlation.
         market_sections (List[ChartSection]): The cards of the markets: the shares, the stocks, their correlation.
+        financials (CompanyFinancialsPanel): The financial statements and health indicators of the companies.
+        financial_sections (List[ChartSection]): The cards of the company financials: the chart, then the latest
+            values with their sources.
         drivers (DriversPanel): The "Rise drivers" analysis (its pickers and table).
         driver_sections (List[ChartSection]): The cards of the rise drivers: the pickers and table, then the
-            correlations, the predominance and the scatters.
+            correlations, the predominance, the scatters and the stored provider metrics.
+        compounding (CompoundingPanel): The "Service compounding" analysis (its pickers, coverage and crawl buttons).
+        compounding_sections (List[ChartSection]): The cards of the service compounding: the controls, the inputs,
+            every model, the summary and the foundations catalogue.
         logger (Logger): The view logger.
 
     Notes:
@@ -57,6 +67,9 @@ class AnalysisView(QWidget):
           leader band opens them on its segment and company, and the events picked mark all three charts.
         - The rise drivers rank the criteria by their share of the variance of a target they explain
           (`docs/analysis/rise-drivers.md`).
+        - The service compounding tests whether mastering some services helps a provider build the next ones, on AWS
+          and on every dated public-cloud provider (`docs/analysis/service-capability-compounding.md`, results in
+          `docs/analysis/service-capability-compounding-results.md`).
     """
 
     CHARTS: ClassVar[Tuple[Tuple[str, ChartScope, ChartPreset], ...]] = (
@@ -75,6 +88,7 @@ class AnalysisView(QWidget):
         store: Optional[ChartStateStore] = None,
         statistics_source: str = "synergy",
         logger: Optional[Logger] = None,
+        catalogues: Optional[CatalogueSet] = None,
     ) -> None:
         """Build the view, reading nothing until `refresh`.
 
@@ -84,6 +98,7 @@ class AnalysisView(QWidget):
             store (Optional[ChartStateStore]): The store of the chart states, remembered for the session by default.
             statistics_source (str): The market statistics source compared with the providers.
             logger (Optional[Logger]): The view logger.
+            catalogues (Optional[CatalogueSet]): The curated catalogues of the cards, those of the bundle by default.
         """
         super().__init__()
         self.theme = theme
@@ -102,7 +117,7 @@ class AnalysisView(QWidget):
             self.panels.append(panel)
             self.controllers.append(StoredChartController(panel, loop, statistics_source))
             self.chart_sections.append(section)
-        self.history = HistoryPanel(theme, logger=self.logger)
+        self.history = HistoryPanel(theme, catalogues.chronology if catalogues else None, logger=self.logger)
         self.history_sections: List[ChartSection] = []
         for card, heading_text, subtitle_text, card_body, card_tool, card_detachable in (
             (
@@ -131,7 +146,13 @@ class AnalysisView(QWidget):
             )
             section.set_heading(heading_text, subtitle_text)
             self.history_sections.append(section)
-        self.markets = MarketsPanel(theme, loop, chronology=self.history.chronology, logger=self.logger)
+        self.markets = MarketsPanel(
+            theme,
+            loop,
+            catalog=catalogues.markets if catalogues else None,
+            chronology=self.history.chronology,
+            logger=self.logger,
+        )
         self.market_sections: List[ChartSection] = []
         for market_card, market_title, market_subtitle, market_body in (
             (
@@ -162,6 +183,46 @@ class AnalysisView(QWidget):
             )
             market_section.set_heading(market_title, market_subtitle)
             self.market_sections.append(market_section)
+        self.financials = CompanyFinancialsPanel(
+            theme,
+            loop,
+            chronology=self.history.chronology,
+            markets=catalogues.markets if catalogues else None,
+            companies=catalogues.companies if catalogues else None,
+            logger=self.logger,
+        )
+        self.financial_sections: List[ChartSection] = []
+        for financial_card, financial_title, financial_subtitle, financial_body, detachable in (
+            (
+                "analysis/financials/chart",
+                "Company financials",
+                "The profit, the R&D expenditure and the health of each company over time (margins, returns, "
+                "liquidity, debt, growth, Altman and Piotroski scores), from its filings, Google Finance and its "
+                "annual reports since 1980, in its own currency or in US dollars.",
+                self.financials.chart_body,
+                True,
+            ),
+            (
+                "analysis/financials/latest",
+                "Latest company figures",
+                "The latest value of every indicator of the family picked, how it was computed and the document it "
+                "was read from (double-click a row to open it).",
+                self.financials.table_body,
+                False,
+            ),
+        ):
+            financial_section = self.sections.add(
+                ChartSection(
+                    financial_card,
+                    financial_title,
+                    financial_body,
+                    self.store,
+                    logger=self.logger,
+                    detachable=detachable,
+                )
+            )
+            financial_section.set_heading(financial_title, financial_subtitle)
+            self.financial_sections.append(financial_section)
         self.history.selector.changed.connect(self._on_events)
         self.history.chart.picked.connect(self._on_leader)
         self._on_events(self.history.selector.selected())
@@ -203,12 +264,40 @@ class AnalysisView(QWidget):
                 self.drivers.scale_button,
                 True,
             ),
+            (
+                "analysis/drivers-metrics",
+                "Rise drivers: provider metrics",
+                "Every measure stored for the analysis, one per provider, quarter, metric and source: its value with "
+                "the unit of the metric, where it comes from and when it was read. Double-click a row to open its "
+                "source.",
+                self.drivers.metrics_table,
+                None,
+                True,
+            ),
         ):
             section = self.sections.add(
                 ChartSection(key, title, body, self.store, tools, logger=self.logger, detachable=detachable)
             )
             section.set_heading(title, subtitle)
             self.driver_sections.append(section)
+        self.compounding = CompoundingPanel(theme, loop, chronology=self.history.chronology, logger=self.logger)
+        self.compounding_sections: List[ChartSection] = []
+        for card, compounding_body, widened in self.compounding.cards():
+            card_title = "Service compounding" + (
+                "" if card is CompoundingCard.CONTROLS else f": {self.compounding.help.title('cards', card.value)}"
+            )
+            card_section = self.sections.add(
+                ChartSection(
+                    f"analysis/compounding-{card.value}",
+                    card_title,
+                    compounding_body,
+                    self.store,
+                    logger=self.logger,
+                    detachable=widened,
+                )
+            )
+            card_section.set_heading(card_title, self.compounding.help.text("cards", card.value))
+            self.compounding_sections.append(card_section)
         heading = QLabel("Competitive & geopolitical analysis")
         heading.setObjectName("title")
         caption = QLabel(
@@ -217,7 +306,8 @@ class AnalysisView(QWidget):
             "(United States, European Union, China, Russia), "
             "and the software type and audience mix of each provider "
             "(developer tools, end-user software, or both), the leaders of digital infrastructure since 1964 with "
-            "their chronology, and the drivers of the rise of the providers."
+            "their chronology, the drivers of the rise of the providers, and whether mastering some cloud services "
+            "helps a provider build the next ones."
         )
         caption.setObjectName("muted")
         caption.setWordWrap(True)
@@ -236,7 +326,11 @@ class AnalysisView(QWidget):
             column.add_section(section, 0 if index else 1)
         for index, section in enumerate(self.market_sections):
             column.add_section(section, 1 if index < 2 else 0)
+        for index, section in enumerate(self.financial_sections):
+            column.add_section(section, 0 if index else 1)
         for index, section in enumerate(self.driver_sections):
+            column.add_section(section, 1 if index else 0)
+        for index, section in enumerate(self.compounding_sections):
             column.add_section(section, 1 if index else 0)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
@@ -256,7 +350,11 @@ class AnalysisView(QWidget):
         """
         chronology = self.history.chronology
         wanted = set(keys)
-        self.markets.set_events([event for event in chronology.events if event.key in wanted] if chronology else [])
+        if not chronology:
+            self.logger.warning("No chronology loaded: the %d events picked are not marked on the markets.", len(keys))
+        events = [event for event in chronology.events if event.key in wanted] if chronology else []
+        self.logger.debug("Marking %d of the %d picked events on the market charts.", len(events), len(keys))
+        self.markets.set_events(events)
 
     def _on_leader(self, key: str) -> None:
         """Open the market cards on the segment and company of a leader band clicked.
@@ -264,9 +362,13 @@ class AnalysisView(QWidget):
         Args:
             key (str): The key of the band or marker clicked (`reign:...` or `event:...`).
         """
+        self.logger.debug("Leader band %s clicked.", key)
         if key.startswith("reign:") and self.markets.focus_reign(key):
             for section in self.market_sections[:2]:
                 section.set_expanded(True)
+            self.logger.info("Market cards opened on the leader %s.", key)
+        else:
+            self.logger.debug("The click on %s opens no market card.", key)
 
     ############################
     # Publicly Exposed Methods #
@@ -278,7 +380,14 @@ class AnalysisView(QWidget):
         for controller in self.controllers:
             controller.refresh()
         self.markets.refresh()
+        self.financials.refresh()
         self.drivers.refresh()
+        self.compounding.refresh()
+        self.logger.info(
+            "Analysis view refreshed: %d charts, the markets, the company financials, the rise drivers and the "
+            "service compounding.",
+            len(self.controllers),
+        )
 
     def set_available(self, available: FrozenSet[DatasetKind]) -> None:
         """Tell which datasets are stored, for the options and the empty states of the charts.
@@ -286,5 +395,8 @@ class AnalysisView(QWidget):
         Args:
             available (FrozenSet[DatasetKind]): The stored datasets.
         """
+        self.logger.debug("Available datasets for the analysis charts: %s.", sorted(kind.value for kind in available))
+        if not available:
+            self.logger.warning("No dataset stored: the analysis charts show their empty state.")
         for panel in self.panels:
             panel.set_available(available)

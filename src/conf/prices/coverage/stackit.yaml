@@ -1,0 +1,33 @@
+# Curated price coverage of STACKIT (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: stackit
+currency: EUR
+links:
+  STACKIT Compute Engine: ['^Server$']
+  STACKIT Compute Engine GPU: ['^GPU Server$']
+  STACKIT Key Management Service: ['^KMS$']
+  STACKIT Network & Security: ['^Public IP Address$', '^VPN$']
+statements:
+  - product: STACKIT AI Model Experiments
+    model: quote
+    reason: Not in the STACKIT price list (PIM SKUs); the product page offers an individual price estimate.
+    source: https://stackit.com/en/products/data-ai/stackit-ai-model-experiments
+  - product: STACKIT Automation Service
+    model: quote
+    reason: Not in the STACKIT price list (PIM SKUs); the product page offers an individual price estimate.
+    source: https://stackit.com/en/products/integration/stackit-automation-service
+  - product: STACKIT Cloud Security Posture Management
+    model: quote
+    reason: Not in the STACKIT price list (PIM SKUs); the product page offers an individual price estimate.
+    source: https://stackit.com/en/products/security/stackit-cloud-security-posture-management
+  - product: STACKIT Distributed Cloud
+    model: quote
+    reason: Billed on reserved capacity at a flat rate agreed per customer, not in the STACKIT price list.
+    source: https://stackit.com/en/products/stackit-distributed-cloud
+  - product: STACKIT Quantum
+    model: quote
+    reason: Not in the STACKIT price list (PIM SKUs); the product page offers an individual price estimate.
+    source: https://stackit.com/en/products/quantum-computing/stackit-quantum
+  - product: STACKIT Unified Firewall
+    model: quote
+    reason: Not in the STACKIT price list (PIM SKUs); the product page offers an individual price estimate.
+    source: https://stackit.com/en/products/network/stackit-unified-firewall

@@ -43,6 +43,28 @@ class ProviderMetric(StrEnum):
         AGE (str): The years since the provider was founded.
         STOCK_VALUE (str): The quarter-end close of the provider's listing (or its parent's), in US dollars.
         STOCK_RETURN (str): The log return of that listing over the quarter, in US dollars.
+        USAGE_SEARCH (str): The worldwide search engine usage share of the provider's group (StatCounter).
+        USAGE_SEARCH_HOME (str): The same share in the country of the group's headquarters.
+        USAGE_BROWSERS (str): The worldwide browser usage share of the provider's group (StatCounter).
+        USAGE_BROWSERS_HOME (str): The same share in the country of the group's headquarters.
+        USAGE_OS (str): The worldwide operating system usage share of the provider's group (StatCounter).
+        USAGE_OS_HOME (str): The same share in the country of the group's headquarters.
+        USAGE_DEVICE_VENDORS (str): The worldwide device vendor usage share of the provider's group (StatCounter).
+        USAGE_DEVICE_VENDORS_HOME (str): The same share in the country of the group's headquarters.
+        USAGE_AI_CHATBOTS (str): The worldwide AI chatbot usage share of the provider's group (StatCounter).
+        USAGE_AI_CHATBOTS_HOME (str): The same share in the country of the group's headquarters.
+        SHIPMENTS_PCS (str): The worldwide PC shipment share of the provider's group (IDC).
+        SHIPMENTS_PCS_HOME (str): The same share in the country of the group's headquarters.
+        SHIPMENTS_SMARTPHONES (str): The worldwide smartphone shipment share of the provider's group (IDC).
+        SHIPMENTS_SMARTPHONES_HOME (str): The same share in the country of the group's headquarters.
+        SHIPMENTS_TABLETS (str): The worldwide tablet shipment share of the provider's group (IDC).
+        SHIPMENTS_TABLETS_HOME (str): The same share in the country of the group's headquarters.
+        HOME_FX_CHANGE (str): The log change over the quarter of the home currency units per US dollar (FRED).
+        HOME_INTERNET_USERS (str): The internet users of the home country, in millions (World Bank).
+        CONTEXT_FOUNDRY_HHI (str): The concentration (HHI) of the foundry suppliers of the quarter, common to every
+            provider (TrendForce).
+        CONTEXT_DRAM_HHI (str): The concentration (HHI) of the DRAM suppliers of the quarter (TrendForce).
+        CONTEXT_NAND_HHI (str): The concentration (HHI) of the NAND flash suppliers of the quarter (TrendForce).
     """
 
     PRODUCTS = "products"
@@ -79,6 +101,27 @@ class ProviderMetric(StrEnum):
     AGE = "age"
     STOCK_VALUE = "stock-value"
     STOCK_RETURN = "stock-return"
+    USAGE_SEARCH = "usage-search"
+    USAGE_SEARCH_HOME = "usage-search-home"
+    USAGE_BROWSERS = "usage-browsers"
+    USAGE_BROWSERS_HOME = "usage-browsers-home"
+    USAGE_OS = "usage-os"
+    USAGE_OS_HOME = "usage-os-home"
+    USAGE_DEVICE_VENDORS = "usage-device-vendors"
+    USAGE_DEVICE_VENDORS_HOME = "usage-device-vendors-home"
+    USAGE_AI_CHATBOTS = "usage-ai-chatbots"
+    USAGE_AI_CHATBOTS_HOME = "usage-ai-chatbots-home"
+    SHIPMENTS_PCS = "shipments-pcs"
+    SHIPMENTS_PCS_HOME = "shipments-pcs-home"
+    SHIPMENTS_SMARTPHONES = "shipments-smartphones"
+    SHIPMENTS_SMARTPHONES_HOME = "shipments-smartphones-home"
+    SHIPMENTS_TABLETS = "shipments-tablets"
+    SHIPMENTS_TABLETS_HOME = "shipments-tablets-home"
+    HOME_FX_CHANGE = "home-fx-change"
+    HOME_INTERNET_USERS = "home-internet-users"
+    CONTEXT_FOUNDRY_HHI = "context-foundry-hhi"
+    CONTEXT_DRAM_HHI = "context-dram-hhi"
+    CONTEXT_NAND_HHI = "context-nand-hhi"
 
 
 @unique
@@ -94,6 +137,11 @@ class MetricSource(StrEnum):
         GITHUB (str): GitHub.
         MANUAL (str): Typed in from an annual report or an analyst publication (`conf/metrics/manual-metrics.yaml`).
         GOOGLE_FINANCE (str): The Google Finance price history of the listing (the markets crawl).
+        STATCOUNTER (str): The StatCounter usage shares of the provider's group (the markets crawl).
+        IDC (str): The IDC shipment shares of the provider's group (the markets crawl).
+        TRENDFORCE (str): The TrendForce supplier shares, as a context common to every provider (the markets crawl).
+        FRED (str): The FRED exchange rates of the home currency (the markets crawl).
+        WORLD_BANK (str): The World Bank internet users of the home country (the markets crawl).
     """
 
     DERIVED = "derived"
@@ -104,6 +152,11 @@ class MetricSource(StrEnum):
     GITHUB = "github"
     MANUAL = "manual"
     GOOGLE_FINANCE = "gfinance"
+    STATCOUNTER = "statcounter"
+    IDC = "idc"
+    TRENDFORCE = "trendforce"
+    FRED = "fred"
+    WORLD_BANK = "worldbank"
 
 
 @unique
@@ -123,6 +176,10 @@ class MetricFamily(StrEnum):
         TRUST (str): Certifications.
         ADOPTION (str): Developer adoption.
         COMPANY (str): Company facts.
+        USAGE (str): How much the group's consumer products are used (StatCounter usage shares).
+        SHIPMENTS (str): How many of the group's devices are sold (IDC shipment shares).
+        HOME_MARKET (str): The group's home country: its currency and its internet users.
+        SUPPLY_CONTEXT (str): The supply of chips of the quarter, common to every provider (TrendForce).
     """
 
     ECONOMIC = "economic"
@@ -137,6 +194,10 @@ class MetricFamily(StrEnum):
     TRUST = "trust"
     ADOPTION = "adoption"
     COMPANY = "company"
+    USAGE = "usage"
+    SHIPMENTS = "shipments"
+    HOME_MARKET = "home-market"
+    SUPPLY_CONTEXT = "supply-context"
 
 
 @unique
@@ -218,6 +279,7 @@ class DriverWarningKind(StrEnum):
         UNSTABLE (str): Fewer than about 10 observations per criterion: the coefficients are unstable.
         COLLINEAR (str): Criteria moving together: their coefficients are unstable.
         SHORT_PANEL (str): The panel holds too few providers or quarters.
+        COMMON_CRITERION (str): A criterion takes the same value for every provider in a quarter (a market context).
     """
 
     FEW_PROVIDERS = "few-providers"
@@ -232,6 +294,7 @@ class DriverWarningKind(StrEnum):
     UNSTABLE = "unstable"
     COLLINEAR = "collinear"
     SHORT_PANEL = "short-panel"
+    COMMON_CRITERION = "common-criterion"
 
 
 @unique
@@ -261,3 +324,26 @@ class DriverColumn(StrEnum):
     PARTIAL = "partial"
     OBSERVATIONS = "observations"
     GRANGER = "granger"
+
+
+@unique
+class MetricValueColumn(StrEnum):
+    """Enums representing the columns of the table of the stored provider metrics (the "provider metrics" card).
+
+    Attributes:
+        PROVIDER (str): The provider measured.
+        PERIOD (str): The quarter of the measure.
+        METRIC (str): What is measured.
+        VALUE (str): The measure, with its unit.
+        SOURCE (str): Where the measure comes from.
+        FETCHED (str): When the measure was read.
+        URL (str): The page or document the measure was read from.
+    """
+
+    PROVIDER = "provider"
+    PERIOD = "period"
+    METRIC = "metric"
+    VALUE = "value"
+    SOURCE = "source"
+    FETCHED = "fetched"
+    URL = "url"

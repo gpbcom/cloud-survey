@@ -96,17 +96,19 @@ class DatabaseMigrator:
             await engine.dispose()
 
     async def _seed(self, force: bool) -> bool:
-        """Apply the seed of the unified taxonomy, with a dedicated storage.
+        """Apply the seed of the unified taxonomy and the curated bundle, with a dedicated storage.
 
         Args:
-            force (bool): Whether the seed is applied even when unchanged.
+            force (bool): Whether the seeds are applied even when unchanged.
 
         Returns:
-            bool: Whether it was applied.
+            bool: Whether one was applied.
         """
-        self.logger.debug("Seeding the taxonomy of %s.", self.url)
+        self.logger.debug("Seeding the taxonomy and the curated catalogues of %s.", self.url)
         async with Storage(self.settings, self.logger) as storage:
-            return await storage.seeder.seed(force)
+            seeded = await storage.seeder.seed(force)
+            curated = await storage.curated_seeder.seed(force=force)
+            return seeded or bool(curated)
 
     def _next_revision_id(self) -> str:
         """Get the identifier of a new migration: the number following the head.

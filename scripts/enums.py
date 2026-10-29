@@ -38,3 +38,17 @@ class ComposeService(StrEnum):
 
     POSTGRES = "postgres"
     POSTGRES_TEST = "postgres-test"
+
+
+class CuratedCommand(StrEnum):
+    """Enums representing the commands of `uv run curated`.
+
+    Attributes:
+        EXPORT (str): Write the bundle from the database (the edits made in the explorer).
+        IMPORT (str): Apply the bundle to the database (the files that changed).
+        DIFF (str): Count the rows the database and the bundle do not share.
+    """
+
+    EXPORT = "export"
+    IMPORT = "import"
+    DIFF = "diff"

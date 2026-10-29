@@ -291,10 +291,13 @@ class ItemActions[T: CategorizedItem, R: IdentifiedRow](QObject):
             self.logger.warning("The selected item no longer exists.")
             self.failed.emit("The selected item no longer exists.")
             return
+        self.logger.debug("Showing the form of the item %d.", stored.id)
         dialog = ItemEditorDialog[T](self.theme, self.item_model, self.providers, stored.item, stored.provider)
         if not self._open(dialog) or dialog.result_item is None:
+            self.logger.debug("The item %d is left unchanged.", stored.id)
             return
         item, item_id = dialog.result_item, stored.id
+        self.logger.info("Saving the item %d.", item_id)
         self.loop.submit(
             lambda storage: self.repository(storage).update(item_id, item),
             self._on_saved,
@@ -309,13 +312,17 @@ class ItemActions[T: CategorizedItem, R: IdentifiedRow](QObject):
         """
         if len(item_ids) == 1:
             item_id = item_ids[0]
+            self.logger.debug("Reading the item %d to edit it alone.", item_id)
             self.loop.submit(lambda storage: self.repository(storage).read(item_id), self._edit_one, self._on_error)
             return
         fields = [field for field in ItemField if field.value in self.item_model.model_fields]
+        self.logger.debug("Showing the bulk edit form of %d items (%d fields).", len(item_ids), len(fields))
         dialog = BulkEditDialog(self.theme, fields, len(item_ids), self.logger)
         if not self._open(dialog):
+            self.logger.debug("The bulk edit of %d items is cancelled.", len(item_ids))
             return
         changes: Dict[ItemField, JsonValue] = dialog.changes()
+        self.logger.info("Changing %d fields of %d items.", len(changes), len(item_ids))
         self.loop.submit(
             lambda storage: self.repository(storage).update_many(item_ids, changes),
             lambda count: self._on_done(f"{count:,} items changed."),
@@ -329,7 +336,9 @@ class ItemActions[T: CategorizedItem, R: IdentifiedRow](QObject):
             item_ids (List[int]): The identifiers of the selected items.
         """
         if not self._confirm(len(item_ids)):
+            self.logger.debug("The deletion of %d items is cancelled.", len(item_ids))
             return
+        self.logger.info("Deleting %d items.", len(item_ids))
         self.loop.submit(
             lambda storage: self.repository(storage).delete_many(item_ids),
             lambda count: self._on_done(f"{count:,} items deleted."),

@@ -3,6 +3,10 @@ from __future__ import annotations
 # Standard Library Imports.
 import json
 import re
+import time
+import uuid
+from decimal import Decimal
+from pathlib import Path
 from typing import AsyncGenerator, ClassVar, Dict, FrozenSet, Iterator, List, Optional, Sequence, Tuple, Union
 from urllib.parse import urlparse
 
@@ -11,10 +15,11 @@ from pydantic import JsonValue
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
-from crawler.cloud.base import BaseCloudCrawler
+from crawler.cloud.base import BaseCloudCrawler, PriceFact
 from crawler.cloud.tencent.enums import (
     TencentArticleField,
     TencentCardClass,
+    TencentChargeType,
     TencentCrawlerMeta,
     TencentDocsDataField,
     TencentDocsEntryField,
@@ -23,11 +28,15 @@ from crawler.cloud.tencent.enums import (
     TencentDocsSectionField,
     TencentDocsSlug,
     TencentNextDataField,
+    TencentPriceField,
     TencentSlateField,
     TencentSlateType,
 )
 from crawler.enums import HtmlAttribute
 from crawler.exception import CatalogueFormatError
+from models.cloud.enums import PriceModel, PriceSourceKind, PriceTerm, PriceUnit
+from models.cloud.prices.facts.service_price import ServicePrice
+from models.cloud.prices.price_field_check import RawValue
 from models.cloud.products.product import CloudProduct
 
 
@@ -59,6 +68,35 @@ class TencentCloudCrawler(BaseCloudCrawler):
             product URL.
         CATEGORY_HEADING (ClassVar[TencentCardClass]): The class of the category headings of the products page.
         SUBCATEGORY_HEADING (ClassVar[TencentCardClass]): The class of the subcategory headings of the products page.
+        REGIONS_URL (ClassVar[str]): The CVM documentation page listing the regions and their codes.
+        REGION_TEXT (ClassVar[str]): The text nodes of that page.
+        REGION_CODE (ClassVar[re.Pattern[str]]): A region code (a zone code ends with its number).
+        PRICES_URL (ClassVar[str]): The CVM purchase API of the purchase page (POST, no key), proxied by the console.
+        PURCHASE_URL (ClassVar[str]): The purchase page, the origin the API expects.
+        PRICE_CALL (ClassVar[Dict[str, JsonValue]]): The fixed part of a call body (service, action and version).
+        UNSUPPORTED (ClassVar[FrozenSet[str]]): The error codes of a region where CVM is not sold (no price).
+        CVM_SERVICE (ClassVar[str]): The service of the prices.
+        PRICE_CURRENCY (ClassVar[str]): The currency of the prices (yuan, not stated by the API).
+        STEP_HOURS (ClassVar[Tuple[Decimal, ...]]): The usage hours in the month from which each step of an hourly
+            price applies.
+        STEP_FIELDS (ClassVar[Tuple[TencentPriceField, ...]]): The hourly price of each step.
+        PREPAID_PERIODS (ClassVar[Tuple[Tuple[TencentPriceField, int, PriceTerm], ...]]): The prepaid prices: their
+            field, months and term.
+        REGION_META (ClassVar[str]): The request meta holding the region of a call.
+        CHARGE_META (ClassVar[str]): The request meta holding the charge type of a call.
+        DOC_HOST (ClassVar[str]): The mainland documentation website.
+        HYDRATION (ClassVar[re.Pattern[str]]): The state embedded in a documentation page (a JSON string parsed by
+            `JSON.parse`).
+        PRODUCT_SLUG (ClassVar[re.Pattern[str]]): The slug of a catalogue product page, e.g. `/products/cos`.
+        DOC_PRODUCT (ClassVar[re.Pattern[str]]): The identifier of a product documentation, e.g.
+            `/document/product/436`.
+        PRICE_DOC_TYPE (ClassVar[str]): The document type of the pricing section of a documentation.
+        PRICE_TITLE (ClassVar[re.Pattern[str]]): The titles of the pricing pages of that section.
+        NOT_PRICE_TITLE (ClassVar[re.Pattern[str]]): The titles of its pages which are not price lists (refunds,
+            overdue payments, renewals, guides, notices, API).
+        SIDEBAR_META (ClassVar[str]): The request meta holding the catalogue product of a documentation request.
+        price_pending (int): The calls not answered yet, in price mode.
+        price_rows (int): The prices read, in price mode.
 
     Notes:
         Every page, robots.txt included, is first served as an EdgeOne JavaScript challenge, which the stealth
@@ -75,6 +113,16 @@ class TencentCloudCrawler(BaseCloudCrawler):
         The categories of a card are the category and subcategory headings above it on the products page. Those of
         a documentation entry are its group and parent entry titles, carried by its product page request
         (`PRODUCT_CATEGORIES` meta) on to its documentation and overview article requests.
+        In price mode it reads the CVM prices, in yuan, from the purchase API of the mainland site (the
+        international site being behind the challenge): one call per region (from the CVM regions documentation)
+        and charge type. Pay-as-you-go prices are hourly, in up to three steps of usage hours in the month (the
+        tiers). Prepaid prices are monthly, then for 1, 3, 5 and 6 years paid at once (per month, their factor
+        being their months). Sold-out instance types keep their price, their status stated. The API is one source,
+        recorded once every call is answered.
+        The regions documentation also gives the documentation menu (`popupNav`, a slug and a documentation id per
+        product): each catalogue product whose page slug (or documentation link) is in it gets its documentation
+        read, whose pricing section (`docType` `price`) lists its price pages, read by the base reader of product
+        pages, named after the catalogue product.
     """
 
     SITE_URL: ClassVar[str] = "https://www.tencentcloud.com"
@@ -102,11 +150,60 @@ class TencentCloudCrawler(BaseCloudCrawler):
     DOC_ARTICLE: ClassVar[TencentCrawlerMeta] = TencentCrawlerMeta.DOC_ARTICLE
     CATEGORY_HEADING: ClassVar[TencentCardClass] = TencentCardClass.CATEGORY_HEADING
     SUBCATEGORY_HEADING: ClassVar[TencentCardClass] = TencentCardClass.SUBCATEGORY_HEADING
+    REGIONS_URL: ClassVar[str] = "https://cloud.tencent.com/document/product/213/6091"
+    REGION_TEXT: ClassVar[str] = "span[data-slate-string]"
+    REGION_CODE: ClassVar[re.Pattern[str]] = re.compile(r"^(?:ap|na|eu|sa|me)-[a-z]+$")
+    PRICES_URL: ClassVar[str] = "https://workbench.cloud.tencent.com/cgi/api?i=cvm/DescribeZoneInstanceConfigInfos"
+    PURCHASE_URL: ClassVar[str] = "https://buy.cloud.tencent.com"
+    PRICE_CALL: ClassVar[Dict[str, JsonValue]] = {
+        "serviceType": "cvm",
+        "action": "DescribeZoneInstanceConfigInfos",
+        "regionId": 1,
+    }
+    UNSUPPORTED: ClassVar[FrozenSet[str]] = frozenset({"InvalidParameterValue.ZoneNotSupported"})
+    CVM_SERVICE: ClassVar[str] = "Cloud Virtual Machine"
+    PRICE_CURRENCY: ClassVar[str] = "CNY"
+    STEP_HOURS: ClassVar[Tuple[Decimal, ...]] = (Decimal(0), Decimal(96), Decimal(360))
+    STEP_FIELDS: ClassVar[Tuple[TencentPriceField, ...]] = (
+        TencentPriceField.UNIT_PRICE_DISCOUNT,
+        TencentPriceField.SECOND_STEP_PRICE,
+        TencentPriceField.THIRD_STEP_PRICE,
+    )
+    PREPAID_PERIODS: ClassVar[Tuple[Tuple[TencentPriceField, int, PriceTerm], ...]] = (
+        (TencentPriceField.DISCOUNT_PRICE, 1, PriceTerm.MONTH),
+        (TencentPriceField.ONE_YEAR_PRICE, 12, PriceTerm.ONE_YEAR),
+        (TencentPriceField.THREE_YEARS_PRICE, 36, PriceTerm.THREE_YEARS),
+        (TencentPriceField.FIVE_YEARS_PRICE, 60, PriceTerm.FIVE_YEARS),
+        (TencentPriceField.SIX_YEARS_PRICE, 72, PriceTerm.SIX_YEARS),
+    )
+    REGION_META: ClassVar[str] = "price_region"
+    CHARGE_META: ClassVar[str] = "price_charge"
+    DOC_HOST: ClassVar[str] = "https://cloud.tencent.com"
+    HYDRATION: ClassVar[re.Pattern[str]] = re.compile(
+        r"window\.__staticRouterHydrationData\s*=\s*JSON\.parse\((\"(?:[^\"\\]|\\.)*\")\)", re.S
+    )
+    PRODUCT_SLUG: ClassVar[re.Pattern[str]] = re.compile(r"/products?/(?P<slug>[a-z0-9_-]+)")
+    DOC_PRODUCT: ClassVar[re.Pattern[str]] = re.compile(r"/document/product/(?P<id>\d+)")
+    PRICE_DOC_TYPE: ClassVar[str] = "price"
+    PRICE_TITLE: ClassVar[re.Pattern[str]] = re.compile(r"价格|定价|计费|费用")
+    NOT_PRICE_TITLE: ClassVar[re.Pattern[str]] = re.compile(r"退费|欠费|续费|指引|公告|API|变更|调整")
+    SIDEBAR_META: ClassVar[str] = "price_sidebar"
 
     name = "tencent"
     catalogue_url: ClassVar[str] = PRODUCTS_URL
     complement_urls: ClassVar[Tuple[str, ...]] = (DOCS_URL,)
     name_prefixes: ClassVar[Tuple[str, ...]] = ("Tencent Cloud ", "TencentCloud ", "Tencent ", "T-Sec ")
+
+    def __init__(self, crawldir: Optional[Union[str, Path]] = None, interval: float = 300.0) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+        """
+        super().__init__(crawldir=crawldir, interval=interval)
+        self.price_pending = 0
+        self.price_rows = 0
 
     ############################
     # Internal Helpers Methods #
@@ -351,6 +448,11 @@ class TencentCloudCrawler(BaseCloudCrawler):
             return self._as_text(page.get(TencentDocsSectionField.LINK)) or self._as_text(
                 section.get(TencentDocsSectionField.LINK)
             )
+        self.logger.debug(
+            "No %s overview section among the %s documentation sections.",
+            self.name,
+            len(sections) if isinstance(sections, list) else 0,
+        )
         return None
 
     def _doc_article_request(self, response: Response) -> Optional[Request]:
@@ -448,11 +550,356 @@ class TencentCloudCrawler(BaseCloudCrawler):
         title = self._clean_text(response.css("head > title::text").get())
         return self._page_title(title) or None
 
-    ############################
-    # Publicly Exposed Methods #
-    ############################
+    def _regions(self, response: Response) -> List[str]:
+        """Read the region codes of the CVM regions documentation.
 
-    async def start_requests(self) -> AsyncGenerator[Request]:
+        Args:
+            response (Response): The documentation page.
+
+        Returns:
+            List[str]: The region codes, in page order.
+
+        Raises:
+            CatalogueFormatError: If the page lists no region.
+        """
+        regions: List[str] = []
+        for node in response.css(self.REGION_TEXT):
+            text = self._clean_text(str(node.text))
+            if self.REGION_CODE.match(text) and text not in regions:
+                regions.append(text)
+        if not regions:
+            self.logger.error("The %s regions documentation %s lists no region.", self.name, response.url)
+            raise CatalogueFormatError(self.name, response.url, "the regions documentation lists no region")
+        self.logger.debug("The %s regions documentation lists %d regions.", self.name, len(regions))
+        return regions
+
+    def _cvm_request(self, region: str, charge: TencentChargeType) -> Request:
+        """Build a counted call to the CVM purchase API, for the instance types of a region and charge type.
+
+        Args:
+            region (str): The region code.
+            charge (TencentChargeType): The charge type.
+
+        Returns:
+            Request: The POST request, with the headers the console proxy expects.
+        """
+        self.price_pending += 1
+        body: Dict[str, JsonValue] = {
+            **self.PRICE_CALL,
+            "data": {
+                "Version": "2017-03-12",
+                "Filters": [{"Name": "instance-charge-type", "Values": [charge.value]}],
+            },
+            "region": region,
+        }
+        headers = {
+            "Referer": f"{self.PURCHASE_URL}/",
+            "Origin": self.PURCHASE_URL,
+            "X-CsrfCode": "",
+            "X-SeqId": str(uuid.uuid4()),
+        }
+        url = f"{self.PRICES_URL}&t={int(time.time() * 1000)}"
+        return self._price_request(url, {self.REGION_META: region, self.CHARGE_META: charge.value}, body, headers)
+
+    def _quotas(self, response: Response, region: str) -> List[Dict[str, JsonValue]]:
+        """Read the instance types of a CVM purchase API answer.
+
+        Args:
+            response (Response): The answer.
+            region (str): The region of the call.
+
+        Returns:
+            List[Dict[str, JsonValue]]: The instance types of the zones of the region, with their price, none in a
+                region where CVM is not sold.
+
+        Raises:
+            CatalogueFormatError: If the answer is another error or has no instance type list.
+        """
+        data = self._json_body(response)
+        answer = data.get(TencentPriceField.DATA) if isinstance(data, dict) else None
+        result = answer.get(TencentPriceField.RESPONSE) if isinstance(answer, dict) else None
+        quotas = result.get(TencentPriceField.QUOTAS) if isinstance(result, dict) else None
+        if isinstance(quotas, list):
+            return [quota for quota in quotas if isinstance(quota, dict)]
+        error = result.get(TencentPriceField.ERROR) if isinstance(result, dict) else None
+        code = error.get(TencentPriceField.CODE) if isinstance(error, dict) else None
+        if code in self.UNSUPPORTED:
+            self.logger.warning("The %s CVM purchase API sells no instance in %s (%s).", self.name, region, code)
+            return []
+        self.logger.error("The %s CVM purchase API answered without prices in %s: %s", self.name, region, error)
+        raise CatalogueFormatError(self.name, response.url, f"the CVM purchase API answered without prices in {region}")
+
+    def _amount(self, prices: Dict[str, JsonValue], field: TencentPriceField) -> Optional[Decimal]:
+        """Read a price of an instance type.
+
+        Args:
+            prices (Dict[str, JsonValue]): Its prices.
+            field (TencentPriceField): The price read.
+
+        Returns:
+            Optional[Decimal]: The price, or None when missing or unreadable.
+        """
+        value = prices.get(field)
+        if not isinstance(value, (int, float)) or isinstance(value, bool) or value < 0:
+            return None
+        return Decimal(str(value))
+
+    def _quota_prices(self, quota: Dict[str, JsonValue], region: str, charge: str) -> Iterator[ServicePrice]:
+        """Read the prices of an instance type in a zone.
+
+        Args:
+            quota (Dict[str, JsonValue]): The instance type, with its price.
+            region (str): The region of the call.
+            charge (str): The charge type of the call.
+
+        Yields:
+            ServicePrice: Its hourly price per step (pay as you go), or its monthly and yearly prices (prepaid).
+        """
+        prices = quota.get(TencentPriceField.PRICE)
+        zone, instance = quota.get(TencentPriceField.ZONE), quota.get(TencentPriceField.INSTANCE_TYPE)
+        if not isinstance(prices, dict) or not isinstance(instance, str) or not instance:
+            return
+        cpu, memory, gpu = (
+            quota.get(TencentPriceField.CPU),
+            quota.get(TencentPriceField.MEMORY),
+            quota.get(TencentPriceField.GPU),
+        )
+        attributes: Dict[str, JsonValue] = {
+            field.value: quota.get(field)
+            for field in (
+                TencentPriceField.ZONE,
+                TencentPriceField.TYPE_NAME,
+                TencentPriceField.CPU_TYPE,
+                TencentPriceField.STATUS,
+            )
+            if quota.get(field)
+        }
+        if isinstance(gpu, (int, float)) and gpu > 0:
+            attributes[TencentPriceField.GPU.value] = gpu
+        base: Dict[str, RawValue] = {
+            "service": self.CVM_SERVICE,
+            "family": quota.get(TencentPriceField.INSTANCE_FAMILY) or None,
+            "region": region,
+            "instance_type": instance,
+            "vcpu": cpu if isinstance(cpu, int) and cpu > 0 else None,
+            "memory_gib": memory if isinstance(memory, (int, float)) and memory > 0 else None,
+            "attributes": attributes,
+            "currency": self.PRICE_CURRENCY,
+            "source_url": self.PRICES_URL,
+            "source_kind": PriceSourceKind.CALCULATOR,
+        }
+        key = f"{zone}/{instance}/{charge}"
+        if charge == TencentChargeType.POSTPAID:
+            steps = [self._amount(prices, field) for field in self.STEP_FIELDS]
+            found = [(index, step) for index, step in enumerate(steps) if step is not None]
+            stepped = len({step for _, step in found}) > 1
+            for index, step in found if stepped else found[:1]:
+                end = self.STEP_HOURS[index + 1] if stepped and index + 1 < len(found) else None
+                fact = self._price_fact(
+                    {
+                        **base,
+                        "sku_key": f"{key}/{index}" if stepped else key,
+                        "unit": PriceUnit.HOUR,
+                        "unit_raw": str(prices.get(TencentPriceField.CHARGE_UNIT) or PriceUnit.HOUR.value),
+                        "unit_factor": Decimal(1),
+                        "price": step,
+                        "model": PriceModel.FREE if step == 0 else PriceModel.ON_DEMAND,
+                        "term": PriceTerm.NONE,
+                        "tier_start": self.STEP_HOURS[index] if stepped else Decimal(0),
+                        "tier_end": end,
+                    }
+                )
+                if fact is not None:
+                    yield fact
+            return
+        for field, months, term in self.PREPAID_PERIODS:
+            price = self._amount(prices, field)
+            if price is None:
+                continue
+            fact = self._price_fact(
+                {
+                    **base,
+                    "sku_key": f"{key}/{months}",
+                    "unit": PriceUnit.MONTH,
+                    "unit_raw": f"{months} months",
+                    "unit_factor": Decimal(months),
+                    "price": price,
+                    "model": PriceModel.FREE if price == 0 else PriceModel.COMMITMENT,
+                    "term": term,
+                }
+            )
+            if fact is not None:
+                yield fact
+
+    def _price_settled(self) -> None:
+        """Count a call as answered, and record the API once every call is answered."""
+        self.price_pending -= 1
+        if self.price_pending == 0 and not self.price_failures:
+            self._record_price_source(self.PRICES_URL, self.price_rows)
+            self.logger.info("The %s CVM prices are read whole: %d prices.", self.name, self.price_rows)
+
+    async def _price_requests(self) -> AsyncGenerator[Request]:
+        """Request the CVM regions documentation, which leads to the purchase API calls.
+
+        Yields:
+            Request: The documentation request.
+        """
+        self.price_pending = 1
+        self.price_rows = 0
+        self.logger.info("Reading the %s CVM regions from %s.", self.name, self.REGIONS_URL)
+        yield self._price_request(self.REGIONS_URL)
+
+    def _hydration(self, response: Response) -> Dict[str, JsonValue]:
+        """Read the state embedded in a mainland documentation page.
+
+        Args:
+            response (Response): The documentation page.
+
+        Returns:
+            Dict[str, JsonValue]: The state, empty when the page embeds none.
+        """
+        match = self.HYDRATION.search(response.body.decode("utf-8", errors="replace"))
+        if match is None:
+            self.logger.warning("The %s documentation page %s embeds no state.", self.name, response.url)
+            return {}
+        try:
+            state = json.loads(json.loads(match.group(1)))
+        except json.JSONDecodeError as e:
+            self.logger.warning("The state of the %s documentation page %s is not JSON: %s", self.name, response.url, e)
+            return {}
+        return state if isinstance(state, dict) else {}
+
+    def _doc_menu(self, state: Dict[str, JsonValue]) -> Dict[str, int]:
+        """Read the documentation menu: the documentation identifier of each product slug.
+
+        Args:
+            state (Dict[str, JsonValue]): The state of a documentation page.
+
+        Returns:
+            Dict[str, int]: The documentation identifier of each slug.
+        """
+        loader = state.get("loaderData")
+        product = loader.get("product") if isinstance(loader, dict) else None
+        data = product.get("data") if isinstance(product, dict) else None
+        plugins = data.get("plugins") if isinstance(data, dict) else None
+        menu = plugins.get("popupNav") if isinstance(plugins, dict) else None
+        pending: List[JsonValue] = [menu.get("data") if isinstance(menu, dict) else None]
+        found: Dict[str, int] = {}
+        while pending:
+            node = pending.pop()
+            if isinstance(node, list):
+                pending.extend(node)
+            elif isinstance(node, dict):
+                slug, ident = node.get("slug"), node.get("id")
+                if isinstance(slug, str) and isinstance(ident, int) and not node.get("children"):
+                    found.setdefault(slug, ident)
+                pending.append(node.get("children"))
+        self.logger.debug("%d products in the %s documentation menu.", len(found), self.name)
+        return found
+
+    def _doc_requests(self, response: Response) -> Iterator[Request]:
+        """Request the documentation of each catalogue product found in the documentation menu.
+
+        Args:
+            response (Response): The regions documentation page (any documentation page holds the menu).
+
+        Yields:
+            Request: One documentation request per catalogue product.
+        """
+        menu = self._doc_menu(self._hydration(response))
+        docs: Dict[int, str] = {}
+        for name, url in self.price_products.items():
+            link = url or ""
+            documented = self.DOC_PRODUCT.search(link) if "tencent.com/document" in link else None
+            slug = self.PRODUCT_SLUG.search(link)
+            ident = int(documented.group("id")) if documented else menu.get(slug.group("slug")) if slug else None
+            if ident is not None:
+                docs.setdefault(ident, name)
+        self.logger.info("%d %s catalogue products have a documentation to read for prices.", len(docs), self.name)
+        for ident, name in docs.items():
+            yield self._price_request(f"{self.DOC_HOST}/document/product/{ident}", {self.SIDEBAR_META: name})
+
+    def _price_doc_pages(self, response: Response) -> Iterator[Request]:
+        """Request the price pages of the pricing section of a product documentation.
+
+        Args:
+            response (Response): The product documentation.
+
+        Yields:
+            Request: One request per price page, named after the catalogue product.
+        """
+        name = str(response.meta.get(self.SIDEBAR_META))
+        state = self._hydration(response)
+        loader = state.get("loaderData")
+        product = loader.get("product") if isinstance(loader, dict) else None
+        data = product.get("data") if isinstance(product, dict) else None
+        sidebar = data.get("sidebar") if isinstance(data, dict) else None
+        catalogue = sidebar.get("catalogue") if isinstance(sidebar, dict) else None
+        pending: List[Tuple[JsonValue, bool]] = [
+            (catalogue.get("list") if isinstance(catalogue, dict) else None, False)
+        ]
+        links: List[str] = []
+        while pending:
+            node, priced = pending.pop()
+            if isinstance(node, list):
+                pending.extend((child, priced) for child in node)
+                continue
+            if not isinstance(node, dict):
+                continue
+            title, link = str(node.get("title") or ""), node.get("link")
+            inside = priced or node.get("docType") == self.PRICE_DOC_TYPE
+            listed = isinstance(link, str) and link in links
+            wanted = self.PRICE_TITLE.search(title) and not self.NOT_PRICE_TITLE.search(title)
+            if inside and node.get("type") == "page" and isinstance(link, str) and wanted and not listed:
+                links.append(link)
+            pending.append((node.get("children"), inside))
+        self.logger.debug("%d %s price pages in the documentation of %s.", len(links), self.name, name)
+        for link in links:
+            yield self._price_request(f"{self.DOC_HOST}{link}", {self.PRODUCT_PAGE_META: name})
+
+    async def _extract_prices(self, response: Response) -> AsyncGenerator[PriceFact]:
+        """Read the regions documentation, a purchase API call, or a product documentation.
+
+        Args:
+            response (Response): The regions documentation, the answer of a call, or a product documentation.
+
+        Yields:
+            PriceFact: The calls of each region and charge type and the product documentations, the prices of a
+                call, or the price pages of a product documentation.
+
+        Raises:
+            CatalogueFormatError: If the documentation lists no region, or a call has no price.
+        """
+        if self.SIDEBAR_META in response.meta:
+            for request in self._price_doc_pages(response):
+                yield request
+            return
+        region = response.meta.get(self.REGION_META)
+        charge = str(response.meta.get(self.CHARGE_META) or "")
+        try:
+            if not isinstance(region, str):
+                regions = self._regions(response)
+                self.logger.info("Requesting the %s CVM prices of %d regions.", self.name, len(regions))
+                for code in regions:
+                    for kind in TencentChargeType:
+                        yield self._cvm_request(code, kind)
+                for request in self._doc_requests(response):
+                    yield request
+            else:
+                found = 0
+                for quota in self._quotas(response, region):
+                    for fact in self._quota_prices(quota, region, charge):
+                        found += 1
+                        yield fact
+                self.price_rows += found
+                self.logger.debug("%s CVM %s prices of %s: %d prices.", self.name, charge, region, found)
+        except CatalogueFormatError:
+            self.price_failures.add(response.url)
+            raise
+        finally:
+            self._price_settled()
+
+    async def _catalogue_requests(self) -> AsyncGenerator[Request]:
         """Start the crawl from the products page, waiting for its cards once the challenge is passed.
 
         Yields:
@@ -464,6 +911,10 @@ class TencentCloudCrawler(BaseCloudCrawler):
             self.logger.debug("Requesting the %s complementary catalogue page %s.", self.name, url)
             yield self._complement_request(url)
 
+    ############################
+    # Publicly Exposed Methods #
+    ############################
+
     def extract_products(self, response: Response) -> Iterator[CloudProduct]:
         """Extract the products of the products page cards.
 
@@ -473,6 +924,7 @@ class TencentCloudCrawler(BaseCloudCrawler):
         Returns:
             Iterator[CloudProduct]: The valid products of the page.
         """
+        self.logger.debug("Reading the %s product cards of %s.", self.name, response.url)
         return self._card_products(response)
 
     async def parse(self, response: Response) -> AsyncGenerator[Union[Dict[str, JsonValue], Request]]:
@@ -493,17 +945,26 @@ class TencentCloudCrawler(BaseCloudCrawler):
                 or if a product documentation page has no Next.js data.
         """
         if self.DOC_CATALOGUE in response.meta:
+            self.logger.debug("Reading the %s documentation catalogue %s.", self.name, response.url)
             if (request := self._doc_article_request(response)) is not None:
                 yield request
             return
         if self.DOC_ARTICLE in response.meta:
+            self.logger.debug("Reading the %s documentation article %s.", self.name, response.url)
             if (product := self._doc_article_product(response)) and (streamed := self._stream(product)) is not None:
                 yield streamed
             return
         if self.DOC_ID in response.meta and response.status >= 400:
+            self.logger.warning(
+                "The %s documentation page %s failed (HTTP %s): its catalogue is read instead.",
+                self.name,
+                response.url,
+                response.status,
+            )
             yield self._doc_catalogue_request(response)
             return
         if self.PRODUCT_PAGE not in response.meta and urlparse(response.url).path.startswith("/document/"):
+            self.logger.debug("Reading the %s documentation directory %s.", self.name, response.url)
             for request in self._docs_requests(response):
                 yield request
             return

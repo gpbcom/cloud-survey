@@ -37,6 +37,7 @@ class FlowLayout(QLayout):
         self.items: List[QLayoutItem] = []
         self.gap = gap
         self.setContentsMargins(0, 0, 0, 0)
+        self.logger.debug("Flow layout ready, %d px between items.", gap)
 
     ############################
     # Internal Helpers Methods #

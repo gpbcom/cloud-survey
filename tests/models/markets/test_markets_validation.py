@@ -14,6 +14,7 @@ from models.markets.catalog.series_label import SeriesLabel
 from models.markets.catalog.share_segment import ShareSegment
 from models.markets.charts.chart_dot import ChartDot
 from models.markets.charts.chart_line import ChartLine
+from models.markets.correlation.counterpart import Counterpart
 from models.markets.crawl_scope import CrawlScope
 from models.markets.exception import (
     InvalidMarketChoiceError,
@@ -31,6 +32,9 @@ from models.markets.facts.release_share import ReleaseShare
 from models.markets.facts.share_observation import ShareObservation
 from models.markets.facts.weight_observation import WeightObservation
 from models.markets.field_check import MarketFieldCheck
+from models.markets.help.control_help import ControlHelp
+from models.markets.help.markets_help import MarketsHelp
+from models.markets.help.option_help import OptionHelp
 from models.markets.listings.hq_region import HqRegion
 from models.markets.listings.manual_share import ManualShare
 from models.markets.listings.stock_listing import StockListing
@@ -73,7 +77,7 @@ VALID: Dict[Type[BaseModel], Dict[str, JsonValue]] = {
         "points": [["2020-01-01", 1.0]],
         "note": "Chrome",
     },
-    CrawlScope: {"areas": "ww,US", "listings": ["NYSE:IBM"], "since": "2026-07"},
+    CrawlScope: {"areas": "ww,US", "listings": ["NYSE:IBM"], "since": "2026-07", "companies": "nvidia,tsmc"},
     FxObservation: {"series": "DEXUSEU", "day": "2026-10-16", "value": 1.12, "source_url": "u"},
     PricePoint: {
         "listing": "NYSE:IBM",
@@ -130,6 +134,7 @@ VALID: Dict[Type[BaseModel], Dict[str, JsonValue]] = {
         "press": [],
         "manual_shares": [],
         "press_names": ["Elpida"],
+        "country_currencies": {"us": "usd"},
     },
     ManualShare: {
         "segment": "mainframes",
@@ -160,12 +165,30 @@ VALID: Dict[Type[BaseModel], Dict[str, JsonValue]] = {
     },
     LagCorrelation: {"lag": 3, "rho": 0.5, "low": 0.3, "high": 0.7, "p_value": 0.01, "q_value": 0.02, "months": 80},
     ShareSeries: {"company": "google", "label": "Google", "labels": ["Chrome"], "points": [], "estimate": False},
+    ControlHelp: {"control": "against", "title": "Against", "summary": "What the share is correlated with."},
+    OptionHelp: {"control": "against", "option": "stock", "summary": "The returns of the primary listing."},
+    MarketsHelp: {
+        "controls": [{"control": "top", "title": "Top", "summary": "The companies drawn."}],
+        "options": [],
+        "method": "Spearman, lags -{lags} to +{lags} {unit}.",
+    },
+    Counterpart: {
+        "kind": "share",
+        "label": "Smartphones · Worldwide · IDC",
+        "segment": "smartphones",
+        "area": "ww",
+        "source": "idc",
+        "listing": None,
+        "currency": None,
+    },
     ShareStockResult: {
         "company": "google",
         "segment": "search",
         "area": "ww",
         "device": "all",
         "listing": "NASDAQ:GOOGL",
+        "counterpart": "stock",
+        "counterpart_label": "NASDAQ:GOOGL",
         "granularity": "month",
         "share_coverage": None,
         "stock_coverage": None,
@@ -249,6 +272,7 @@ INVALID: List[Tuple[Type[BaseModel], str, JsonValue, Type[MarketsModelError]]] =
     (ChartLine, "note", "x" * 601, TEXT),
     (CrawlScope, "areas", 3, LIST),
     (CrawlScope, "listings", ["x" * 31], TEXT),
+    (CrawlScope, "companies", ["x" * 31], TEXT),
     (CrawlScope, "since", "2026", FORMAT),
     (FxObservation, "series", "DEX", TEXT),
     (FxObservation, "day", "16/10/2026", DAY),
@@ -310,6 +334,7 @@ INVALID: List[Tuple[Type[BaseModel], str, JsonValue, Type[MarketsModelError]]] =
     (MarketsCatalog, "press", {"source": "idc"}, LIST),
     (MarketsCatalog, "manual_shares", ["IBM 52%"], LIST),
     (MarketsCatalog, "press_names", [""], TEXT),
+    (MarketsCatalog, "country_currencies", {"USA": "USD"}, FORMAT),
     (ManualShare, "segment", "Mainframes", FORMAT),
     (ManualShare, "area", "U", TEXT),
     (ManualShare, "period", "1961-Q1", FORMAT),
@@ -351,6 +376,24 @@ INVALID: List[Tuple[Type[BaseModel], str, JsonValue, Type[MarketsModelError]]] =
     (ShareStockResult, "granularity", "week", CHOICE),
     (ShareStockResult, "share_coverage", "36 months", LIST),
     (ShareStockResult, "stock_coverage", [1], LIST),
+    (ShareStockResult, "counterpart", "bond", CHOICE),
+    (ShareStockResult, "counterpart_label", "x" * 121, TEXT),
+    (ControlHelp, "control", "zoom", CHOICE),
+    (ControlHelp, "title", "x" * 61, TEXT),
+    (ControlHelp, "summary", "", TEXT),
+    (OptionHelp, "control", "zoom", CHOICE),
+    (OptionHelp, "option", "", TEXT),
+    (OptionHelp, "summary", None, TEXT),
+    (MarketsHelp, "controls", "top", LIST),
+    (MarketsHelp, "options", ["top"], LIST),
+    (MarketsHelp, "method", "x" * 1201, TEXT),
+    (Counterpart, "kind", "bond", CHOICE),
+    (Counterpart, "label", "", TEXT),
+    (Counterpart, "segment", "x" * 41, TEXT),
+    (Counterpart, "area", "x" * 13, TEXT),
+    (Counterpart, "source", "gartner", CHOICE),
+    (Counterpart, "listing", "x" * 31, TEXT),
+    (Counterpart, "currency", "EURO", TEXT),
     (ShareStockResult, "lags", [0.5], LIST),
     (ShareStockResult, "share_leads_p", 2, NUMBER),
     (ShareStockResult, "stock_leads_p", "p", NUMBER),

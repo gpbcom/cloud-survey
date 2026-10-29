@@ -1,0 +1,40 @@
+# Curated price coverage of Aruba Cloud (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: aruba-cloud
+currency: EUR
+statements:
+  - product: 'Hybrid Cloud Storage'
+    model: not-public
+    reason: 'Not available for online purchase, with no public pricing, provisioned through a consultation.'
+    source: 'https://www.arubacloud.com/cloud-storage/hybrid-cloud-storage'
+  - product: 'Azure Local on Aruba Cloud'
+    model: quote
+    reason: 'A tailor-made infrastructure with a fixed-cost model designed with the customer.'
+    source: 'https://www.arubacloud.com/private-and-hybrid-cloud/azure-local/'
+  - product: 'IaaS for SAP HANA'
+    model: not-public
+    reason: 'No price on its page, higher instances on request.'
+    source: 'https://www.arubacloud.com/private-and-hybrid-cloud/sap-hana-iaas/'
+  - product: 'Aruba Managed Hybrid Cloud'
+    model: not-public
+    reason: 'No price on its page.'
+    source: 'https://www.arubacloud.com/private-and-hybrid-cloud/managed-hybrid-cloud-red-hat-openshift/'
+  - product: 'Vates VMS on Aruba Cloud'
+    model: not-public
+    reason: 'No price on its page.'
+    source: 'https://www.arubacloud.com/private-and-hybrid-cloud/vates-open-source/'
+  - product: 'Hybrid Connect'
+    model: not-public
+    reason: 'No price on its page.'
+    source: 'https://www.arubacloud.com/baremetal-vps/network-swaas-sw-fisici-firewall/hybrid-connect'
+  - product: 'Network Services'
+    model: not-public
+    reason: 'Its page redirects to Hybrid Connect, without price.'
+    source: 'https://www.arubacloud.com/public-cloud/network/'
+  - product: 'Application Platform'
+    model: included
+    reason: 'A container platform page, priced by the Aruba container services.'
+    source: 'https://www.arubacloud.com/container/application-platform'
+  - product: 'Ready-to-use apps'
+    model: included
+    reason: 'Open source apps without licence cost, priced by the cloud resources they run on.'
+    source: 'https://www.arubacloud.com/cloud-apps/'

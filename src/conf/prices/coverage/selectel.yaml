@@ -1,0 +1,261 @@
+# Curated price coverage of Selectel (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: selectel
+currency: RUB
+row_links:
+  'Облачная база данных для OpenSearch': ['\| dbaas/[^|]*opensearch']
+  'Облачная база данных для ClickHouse': ['\| dbaas/[^|]*clickhouse']
+  'Облачная база данных для Kafka': ['\| dbaas/[^|]*kafka']
+  'Облачная база данных для MySQL': ['\| dbaas/[^|]*mysql']
+  'Облачная база данных для Redis': ['\| dbaas/[^|]*redis']
+  'Облачная база данных для PostgreSQL': ['\| dbaas/[^|]*(postgres|pg_)']
+  'Облачные базы данных': ['\| dbaas/']
+  'Аттестованное облако': ['\| vpc/gis-']
+  'Балансировщик нагрузки для облака': ['\| vpc/[^|]*load_balancer']
+  'Файловое хранилище': ['\| vpc/[^|]*share_']
+  'Резервное копирование в облаке': ['\| vpc/[^|]*volume_backups']
+  'Серверы с GPU': ['\| vpc/[^|]*gpu']
+  'Облачные серверы': ['\| vpc/']
+  'Резервное копирование VMware': ['\| vmware/[^|]*vbr_']
+  'Публичное облако на базе VMware': ['\| vmware/']
+links:
+  'Кластеры Kubernetes': ['^Managed Kubernetes$']
+  'Сетевые диски для выделенных серверов': ['^Network Disks$']
+  'S3': ['^Object Storage$']
+  'Готовое облако 1С': ['^1C Cloud$']
+  'Выделенные серверы': ['^Dedicated Servers$', '^Dedicated server', 'IP-KVM']
+  'Облачный репозиторий Veeam Cloud Connect': ['Veeam Cloud Connect']
+  'Резервное копирование на базе Кибер Бэкапа': ['Cyber Backup']
+  'Резервное копирование агентами': ['^Agent Backup']
+  'Балансировщик нагрузки между продуктами Selectel': ['^General Load Balancer']
+  'Файловое хранилище': ['^File storage']
+  'Удаленные рабочие столы': ['[Vv]irtual [Dd]esktop']
+  'Защита веб-приложений (WAF)': ['WAF|Website protection']
+  'Защита от DDoS': ['DDoS']
+  'Домены .RU и .РФ': ['^Domain']
+  'SSL-сертификаты': ['SSL|[Cc]ertificate']
+  'Серверы в выделенной стойке': ['[Ss]erver rack|[Rr]ack ']
+  'ВОЛС': ['[Ff]iber|FO |[Ll]ambda']
+  'ML-платформа': ['MLOps']
+  'Системное администрирование': ['[Aa]dministration']
+  'Виртуальный межсетевой экран': ['UserGate|[Ff]irewall']
+  'Система обнаружения вторжений (IPS/IDS)': ['IPS|IDS']
+  'Аттестованный сегмент ЦОД': ['Certified data center']
+  'Выделенные серверы для 1С': ['^1C:']
+  'Проверка доступности': ['watchers|SMS notification']
+statements:
+  - product: 'Arenadata в Selectel'
+    model: quote
+    reason: 'Licences paid monthly or for several months ahead, priced on request with vendor support.'
+    source: 'https://selectel.ru/services/arenadata/'
+  - product: 'Ceph-as-a-service'
+    model: quote
+    reason: 'Rented for a year minimum, the price depends on infrastructure, volume and speed and is given on request.'
+    source: 'https://selectel.ru/services/ceph-as-a-service/'
+  - product: 'DNS-хостинг'
+    model: free
+    reason: 'Free DNS hosting of domains and records for Selectel customers.'
+    source: 'https://selectel.ru/services/additional/dns/'
+  - product: 'Enterprise-grade ЦОД'
+    model: quote
+    reason: 'Priced on request after Selectel gathers the project requirements (leave a request).'
+    source: 'https://selectel.ru/services/is/enterprise-dc/'
+  - product: 'Enterprise-grade сервер'
+    model: not-public
+    reason: 'Priced in the Selectel console configurator, its page shows no fixed price list.'
+    source: 'https://selectel.ru/services/dedicated/?tab=enterprise'
+  - product: 'IAM'
+    model: free
+    reason: 'The IAM service is free, available after creating an account.'
+    source: 'https://selectel.ru/services/iam/'
+  - product: 'Inference-ready кластер в Managed Kubernetes'
+    model: not-public
+    reason: 'Priced per hour in the page calculator, rendered client-side without a public price list.'
+    source: 'https://selectel.ru/services/cloud/kubernetes-gpu/'
+  - product: 'Just AI Agent Platform'
+    model: quote
+    reason: 'A joint Selectel and Just AI solution sold through a request, without public price.'
+    source: 'https://promo.selectel.ru/agent-platform-justai-selectel'
+  - product: 'PGVector'
+    model: included
+    reason: 'Priced by the generic Managed Databases resources (cores, RAM, disk) of the Selectel price list, not per engine.'
+    source: 'https://selectel.ru/services/cloud/managed-databases/pgvector'
+  - product: 'S3 Vault'
+    model: not-public
+    reason: 'Backup storage offer at 1.14 RUB per GB for new customers, exact price computed on request.'
+    source: 'https://selectel.ru/solutions/s3-vault/'
+  - product: 'SAP-хостинг'
+    model: quote
+    reason: 'The page offers to get the price (Узнать стоимость) on request, from hardware, OS licences and support.'
+    source: 'https://selectel.ru/services/dedicated/sap/'
+  - product: 'SSL-сертификаты'
+    model: free
+    reason: 'Free Let''s Encrypt certificates, paid certificates are ordered in the console.'
+    source: 'https://selectel.ru/services/ssl/'
+  - product: 'Аварийное восстановление в облако VMware (DRaaS)'
+    model: included
+    reason: 'Pay-as-you-go over the VMware cloud resources consumed.'
+    source: 'https://selectel.ru/services/cloud/vmware/draas/'
+  - product: 'Администрирование сервисов'
+    model: quote
+    reason: 'Selectel computes the cost of its involvement per project.'
+    source: 'https://selectel.ru/solutions/managed-services/'
+  - product: 'Аппаратный межсетевой экран'
+    model: not-public
+    reason: 'Hardware firewalls priced per model in the console, the page quotes a virtual firewall licence only.'
+    source: 'https://selectel.ru/services/additional/firewall/?section=hardwareFirewall'
+  - product: 'Аренда GPU on-premise'
+    model: quote
+    reason: 'GPU servers rented monthly in the customer data center, priced on request with a buy-out option.'
+    source: 'https://selectel.ru/services/dedicated/gpu-on-prem/'
+  - product: 'Аттестация информационных систем'
+    model: quote
+    reason: 'Certification projects run with an FSTEC-licensed body, priced per information system on request.'
+    source: 'https://selectel.ru/services/is/is-attestation/'
+  - product: 'Аудит-логи'
+    model: free
+    reason: 'The service is enabled by default and provided for free, events kept for 90 days.'
+    source: 'https://selectel.ru/services/audit-logs/'
+  - product: 'Базы данных HighFreq'
+    model: included
+    reason: 'Priced by the generic Managed Databases resources (cores, RAM, disk) of the Selectel price list, not per engine.'
+    source: 'https://selectel.ru/services/cloud/managed-databases/high-freq/'
+  - product: 'Базы данных на выделенном облачном сервере'
+    model: included
+    reason: 'Priced by the generic Managed Databases resources (cores, RAM, disk) of the Selectel price list, not per engine.'
+    source: 'https://selectel.ru/services/cloud/managed-databases/vdedicated/'
+  - product: 'Гибридное облако'
+    model: quote
+    reason: 'Priced on request after Selectel gathers the project requirements (leave a request).'
+    source: 'https://selectel.ru/solutions/hybrid-cloud/'
+  - product: 'Глобальный роутер Selectel'
+    model: free
+    reason: 'The service is free with unlimited traffic within a region and up to 1 Gbit/s between regions.'
+    source: 'https://selectel.ru/services/additional/local-network/'
+  - product: 'Дата-центр под ключ'
+    model: quote
+    reason: 'Priced on request after Selectel gathers the project requirements (leave a request).'
+    source: 'https://selectel.ru/solutions/data-center/'
+  - product: 'ИИ-Роутер'
+    model: not-public
+    reason: 'Pay-as-you-go per model and token, prices are dynamic and shown in a client-side table.'
+    source: 'https://promo.selectel.ru/ai-router'
+  - product: 'ИИ-ассистент на выделенном сервере'
+    model: included
+    reason: 'Priced as the dedicated servers it runs on, configured with a free hardware selection.'
+    source: 'https://selectel.ru/solutions/ai-infrastructure/ai-assistant/'
+  - product: 'ИИ-маркетплейс'
+    model: quote
+    reason: 'Priced on request after Selectel gathers the project requirements (leave a request).'
+    source: 'https://selectel.ru/solutions/ai-infrastructure/ai-marketplace/'
+  - product: 'Инфраструктура для AI'
+    model: included
+    reason: 'A solution page over the Selectel GPU servers and inference services, priced by those services.'
+    source: 'https://selectel.ru/solutions/artificial-intelligence-machine-learning/'
+  - product: 'Инфраструктура для узла CDN/PoP'
+    model: quote
+    reason: 'Priced on request after Selectel gathers the project requirements (leave a request).'
+    source: 'https://selectel.ru/solutions/cdn-infrastructure/'
+  - product: 'Корпоративный ИИ-ассистент KTS для работы с документами'
+    model: quote
+    reason: 'Deployment from 100,000 RUB, the final price set per project.'
+    source: 'https://promo.selectel.ru/kts'
+  - product: 'Метрики'
+    model: free
+    reason: 'Metrics are offered for free (Бесплатно) on the product page.'
+    source: 'https://selectel.ru/services/additional/metrics/'
+  - product: 'Облачная база данных для Kafka'
+    model: included
+    reason: 'Priced by the generic Managed Databases resources (cores, RAM, disk) of the Selectel price list, not per engine.'
+    source: 'https://selectel.ru/services/cloud/managed-databases/kafka/'
+  - product: 'Облачная база данных для MySQL'
+    model: included
+    reason: 'Priced by the generic Managed Databases resources (cores, RAM, disk) of the Selectel price list, not per engine.'
+    source: 'https://selectel.ru/services/cloud/managed-databases/mysql/'
+  - product: 'Облачная база данных для PostgreSQL'
+    model: included
+    reason: 'Priced by the generic Managed Databases resources (cores, RAM, disk) of the Selectel price list, not per engine.'
+    source: 'https://selectel.ru/services/cloud/managed-databases/postgresql/'
+  - product: 'Облачная база данных для PostgreSQL 1С'
+    model: included
+    reason: 'Priced by the generic Managed Databases resources (cores, RAM, disk) of the Selectel price list, not per engine.'
+    source: 'https://selectel.ru/services/cloud/managed-databases/postgresql-1c/'
+  - product: 'Облачная база данных для Redis'
+    model: included
+    reason: 'Priced by the generic Managed Databases resources (cores, RAM, disk) of the Selectel price list, not per engine.'
+    source: 'https://selectel.ru/services/cloud/managed-databases/redis/'
+  - product: 'Облачный сервер с GitLab'
+    model: included
+    reason: 'A cloud server image, priced as the cloud server configuration chosen.'
+    source: 'https://selectel.ru/solutions/cloud-gitlab/'
+  - product: 'Облачный сервер с Keycloak'
+    model: included
+    reason: 'A cloud server image, priced as the cloud server configuration chosen.'
+    source: 'https://selectel.ru/solutions/managed-services/cloud-keycloak/'
+  - product: 'Облачный сервер с онлайн-офисом'
+    model: included
+    reason: 'A cloud server image, priced as the cloud server configuration chosen.'
+    source: 'https://selectel.ru/solutions/cloud-office/'
+  - product: 'Подбор инфраструктуры для AI и ML'
+    model: free
+    reason: 'Free configuration selection (Бесплатный подбор конфигурации) by Selectel experts.'
+    source: 'https://selectel.ru/solutions/ml-infra-consulting/'
+  - product: 'Приватное облако на базе VMware'
+    model: quote
+    reason: 'A fixed fee for the dedicated infrastructure plus VMware software by consumption, quoted per project.'
+    source: 'https://selectel.ru/services/cloud/vmware/private-cloud/'
+  - product: 'Приватное облако на базе VMware в А-ЦОД'
+    model: quote
+    reason: 'Priced on request after Selectel gathers the project requirements (leave a request).'
+    source: 'https://selectel.ru/services/cloud/vmware/private-cloud/dswes/'
+  - product: 'Приватный DNS'
+    model: not-public
+    reason: 'Priced per month in a client-side calculator, recursive resolution of public domains is free.'
+    source: 'https://selectel.ru/services/additional/private-dns/'
+  - product: 'Приватный хост'
+    model: quote
+    reason: 'The price depends on the hardware chosen and is given on request (Запросить цену).'
+    source: 'https://selectel.ru/services/cloud/vpc/?section=host'
+  - product: 'СХД'
+    model: quote
+    reason: 'The price depends on the storage type, volume and speed and is given after a request.'
+    source: 'https://selectel.ru/services/shd/'
+  - product: 'Сервер для ГИС «Электронная путевка»'
+    model: quote
+    reason: 'Priced on request after Selectel gathers the project requirements (leave a request).'
+    source: 'https://selectel.ru/solutions/gis-tourism/'
+  - product: 'Серверная операционная система SELECTOS'
+    model: not-public
+    reason: 'A free edition exists, the supported licences are sold without a public price list.'
+    source: 'https://selectel.ru/services/selectel-os/'
+  - product: 'Серверная платформа Selectel'
+    model: quote
+    reason: 'Configurations built and priced on request or in the configurator.'
+    source: 'https://selectel.ru/services/dedicated/selectel-server/'
+  - product: 'Серверы на вынос'
+    model: quote
+    reason: 'Servers placed in the customer data center, priced on request.'
+    source: 'https://selectel.ru/services/dedicated/server-stay-in-house/'
+  - product: 'Серверы под заказ'
+    model: quote
+    reason: 'Servers bought to order and rented, priced on request.'
+    source: 'https://selectel.ru/services/dedicated/preorder/'
+  - product: 'Сервис логов'
+    model: not-public
+    reason: 'Logging can be enabled for free, storage beyond it is priced in the console.'
+    source: 'https://selectel.ru/services/logs/'
+  - product: 'Сервисы платформы данных'
+    model: not-public
+    reason: 'Trino, Hive Metastore and Redash clouds without a public price list.'
+    source: 'https://selectel.ru/services/data-platform/'
+  - product: 'Фабрика ИИ-агентов Kolmogorov.ai'
+    model: quote
+    reason: 'A partner AI-agent platform sold on request.'
+    source: 'https://promo.selectel.ru/kolmogorov-ai-selectel'
+  - product: 'Частное облако Selectel'
+    model: quote
+    reason: 'Licensed per host, priced on request after a free test.'
+    source: 'https://selectel.ru/services/cloud/private-cloud/'
+  - product: 'Эксепто'
+    model: quote
+    reason: 'The cost of the models is announced during the pilot.'
+    source: 'https://selectel.ru/solutions/exepto'

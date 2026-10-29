@@ -1,0 +1,34 @@
+[
+ {
+  "resource": "compute_cores_standard_amd_preemptible",
+  "group": "ru-2c",
+  "currency": "rub",
+  "value": 25.17768,
+  "unit": "item",
+  "threshold": 0
+ },
+ {
+  "resource": "compute_ram_standard_amd_preemptible",
+  "group": "ru-2c",
+  "currency": "rub",
+  "value": 0.008971512,
+  "unit": "MB",
+  "threshold": 0
+ },
+ {
+  "resource": "volume_gigabytes_universal",
+  "group": "uz-1b",
+  "currency": "rub",
+  "value": 2.591616,
+  "unit": "GB*H",
+  "threshold": 0
+ },
+ {
+  "resource": "compute_vds_1_1_10",
+  "group": "ru-1c",
+  "currency": "rub",
+  "value": 27.397,
+  "unit": "item",
+  "threshold": 0
+ }
+]

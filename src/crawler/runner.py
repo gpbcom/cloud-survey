@@ -2,17 +2,19 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import asyncio
+import gc
 import os
+import threading
 from datetime import UTC, datetime
 from logging import Logger, getLogger
-from typing import Awaitable, Callable, ClassVar, Dict, List, Optional, Set, Tuple, Type, Union
+from typing import Awaitable, Callable, ClassVar, Dict, List, Mapping, Optional, Sequence, Set, Tuple, Type, Union
 
 # Third Party Imports.
 from pydantic import JsonValue
 
 from classifier.exception import ClassifierError
 from classifier.software_classifier import SoftwareClassifier
-from crawler.cloud.base import BaseCloudCrawler
+from crawler.cloud.base import BaseCloudCrawler, PriceItem
 from crawler.exception import CrawlerError, EmptyCrawlError
 from crawler.factory import CrawlerFactory
 from crawler.item_collector import ItemCollector
@@ -24,14 +26,21 @@ from llm.settings_loader import LLMSettingsLoader
 from llm.tasks.correspondence.service_matcher import ServiceMatcher
 from llm.tasks.item_classifier import ItemClassifier
 from llm.tasks.label_translator import LabelTranslator
-from models.cloud.enums import CloudProvider
+from models.cloud.enums import CloudProvider, PriceSourceStatus
+from models.cloud.prices.stored.price_source import PriceSource
 from models.cloud.products.catalogue import CloudCatalogue
 from models.cloud.products.product import CloudProduct
 from models.cloud.software.marketplace import CloudMarketplace
 from models.cloud.software.marketplace_software import MarketplaceSoftware
+from models.companies.companies_catalog import CompaniesCatalog
+from models.companies.concepts.financial_concepts import FinancialConcepts
+from models.companies.enums import CompanyFeed
+from models.companies.figures.reported_figures import ReportedFigures
+from models.companies.patents.patent_window import PatentWindow
 from models.configuration.llm.llm_settings import LLMSettings
 from models.drivers.collectors.collector_catalog import CollectorCatalog
 from models.drivers.enums import MetricSource
+from models.history.chronology import Chronology
 from models.markets.crawl_scope import CrawlScope
 from models.markets.enums import MarketFeed
 from models.markets.markets_catalog import MarketsCatalog
@@ -48,6 +57,9 @@ ReportCallback = Callable[[MarketReport], None]
 ProductSink = Callable[[CloudProduct], Awaitable[None]]
 SoftwareSink = Callable[[MarketplaceSoftware], Awaitable[None]]
 FactSink = Callable[[MarketFeed, List[Dict[str, JsonValue]]], Awaitable[int]]
+CompanySink = Callable[[CompanyFeed, List[Dict[str, JsonValue]]], Awaitable[int]]
+CompanyObserver = Callable[[CompanyFeed, List[Dict[str, JsonValue]], int], None]
+PriceSink = Callable[[List[PriceItem]], Awaitable[int]]
 
 
 class CatalogueRunner:
@@ -56,6 +68,8 @@ class CatalogueRunner:
     Attributes:
         DEFAULT_CONCURRENCY (ClassVar[int]): The number of providers crawled at the same time by default.
         MARKETS_BATCH (ClassVar[int]): The facts of a markets crawl handed to its sink at once.
+        PRICE_MIN_BATCH (ClassVar[int]): The smallest batch of a price crawl, however tight its memory.
+        STATM_PATH (ClassVar[str]): Where the memory the process uses is read (Linux).
         CONCURRENCY_VARIABLE (ClassVar[str]): The environment variable overriding the default concurrency.
         SAVE_INTERVAL (ClassVar[float]): How often, in seconds, a running crawl writes the items crawled so far by
             default.
@@ -79,6 +93,8 @@ class CatalogueRunner:
 
     DEFAULT_CONCURRENCY: ClassVar[int] = 4
     MARKETS_BATCH: ClassVar[int] = 5000
+    PRICE_MIN_BATCH: ClassVar[int] = 500
+    STATM_PATH: ClassVar[str] = "/proc/self/statm"
     CONCURRENCY_VARIABLE: ClassVar[str] = "CRAWLER_CONCURRENCY"
     SAVE_INTERVAL: ClassVar[float] = 10.0
 
@@ -346,6 +362,22 @@ class CatalogueRunner:
             matched,
         )
 
+    def _rss_mb(self) -> float:
+        """Read the memory the process uses now (its resident set), in MB.
+
+        Returns:
+            float: The resident memory, 0 when it cannot be read (not Linux).
+        """
+        try:
+            with open(self.STATM_PATH, encoding="utf-8") as file:
+                pages = int(file.read().split()[1])
+        except (OSError, ValueError, IndexError) as e:
+            self.logger.warning("The memory of the process cannot be read: %s", e)
+            return 0.0
+        rss = pages * os.sysconf("SC_PAGE_SIZE") / (1024 * 1024)
+        self.logger.debug("The process uses %.0f MB.", rss)
+        return rss
+
     ############################
     # Publicly Exposed Methods #
     ############################
@@ -391,6 +423,7 @@ class CatalogueRunner:
             StorageError: If the catalogue cannot be written.
         """
         crawler = self.factory.get(target)
+        crawler.use_launches(await self.storage.catalogs.launches())
         provider = CloudProvider(target)
         async with self.storage.catalogues.writer(provider, datetime.now(UTC), self.save_interval) as writer:
             count = await self._stream_products(crawler, provider, on_product, writer.add)
@@ -464,6 +497,7 @@ class CatalogueRunner:
             StorageError: If the marketplace cannot be written.
         """
         crawler = self.factory.get_marketplace(target, self._classifier())
+        crawler.use_launches(await self.storage.catalogs.launches())
         provider = CloudProvider(target)
         async with self.storage.marketplaces.writer(provider, datetime.now(UTC), self.save_interval) as writer:
             count = await self._stream_software(crawler, provider, on_software, writer.add)
@@ -553,6 +587,37 @@ class CatalogueRunner:
         self.logger.info("%d catalogues classified again.", len(changed))
         return changed
 
+    async def date_launches(self) -> Dict[CloudProvider, int]:
+        """Date the stored catalogue products by their curated launch (the launch dates catalogue), without crawling.
+
+        Returns:
+            Dict[CloudProvider, int]: The number of products whose added date changed, by cloud provider (the
+                catalogues being crawled or failing are left out, logged).
+
+        Raises:
+            StorageReadError: If the curated launches cannot be read (a database never seeded).
+
+        Notes:
+            Each provider's crawler matches the stored product names to the catalogue as a crawl does (brand
+            prefixes ignored). The dated sources the crawlers read (feeds, release notes) need a crawl: only the
+            curated launches are written.
+        """
+        changed: Dict[CloudProvider, int] = {}
+        catalog = await self.storage.catalogs.launches()
+        for provider in self.factory.CRAWLER_MAP:
+            try:
+                crawler = self.factory.get(provider)
+                crawler.use_launches(catalog)
+                names = await self.storage.catalogues.live_names(provider)
+                launches = {
+                    item_id: launch for item_id, name in names.items() if (launch := crawler.curated_launch(name))
+                }
+                changed[provider] = await self.storage.catalogues.set_launches(provider, launches)
+            except (CrawlerError, StorageError) as e:
+                self.logger.error("The %s products were not dated by their launch: %s", provider.value, e)
+        self.logger.info("%d catalogues dated by their curated launches.", len(changed))
+        return changed
+
     async def run_statistics(self, name: str = "synergy", on_report: Optional[ReportCallback] = None) -> CrawlSummary:
         """Crawl the market statistics of a source and write them to the storage.
 
@@ -632,7 +697,7 @@ class CatalogueRunner:
             feed (MarketFeed): The source.
             sink (FactSink): Called with each batch of facts, as the source states them: it measures and writes
                 them, and returns how many rows it wrote.
-            catalog (Optional[MarketsCatalog]): What is read, `conf/history/markets.yaml` by default.
+            catalog (Optional[MarketsCatalog]): What is read, `data/curated/markets.json` by default.
             scope (Optional[CrawlScope]): The part of the catalogue read, all of it by default.
 
         Returns:
@@ -660,6 +725,174 @@ class CatalogueRunner:
         if not crawled:
             self.logger.warning("The %s markets crawl produced no fact: its stored data are kept.", feed.value)
         self.logger.info("%s markets crawl: %d facts, %d rows written.", feed.value, crawled, written)
+        return written
+
+    async def stream_prices(
+        self,
+        provider: CloudProvider,
+        sink: PriceSink,
+        sources: Dict[str, PriceSource],
+        batch_size: int = 10000,
+        max_memory_mb: int = 1024,
+        delay_s: float = 2.0,
+        products: Optional[Mapping[str, Optional[str]]] = None,
+        pages: Optional[Mapping[str, Sequence[str]]] = None,
+    ) -> Tuple[int, Dict[str, PriceSource], Set[str]]:
+        """Crawl the price sources of a provider, handing its prices to a sink by batches as they come.
+
+        Args:
+            provider (CloudProvider): The provider.
+            sink (PriceSink): Called with each batch of prices and free offers (each naming its kind): it stages
+                them, and returns how many it staged.
+            sources (Dict[str, PriceSource]): The price sources as last read (an unchanged one is not read again).
+            batch_size (int): The prices handed to the sink at once.
+            max_memory_mb (int): The memory the process may use: above it, the batches shrink.
+            delay_s (float): The wait between two price requests, in seconds.
+            products (Optional[Mapping[str, Optional[str]]]): The page of each live catalogue product of the
+                provider, by name (stated unpriced by a provider publishing no price, read by one reading its
+                product pages).
+            pages (Optional[Mapping[str, Sequence[str]]]): The curated extra price pages of each product, by name.
+
+        Returns:
+            Tuple[int, Dict[str, PriceSource], Set[str]]: The prices staged, the sources read (whole or unchanged),
+                and the sources which failed.
+
+        Raises:
+            UnknownCrawlerTargetError: If there is no crawler for the provider.
+
+        Notes:
+            The prices are never all held in memory: after each batch, the memory of the process is read, and above
+            `max_memory_mb` the garbage is collected, then the batches are halved (down to `PRICE_MIN_BATCH`).
+        """
+        crawler = self.factory.get(provider)
+        crawler.use_prices(provider, sources, delay_s, products, pages)
+        size = max(batch_size, self.PRICE_MIN_BATCH)
+        staged = 0
+        batch: List[PriceItem] = []
+        async for item in crawler.stream():
+            batch.append(item)
+            if len(batch) < size:
+                continue
+            staged += await sink(batch)
+            batch = []
+            if self._rss_mb() > max_memory_mb:
+                gc.collect()
+                rss = self._rss_mb()
+                if rss > max_memory_mb and size > self.PRICE_MIN_BATCH:
+                    size = max(size // 2, self.PRICE_MIN_BATCH)
+                    self.logger.warning(
+                        "The %s price crawl uses %.0f MB (cap %d MB): its batches shrink to %d.",
+                        provider.value,
+                        rss,
+                        max_memory_mb,
+                        size,
+                    )
+        if batch:
+            staged += await sink(batch)
+        if crawler.price_failures:
+            self.logger.error(
+                "%d %s price sources failed: their prices are kept.", len(crawler.price_failures), provider.value
+            )
+        unchanged = all(read.status is PriceSourceStatus.UNCHANGED for read in crawler.price_reads.values())
+        if not staged and crawler.price_reads and unchanged:
+            self.logger.info("The %s price sources are unchanged: nothing to stage.", provider.value)
+        elif not staged:
+            self.logger.warning("The %s price crawl staged no price: its stored prices are kept.", provider.value)
+        self.logger.info(
+            "%s price crawl: %d prices staged from %d sources.", provider.value, staged, len(crawler.price_reads)
+        )
+        return staged, dict(crawler.price_reads), set(crawler.price_failures)
+
+    async def stream_companies(
+        self,
+        feed: CompanyFeed,
+        sink: CompanySink,
+        companies: Optional[CompaniesCatalog] = None,
+        concepts: Optional[FinancialConcepts] = None,
+        markets: Optional[MarketsCatalog] = None,
+        scope: Optional[CrawlScope] = None,
+        known: Optional[Sequence[PatentWindow]] = None,
+        queue: Optional[Sequence[str]] = None,
+        batch_size: Optional[int] = None,
+        observer: Optional[CompanyObserver] = None,
+        stop: Optional[threading.Event] = None,
+        refusals: Optional[Dict[CompanyFeed, str]] = None,
+        rejected: Optional[Dict[str, Set[str]]] = None,
+        chronology: Optional[Chronology] = None,
+        figures: Optional[ReportedFigures] = None,
+    ) -> int:
+        """Crawl a companies source, handing its facts to a sink by batches as they come.
+
+        Args:
+            feed (CompanyFeed): The source.
+            sink (CompanySink): Called with each batch of facts (each naming its kind): it measures and writes
+                them, and returns how many rows it wrote.
+            companies (Optional[CompaniesCatalog]): Where each company is found, by default
+                `data/curated/companies.json`.
+            concepts (Optional[FinancialConcepts]): How the statement lines are read, by default
+                the `concepts` block of `conf/settings.yaml`.
+            markets (Optional[MarketsCatalog]): The listings, `data/curated/markets.json` by default.
+            scope (Optional[CrawlScope]): The companies read, every one by default.
+            known (Optional[Sequence[PatentWindow]]): The patents windows already searched (the patents search).
+            queue (Optional[Sequence[str]]): The publications whose page to read (the patent pages).
+            batch_size (Optional[int]): The facts handed to the sink at once, `MARKETS_BATCH` by default (the
+                explorer asks for small batches, to show them as they come).
+            observer (Optional[CompanyObserver]): Called after each batch is written, with its facts and the rows
+                written (the explorer's progress).
+            stop (Optional[threading.Event]): Once set, the crawler is asked to stop gracefully: the requests in
+                flight end, the facts already read are written, and the next run resumes.
+            refusals (Optional[Dict[CompanyFeed, str]]): Filled with why the source refused the crawl before its
+                end, when it did.
+            rejected (Optional[Dict[str, Set[str]]]): Filled with the records the crawl rejected as not the
+                company's, by company.
+            chronology (Optional[Chronology]): The names of the companies (the identity resolvers),
+                `data/curated/chronology.json` by default.
+            figures (Optional[ReportedFigures]): The researched figures (the figures check),
+                `data/curated/figures.json` by default.
+
+        Raises:
+            UnknownCrawlerTargetError: If there is no crawler for the source.
+            CompaniesCatalogError: If a default catalogue cannot be loaded.
+
+        Notes:
+            The facts are never all held in memory: the patents of a company number hundreds of thousands.
+        """
+        crawler = self.factory.get_companies(
+            feed, companies, concepts, markets, scope, known=known, queue=queue, chronology=chronology, figures=figures
+        )
+        size = batch_size if batch_size and batch_size > 0 else self.MARKETS_BATCH
+        written = crawled = 0
+        paused = False
+        batch: List[Dict[str, JsonValue]] = []
+        async for item in crawler.stream():
+            batch.append(item)
+            if len(batch) >= size:
+                crawled += len(batch)
+                rows = await sink(feed, batch)
+                written += rows
+                if observer is not None:
+                    observer(feed, batch, rows)
+                batch = []
+            if stop is not None and stop.is_set() and not paused:
+                self.logger.warning(
+                    "Stop requested: the %s companies crawl ends after its requests in flight.", feed.value
+                )
+                crawler.pause()
+                paused = True
+        if batch:
+            crawled += len(batch)
+            rows = await sink(feed, batch)
+            written += rows
+            if observer is not None:
+                observer(feed, batch, rows)
+        if not crawled:
+            self.logger.warning("The %s companies crawl produced no fact: its stored data are kept.", feed.value)
+        if crawler.refusal is not None and refusals is not None:
+            refusals[feed] = crawler.refusal
+        if rejected is not None:
+            for company, records in crawler.rejected.items():
+                rejected.setdefault(company, set()).update(records)
+        self.logger.info("%s companies crawl: %d facts, %d rows written.", feed.value, crawled, written)
         return written
 
     async def translate(self) -> Tuple[int, int]:

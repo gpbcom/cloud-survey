@@ -1,0 +1,792 @@
+# Curated price coverage of Alibaba Cloud (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: alibaba-cloud
+currency: USD
+row_links:
+  'ECS Bare Metal Instance': ['^Elastic Compute Service \| instances/[^|]*/ecs\.ebm']
+  'Elastic GPU Service': ['^Elastic Compute Service \| instances/[^|]*/ecs\.(gn|vgn|sgn)[0-9]']
+  'Super Computing Cluster': ['^Elastic Compute Service \| instances/[^|]*/ecs\.scc']
+  'Elastic Block Storage (EBS)': ['^Elastic Compute Service \| disks/']
+links:
+  'ApsaraVideo Media Processing (MPS)': ['^ApsaraVideo for Media Processing$']
+  'Data Security Center (Original SDDP)': ['^Sensitive Data Discovery & Protection$']
+  'Cloud Backup': ['^Hybrid Backup Recovery$']
+  'Simple Message Queue (formerly MNS)': ['^Message Service$']
+  'ApsaraMQ for RocketMQ': ['^AlibabaMQ for Apache RocketMQ$']
+  'Cloud Hardware Security Module (HSM)': ['^Data Encryption Service$']
+statements:
+  - product: 'Auto Scaling'
+    model: free
+    reason: 'Auto Scaling itself is free. Only the ECS, ECI, SLB and other resources it manages are billed.'
+    source: 'https://www.alibabacloud.com/help/en/auto-scaling/product-overview/billing-rules'
+  - product: 'Server Migration Center'
+    model: free
+    reason: 'SMC itself is free. The intermediate ECS instances, disks and snapshots of a migration are billed by ECS.'
+    source: 'https://www.alibabacloud.com/help/en/smc/user-guide/server-migration-guidelines'
+  - product: 'Resource Orchestration Service (ROS)'
+    model: free
+    reason: 'ROS is free of charge. Only the resources created by its templates are billed.'
+    source: 'https://www.alibabacloud.com/help/en/ros/product-overview/billing-overview'
+  - product: 'CloudOps Orchestration Service'
+    model: free
+    reason: 'OOS is free of charge. Resources its templates create, such as ECS snapshots, are billed by their services.'
+    source: 'https://www.alibabacloud.com/help/en/oos/product-overview/introduction-to-oos'
+  - product: 'Resource Management'
+    model: free
+    reason: 'Resource Directory, Resource Group, Resource Sharing, Tag and Resource Center are free. Only the products used through them are billed.'
+    source: 'https://www.alibabacloud.com/help/en/resource-management/product-overview/billing-methods'
+  - product: 'ActionTrail'
+    model: free
+    reason: 'ActionTrail charges nothing itself. Delivering events to Simple Log Service, OSS or MaxCompute bills those services.'
+    source: 'https://www.alibabacloud.com/help/en/actiontrail/product-overview/billing-1'
+  - product: 'Alibaba Cloud Linux'
+    model: free
+    reason: 'Alibaba Cloud Linux public images are free of charge, except the Alibaba Cloud Linux 3 Pro edition.'
+    source: 'https://www.alibabacloud.com/help/en/ecs/user-guide/alibaba-cloud-linux'
+  - product: 'Resource Access Management (RAM)'
+    model: free
+    reason: 'The product page states RAM is offered at no additional cost.'
+    source: 'https://www.alibabacloud.com/product/ram'
+  - product: 'Virtual Private Cloud (VPC)'
+    model: free
+    reason: 'The product page lists VPC as free of charge.'
+    source: 'https://www.alibabacloud.com/product/vpc'
+  - product: 'Anti-DDoS Basic'
+    model: free
+    reason: 'The product page states Anti-DDoS Basic is available to all Alibaba Cloud users without any investment.'
+    source: 'https://www.alibabacloud.com/en/product/anti-ddos'
+  - product: 'Backup and Disaster Recovery Center（BDRC）'
+    model: free
+    reason: 'The product page states BDRC is free to use. Snapshots or Cloud Backup it may recommend are billed separately.'
+    source: 'https://www.alibabacloud.com/product/bdrc'
+  - product: 'Cloud Shell'
+    model: free
+    reason: 'The product page states the Linux virtual machine assigned by Cloud Shell is free of charge.'
+    source: 'https://www.alibabacloud.com/product/cloud-shell'
+  - product: 'Link IoT Edge'
+    model: free
+    reason: 'The product page states it is in public beta, free of charge.'
+    source: 'https://www.alibabacloud.com/product/linkiotedge'
+  - product: 'AnalyticDB'
+    model: included
+    reason: 'Umbrella of AnalyticDB for MySQL and AnalyticDB for PostgreSQL, each priced per engine.'
+    source: 'https://www.alibabacloud.com/product/analyticdb'
+  - product: 'ApsaraDB RDS'
+    model: included
+    reason: 'Umbrella of the RDS engines (MySQL, PostgreSQL, SQL Server, MariaDB), each priced per engine.'
+    source: 'https://www.alibabacloud.com/product/apsaradb-rds'
+  - product: 'PolarDB'
+    model: included
+    reason: 'Umbrella of PolarDB for MySQL, PolarDB for PostgreSQL and PolarDB-X, each priced per edition.'
+    source: 'https://www.alibabacloud.com/product/polardb'
+  - product: 'GameShield'
+    model: included
+    reason: 'The GameShield page now redirects to the Anti-DDoS product page. Its protection is priced as Anti-DDoS.'
+    source: 'https://www.alibabacloud.com/products/gameshield'
+  - product: 'Intelligent Computing Service PAI-Lingjun'
+    model: quote
+    reason: 'The product page asks to contact sales for purchasing and consultation.'
+    source: 'https://www.alibabacloud.com/product/pai-lingjun'
+  - product: 'AI DeepSign'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'AI Guardrails'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'AI-Native Database Service (AIDBS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'AIRec'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'API Gateway'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Agent Identity'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Agent Run'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Agent Sandbox'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Agent Security Center'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'AgentBay'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'AgentCore'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'AgentLoop'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Agentic Cloud Governance Center (ACGC)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Agentic Computer'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Alibaba Cloud DevOps'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Alibaba Cloud ZStack'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Alibaba Mail'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Alibaba eKYC'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'AnalyticDB for PostgreSQL'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Anti-Bot Service'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Anycast Elastic IP Address'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'App Streaming'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Application Configuration Management'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Application High Availability Service (AHAS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Apsara Stack'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraDB RDS for MariaDB'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraDB RDS for MySQL'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraDB RDS for PostgreSQL'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraDB RDS for SQL Server'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraDB for ClickHouse'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraDB for HBase'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraDB for Memcache'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraDB for MongoDB'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraDB for MyBase'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraDB for SelectDB'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraMQ for Confluent'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraMQ for Kafka'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraMQ for MQTT'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraMQ for RabbitMQ'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraVideo MediaBox SDK'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ApsaraVideo Real-time Communication'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Captcha'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Cell Phone Number Service'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Certificate Management Service (Original SSL Certificate)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Chatbot'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Cloud Architect Design Tools (CADT)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Cloud Control API'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Cloud Data Transfer (CDT)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Cloud Migration Hub (CMH)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Cloud Monitor'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Cloud Parallel File Storage (CPFS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Cloud Phone'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'CloudAP'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'CloudBox'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'CloudConfig'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'CloudESL'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'CloudFlow'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'CloudSSO'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Code Security'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Compute Nest'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Container Compute Service (ACS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Container Registry (ACR)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Container Service for Kubernetes (ACK)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'DBStack'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'DashVector'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Data Integration'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Data Lake Formation (DLF)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Data Management (DMS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Data Online Migration'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Data Transfer Plan'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Data Transmission Service'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Data Transport'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'DataV'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'DataWorks'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Database Autonomy Service (DAS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Database Backup'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Dataphin'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Dedicated Host'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'DingTalk Enterprise'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Distributed Cloud Container Platform for Kubernetes'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Domain Names and Website'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Drive and Photo Service'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'E-MapReduce'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'EMAS Mobile Testing'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Edge Network Acceleration (ENA)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Edge Node Service (ENS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Edge Security Acceleration(ESA)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Egress Proxy Gateway'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Elastic Container Instance (ECI)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Elastic Desktop Service (EDS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Elastic High Performance Computing (E-HPC)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Elastic IP Address (EIP)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Elasticsearch'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Energy Expert'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'EventBridge'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Express Connect'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Financial Intelligence Engine'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Function Compute (FC)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'GoChina ICP Filing Assistant'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Hologres'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Hybrid Cloud Distributed Storage'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Hybrid Cloud Storage'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Hybrid Cloud Storage Array'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ID Verification'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'IMS - MediaConnect'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'IMS - MediaConvert'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'IMS - MediaLive'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'IMS - MediaPackage'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'IMS - MediaWeaver'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'IPv6 Gateway'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Identity as a Service (IDaaS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Intelligent Advisor'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Intelligent Media Management'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Intelligent Media Services (IMS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Intelligent Speech Interaction'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Internet Shared Bandwidth'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'IoT Platform'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'KVCacheStore'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Lindorm'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Managed Security Service (MSS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Managed Service for Grafana'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Managed Service for OpenTelemetry'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Managed Service for Prometheus'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Microservices Engine (MSE)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Network Intelligence Service (NIS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Offline Visual Intelligence Software Packages'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'OpenAPI Explorer'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'OpenAPI Portal'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'OpenSearch'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'OpenTrek'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Optimization Solver'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Penetration Test'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Performance Testing'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Phone Number Verification Service'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'PolarDB for MySQL'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'PolarDB for PostgreSQL'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'PolarDB-DDB'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'PolarDB-X'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'PrivateLink'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Qoder CN'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Quick Audience'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Quick Tracking'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Quota Center'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'QwenWork'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Real Translation Buddy'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Real-Time Streaming'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Realtime Compute for Apache Flink'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Robotic Process Automation (RPA)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'SDK Center'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'SOFAStack™'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Salesforce on Alibaba Cloud'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'SchedulerX'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Secure Access Service Edge (SASE)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Security Center'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Sendify'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Server Load Balancer (SLB)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Serverless App Engine (SAE)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Serverless Kubernetes Service'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Service Catalog'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Simple Log Service (SLS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Smart Access Gateway (SAG)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Storage Capacity Unit (SCU)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'SuperApp Business Application Platform'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Tair (Redis® OSS-Compatible)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Transit Router (TR)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Vector Retrieval Service for Milvus'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Voice Service (VS)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'WHOIS'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'WUYING Terminal'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Web App Service'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'Web Application Firewall (WAF)'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'WonderClip'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'YiDA'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ZOLOZ Real ID'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'ZOLOZ SMART AML'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'
+  - product: 'mPaaS'
+    model: not-public
+    reason: 'No price parsed from the Alibaba Cloud pricing directory or the product''s pricing page.'
+    source: 'https://www.alibabacloud.com/en/pricing'

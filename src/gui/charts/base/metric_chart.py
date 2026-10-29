@@ -174,9 +174,7 @@ class MetricChart(QWidget):
             Dict[str, str]: The annual trend of each extrapolated series, e.g. `+12%/yr`.
         """
         return {
-            label: f"{series.trend_pct:+.0f}%/yr"
-            for series, label, _, _ in self.lines
-            if series.trend_pct is not None
+            label: f"{series.trend_pct:+.0f}%/yr" for series, label, _, _ in self.lines if series.trend_pct is not None
         }
 
     def _has_data(self) -> bool:
@@ -488,6 +486,7 @@ class MetricChart(QWidget):
         Args:
             loading (bool): Whether data is being read.
         """
+        self.logger.debug("Chart %s.", "loading" if loading else "no longer loading")
         self.loading = loading
         self.spin = 0
         if loading:
@@ -513,6 +512,13 @@ class MetricChart(QWidget):
             last_actual (Optional[float]): The x value of the latest observation.
             as_of (Optional[float]): The month ordinal of the bubbles.
         """
+        self.logger.debug(
+            "Chart showing %d series of %s by %s, %d methodology breaks.",
+            len(lines),
+            axes.y.value,
+            axes.series_by.value,
+            len(breaks or []),
+        )
         self.zoom.follow(axes.model_dump_json())
         self.axes, self.lines, self.matrix = axes, lines, None
         self.breaks, self.last_actual, self.as_of = breaks or [], last_actual, as_of
@@ -528,6 +534,9 @@ class MetricChart(QWidget):
             axes (ChartAxes): The chart axes.
             matrix (MetricMatrix): The cells.
         """
+        self.logger.debug(
+            "Chart showing %d rows by %d columns of %s.", len(matrix.rows), len(matrix.columns), axes.cell.value
+        )
         self.zoom.follow(axes.model_dump_json())
         self.axes, self.matrix, self.lines = axes, matrix, []
         self.message = ""
@@ -540,6 +549,7 @@ class MetricChart(QWidget):
         Args:
             message (str): The explanation, e.g. what to crawl first or the storage error.
         """
+        self.logger.debug("Chart showing no data: %s", message)
         self.message = message
         self.lines, self.matrix = [], None
         self.set_loading(False)

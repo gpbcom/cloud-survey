@@ -134,7 +134,7 @@ async def test_items_are_created_read_updated_and_deleted_by_hand(storage: Stora
     assert reread.item.publisher == "Grafana Labs"
     assert deleted
     assert await storage.marketplaces.read(created.id) is None
-    stamps = {(stamp.kind.value, stamp.dataset): stamp for stamp in await storage.datasets.stamps()}
+    stamps = {(stamp.kind.value, stamp.dataset): stamp for stamp in await storage.datasets.list()}
     assert stamps[("marketplace", "ovh-cloud")].size == 0
 
 
@@ -249,7 +249,7 @@ async def test_several_items_are_read_changed_and_deleted_at_once(storage: Stora
     assert all(stored.item.added_at == before.item.added_at for stored, before in zip(after, read, strict=False))
     assert removed == 2
     assert await storage.marketplaces.count(ItemQuery(include_deleted=True)) == 2
-    stamps = {stamp.dataset: stamp for stamp in await storage.datasets.stamps()}
+    stamps = {stamp.dataset: stamp for stamp in await storage.datasets.list()}
     assert stamps["civo"].size + stamps["scaleway"].size == 2
 
 
@@ -294,14 +294,14 @@ async def test_matching_items_are_streamed_by_batches_in_order(
 
 async def test_the_items_matching_a_query_are_deleted_by_the_server(storage: Storage) -> None:
     await seed(storage)
-    before = {stamp.dataset: stamp.revision for stamp in await storage.datasets.stamps()}
+    before = {stamp.dataset: stamp.revision for stamp in await storage.datasets.list()}
 
     removed = await storage.marketplaces.delete_matching(ItemQuery(deliveries=[DeliveryMethod.SAAS]))
 
     assert removed == 3
     remaining = await storage.marketplaces.list(ItemQuery(sort=ItemSort.NAME))
     assert [stored.item.name for stored in remaining.items] == ["Slack"]
-    after = {stamp.dataset: stamp for stamp in await storage.datasets.stamps()}
+    after = {stamp.dataset: stamp for stamp in await storage.datasets.list()}
     assert after[CloudProvider.CIVO.value].revision > before[CloudProvider.CIVO.value]
     assert after[CloudProvider.SCALEWAY.value].size == 0
     assert await storage.marketplaces.delete_matching(ItemQuery(search="nothing like this")) == 0

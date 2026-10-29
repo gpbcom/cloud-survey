@@ -3,17 +3,30 @@ from __future__ import annotations
 # Standard Library Imports.
 import json
 import re
-from typing import AsyncGenerator, ClassVar, Dict, FrozenSet, Iterator, List, Tuple, Union
+from decimal import Decimal
+from pathlib import Path
+from typing import AsyncGenerator, ClassVar, Dict, FrozenSet, Iterator, List, Optional, Tuple, Union
 from urllib.parse import urljoin, urlparse
 
 # Third Party Imports.
 from pydantic import JsonValue
+from scrapling.parser import Selector
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
-from crawler.cloud.base import BaseCloudCrawler
-from crawler.cloud.civo.enums import CivoFooterColumn, CivoJsonLdField, CivoPricingAnchor
+from crawler.cloud.base import BaseCloudCrawler, PriceFact
+from crawler.cloud.civo.enums import (
+    CivoFooterColumn,
+    CivoJsonLdField,
+    CivoPriceColumn,
+    CivoPriceOption,
+    CivoPricingAnchor,
+)
 from crawler.enums import HtmlAttribute
+from crawler.exception import CatalogueFormatError
+from models.cloud.enums import PriceModel, PriceSourceKind, PriceTerm, PriceUnit
+from models.cloud.prices.facts.service_price import ServicePrice
+from models.cloud.prices.price_field_check import RawValue
 from models.cloud.products.product import CloudProduct
 
 
@@ -36,6 +49,25 @@ class CivoCrawler(BaseCloudCrawler):
         PRICING_NOT_PRODUCT (ClassVar[FrozenSet[CivoPricingAnchor]]): The pricing anchors which are not products.
         HUB_CATEGORIES (ClassVar[Dict[str, CivoFooterColumn]]): The category of the products of each hub page, by
             hub page: the label of its footer column.
+        PRICE_CURRENCY (ClassVar[str]): The currency of the pricing page.
+        PRICE_VALUE (ClassVar[str]): The CSS selector of a price of a table cell (`data-option` hourly or monthly).
+        OPTION_ATTRIBUTE (ClassVar[str]): The attribute of a price telling whether it is hourly or monthly.
+        AMOUNT (ClassVar[re.Pattern[str]]): A written price, e.g. `$1,883.40`.
+        TERM_ID (ClassVar[re.Pattern[str]]): The id of a commitment price container, e.g. `12_months`.
+        TERMS (ClassVar[Dict[str, PriceTerm]]): The term of a commitment, by its months.
+        PER_GIB (ClassVar[re.Pattern[str]]): A row priced per GB (a storage).
+        SIZE (ClassVar[re.Pattern[str]]): A memory or storage size, in GB or TB.
+        COUNT (ClassVar[re.Pattern[str]]): The count a cell starts with (cores).
+        TB (ClassVar[str]): The terabyte unit of a size.
+        GIB_PER_TB (ClassVar[Decimal]): The GiB of a TB.
+        FREE (ClassVar[str]): The word of a free row (case-folded).
+        TRAFFIC_UNIT (ClassVar[str]): The unit written for a free traffic row.
+        PRICING_SECTION (ClassVar[str]): The id of the pricing page container (not a service).
+        ON_DEMAND (ClassVar[str]): The key part of an on-demand price.
+        HEADING_ATTRIBUTE (ClassVar[str]): The attribute holding the heading of a table.
+        ROW_ATTRIBUTE (ClassVar[str]): The attribute holding the plain cells of a row.
+        PRODUCT_PAGE_PRICES (ClassVar[bool]): The catalogue product pages are read too, for their price tables.
+        PAGE_TEXT_PRICES (ClassVar[bool]): A product page without price table is read for the prices in its text.
 
     Notes:
         The main source is the JSON-LD service of the three hub pages (https://www.civo.com/public-cloud,
@@ -48,6 +80,10 @@ class CivoCrawler(BaseCloudCrawler):
         columns, a priced service under none (the pricing navigation is not grouped).
         The JSON-LD links are short paths redirecting to the product pages: they are replaced by the product page
         URLs, and compared with them, through `URL_ALIASES`.
+        In price mode it reads the tables of the pricing page (`PRICING_URL`, in dollars): each row has an hourly
+        and a monthly price (`data-option`), on demand and, for a GPU, per commitment term (`6_months` to
+        `36_months`), its service and group being the ids of its sections. A storage row is priced per GB, the free
+        traffic as free.
     """
 
     SITE_URL: ClassVar[str] = "https://www.civo.com/"
@@ -88,10 +124,43 @@ class CivoCrawler(BaseCloudCrawler):
         AI_URL: CivoFooterColumn.CIVO_AI,
     }
 
+    PRODUCT_PAGE_PRICES: ClassVar[bool] = True
+    PAGE_TEXT_PRICES: ClassVar[bool] = True
     name = "civo"
     catalogue_url: ClassVar[str] = "https://www.civo.com/public-cloud"
     complement_urls: ClassVar[Tuple[str, ...]] = (PRIVATE_CLOUD_URL, AI_URL, PRICING_URL)
     name_prefixes: ClassVar[Tuple[str, ...]] = ("Civo ",)
+    PRICE_CURRENCY: ClassVar[str] = "USD"
+    PRICE_VALUE: ClassVar[str] = ".price-value[data-option]"
+    OPTION_ATTRIBUTE: ClassVar[str] = "data-option"
+    AMOUNT: ClassVar[re.Pattern[str]] = re.compile(r"\$\s*([\d,]+(?:\.\d+)?)")
+    TERM_ID: ClassVar[re.Pattern[str]] = re.compile(r"^(\d+)_months$")
+    TERMS: ClassVar[Dict[str, PriceTerm]] = {
+        "6": PriceTerm.SIX_MONTHS,
+        "12": PriceTerm.ONE_YEAR,
+        "24": PriceTerm.TWO_YEARS,
+        "36": PriceTerm.THREE_YEARS,
+    }
+    PER_GIB: ClassVar[re.Pattern[str]] = re.compile(r"^Per (?:1 )?GB$", re.IGNORECASE)
+    SIZE: ClassVar[re.Pattern[str]] = re.compile(r"([\d.]+)\s*(GB|TB)\b", re.IGNORECASE)
+    COUNT: ClassVar[re.Pattern[str]] = re.compile(r"^(\d+)")
+    TB: ClassVar[str] = "TB"
+    GIB_PER_TB: ClassVar[Decimal] = Decimal(1024)
+    FREE: ClassVar[str] = "free"
+    TRAFFIC_UNIT: ClassVar[str] = "GB"
+    PRICING_SECTION: ClassVar[str] = "pricing"
+    ON_DEMAND: ClassVar[str] = "on-demand"
+    HEADING_ATTRIBUTE: ClassVar[str] = "heading"
+    ROW_ATTRIBUTE: ClassVar[str] = "row"
+
+    def __init__(self, crawldir: Optional[Union[str, Path]] = None, interval: float = 300.0) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+        """
+        super().__init__(crawldir=crawldir, interval=interval)
 
     ############################
     # Internal Helpers Methods #
@@ -222,6 +291,7 @@ class CivoCrawler(BaseCloudCrawler):
             Iterator[CloudProduct]: Each valid product of the page.
         """
         categories = self._hub_categories(response)
+        self.logger.debug("Extracting the %s hub products of %s under %s.", self.name, response.url, categories)
         yield from self._offer_products(response, categories)
         yield from self._gpu_products(response, categories)
 
@@ -293,6 +363,172 @@ class CivoCrawler(BaseCloudCrawler):
         self.logger.info("%d %s product pages to read from the footer of %s.", len(requests), self.name, response.url)
         return requests
 
+    def _size_gib(self, text: str) -> Optional[Decimal]:
+        """Read a memory or storage size in GiB, e.g. `96 GB`, `2.5TB`, `200GB NVMe`.
+
+        Args:
+            text (str): The size.
+
+        Returns:
+            Optional[Decimal]: The size, `None` when unreadable.
+        """
+        match = self.SIZE.search(text)
+        if match is None:
+            return None
+        return Decimal(match[1]) * (self.GIB_PER_TB if match[2].upper() == self.TB else 1)
+
+    def _row_specs(self, headers: List[str], cells: List[str]) -> Dict[str, RawValue]:
+        """Read the hardware of a row of a pricing table.
+
+        Args:
+            headers (List[str]): The headers of its table.
+            cells (List[str]): Its cells.
+
+        Returns:
+            Dict[str, RawValue]: Its `vcpu`, `memory_gib` and `storage_gib`, those stated.
+        """
+        specs: Dict[str, RawValue] = {}
+        for header, cell in zip(headers, cells, strict=False):
+            count = self.COUNT.match(cell)
+            if header in (CivoPriceColumn.CPU, CivoPriceColumn.VCPU) and count:
+                specs["vcpu"] = int(count[1])
+            elif header == CivoPriceColumn.RAM and self._size_gib(cell) is not None:
+                specs["memory_gib"] = self._size_gib(cell)
+            elif header == CivoPriceColumn.STORAGE and self._size_gib(cell) is not None:
+                specs["storage_gib"] = self._size_gib(cell)
+        return specs
+
+    def _value_price(
+        self, value: Selector, base: Dict[str, RawValue], group: str, plain: List[str], per_gib: bool
+    ) -> Iterator[ServicePrice]:
+        """Read one price of a row: hourly or monthly, on demand or for a commitment term.
+
+        Args:
+            value (Selector): The price element (`data-option` hourly or monthly).
+            base (Dict[str, RawValue]): The fields of the row.
+            group (str): The table group of the row.
+            plain (List[str]): The cells of the row which are not prices (its identity).
+            per_gib (bool): Whether the row is priced per GiB (a storage).
+
+        Yields:
+            ServicePrice: The price, when stated (not `N/A`).
+        """
+        option = value.attrib.get(self.OPTION_ATTRIBUTE) or ""
+        amount = self.AMOUNT.search(" ".join(value.css("::text").getall()))
+        if amount is None:
+            return
+        price = Decimal(amount[1].replace(",", ""))
+        term_id = next(
+            (
+                match[1]
+                for ident in value.xpath("ancestor::div[@id]/@id").getall()
+                if (match := self.TERM_ID.match(ident))
+            ),
+            None,
+        )
+        hourly = option == CivoPriceOption.HOURLY
+        unit = (
+            (PriceUnit.GIB_HOUR if hourly else PriceUnit.GIB_MONTH)
+            if per_gib
+            else PriceUnit.HOUR
+            if hourly
+            else PriceUnit.MONTH
+        )
+        fact = self._price_fact(
+            {
+                **base,
+                "sku_key": f"{group}/{' | '.join(plain)}/{option}/{term_id or self.ON_DEMAND}",
+                "unit": unit,
+                "unit_raw": option,
+                "price": price,
+                "model": PriceModel.FREE if price == 0 else PriceModel.COMMITMENT if term_id else PriceModel.ON_DEMAND,
+                "term": self.TERMS.get(term_id or "", PriceTerm.NONE),
+            }
+        )
+        if fact is not None:
+            yield fact
+
+    def _table_prices(self, table: Selector) -> Iterator[ServicePrice]:
+        """Read the prices of a table of the pricing page.
+
+        Args:
+            table (Selector): The table.
+
+        Yields:
+            ServicePrice: For each row, an hourly and a monthly price, on demand and per commitment term (a GPU),
+                per GiB for a storage row, a free row as free.
+        """
+        ids = table.xpath("ancestor::*[@id]/@id").getall()
+        group = ids[-1] if ids else self.PRICING_SECTION
+        section = ids[-2] if len(ids) > 1 and ids[-2] != self.PRICING_SECTION else group
+        heading = self._clean_text(" ".join(table.xpath("preceding::h3[1]//text()").getall()))
+        headers = [self._clean_text(" ".join(cell.css("::text").getall())) for cell in table.css("thead th")]
+        for row in table.css("tbody tr"):
+            cells = row.css("td")
+            texts = [self._clean_text(" ".join(cell.css("::text").getall())) for cell in cells]
+            plain = [text for cell, text in zip(cells, texts, strict=True) if not cell.css(self.PRICE_VALUE)]
+            name = plain[0] if plain else group
+            per_gib = self.PER_GIB.search(name) is not None
+            base: Dict[str, RawValue] = {
+                "service": section.replace("-", " ").title(),
+                "family": group,
+                "instance_type": name if not per_gib else None,
+                "attributes": {self.HEADING_ATTRIBUTE: heading, self.ROW_ATTRIBUTE: " | ".join(plain)},
+                "currency": self.PRICE_CURRENCY,
+                "source_url": self.PRICING_URL,
+                "source_kind": PriceSourceKind.PAGE,
+                **self._row_specs(headers, texts),
+            }
+            values = row.css(self.PRICE_VALUE)
+            if not values and texts and texts[-1].casefold() == self.FREE:
+                fact = self._price_fact(
+                    {
+                        **base,
+                        "sku_key": f"{group}/{name}",
+                        "unit": PriceUnit.GIB,
+                        "unit_raw": self.TRAFFIC_UNIT,
+                        "price": Decimal(0),
+                        "model": PriceModel.FREE,
+                    }
+                )
+                if fact is not None:
+                    yield fact
+            for value in values:
+                yield from self._value_price(value, base, group, plain, per_gib)
+
+    async def _price_requests(self) -> AsyncGenerator[Request]:
+        """Request the pricing page.
+
+        Yields:
+            Request: The request of the pricing page.
+        """
+        self.logger.info("Reading the Civo prices from %s.", self.PRICING_URL)
+        yield self._price_request(self.PRICING_URL)
+
+    async def _extract_prices(self, response: Response) -> AsyncGenerator[PriceFact]:
+        """Read the prices of the tables of the pricing page.
+
+        Args:
+            response (Response): The pricing page.
+
+        Yields:
+            PriceFact: The prices of its tables.
+
+        Raises:
+            CatalogueFormatError: If the page has no pricing table.
+        """
+        tables = response.css("table")
+        if not tables:
+            self.logger.error("The Civo pricing page %s has no table.", response.url)
+            raise CatalogueFormatError(self.name, response.url, "the pricing page has no table")
+        found = 0
+        for table in tables:
+            for fact in self._table_prices(table):
+                found += 1
+                yield fact
+        self._record_price_source(self.PRICING_URL, found)
+        self.logger.info("The Civo pricing page is read: %d prices of %d tables.", found, len(tables))
+
     ############################
     # Publicly Exposed Methods #
     ############################
@@ -307,6 +543,7 @@ class CivoCrawler(BaseCloudCrawler):
             Iterator[CloudProduct]: The valid products of the page.
         """
         if self._url_key(response.url) == self._url_key(self.PRICING_URL):
+            self.logger.debug("Extracting the %s products of the pricing page %s.", self.name, response.url)
             return self._pricing_products(response)
         return self._hub_products(response)
 
@@ -325,5 +562,6 @@ class CivoCrawler(BaseCloudCrawler):
         async for item in super().parse(response):
             yield item
         if self.PRODUCT_PAGE not in response.meta and self._url_key(response.url) == self._url_key(self.AI_URL):
+            self.logger.debug("Requesting the %s footer product pages of the AI hub %s.", self.name, response.url)
             for request in self._footer_requests(response):
                 yield request

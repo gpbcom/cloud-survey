@@ -318,6 +318,10 @@ class DriverPanel:
                     prior = self.calendar.shift(period, -self.CHANGE_SPAN)
                     if prior in series:
                         changes.setdefault(provider, {}).setdefault(metric, {})[period] = value - series[prior]
+        if not changes:
+            self.logger.warning("No yearly change: no series spans %d quarters.", self.CHANGE_SPAN)
+        else:
+            self.logger.debug("Yearly changes of %d of %d providers.", len(changes), len(levels))
         return changes
 
     def cross_section(self, query: DriverQuery, values: List[ProviderMetricValue]) -> DriverMatrix:

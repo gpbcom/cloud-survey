@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import re
+from datetime import date
 from logging import Logger, getLogger
 from typing import ClassVar, Optional, Pattern
 
@@ -78,3 +79,14 @@ class QuarterCalendar:
             InvalidQuarterError: If the quarter is not written `YYYYQn`.
         """
         return self.period(self.index(period) + quarters)
+
+    def of_day(self, day: date) -> str:
+        """Write the quarter holding a day.
+
+        Args:
+            day (date): The day.
+
+        Returns:
+            str: The quarter, written `YYYYQn` (e.g. `2026Q2` for any day from April to June 2026).
+        """
+        return f"{day.year:04d}Q{(day.month - 1) // 3 + 1}"

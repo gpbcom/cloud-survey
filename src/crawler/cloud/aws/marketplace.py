@@ -185,6 +185,7 @@ class AWSMarketplaceCrawler(BaseMarketplaceCrawler):
         meta: Dict[str, JsonValue] = {self.OPTION: option, self.PAGE: page, self.INTEGRATION: integration_id}
         if page == 1:
             meta[self.MAY_BE_EMPTY] = True
+        self.logger.debug("Requesting the %s page %d of the %s listings.", self.name, page, option)
         return self._api_request(
             self.API_URL,
             method=HttpMethod.POST,
@@ -227,6 +228,7 @@ class AWSMarketplaceCrawler(BaseMarketplaceCrawler):
             value = self._as_text(self._as_object(option).get(AwsListingField.VALUE))
             if value in self.DELIVERIES:
                 return self.DELIVERIES[AwsFulfillmentOption(value)]
+        self.logger.debug("The %s listing %s has no software option.", self.name, listing.get(AwsListingField.ID))
         return None
 
     def _publisher(self, listing: Dict[str, JsonValue]) -> Optional[str]:
@@ -245,7 +247,9 @@ class AWSMarketplaceCrawler(BaseMarketplaceCrawler):
         for entity in entities if isinstance(entities, list) else []:
             manufacturer = self._as_object(self._as_object(entity).get(AwsListingField.MANUFACTURER))
             if name := self._as_text(manufacturer.get(AwsListingField.DISPLAY_NAME)):
+                self.logger.debug("No creator for a %s listing, its manufacturer %r publishes it.", self.name, name)
                 return name
+        self.logger.debug("No publisher for the %s listing %s.", self.name, listing.get(AwsListingField.ID))
         return None
 
     def _categories(self, listing: Dict[str, JsonValue]) -> List[str]:
@@ -351,6 +355,7 @@ class AWSMarketplaceCrawler(BaseMarketplaceCrawler):
             if identity not in self.requested_listings and software.url:
                 self.requested_listings.add(identity)
                 self.listing_pages.append(identity)
+                self.logger.debug("The %s listing page %s will be read for its dates.", self.name, identity)
         return item
 
     def _listing_request(self, identity: str) -> Request:
@@ -363,6 +368,7 @@ class AWSMarketplaceCrawler(BaseMarketplaceCrawler):
             Request: The listing page request (HTTP session, lowest priority).
         """
         url = str(self.streamed[identity].get("url") or identity)
+        self.logger.debug("Requesting the %s listing page %s.", self.name, url)
         return self._api_request(url, meta={self.LISTING_PAGE: identity}, priority=self.LISTING_PRIORITY)
 
     def _option_dates(self, response: Response, name: Optional[str]) -> List[datetime]:
@@ -378,6 +384,8 @@ class AWSMarketplaceCrawler(BaseMarketplaceCrawler):
         body = response.body.decode(TextEncoding.UTF_8, errors=TextEncoding.REPLACE)
         raw = {option: created for option, created in self.OPTION_DATE.findall(body)}
         dates = [date for date in (self._parse_date(value, name) for value in raw.values()) if date is not None]
+        if not dates:
+            self.logger.debug("No option creation date on the %s listing page %s of %r.", self.name, response.url, name)
         return sorted(dates)
 
     def _dated_item(self, response: Response) -> Optional[Dict[str, JsonValue]]:

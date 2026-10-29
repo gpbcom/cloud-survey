@@ -1,0 +1,48 @@
+# Curated price coverage of Exoscale: which priced services price which catalogue products, and the products
+# without a price of their own (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: exoscale
+currency: EUR
+row_links:
+  Archival Storage: ['\| Object Storage/(Archival|Cold) Storage']
+  Virtual Private Cloud: ['\| Network/Virtual Private Cloud']
+links:
+  Compute Instances:
+    - '^(Standard|CPU Optimized|Memory Optimized|Storage Optimized) Instances$'
+    - '^Local Storage$'
+    - '^Licenses$'
+  GPU Servers: ['GPU', '\((GPU\d)\) Instances$']
+  Managed Kubernetes: ['^SKS$']
+  Networking: ['^Network$']
+statements:
+  - product: Managed Databases
+    model: included
+    reason: An umbrella of the managed database engines, each priced by its own plans (PostgreSQL, MySQL, Valkey, Kafka, OpenSearch, ClickHouse, Grafana, Thanos).
+    source: https://www.exoscale.com/pricing/
+  - product: Vector Databases
+    model: included
+    reason: An umbrella of the vector capabilities of the managed databases, priced by their database plans.
+    source: https://www.exoscale.com/pricing/
+  - product: pgvector
+    model: included
+    reason: A PostgreSQL extension, included in the managed PostgreSQL plans.
+    source: https://www.exoscale.com/dbaas/pgvector/
+  - product: IAM
+    model: included
+    reason: An account feature, with no price in the Exoscale price list.
+    source: https://www.exoscale.com/pricing/
+  - product: Encryption
+    model: included
+    reason: Encryption at rest and in transit is part of the services, with no price in the Exoscale price list.
+    source: https://www.exoscale.com/pricing/
+  - product: Audit Trails
+    model: included
+    reason: An account feature recording every action, with no price in the Exoscale price list.
+    source: https://www.exoscale.com/pricing/
+  - product: Scion Network
+    model: not-public
+    reason: The Exoscale price list gives no price for SCION connectivity.
+    source: https://www.exoscale.com/pricing/
+  - product: Vector Search
+    model: not-public
+    reason: The Exoscale price list gives no price of its own for Vector Search.
+    source: https://www.exoscale.com/pricing/

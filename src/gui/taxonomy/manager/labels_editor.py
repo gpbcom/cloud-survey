@@ -126,7 +126,7 @@ class LabelsEditor(QWidget):
     def _load(self) -> None:
         """Read the labels again."""
         self.logger.debug("Reading the labels for the editor.")
-        self.loop.submit(lambda storage: storage.labels.details(), self._on_labels, self._on_error)
+        self.loop.submit(lambda storage: storage.labels.list(), self._on_labels, self._on_error)
 
     def _button(self, text: str, tooltip: str) -> QPushButton:
         """Build an action button, enabled with a selected label.
@@ -256,7 +256,7 @@ class LabelsEditor(QWidget):
         Returns:
             int: The number of items categorized again.
         """
-        return await storage.recategorize(label_ids=await storage.labels.set_name(label_id, name))
+        return await storage.recategorize(label_ids=await storage.labels.update(label_id, name))
 
     async def _link_job(self, storage: Storage, label_ids: Sequence[int], slug: str, linked: bool) -> int:
         """Link labels to a node, or unlink them, then categorize their items again (storage thread).

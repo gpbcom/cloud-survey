@@ -129,6 +129,22 @@ class TestDeriver:
             MetricSource.SYNERGY
         }
 
+    async def test_the_other_players_shares_and_revenues_are_read(self, storage: Storage) -> None:
+        report = build_report(
+            "2014Q3",
+            [(MarketPlayer.AMAZON, 27.0), (MarketPlayer.IBM, 7.0), (MarketPlayer.ALIBABA, 2.0)],
+            market_size_bn=4.0,
+        )
+        await storage.statistics.replace(
+            "synergy", MarketStatistics(source="Synergy Research Group", crawled_at=CRAWLED_AT, reports=[report])
+        )
+
+        keyed = by_key(await storage.metric_deriver.derive(NOW))
+
+        assert keyed[(CloudProvider.IBM, "2014Q3", ProviderMetric.MARKET_SHARE)] == 7
+        assert keyed[(CloudProvider.IBM, "2014Q3", ProviderMetric.REVENUE)] == pytest.approx(0.28)
+        assert keyed[(CloudProvider.ALIBABA, "2014Q3", ProviderMetric.REVENUE)] == pytest.approx(0.08)
+
 
 class TestRepository:
     async def test_the_measures_are_replaced_by_source_and_read(self, storage: Storage) -> None:
@@ -141,9 +157,41 @@ class TestRepository:
         assert await storage.refresh_metrics(NOW) > 0
         assert await storage.refresh_metrics(NOW) > 0
 
-        products = await storage.metrics.read([ProviderMetric.PRODUCTS], [AWS])
+        products = await storage.metrics.list([ProviderMetric.PRODUCTS], [AWS])
         assert [(value.period, value.value) for value in products] == [("2026Q4", 3.0)]
-        assert await storage.metrics.read([ProviderMetric.CLOUD_REVENUE]) == []
+        assert await storage.metrics.list([ProviderMetric.CLOUD_REVENUE]) == []
+
+    async def test_rows_of_an_unknown_metric_or_source_are_skipped(
+        self, storage: Storage, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        kept = ProviderMetricValue(
+            provider=AWS, period="2026Q1", metric=ProviderMetric.REGIONS, value=33.0, source=MetricSource.WIKIDATA
+        )
+        await storage.metrics.upsert([kept])
+        for provider, metric, source in (
+            (AWS.value, "retired-metric", "derived"),
+            (AWS.value, "regions", "oracle"),
+            ("gone-cloud", "regions", "derived"),
+        ):
+            await execute(
+                storage,
+                "INSERT INTO provider_metrics (provider, period, metric, source, value) "
+                "VALUES (:provider, '2026Q1', :metric, :source, 1)",
+                provider=provider,
+                metric=metric,
+                source=source,
+            )
+
+        with caplog.at_level("WARNING"):
+            values = await storage.metrics.list()
+
+        assert [(value.provider, value.metric, value.source) for value in values] == [
+            (AWS, ProviderMetric.REGIONS, MetricSource.WIKIDATA)
+        ]
+        warning = next(record.getMessage() for record in caplog.records if "skipped" in record.getMessage())
+        assert warning.startswith("2 stored provider metrics skipped")
+        assert "regions/oracle" in warning
+        assert "retired-metric/derived" in warning
 
 
 class TestManualLoader:

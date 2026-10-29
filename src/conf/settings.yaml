@@ -1,0 +1,331 @@
+# The settings of the crawlers and of the statement parsers. Secrets are never written here, only the names of
+# the environment variables holding them. The curated data (companies, markets, chronology, figures, launch
+# dates) is not configuration: it lives in the database (see docs/technical/13-storage.md).
+
+# How the companies' statements, patents and papers are read (CRAWLER_SOURCE=companies).
+companies:
+  sec_user_agent_env: CRAWLER_SEC_USER_AGENT
+
+  patents:
+    window_cap: 900
+    refresh_years: 3
+    delay_seconds: 6
+    max_blocks: 1
+    page_budget: 2000
+    page_budget_env: CRAWLER_PATENT_PAGES
+    split_countries: [US, CN, JP, KR, EP, WO, DE, TW, GB, FR, CA, AU, IN]
+    resume_minutes: 60   # the explorer resumes a refused patents search after this pause (when asked to)
+    browser: true        # read Google Patents in a visible Chromium window (its search page), false for HTTP requests
+
+  openalex:
+    key_envs: [OPENALEX_API_KEY_1, OPENALEX_API_KEY_2]
+    mailto_env: CRAWLER_OPENALEX_MAILTO
+    per_page: 200
+    author_batch: 50
+    max_works: 0
+    delay_seconds: 0.2
+
+# How the market shares and the stock values are read (CRAWLER_SOURCE=markets).
+markets:
+  # StatCounter Global Stats publishes monthly shares from 2009-01 (phone vendors from 2010-04, AI chatbots 2025-04).
+  statcounter_from: "2009-01"
+
+  # Google Finance's chart RPC (measured 2026-10-23, as in mega-trends' GoogleFinanceConfig). Google renames these
+  # without notice: change them here. The cookies only record a consent choice.
+  google_finance:
+    rpc_id: c2u4wc
+    period: 8
+    consent_cookies:
+      CONSENT: "YES+cb.20240101-00-p0.en+FX+000"
+      SOCS: "CAESHAgBEhJnd3NfMjAyNDAxMDEtMF9SQzIaAmVuIAEaBgiA0t-tBg"
+
+# How the prices of the cloud services are read (CRAWLER_SOURCE=prices). The crawl never takes the whole machine:
+# a large price list (AWS EC2 is 300 MB of CSV per region) is streamed to disk and parsed row by row, its prices
+# written by batches, and the crawl slows down rather than grow past its memory cap.
+prices:
+  max_memory_mb: 1024         # the memory the crawl process may use: above it, its batches shrink
+  max_concurrency: 4          # the providers read at the same time
+  max_requests_per_host: 2    # the requests in flight to one host
+  batch_rows: 10000           # the prices written at once
+  max_disk_mb: 4096           # the disk the downloaded price files may take at once
+  download_dir: ""            # where they are downloaded, the system temporary directory when empty
+  request_delay_ms: 2000      # the wait between two price requests (polite reading: robots.txt is not obeyed)
+  merge_timeout_s: 3600       # the longest a statement of the price crawl may run (a large merge writes millions of rows)
+
+# How the statement lines are mapped: XBRL concepts, Google Finance positions, EX-27 schedule tags.
+concepts:
+  # How the statement lines of the companies are read (CRAWLER_SOURCE=companies).
+  # Guide: docs/analysis/company-financials-and-rd.md.
+  #
+  # concepts: the XBRL concepts of SEC EDGAR `companyfacts` standing for each line, the preferred one first. A period
+  #   is read from the first concept filing it, a later concept filling the periods the first lacks (a new revenue
+  #   concept from 2018, a move to IFRS). `us-gaap` is filed by the 10-K and 10-Q filers, `ifrs-full` by the 20-F
+  #   filers (TSMC, SAP, Sony, Nokia, Baidu, Alibaba, UMC). The IFRS names were checked on TSMC's companyfacts on
+  #   2026-10-25. A 20-F files its amounts in the reporting currency and some in US dollars (a convenience
+  #   translation): only the reporting currency is read.
+  #   nature: flow (adds up over the quarters), balance (held at a date), per-share (does not add up).
+  #   negate: the filed value is the opposite of the stored one (none here: SEC payments are filed positive).
+  #
+  # google_finance: where Google Finance's quote page puts each line in the value list of a period (106 values
+  #   per period, 10 years and 8 quarters). Pinned on 2026-10-24 against the filings of Nvidia (quarter ending
+  #   2025-07-27, year ending 2025-01-26) and Microsoft (year ending 2025-06-30): each pinned value equals the filed
+  #   one. Google moves them without notice: re-pin them with the same comparison when the figures stop matching.
+  #   The cash flows of a quarter are the quarter's own (not year to date). The interest expense (slot 45, stated
+  #   negative) was pinned on 2026-10-26 against Nvidia's filings of fiscal 2021 to 2025 (184, 236, 262, 257 and 247
+  #   million dollars).
+  #
+  # fds: the tags of the SEC financial data schedules (EX-27), the structured summary every 10-K and 10-Q carried from
+  #   1993 to 2001 (Regulation S-X article 5, the commercial and industrial companies). rank orders the tags of one
+  #   line (the first stated wins), sum adds the tags of one line (the equity: common stock, other equity, preferred
+  #   stock), per_share keeps the figure out of the schedule's multiplier. A schedule has no research expense, no
+  #   operating income and no cash flow. Left out on purpose: DEPRECIATION and PP&E (accumulated amounts of the
+  #   balance sheet, not the depreciation of the period), TOTAL-COSTS and OTHER-EXPENSES (their scope varies between
+  #   filers), PREFERRED-MANDATORY (redeemable preferred stock, outside the equity), CHANGES and EXTRAORDINARY
+  #   (rare one-offs).
+
+  concepts:
+    - metric: revenue
+      nature: flow
+      concepts:
+        - us-gaap:Revenues
+        - us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax
+        - us-gaap:RevenueFromContractWithCustomerIncludingAssessedTax
+        - us-gaap:SalesRevenueNet
+        - us-gaap:SalesRevenueGoodsNet
+        - ifrs-full:Revenue
+        - ifrs-full:RevenueFromContractsWithCustomers
+    - metric: cost-of-revenue
+      nature: flow
+      concepts: [us-gaap:CostOfRevenue, us-gaap:CostOfGoodsAndServicesSold, us-gaap:CostOfGoodsSold, ifrs-full:CostOfSales]
+    - metric: gross-profit
+      nature: flow
+      concepts: [us-gaap:GrossProfit, ifrs-full:GrossProfit]
+    - metric: operating-expenses
+      nature: flow
+      concepts: [us-gaap:OperatingExpenses, ifrs-full:OperatingExpenseExcludingCostOfSales]
+    - metric: rd-expense
+      nature: flow
+      concepts:
+        - us-gaap:ResearchAndDevelopmentExpense
+        - us-gaap:ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost
+        - us-gaap:ResearchAndDevelopmentExpenseSoftwareExcludingAcquiredInProcessCost
+        - ifrs-full:ResearchAndDevelopmentExpense
+    - metric: sga-expense
+      nature: flow
+      concepts: [us-gaap:SellingGeneralAndAdministrativeExpense, ifrs-full:SellingGeneralAndAdministrativeExpense]
+    - metric: operating-income
+      nature: flow
+      concepts: [us-gaap:OperatingIncomeLoss, ifrs-full:ProfitLossFromOperatingActivities]
+    - metric: depreciation
+      nature: flow
+      concepts:
+        - us-gaap:DepreciationDepletionAndAmortization
+        - us-gaap:DepreciationAmortizationAndAccretionNet
+        - us-gaap:DepreciationAndAmortization
+        - ifrs-full:DepreciationAndAmortisationExpense
+        - ifrs-full:DepreciationExpense
+    - metric: pretax-income
+      nature: flow
+      concepts:
+        - us-gaap:IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest
+        - us-gaap:IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments
+        - ifrs-full:ProfitLossBeforeTax
+    - metric: income-tax
+      nature: flow
+      concepts: [us-gaap:IncomeTaxExpenseBenefit, ifrs-full:IncomeTaxExpenseContinuingOperations]
+    - metric: interest-expense
+      nature: flow
+      concepts:
+        - us-gaap:InterestExpense
+        - us-gaap:InterestExpenseNonoperating
+        - us-gaap:InterestExpenseDebt
+        - us-gaap:InterestAndDebtExpense
+        - ifrs-full:InterestExpense
+        - ifrs-full:FinanceCosts
+    - metric: net-income
+      nature: flow
+      concepts:
+        - us-gaap:NetIncomeLoss
+        - us-gaap:NetIncomeLossAvailableToCommonStockholdersBasic
+        - us-gaap:ProfitLoss
+        - ifrs-full:ProfitLossAttributableToOwnersOfParent
+        - ifrs-full:ProfitLoss
+    - metric: eps-diluted
+      nature: per-share
+      concepts: [us-gaap:EarningsPerShareDiluted, ifrs-full:DilutedEarningsLossPerShare]
+    - metric: diluted-shares
+      nature: per-share
+      concepts: [us-gaap:WeightedAverageNumberOfDilutedSharesOutstanding, ifrs-full:AdjustedWeightedAverageShares]
+    - metric: total-assets
+      nature: balance
+      concepts: [us-gaap:Assets, ifrs-full:Assets]
+    - metric: current-assets
+      nature: balance
+      concepts: [us-gaap:AssetsCurrent, ifrs-full:CurrentAssets]
+    - metric: cash
+      nature: balance
+      concepts:
+        - us-gaap:CashAndCashEquivalentsAtCarryingValue
+        - us-gaap:Cash
+        - us-gaap:CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents
+        - ifrs-full:CashAndCashEquivalents
+    - metric: short-term-investments
+      nature: balance
+      concepts: [us-gaap:ShortTermInvestments, us-gaap:MarketableSecuritiesCurrent, us-gaap:AvailableForSaleSecuritiesDebtSecuritiesCurrent]
+    - metric: receivables
+      nature: balance
+      concepts: [us-gaap:AccountsReceivableNetCurrent, ifrs-full:TradeAndOtherCurrentReceivables]
+    - metric: inventory
+      nature: balance
+      concepts: [us-gaap:InventoryNet, ifrs-full:Inventories]
+    - metric: goodwill
+      nature: balance
+      concepts: [us-gaap:Goodwill, ifrs-full:Goodwill]
+    - metric: intangibles
+      nature: balance
+      concepts: [us-gaap:IntangibleAssetsNetExcludingGoodwill, us-gaap:FiniteLivedIntangibleAssetsNet, ifrs-full:IntangibleAssetsOtherThanGoodwill]
+    - metric: total-liabilities
+      nature: balance
+      concepts: [us-gaap:Liabilities, ifrs-full:Liabilities]
+    - metric: current-liabilities
+      nature: balance
+      concepts: [us-gaap:LiabilitiesCurrent, ifrs-full:CurrentLiabilities]
+    - metric: accounts-payable
+      nature: balance
+      concepts: [us-gaap:AccountsPayableCurrent, ifrs-full:TradeAndOtherCurrentPayables]
+    - metric: current-debt
+      nature: balance
+      concepts:
+        - us-gaap:DebtCurrent
+        - us-gaap:LongTermDebtCurrent
+        - us-gaap:ShortTermBorrowings
+        - ifrs-full:CurrentPortionOfLongtermBorrowings
+        - ifrs-full:ShorttermBorrowings
+    - metric: long-term-debt
+      nature: balance
+      concepts:
+        - us-gaap:LongTermDebtNoncurrent
+        - us-gaap:LongTermDebtAndCapitalLeaseObligations
+        - ifrs-full:LongtermBorrowings
+    - metric: current-bonds
+      nature: balance
+      concepts: [ifrs-full:CurrentBondsIssuedAndCurrentPortionOfNoncurrentBondsIssued]
+    - metric: noncurrent-bonds
+      nature: balance
+      concepts: [ifrs-full:NoncurrentPortionOfNoncurrentBondsIssued]
+    - metric: total-equity
+      nature: balance
+      concepts:
+        - us-gaap:StockholdersEquity
+        - us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest
+        - ifrs-full:EquityAttributableToOwnersOfParent
+        - ifrs-full:Equity
+    - metric: retained-earnings
+      nature: balance
+      concepts: [us-gaap:RetainedEarningsAccumulatedDeficit, ifrs-full:RetainedEarnings]
+    - metric: shares-outstanding
+      nature: balance
+      concepts: [dei:EntityCommonStockSharesOutstanding, us-gaap:CommonStockSharesOutstanding]
+    - metric: operating-cash-flow
+      nature: flow
+      concepts:
+        - us-gaap:NetCashProvidedByUsedInOperatingActivities
+        - us-gaap:NetCashProvidedByUsedInOperatingActivitiesContinuingOperations
+        - ifrs-full:CashFlowsFromUsedInOperatingActivities
+    - metric: investing-cash-flow
+      nature: flow
+      concepts:
+        - us-gaap:NetCashProvidedByUsedInInvestingActivities
+        - us-gaap:NetCashProvidedByUsedInInvestingActivitiesContinuingOperations
+        - ifrs-full:CashFlowsFromUsedInInvestingActivities
+    - metric: financing-cash-flow
+      nature: flow
+      concepts:
+        - us-gaap:NetCashProvidedByUsedInFinancingActivities
+        - us-gaap:NetCashProvidedByUsedInFinancingActivitiesContinuingOperations
+        - ifrs-full:CashFlowsFromUsedInFinancingActivities
+    - metric: capex
+      nature: flow
+      concepts:
+        - us-gaap:PaymentsToAcquirePropertyPlantAndEquipment
+        - us-gaap:PaymentsToAcquireProductiveAssets
+        - ifrs-full:PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities
+    - metric: dividends-paid
+      nature: flow
+      concepts:
+        - us-gaap:PaymentsOfDividends
+        - us-gaap:PaymentsOfDividendsCommonStock
+        - ifrs-full:DividendsPaidClassifiedAsFinancingActivities
+        - ifrs-full:DividendsPaid
+    - metric: buybacks
+      nature: flow
+      concepts: [us-gaap:PaymentsForRepurchaseOfCommonStock, ifrs-full:PaymentsToAcquireOrRedeemEntitysShares]
+    - metric: capitalised-development
+      nature: flow
+      concepts: [us-gaap:PaymentsToDevelopSoftware, us-gaap:CapitalizedComputerSoftwareAdditions]
+
+  google_finance:
+    width: 106
+    currency_slot: 16
+    period_end_slot: 17
+    quote_market_cap_slot: 16
+    quote_currency_slot: 12
+    slots:
+      - {metric: revenue, slot: 0}
+      - {metric: net-income, slot: 1}
+      - {metric: eps-diluted, slot: 2}
+      - {metric: operating-income, slot: 4}
+      - {metric: cost-of-revenue, slot: 7}
+      - {metric: ebitda, slot: 20}
+      - {metric: total-assets, slot: 23}
+      - {metric: current-assets, slot: 24}
+      - {metric: total-equity, slot: 25}
+      - {metric: total-liabilities, slot: 26}
+      - {metric: shares-outstanding, slot: 27}
+      - {metric: operating-cash-flow, slot: 28}
+      - {metric: investing-cash-flow, slot: 29}
+      - {metric: financing-cash-flow, slot: 30}
+      - {metric: free-cash-flow, slot: 31}
+      - {metric: current-liabilities, slot: 36}
+      - {metric: cash, slot: 37}
+      - {metric: operating-expenses, slot: 38}
+      - {metric: rd-expense, slot: 39}
+      - {metric: sga-expense, slot: 40}
+      - {metric: pretax-income, slot: 48}
+      - {metric: income-tax, slot: 50}
+      - {metric: receivables, slot: 52}
+      - {metric: inventory, slot: 54}
+      - {metric: short-term-investments, slot: 56}
+      - {metric: goodwill, slot: 59}
+      - {metric: intangibles, slot: 60}
+      - {metric: accounts-payable, slot: 66}
+      - {metric: current-debt, slot: 69}
+      - {metric: long-term-debt, slot: 74}
+      - {metric: retained-earnings, slot: 81}
+      - {metric: dividends-paid, slot: 98, negate: true}
+      - {metric: capex, slot: 103, negate: true}
+      - {metric: gross-profit, slot: 104}
+      - {metric: interest-expense, slot: 45, negate: true}
+
+  fds:
+    articles: [5]
+    tags:
+      - {tag: TOTAL-REVENUES, metric: revenue}
+      - {tag: SALES, metric: revenue, rank: 1}
+      - {tag: CGS, metric: cost-of-revenue}
+      - {tag: INTEREST-EXPENSE, metric: interest-expense}
+      - {tag: INCOME-PRETAX, metric: pretax-income}
+      - {tag: INCOME-TAX, metric: income-tax}
+      - {tag: NET-INCOME, metric: net-income}
+      - {tag: EPS-DILUTED, metric: eps-diluted, per_share: true}
+      - {tag: CASH, metric: cash}
+      - {tag: SECURITIES, metric: short-term-investments}
+      - {tag: RECEIVABLES, metric: receivables}
+      - {tag: INVENTORY, metric: inventory}
+      - {tag: CURRENT-ASSETS, metric: current-assets}
+      - {tag: TOTAL-ASSETS, metric: total-assets}
+      - {tag: CURRENT-LIABILITIES, metric: current-liabilities}
+      - {tag: BONDS, metric: long-term-debt}
+      - {tag: COMMON, metric: total-equity, sum: true}
+      - {tag: OTHER-SE, metric: total-equity, sum: true}
+      - {tag: PREFERRED, metric: total-equity, sum: true}

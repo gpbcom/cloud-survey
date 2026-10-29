@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import re
+from pathlib import Path
 from typing import AsyncGenerator, ClassVar, Dict, FrozenSet, Iterator, List, Optional, Set, Tuple, Union
 from urllib.parse import urljoin, urlparse
 
@@ -14,6 +15,7 @@ from scrapling.spiders import Request, Response
 from crawler.cloud.base import BaseCloudCrawler
 from crawler.cloud.deep.enums import DEEPMenuGroup
 from crawler.enums import HtmlAttribute
+from models.cloud.enums import PriceModel
 from models.cloud.products.product import CloudProduct
 
 
@@ -32,6 +34,8 @@ class DEEPCrawler(BaseCloudCrawler):
         MENU_SUB_GROUP_TITLE (ClassVar[str]): The CSS selector of the sub-category title of an accordion.
         NOT_CATEGORY_GROUPS (ClassVar[FrozenSet[DEEPMenuGroup]]): The menu groups which are not categories (the SME
             packs).
+        UNPRICED_REASON (ClassVar[Optional[str]]): Why the provider has no public price.
+        UNPRICED_MODEL (ClassVar[PriceModel]): How its products are priced (on request).
 
     Notes:
         The main source is the product cards of the https://www.deep.eu/en/accueil/services/cloud page (name,
@@ -42,6 +46,8 @@ class DEEPCrawler(BaseCloudCrawler):
         pages and the resources (blog, case studies) are skipped. The menu groups the services by category (e.g.
         `Cloud`) and sub-category (e.g. `Managed Services`): a product gets the categories of every menu place of its
         page, a product card without menu entry the category of the cloud services page itself.
+        DEEP publishes no price: in price mode its catalogue page is read as the evidence, and each live product is
+        priced on request (a quote).
     """
 
     MENU_LINKS: ClassVar[str] = "a.menu_final_link"
@@ -54,9 +60,23 @@ class DEEPCrawler(BaseCloudCrawler):
     MENU_SUB_GROUP_TITLE: ClassVar[str] = "button.btn-collapse"
     NOT_CATEGORY_GROUPS: ClassVar[FrozenSet[DEEPMenuGroup]] = frozenset({DEEPMenuGroup.OUR_SERVICES})
 
+    UNPRICED_REASON: ClassVar[Optional[str]] = (
+        "DEEP publishes no price: its cloud services are quoted on request (contact sales)."
+    )
+    UNPRICED_MODEL: ClassVar[PriceModel] = PriceModel.QUOTE
+
     name = "deep"
     catalogue_url: ClassVar[str] = "https://www.deep.eu/en/accueil/services/cloud"
     name_prefixes: ClassVar[Tuple[str, ...]] = ("DEEP ", "POST ")
+
+    def __init__(self, crawldir: Optional[Union[str, Path]] = None, interval: float = 300.0) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+        """
+        super().__init__(crawldir=crawldir, interval=interval)
 
     ############################
     # Internal Helpers Methods #

@@ -6,7 +6,7 @@ from logging import Logger, getLogger
 from typing import Dict, List, Optional, Sequence, Tuple
 
 # Third Party Imports.
-from sqlalchemy import Table, func, select
+from sqlalchemy import RowMapping, Table, func, select
 from sqlalchemy.dialects.postgresql import insert as upsert
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -15,6 +15,7 @@ from models.markets.enums import MarketFeed
 from models.markets.facts.price_point import PricePoint
 from storage.engine.database import Database
 from storage.exception import StorageReadError, StorageWriteError
+from storage.mappers.row_store import RowStore
 from storage.tables.base import Base
 from storage.tables.markets.stock_price_row import StockPriceRow
 
@@ -26,6 +27,7 @@ class StockPriceRepository:
         CHUNK (int): The rows written per statement.
         database (Database): The open database.
         table (Table): The `stock_prices` table.
+        rows (RowStore[PricePoint]): The single-price operations on the table.
         logger (Logger): The repository logger.
 
     Notes:
@@ -45,11 +47,109 @@ class StockPriceRepository:
         self.database = database
         self.logger = logger if logger else getLogger(__name__)
         self.table: Table = Base.metadata.tables[StockPriceRow.__tablename__]
+        self.rows = RowStore(database, self.table, PricePoint, "stock price", self.logger)
         self.logger.debug("Repository of the stock prices ready.")
+
+    ############################
+    # Internal Helpers Methods #
+    ############################
+
+    def _point(self, row: RowMapping) -> PricePoint:
+        """Read a stored price.
+
+        Args:
+            row (RowMapping): The row.
+
+        Returns:
+            PricePoint: The price (its source standing for the page read when the row has no page).
+        """
+        return PricePoint(
+            listing=row["listing"],
+            day=row["day"],
+            close=row["close"],
+            volume=row["volume"],
+            currency=row["currency"],
+            source_url=row["source_url"] or row["source"],
+        )
 
     ############################
     # Publicly Exposed Methods #
     ############################
+
+    async def create(self, point: PricePoint, source: MarketFeed = MarketFeed.GOOGLE_FINANCE) -> PricePoint:
+        """Insert one price.
+
+        Args:
+            point (PricePoint): The price.
+            source (MarketFeed): Where it comes from.
+
+        Returns:
+            PricePoint: The price, as stored.
+
+        Raises:
+            StorageWriteError: If a price has the same listing, day and source.
+        """
+        self.logger.debug("Creating the %s %s price of %s.", source.value, point.day, point.listing)
+        return await self.rows.create(point, {"source": source.value})
+
+    async def read(self, listing: str, day: date, source: MarketFeed) -> Optional[PricePoint]:
+        """Read one price.
+
+        Args:
+            listing (str): The listing, e.g. `NASDAQ:MSFT`.
+            day (date): The trading day.
+            source (MarketFeed): Where it comes from.
+
+        Returns:
+            Optional[PricePoint]: The price, `None` when there is none.
+
+        Raises:
+            StorageReadError: If the price cannot be read.
+        """
+        table = self.table
+        statement = select(table).where(table.c.listing == listing, table.c.day == day, table.c.source == source.value)
+        try:
+            async with self.database.connect() as connection:
+                row = (await connection.execute(statement)).mappings().first()
+        except SQLAlchemyError as e:
+            self.logger.error("The %s price of %s cannot be read: %s", day, listing, e)
+            raise StorageReadError("stock prices", str(e)) from e
+        if row is None:
+            self.logger.debug("No %s %s price of %s.", source.value, day, listing)
+            return None
+        return self._point(row)
+
+    async def update(self, point: PricePoint, source: MarketFeed = MarketFeed.GOOGLE_FINANCE) -> bool:
+        """Replace one price (that of the same listing, day and source).
+
+        Args:
+            point (PricePoint): The price.
+            source (MarketFeed): Where it comes from.
+
+        Returns:
+            bool: Whether the price existed (none is created otherwise).
+
+        Raises:
+            StorageWriteError: If the price cannot be written.
+        """
+        self.logger.debug("Updating the %s %s price of %s.", source.value, point.day, point.listing)
+        return await self.rows.update(point, {"source": source.value})
+
+    async def delete(self, listing: str, day: date, source: MarketFeed) -> bool:
+        """Delete one price.
+
+        Args:
+            listing (str): The listing.
+            day (date): The trading day.
+            source (MarketFeed): Where it comes from.
+
+        Returns:
+            bool: Whether a price was deleted.
+
+        Raises:
+            StorageWriteError: If the price cannot be deleted.
+        """
+        return await self.rows.delete({"listing": listing, "day": day, "source": source.value})
 
     async def upsert(self, points: Sequence[PricePoint], source: MarketFeed = MarketFeed.GOOGLE_FINANCE) -> int:
         """Write prices, replacing those of the same listing, day and source.
@@ -102,15 +202,22 @@ class StockPriceRepository:
         self.logger.info("%d stock prices written.", len(rows))
         return len(rows)
 
-    async def read(
-        self, listings: Optional[Sequence[str]] = None, start: Optional[date] = None, end: Optional[date] = None
+    async def list(
+        self,
+        listings: Optional[Sequence[str]] = None,
+        start: Optional[date] = None,
+        end: Optional[date] = None,
+        offset: int = 0,
+        limit: Optional[int] = None,
     ) -> List[PricePoint]:
-        """Read prices.
+        """List prices.
 
         Args:
             listings (Optional[Sequence[str]]): Only these listings, every one when `None` or empty.
             start (Optional[date]): Only from this day.
             end (Optional[date]): Only up to this day.
+            offset (int): The prices skipped.
+            limit (Optional[int]): The most prices returned, every one when `None`.
 
         Returns:
             List[PricePoint]: The prices, by listing then day.
@@ -126,23 +233,14 @@ class StockPriceRepository:
             statement = statement.where(table.c.day >= start)
         if end is not None:
             statement = statement.where(table.c.day <= end)
+        statement = statement.offset(offset).limit(limit)
         try:
             async with self.database.connect() as connection:
                 rows = (await connection.execute(statement)).mappings().all()
         except SQLAlchemyError as e:
             self.logger.error("The stock prices cannot be read: %s", e)
             raise StorageReadError("stock prices", str(e)) from e
-        points = [
-            PricePoint(
-                listing=row["listing"],
-                day=row["day"],
-                close=row["close"],
-                volume=row["volume"],
-                currency=row["currency"],
-                source_url=row["source_url"] or row["source"],
-            )
-            for row in rows
-        ]
+        points = [self._point(row) for row in rows]
         self.logger.debug("%d stock prices read.", len(points))
         return points
 

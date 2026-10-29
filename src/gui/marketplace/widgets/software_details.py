@@ -10,12 +10,14 @@ from PyQt6.QtGui import QDesktopServices
 from PyQt6.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QVBoxLayout, QWidget
 
 from gui.marketplace.model.software_row import SoftwareRow
+from gui.storage_bridge.storage_loop import StorageLoop
 from gui.taxonomy.taxonomy_cache import TaxonomyCache
 from gui.theme import Theme
 
 # First Party Imports.
 from gui.widgets.details.detail_sheet import Chip, DetailSheet
-from models.storage.enums import ItemFilter
+from gui.widgets.details.history.version_history import VersionHistory
+from models.storage.enums import DatasetKind, ItemFilter
 
 
 class SoftwareDetails(QFrame):
@@ -38,6 +40,8 @@ class SoftwareDetails(QFrame):
         marketplace_label (QLabel): The categories given by the marketplace (flat labels and taxonomy), clickable.
         description_label (QLabel): The software description.
         link_label (QLabel): The link to the marketplace page.
+        history (VersionHistory): The stored versions of the software, one row per crawl which changed it (hidden
+            without storage thread).
         history_label (QLabel): When the software was added, updated and deleted, and where the dates come from.
         caveat_label (QLabel): The warnings about the approximate dates, empty when there is none.
         crawled_label (QLabel): The crawl date of the marketplace.
@@ -55,13 +59,21 @@ class SoftwareDetails(QFrame):
     copied = pyqtSignal(str)
     filter_requested = pyqtSignal(str, str)
 
-    def __init__(self, theme: Theme, logger: Optional[Logger] = None, taxonomy: Optional[TaxonomyCache] = None) -> None:
+    def __init__(
+        self,
+        theme: Theme,
+        logger: Optional[Logger] = None,
+        taxonomy: Optional[TaxonomyCache] = None,
+        loop: Optional[StorageLoop] = None,
+    ) -> None:
         """Build the panel, without software.
 
         Args:
             theme (Theme): The application theme.
             logger (Optional[Logger]): The panel logger.
             taxonomy (Optional[TaxonomyCache]): The names of the categories, those of the seed by default.
+            loop (Optional[StorageLoop]): The storage thread of the GUI, reading the versions of the software
+                (`None` hides the History section).
         """
         super().__init__()
         self.setObjectName("details")
@@ -92,6 +104,7 @@ class SoftwareDetails(QFrame):
         self.history_label = QLabel()
         self.history_label.setObjectName("muted")
         self.history_label.setWordWrap(True)
+        self.history = VersionHistory(loop, self.logger)
         self.caveat_label = QLabel()
         self.caveat_label.setObjectName("warning")
         self.caveat_label.setWordWrap(True)
@@ -112,6 +125,7 @@ class SoftwareDetails(QFrame):
             self.description_label,
             self.link_label,
             self.history_label,
+            self.history,
             self.caveat_label,
             self.crawled_label,
         ):
@@ -259,6 +273,7 @@ class SoftwareDetails(QFrame):
             self.provider_label.setStyleSheet("")
             self.flag_label.clear()
             self.description_label.setText("Select a software in the table to see its details.")
+            self.history.load(None, DatasetKind.MARKETPLACE)
             return
         software = row.software
         color = self.theme.PROVIDER_COLORS[row.provider]
@@ -278,6 +293,7 @@ class SoftwareDetails(QFrame):
             "\n".join(f"{category.label()} ({category.id})" for category in paths if category.id)
         )
         self.history_label.setText(self.theme.history_text(software))
+        self.history.load(row.id, DatasetKind.MARKETPLACE)
         self.caveat_label.setText(self.theme.caveat_text(software))
         self.description_label.setText(software.description)
         page = self.sheet.link(software.url, "Open the marketplace page")
@@ -296,6 +312,7 @@ class SoftwareDetails(QFrame):
     def copy(self) -> None:
         """Copy the shown software (provider, name, categories and description) to the clipboard."""
         if self.row is None:
+            self.logger.debug("No software shown: nothing to copy.")
             return
         software = self.row.software
         categories = self.taxonomy.names(software.service_categories)
@@ -304,4 +321,7 @@ class SoftwareDetails(QFrame):
         clipboard = QApplication.clipboard()
         if clipboard is not None:
             clipboard.setText(text)
+            self.logger.info("Software %r copied to the clipboard.", software.name)
+        else:
+            self.logger.warning("No clipboard: the software %r is not copied.", software.name)
         self.copied.emit(text)

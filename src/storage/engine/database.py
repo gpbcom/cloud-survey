@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 # Standard Library Imports.
+import json
+from functools import partial
 from logging import Logger, getLogger
 from typing import ClassVar, Dict, Optional
 
@@ -21,7 +23,6 @@ class Database:
 
     Attributes:
         POOL_RECYCLE (ClassVar[int]): After how many seconds a pooled connection is replaced.
-        COMMAND_TIMEOUT (ClassVar[float]): The longest a statement may run, in seconds.
         PAGE_SIZE (ClassVar[int]): The number of rows per `INSERT` of the batched writes.
         SERVER_SETTINGS (ClassVar[Dict[str, str]]): The session settings of every connection (the JIT compilation
             slows the short queries of the crawls down).
@@ -31,12 +32,13 @@ class Database:
         engine_or_none (Optional[AsyncEngine]): The engine, `None` until `open` (and after `close`).
 
     Notes:
-        The asyncpg connections belong to the event loop which opened them: a database is opened and closed in the
-        same event loop, each event loop (the GUI one, a crawl one) opening its own.
+        - The asyncpg connections belong to the event loop which opened them: a database is opened and closed in the
+          same event loop, each event loop (the GUI one, a crawl one) opening its own.
+        - The JSON columns are written with the decimal numbers as text (the quantities of the usage profiles, the
+          costs of the quotes), which their models read back as decimals.
     """
 
     POOL_RECYCLE: ClassVar[int] = 1800
-    COMMAND_TIMEOUT: ClassVar[float] = 300.0
     PAGE_SIZE: ClassVar[int] = 1000
     SERVER_SETTINGS: ClassVar[Dict[str, str]] = {"application_name": "poc-crawler", "jit": "off"}
 
@@ -123,7 +125,11 @@ class Database:
             pool_recycle=self.POOL_RECYCLE,
             insertmanyvalues_page_size=self.PAGE_SIZE,
             echo=self.settings.echo,
-            connect_args={"server_settings": dict(self.SERVER_SETTINGS), "command_timeout": self.COMMAND_TIMEOUT},
+            json_serializer=partial(json.dumps, default=str),
+            connect_args={
+                "server_settings": dict(self.SERVER_SETTINGS),
+                "command_timeout": self.settings.command_timeout_s,
+            },
         )
         try:
             async with engine.connect() as connection:

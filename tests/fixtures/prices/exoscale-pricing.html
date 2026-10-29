@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Pricing | Exoscale</title></head>
+<body data-api-url="https://portal.exoscale.com">
+<section>
+<h2 class="h2">Standard Instances</h2>
+<table><thead><tr><th></th>
+                <th>RAM</th>
+                <th>CPU Cores</th>
+                
+                <th>Min Local Storage</th>
+                <th>Max Local Storage</th>
+                <th>Price / Hour ({{ currency | uppercase }})</th>
+            </tr></thead><tbody><tr><td><span class="pricing-table__property pricing-table__name">Micro</span></td>
+                <td><span class="pricing-table__property pricing-table__ram">512 MB</span></td>
+                <td><span class="pricing-table__property pricing-table__cpu">1 Cores</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__volume">10 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__volume">200 GB</span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        {{ prices.opencompute.standard.micro[currency] | number:8 }}
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Tiny</span></td>
+                <td><span class="pricing-table__property pricing-table__ram">1 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__cpu">1 Cores</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__volume">10 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__volume">400 GB</span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        {{ prices.opencompute.standard.tiny[currency] | number:8 }}
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Small</span></td>
+                <td><span class="pricing-table__property pricing-table__ram">2 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__cpu">2 Cores</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__volume">10 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__volume">400 GB</span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        {{ prices.opencompute.standard.small[currency] | number:8 }}
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Medium</span></td>
+                <td><span class="pricing-table__property pricing-table__ram">4 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__cpu">2 Cores</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__volume">10 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__volume">400 GB</span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        {{ prices.opencompute.standard.medium[currency] | number:8 }}
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Large</span></td>
+                <td><span class="pricing-table__property pricing-table__ram">8 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__cpu">4 Cores</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__volume">10 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__volume">400 GB</span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        {{ prices.opencompute.standard.large[currency] | number:8 }}
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Extra-Large</span></td>
+                <td><span class="pricing-table__property pricing-table__ram">16 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__cpu">4 Cores</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__volume">10 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__volume">800 GB</span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        {{ prices.opencompute.standard.extra_large[currency] | number:8 }}
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Huge</span></td>
+                <td><span class="pricing-table__property pricing-table__ram">32 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__cpu">8 Cores</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__volume">10 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__volume">800 GB</span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        {{ prices.opencompute.standard.huge[currency] | number:8 }}
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Mega</span></td>
+                <td><span class="pricing-table__property pricing-table__ram">64 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__cpu">12 Cores</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__volume">10 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__volume">800 GB</span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        {{ prices.opencompute.standard.mega[currency] | number:8 }}
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Titan</span></td>
+                <td><span class="pricing-table__property pricing-table__ram">128 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__cpu">16 Cores</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__volume">10 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__volume">1.6 TB</span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        {{ prices.opencompute.standard.titan[currency] | number:8 }}
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Jumbo</span></td>
+                <td><span class="pricing-table__property pricing-table__ram">225 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__cpu">24 Cores</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__volume">10 GB</span></td>
+                <td><span class="pricing-table__property pricing-table__volume">1.6 TB</span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        {{ prices.opencompute.standard.jumbo[currency] | number:8 }}
+                    </span>
+                </td>
+            </tr></tbody></table>
+</section>
+<section>
+<h2 class="h2">Network</h2>
+<table><thead><tr><th></th>
+                <th><span class="pricing-table__property pricing-table__description">Product Details</span></th>
+                
+                <th><span class="pricing-table__property pricing-table__description">Information</span></th>
+                <th>
+                    
+                        Price ({{ currency | uppercase }})
+                    
+                </th>
+            </tr></thead><tbody><tr><td><span class="pricing-table__property pricing-table__name">Elastic IP</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        IPv4
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="#eip">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.network.eip_address[currency] | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Network Load Balancer</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        IPv4, up to 200 services
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="#nlb">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.network.network_load_balancer[currency] | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Network Load Balancer</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        IPv6, up to 200 services
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="#nlb">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.network.network_load_balancer_ipv6[currency] | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Traffic OUTBOUND</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        free tier of 1.42 GiB / hr
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="#traffic">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.network.traffic[currency] | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Traffic INBOUND</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        -
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="#traffic">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            FREE
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Traffic INTRA</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        between all instances
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="#traffic">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            FREE
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Traffic INTERNAL</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        between all zones
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="#traffic">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            FREE
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Virtual Private Cloud</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        -
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="#virtual-private-cloud">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            FREE
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Private Connect</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        Direct Port per month
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="#private-connect">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            500.00
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Private Connect</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        One-Off Setup Cost
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="#private-connect">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            2,500.00
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Private Connect Equinix</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        Direct Port per month
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="#private-connect">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            250.00
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Private Connect Equinix</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        One-Off Setup Cost
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="#private-connect">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            1,250.00
+                        
+                    </span>
+                </td>
+            </tr></tbody></table>
+</section>
+<section>
+<h2 class="h2">Managed PostgreSQL</h2>
+<table><thead><tr><th></th>
+
+                <th>Memory</th>
+
+                <th>CPU</th>
+
+                
+                <th>Volume size</th>
+                
+
+                
+                <th>Replicas</th>
+                
+
+                
+                <th>Max. Connections</th>
+                
+
+                <th>Price / Hour ({{ currency | uppercase }})</th>
+            </tr></thead><tbody><tr><td><span class="pricing-table__property pricing-table__name">Hobbyist-2</span></td>
+                <td><span class="pricing-table__property pricing-table__memory">2 GB</span></td>
+
+                <td><span class="pricing-table__property pricing-table__cpu">2</span></td>
+
+                
+                <td><span class="pricing-table__property pricing-table__volume">2 GB</span></td>
+                
+
+                
+                <td><span class="pricing-table__property pricing-table__replicas">0</span></td>
+                
+
+                
+                <td><span class="pricing-table__property pricing-table__max_connections">25</span></td>
+                
+
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        {{ prices['dbaas-pg']['hobbyist-2'][currency] | number:8 }}
+                    </span>
+                </td>
+            </tr></tbody></table>
+</section>
+<section>
+<h2 class="h2">Object Storage</h2>
+<table><thead><tr><th></th>
+                <th><span class="pricing-table__property pricing-table__description">Product Details</span></th>
+                
+                <th><span class="pricing-table__property pricing-table__description">Retrieval (EUR)</span></th>
+                <th><span class="pricing-table__property pricing-table__description">Minimum duration</span></th>
+                
+                <th><span class="pricing-table__property pricing-table__description">Information</span></th>
+                <th>
+                    
+                        Price ({{ currency | uppercase }})
+                    
+                </th>
+            </tr></thead><tbody><tr><td><span class="pricing-table__property pricing-table__name">Standard<br><small>Volume Tier 1 (up to 512 TiB)</small></span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        per GiB.hour
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description">Free</span></td>
+                <td><span class="pricing-table__property pricing-table__description">None</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/object-storage/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.sos.storage_volume_tier1[currency] | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Standard<br><small>Volume Tier 2 (512 TiB to 1 PiB)*</small></span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        per GiB.hour
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description">Free</span></td>
+                <td><span class="pricing-table__property pricing-table__description">None</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/object-storage/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.sos.storage_volume_tier2[currency] | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Standard<br><small>Volume Tier 3 (more than 1 PiB)*</small></span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        per GiB.hour
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description">Free</span></td>
+                <td><span class="pricing-table__property pricing-table__description">None</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/object-storage/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.sos.storage_volume_tier3[currency] | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Archival Storage<br><small>Available now, on request</small></span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        per GiB.hour
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description">Free</span></td>
+                <td><span class="pricing-table__property pricing-table__description">None</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/object-storage/classes/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            0.00000626
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Warm Storage<br><small>Planned early 2027</small></span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        per GiB.hour
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description">0.009 per GiB retrieved</span></td>
+                <td><span class="pricing-table__property pricing-table__description">30 days</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/object-storage/classes/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            0.00001689
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Cold Storage<br><small>Planned early 2027</small></span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        per GiB.hour
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description">0.027 per GiB retrieved</span></td>
+                <td><span class="pricing-table__property pricing-table__description">90 days</span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/object-storage/classes/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            0.00000626
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Networking OUT</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        per GiB
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"></span></td>
+                <td><span class="pricing-table__property pricing-table__description"></span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/object-storage/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.sos.storage_traffic[currency] | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Networking IN</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        per GiB
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"></span></td>
+                <td><span class="pricing-table__property pricing-table__description"></span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/object-storage/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            FREE
+                        
+                    </span>
+                </td>
+            </tr></tbody></table>
+</section>
+<section>
+<h2 class="h2">On-Demand Inference</h2>
+<table><thead><tr><th>Model</th>
+                <th>Input per 1M tokens ({{ currency | uppercase }})</th>
+                <th>Output per 1M tokens ({{ currency | uppercase }})</th>
+                <th>Cache read per 1M tokens ({{ currency | uppercase }})</th>
+                <th>Availability</th>
+            </tr></thead><tbody><tr><td><span class="pricing-table__property pricing-table__name"><a href="https://community.exoscale.com/product/concrete-ai/on-demand-inference/service-boundaries/limits-and-quotas/#available-models">Qwen3.8-27B</a></span></td>
+                <td>0.40</td>
+                <td>2.40</td>
+                <td>0.09</td>
+                <td><a href="https://community.exoscale.com/product/concrete-ai/on-demand-inference/overview/#model-lifecycle">Preview</a></td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name"><a href="https://community.exoscale.com/product/concrete-ai/on-demand-inference/service-boundaries/limits-and-quotas/#available-models">Qwen3-Embedding-8B</a></span></td>
+                <td>0.09</td>
+                <td>Not applicable</td>
+                <td>Not applicable</td>
+                <td><a href="https://community.exoscale.com/product/concrete-ai/on-demand-inference/overview/#model-lifecycle">Preview</a></td>
+            </tr></tbody></table>
+</section>
+<section>
+<h2 class="h2">DNS</h2>
+<table><thead><tr><th></th>
+                <th><span class="pricing-table__property pricing-table__description">Product Details</span></th>
+                
+                <th><span class="pricing-table__property pricing-table__description">Information</span></th>
+                <th>
+                    
+                        Price ({{ currency | uppercase }})
+                    
+                </th>
+            </tr></thead><tbody><tr><td><span class="pricing-table__property pricing-table__name">Small</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        1 Zone
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/dns/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.dns.small[currency] * 1 | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Medium</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        10 Zones
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/dns/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.dns.medium[currency] * 10 | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Large</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        50 Zones
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/dns/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.dns.large[currency] * 50 | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr></tbody></table>
+</section>
+<section>
+<h2 class="h2">CDN</h2>
+<table><thead><tr><th></th>
+                <th><span class="pricing-table__property pricing-table__description">Product Details</span></th>
+                
+                <th><span class="pricing-table__property pricing-table__description">Information</span></th>
+                <th>
+                    
+                        Price ({{ currency | uppercase }})
+                    
+                </th>
+            </tr></thead><tbody><tr><td><span class="pricing-table__property pricing-table__name">Tier 1</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        0 to 25 TB Volume
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/cdn/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.cdn.tier1[currency] | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Tier 2</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        next 25 to 100 TB Volume
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/cdn/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.cdn.tier2[currency] | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Tier 3</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        next 100 to 250 TB Volume
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/cdn/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ prices.cdn.tier3[currency] | number:8 }}
+                        
+                    </span>
+                </td>
+            </tr></tbody></table>
+</section>
+<section>
+<h2 class="h2">Key Management Service</h2>
+<table><thead><tr><th></th>
+                <th><span class="pricing-table__property pricing-table__description">Product Details</span></th>
+                
+                <th><span class="pricing-table__property pricing-table__description">Information</span></th>
+                <th>
+                    
+                        Price / Month ({{ currency | uppercase }})
+                    
+                </th>
+            </tr></thead><tbody><tr><td><span class="pricing-table__property pricing-table__name">Default key</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        per key
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/cloud-security/key-management-service/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            free
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Additional keys</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        per key
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/cloud-security/key-management-service/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            {{ monthly_price(prices.kms.additional_key[currency]) | number:2 }}
+                        
+                    </span>
+                </td>
+            </tr></tbody></table>
+</section>
+<section>
+<h2 class="h2">Support</h2>
+<table><thead><tr><th></th>
+                <th><span class="pricing-table__property pricing-table__description">Product Details</span></th>
+                
+                <th><span class="pricing-table__property pricing-table__description">Information</span></th>
+                <th>
+                    
+                        Price ({{ currency | uppercase }})
+                    
+                </th>
+            </tr></thead><tbody><tr><td><span class="pricing-table__property pricing-table__name">Built-In</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        Included for all customers.
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/support/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            INCLUDED
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Starter</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        For startups and SMEs running production infrastructures.
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/support/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            50.00
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Pro</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        For companies running sensitive production infrastructures.
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/support/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            500.00
+                        
+                    </span>
+                </td>
+            </tr><tr><td><span class="pricing-table__property pricing-table__name">Enterprise</span></td>
+                <td><span class="pricing-table__property pricing-table__description">
+                    
+                        For companies running critical workloads.
+                    
+                </span></td>
+                
+                <td><span class="pricing-table__property pricing-table__description"><a href="/support/">Learn more</a></span></td>
+                <td>
+                    <span class="pricing-table__property pricing-table__price pricing-table__price--hr">
+                        
+                            5% of usage (min. 1'500)
+                        
+                    </span>
+                </td>
+            </tr></tbody></table>
+</section>
+</body></html>

@@ -1,0 +1,214 @@
+{
+ "products": [
+  {
+   "sku": "/ai/generative_apis/consumption/offer",
+   "service_category": "AI",
+   "product_category": "Generative APIs",
+   "product": "Generative APIs Free Tier",
+   "variant": "Generative APIs Free Tier - global",
+   "description": "Generative APIs Free Tier - global",
+   "locality": {
+    "global": true
+   },
+   "unit_of_measure": null,
+   "status": "general_availability",
+   "badges": []
+  },
+  {
+   "sku": "/observability/cockpit/rule-metric/fr-par",
+   "service_category": "Observability",
+   "product_category": "Cockpit",
+   "product": "Rules on Metrics",
+   "variant": "Rules on Metrics - fr-par",
+   "description": "Rules on Metrics - fr-par",
+   "locality": {
+    "region": "fr-par"
+   },
+   "unit_of_measure": null,
+   "status": "general_availability",
+   "badges": []
+  },
+  {
+   "sku": "/storage/snapshot/unified/fr-par1",
+   "service_category": "Compute",
+   "product_category": "Instance",
+   "product": "Unified Snapshot",
+   "variant": "Unified Snapshot - fr-par-1",
+   "description": "Unified Snapshot - fr-par-1 (0.000044€ per GB)",
+   "locality": {
+    "zone": "fr-par-1"
+   },
+   "price": {
+    "retail_price": {
+     "currency_code": "EUR",
+     "units": 0,
+     "nanos": 44000
+    }
+   },
+   "unit_of_measure": {
+    "unit": "gigabyte",
+    "size": 1
+   },
+   "status": "retired",
+   "badges": []
+  },
+  {
+   "sku": "/observability/cockpit/retention-custom-log/fr-par",
+   "service_category": "Observability",
+   "product_category": "Cockpit",
+   "product": "Retention Custom Logs",
+   "variant": "Retention Custom Logs - fr-par",
+   "description": "Retention Custom Logs - fr-par (0.002€ per gigabyte_day)",
+   "locality": {
+    "region": "fr-par"
+   },
+   "price": {
+    "retail_price": {
+     "currency_code": "EUR",
+     "units": 0,
+     "nanos": 2000000
+    }
+   },
+   "unit_of_measure": {
+    "unit": "gigabyte_day",
+    "size": 1
+   },
+   "status": "general_availability",
+   "badges": []
+  },
+  {
+   "sku": "/dedibox/core-10-l/monthly/fr-par/dc/dc2",
+   "service_category": "BareMetal",
+   "product_category": "Dedibox",
+   "product": "Core-10-L",
+   "variant": "Dedibox Core-10-L - month - dc2",
+   "description": "Dedibox Core-10-L - month - dc2 (449.99€ per month)",
+   "locality": {
+    "datacenter": "dc2"
+   },
+   "price": {
+    "retail_price": {
+     "currency_code": "EUR",
+     "units": 449,
+     "nanos": 990000000
+    }
+   },
+   "properties": {
+    "hardware": {
+     "cpu": {
+      "description": "AMD EPYC™ 8324P, x64, Sockets: 1, Cores per socket: 32, Threads per core: 2, Frequency: 2.7 GHz, Benchmark: 56347",
+      "arch": "x64",
+      "type": "AMD EPYC™ 8324P",
+      "physical": {
+       "sockets": 1,
+       "cores_per_socket": 32,
+       "threads_per_core": 2,
+       "frequency": 2700000000,
+       "benchmark": 56347
+      },
+      "threads": 64,
+      "shared": false
+     },
+     "ram": {
+      "description": "256 GiB DDR5",
+      "size": 274877906944,
+      "type": "DDR5"
+     },
+     "storage": {
+      "description": "Fixed local: 2 x 1.92 TB SSD_NVME",
+      "total": 3840000000000
+     },
+     "network": {
+      "description": "Internal: 25 Gb/s, Public: 1 Gb/s (max 25 Gb/s)",
+      "internal_bandwidth": 25000000000,
+      "public_bandwidth": 1000000000,
+      "max_public_bandwidth": 25000000000
+     }
+    },
+    "dedibox": {
+     "range": "Core",
+     "offer_id": 1575
+    }
+   },
+   "environmental_impact_estimation": {
+    "kg_co2_equivalent": 19.1259,
+    "m3_water_usage": 0.0007571354
+   },
+   "unit_of_measure": {
+    "unit": "month",
+    "size": 1
+   },
+   "status": "general_availability",
+   "badges": [
+    "new_product"
+   ]
+  },
+  {
+   "sku": "/baremetal/em-a115x-ssd/hourly/run_ams1",
+   "service_category": "BareMetal",
+   "product_category": "Elastic Metal",
+   "product": "EM-A115X-SSD",
+   "variant": "Elastic Metal EM-A115X-SSD - hour - nl-ams-1",
+   "description": "Elastic Metal EM-A115X-SSD - hour - nl-ams-1 (0.091€ per hour)",
+   "locality": {
+    "zone": "nl-ams-1"
+   },
+   "price": {
+    "retail_price": {
+     "currency_code": "EUR",
+     "units": 0,
+     "nanos": 91000000
+    }
+   },
+   "properties": {
+    "hardware": {
+     "cpu": {
+      "description": "Intel Xeon E3 1220 or equivalent, x64, Sockets: 1, Cores per socket: 4, Threads per core: 1, Frequency: 3.1 GHz, Benchmark: 3895",
+      "arch": "x64",
+      "type": "Intel Xeon E3 1220 or equivalent",
+      "physical": {
+       "sockets": 1,
+       "cores_per_socket": 4,
+       "threads_per_core": 1,
+       "frequency": 3100000000,
+       "benchmark": 3895
+      },
+      "threads": 4,
+      "shared": false
+     },
+     "ram": {
+      "description": "32 GiB DDR3",
+      "size": 34359738368,
+      "type": "DDR3",
+      "ecc_type": "standard"
+     },
+     "storage": {
+      "description": "Fixed local: 2 x 1.02 TB SSD",
+      "total": 2048419086336
+     },
+     "network": {
+      "description": "Internal: 1 Gb/s, Public: 500 Mb/s (max 1 Gb/s)",
+      "internal_bandwidth": 1000000000,
+      "public_bandwidth": 500000000,
+      "max_public_bandwidth": 1000000000
+     }
+    },
+    "elastic_metal": {
+     "range": "Aluminium",
+     "offer_id": "f7241870-c383-4fa2-bbca-5189600df5c4"
+    }
+   },
+   "environmental_impact_estimation": {
+    "kg_co2_equivalent": 0.039997116,
+    "m3_water_usage": 5.624397e-05
+   },
+   "unit_of_measure": {
+    "unit": "hour",
+    "size": 1
+   },
+   "status": "end_of_sale",
+   "badges": []
+  }
+ ],
+ "total_count": 1007
+}

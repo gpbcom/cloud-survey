@@ -279,6 +279,7 @@ class MetricDeriver:
             List[ProviderMetricValue]: The quarterly measures of the providers Synergy names.
         """
         if statistics is None:
+            self.logger.warning("No %s statistics stored: no market share, revenue or mention derived.", self.STATISTICS_SOURCE)
             return []
         values: List[ProviderMetricValue] = []
         mentions: Dict[Tuple[CloudProvider, str], int] = {}
@@ -325,6 +326,12 @@ class MetricDeriver:
             )
             for (provider, period), count in sorted(mentions.items())
         ]
+        self.logger.debug(
+            "%d Synergy measures read from %d reports (%d mention counts).",
+            len(values),
+            len(statistics.reports),
+            len(mentions),
+        )
         return values
 
     ############################
@@ -344,6 +351,7 @@ class MetricDeriver:
             StorageReadError: If the crawled data cannot be read.
         """
         period = self._quarter(now)
+        self.logger.debug("Deriving the provider metrics of %s.", period)
         snapshot = [*self._catalogue_statements(), *self._marketplace_statements()]
         dated: List[Tuple[ProviderMetric, Select[str, int, int, int]]] = [
             (ProviderMetric.LAUNCHES, self._dated_statement(self.products, self.products.c.added_at)),
@@ -363,6 +371,8 @@ class MetricDeriver:
                             measure := self._value(str(provider), period, ProviderMetric.PARITY, float(value))
                         ):
                             values.append(measure)
+                else:
+                    self.logger.debug("No service concept stored: the parity is not derived.")
                 for metric, history in dated:
                     for provider, year, quarter, count in (await connection.execute(history)).all():
                         if measure := self._value(str(provider), f"{year}Q{quarter}", metric, float(count)):
@@ -370,6 +380,6 @@ class MetricDeriver:
         except SQLAlchemyError as e:
             self.logger.error("The provider metrics cannot be derived: %s", e)
             raise StorageReadError("provider metrics", str(e)) from e
-        values += self._synergy(await self.statistics.load(self.STATISTICS_SOURCE))
+        values += self._synergy(await self.statistics.read(self.STATISTICS_SOURCE))
         self.logger.info("%d provider metrics derived for %s.", len(values), period)
         return values

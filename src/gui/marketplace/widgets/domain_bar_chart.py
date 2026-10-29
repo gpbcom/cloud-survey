@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # Standard Library Imports.
+from logging import Logger, getLogger
 from typing import ClassVar, List, Optional, Tuple
 
 # Third Party Imports.
@@ -27,22 +28,26 @@ class DomainBarChart(QWidget):
         theme (Theme): The application theme.
         bars (List[Bar]): The label, count and colour of each bar.
         zoom (ChartZoom): The zoom of the counts (Ctrl + wheel or a dragged rectangle, reset by a double-click).
+        logger (Logger): The chart logger.
     """
 
     ROW_HEIGHT: ClassVar[int] = 20
     LABEL_WIDTH: ClassVar[int] = 150
     COUNT_WIDTH: ClassVar[int] = 56
 
-    def __init__(self, theme: Theme) -> None:
+    def __init__(self, theme: Theme, logger: Optional[Logger] = None) -> None:
         """Build an empty chart.
 
         Args:
             theme (Theme): The application theme.
+            logger (Optional[Logger]): The chart logger.
         """
         super().__init__()
-        self.zoom = ChartZoom(self, zoom_y=False, anchor_low=True)
+        self.logger = logger if logger else getLogger(__name__)
+        self.zoom = ChartZoom(self, zoom_y=False, anchor_low=True, logger=self.logger)
         self.theme = theme
         self.bars: List[Bar] = []
+        self.logger.debug("Domain bar chart built.")
 
     ############################
     # Publicly Exposed Methods #
@@ -66,6 +71,7 @@ class DomainBarChart(QWidget):
             bars (List[Bar]): The label, count and colour of each bar.
         """
         self.bars = sorted(bars, key=lambda bar: (-bar[1], bar[0]))
+        self.logger.debug("Domain bar chart shows %d bars.", len(self.bars))
         self.setMinimumHeight(self.ROW_HEIGHT * max(len(self.bars), 1))
         self.updateGeometry()
         self.update()

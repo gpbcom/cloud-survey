@@ -1,0 +1,34 @@
+)]}'
+{
+ "skus": [
+  {
+   "cloud_service_id": "FAC6-8116-1498",
+   "category": "DreamFactory",
+   "skus": [
+    {
+     "sku_id": "6F3B-9E3A-6DD6",
+     "description": "Licensing Fee for Standard Plan",
+     "prices": [
+      "0.00 USD (Free) per 1 hour"
+     ]
+    }
+   ]
+  },
+  {
+   "cloud_service_id": "57D6-8E6B-2DE0",
+   "category": "Cloud Dataflow",
+   "skus": [
+    {
+     "sku_id": "4496-8C0D-228F",
+     "description": "Confidential RAM Time Bangkok",
+     "service_regions": [
+      "asia-southeast3"
+     ],
+     "prices": [
+      "0.0007342 USD per 1 gibibyte hour"
+     ]
+    }
+   ]
+  }
+ ]
+}

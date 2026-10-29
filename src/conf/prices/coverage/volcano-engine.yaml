@@ -1,0 +1,310 @@
+# Curated price coverage of Volcano Engine (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: volcano-engine
+currency: CNY
+row_links:
+  '图像生成大模型': ['^火山方舟订阅套餐 \|.*"ConfigurationName": "Doubao-Seedream']
+  '豆包大模型': ['^火山方舟订阅套餐 \|.*"ConfigurationName": "Doubao[-_](Seed[-_]|Seedance|embedding|pro)']
+  'Viking 知识库': ['^火山方舟订阅套餐 \|.*"ConfigurationName": "知识库']
+  'GPU 云服务器': ['^云服务器 \| ecs\.(gni|ini|pni|hpcpni)[0-9]']
+  '弹性裸金属服务器': ['^云服务器 \| ecs\.ebm']
+links:
+  '云数据库 SQL Server 版': ['^云数据库RDS SQL Server 版$']
+  '云服务器': ['^云服务器-预留实例券$']
+  '增长营销平台 GMP': ['^增长营销平台-SaaS$']
+  '短信服务': ['^国内短信$']
+  '火山方舟': ['^火山方舟订阅套餐$']
+  '增长分析 DataFinder': ['^增长分析$']
+  '豆包语音': ['^一句话识别$']
+  'ContextSearch': ['^上下文搜索$']
+  '私有网络': ['^流量镜像$']
+  '函数服务': ['^函数服务-事件函数$']
+  '负载均衡': ['^网络型负载均衡$']
+  '私网连接': ['^私网连接网关$']
+  'VikingDB 向量数据库': ['^向量数据库$']
+  '容器服务': ['^容器服务-托管版$']
+  'TrafficRoute DNS 套件': ['^HTTPDNS$']
+statements:
+  - product: 'veLinux'
+    model: free
+    reason: 'Volcano Engine''s own public OS image. The image billing doc lists only Windows Server and RHEL as paid images.'
+    source: 'https://www.volcengine.com/docs/6396/74970'
+  - product: 'A/B 测试 DataTester'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'AI MediaKit'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'AI 内容助手'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'AI 助手安全'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'AI 原生 BaaS 平台 Supabase 版'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'AI 数据湖服务'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'API 网关'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'AgentKit'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'ArkClaw'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'ArkClaw 企业版'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'DDoS 防护'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'HiAgent'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'Jeddak AICC'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'KickArt'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'OpenViking Context'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'TRAE CN'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'Viking AI 搜索'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'veImageX'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'veStack 全栈版'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: 'veStack 轻量智算版'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '业务风险识别'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '云企业网'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '云堡垒机'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '云手机'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '云拨测'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '云数据传输'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '云数据库 TiDB 版'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '云防火墙'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '企业基础服务'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '企业直播'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '全域数据集成 DataSail'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '全栈可观测平台'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '全球加速'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '全站加速'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '剧创 Agent'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '即梦 AI'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '域名服务'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '大数据文件存储'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '大模型安全测评'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '大模型应用防火墙'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '存储迁移服务'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '安全运营智能体'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '实时音视频'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '客户数据平台 VeCDP'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '密钥管理系统'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '市场洞察 Agent'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '应用性能监控全链路版'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '弹性伸缩'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '弹性文件存储'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '弹性极速缓存'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '微服务引擎'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '持续交付'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '数据智能体服务'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '数据闪送服务'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '文件存储 vePFS'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '智能体安全防护平台'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '智能外呼'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '智能数据洞察 DataWind'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '智能语音客服'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '服务器迁移中心 SMC'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '流式计算 Flink 版'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '联网问答 Agent'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '虚拟数字人'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '记忆库 Mem0'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '证书中心'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '语音服务'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '豆包搜索'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '边缘智能'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '飞连'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'
+  - product: '高质量数据集 HQD'
+    model: not-public
+    reason: 'Not on the public Volcano Engine price calculator. Priced in the console or on request.'
+    source: 'https://www.volcengine.com/anonymous-api/trade/price?Action=GetNavigationV2&Version=2020-01-01'

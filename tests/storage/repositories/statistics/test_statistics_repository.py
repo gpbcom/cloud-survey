@@ -36,10 +36,10 @@ async def test_the_statistics_of_a_source_are_replaced_as_a_whole(
         ],
     )
 
-    assert await storage.statistics.load("synergy") is None
+    assert await storage.statistics.read("synergy") is None
     created = await storage.statistics.replace("synergy", first)
     replaced = await storage.statistics.replace("synergy", second)
-    loaded = await storage.statistics.load("synergy")
+    loaded = await storage.statistics.read("synergy")
 
     assert (created.status, created.added, created.deleted) == (CrawlStatus.SUCCEEDED, 2, 0)
     assert (replaced.added, replaced.updated, replaced.deleted) == (1, 1, 1)

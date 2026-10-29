@@ -1,0 +1,130 @@
+{
+ "skus": [
+  {
+   "externalId": "dn2qb24ops7erghboifm",
+   "name": "cloud_desktop.vcpu.c100.v1",
+   "translatedName": "Cloud Desktop. Computing resources, 100% vCPU",
+   "service": {
+    "externalId": "dn25bk2bcun5eb7kkdq0",
+    "name": "cloud_desktop",
+    "description": "Cloud Desktop",
+    "group": "Security",
+    "metadata": {
+     "validationPolicies": {
+      "paid_support_must_be_true": "warning",
+      "paid_support_must_be_false": "disabled"
+     },
+     "hasFreeTier": false,
+     "documentationUrl": "",
+     "humanReadableDescription": ""
+    },
+    "serviceInstanceType": "cloud",
+    "reviewStatus": "REVIEW_STATUS_UNSPECIFIED"
+   },
+   "usageUnit": "core*second",
+   "pricingUnit": "core*hour",
+   "translatedUsageUnit": "core*second",
+   "translatedPricingUnit": "vCPU × hour",
+   "pricingVersion": {
+    "id": "dn2jedkuhebgugfl4wlv",
+    "effectiveTime": 1777582800000,
+    "pricingExpression": {
+     "rates": [
+      {
+       "startPricingQuantity": "0",
+       "unitPrice": "1.39"
+      }
+     ]
+    },
+    "deprecated": false
+   }
+  },
+  {
+   "externalId": "dn2sr6ndylqyrik67d4c",
+   "name": "cloud_backup.bms_used_space.v1",
+   "translatedName": "Cloud Backup. BareMetal server backup storage",
+   "service": {
+    "externalId": "dn21j2nquomme940r5rt",
+    "name": "cloud_backup",
+    "description": "Cloud Backup",
+    "group": "Infrastructure",
+    "metadata": {
+     "validationPolicies": {
+      "paid_support_must_be_true": "warning",
+      "paid_support_must_be_false": "disabled"
+     },
+     "hasFreeTier": false,
+     "documentationUrl": "",
+     "humanReadableDescription": ""
+    },
+    "serviceInstanceType": "cloud",
+    "reviewStatus": "REVIEW_STATUS_UNSPECIFIED"
+   },
+   "usageUnit": "byte*hour",
+   "pricingUnit": "gbyte*hour",
+   "translatedUsageUnit": "byte*hour",
+   "translatedPricingUnit": "GB × hour",
+   "pricingVersion": {
+    "id": "dn2i7hemkg4atlavkxxz",
+    "effectiveTime": 1777582800000,
+    "pricingExpression": {
+     "rates": [
+      {
+       "startPricingQuantity": "0",
+       "unitPrice": "0.0069"
+      }
+     ]
+    },
+    "deprecated": false
+   }
+  },
+  {
+   "externalId": "dn26mjgd4azwytu7iepc",
+   "name": "cns.notification_events.mts_marketing_event",
+   "translatedName": "CNS. MTS, promotional SMS",
+   "service": {
+    "externalId": "dn2fat3ycizke72tqqwo",
+    "name": "cns",
+    "description": "Cloud Notification Service",
+    "group": "Serverless",
+    "metadata": {
+     "validationPolicies": {
+      "paid_support_must_be_true": "warning",
+      "paid_support_must_be_false": "disabled"
+     },
+     "hasFreeTier": false,
+     "documentationUrl": "",
+     "humanReadableDescription": ""
+    },
+    "serviceInstanceType": "cloud",
+    "reviewStatus": "REVIEW_STATUS_UNSPECIFIED"
+   },
+   "usageUnit": "event",
+   "pricingUnit": "event",
+   "translatedUsageUnit": "Event",
+   "translatedPricingUnit": "Event",
+   "pricingVersion": {
+    "id": "dn2ov5nj6vlwqp7kmgwd",
+    "effectiveTime": 1780347600000,
+    "pricingExpression": {
+     "rates": [
+      {
+       "startPricingQuantity": "0",
+       "unitPrice": "5.43"
+      },
+      {
+       "startPricingQuantity": "400000",
+       "unitPrice": "5.32"
+      },
+      {
+       "startPricingQuantity": "4000000",
+       "unitPrice": "5.27"
+      }
+     ]
+    },
+    "deprecated": false
+   }
+  }
+ ],
+ "nextPageToken": "{\"pageToken\":\"eyJkYk9mZiI6MTAwMCwic2VnT2ZmIjowfQ\",\"offset\":0}"
+}

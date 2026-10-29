@@ -77,6 +77,7 @@ class LabelTranslator:
         self.factory = factory if factory else ChatModelFactory(self.logger)
         self.prompt = prompt if prompt else TaxonomyPrompt(logger=self.logger)
         self.meter = UsageMeter(settings.llm_budget, self.logger)
+        self.logger.debug("Label translator ready: %d labels per call.", settings.batch_size)
 
     ############################
     # Internal Helpers Methods #
@@ -172,7 +173,7 @@ class LabelTranslator:
         if cfg is None:
             self.logger.info("No language model translates the labels: they wait in the Categories manager.")
             return 0
-        taxonomy = await self.storage.taxonomy.read()
+        taxonomy = await self.storage.taxonomy.list()
         system = self.factory.system_message(cfg, self.prompt.system(self.TASK, taxonomy))
         translated, batches = 0, 0
         while limit is None or batches < limit:

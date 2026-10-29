@@ -81,6 +81,7 @@ class ServiceMatcher:
         self.factory = factory if factory else ChatModelFactory(self.logger)
         self.prompt = prompt if prompt else CorrespondencePrompt(logger=self.logger)
         self.meter = UsageMeter(settings.llm_budget, self.logger)
+        self.logger.debug("Service matcher ready: %d services per call at most.", self.BATCH_LIMIT)
 
     ############################
     # Internal Helpers Methods #
@@ -210,7 +211,7 @@ class ServiceMatcher:
         if cfg is None:
             self.logger.info("No language model matches the services: their correspondences wait.")
             return 0
-        taxonomy = await self.storage.taxonomy.read()
+        taxonomy = await self.storage.taxonomy.list()
         system = self.factory.system_message(cfg, self.prompt.system())
         remaining = limit if limit is not None else 1_000_000
         added = 0

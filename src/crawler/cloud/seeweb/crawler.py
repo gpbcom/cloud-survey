@@ -2,17 +2,23 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import re
-from typing import AsyncGenerator, ClassVar, Dict, List, Optional, Tuple, Union
+from decimal import Decimal
+from pathlib import Path
+from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Tuple, Union
 from urllib.parse import urljoin, urlparse
 
 # Third Party Imports.
 from pydantic import JsonValue
+from scrapling.parser import Selector
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
-from crawler.cloud.base import BaseCloudCrawler
+from crawler.cloud.base import BaseCloudCrawler, PriceFact
 from crawler.enums import HtmlAttribute
 from crawler.exception import EmptyCatalogueError
+from models.cloud.enums import PriceModel, PriceSourceKind, PriceTerm, PriceUnit
+from models.cloud.prices.facts.service_price import ServicePrice
+from models.cloud.prices.price_field_check import RawValue
 
 
 class SeewebCrawler(BaseCloudCrawler):
@@ -28,6 +34,22 @@ class SeewebCrawler(BaseCloudCrawler):
             texts of the introduction elements are joined.
         SENTENCE_END (ClassVar[re.Pattern[str]]): The end of a sentence, where a too long introduction is cut.
         MAX_DESCRIPTION (ClassVar[int]): The maximum length of a product description, in characters.
+        CARDS (ClassVar[str]): The CSS selector of the plan cards of a product page.
+        CARD_TITLE (ClassVar[str]): The CSS selector of the title of a plan card.
+        CARD_NAME (ClassVar[str]): The CSS selector of the model of a plan card (e.g. `NVIDIA H100`).
+        CARD_SPECS (ClassVar[Tuple[str, ...]]): The classes of the specification cells of a plan card.
+        CARD_PRICES (ClassVar[str]): The CSS selector of the price paragraphs of a plan card (their class naming the
+            period, e.g. `hourly` or `hourly_3mnths`).
+        RESERVATION (ClassVar[re.Pattern[str]]): The class of a reserved price, e.g. `hourly_3mnths`.
+        PERIODS (ClassVar[Dict[str, PriceUnit]]): The unit of a price by the class of its paragraph.
+        TERMS (ClassVar[Dict[int, PriceTerm]]): The term of a reserved price by its months.
+        NUMBER (ClassVar[re.Pattern[str]]): A number of a price or a specification.
+        PRICE_CURRENCY (ClassVar[str]): The currency of the prices.
+        REGION (ClassVar[str]): The region of the prices (Italy).
+        SERVICE_META (ClassVar[str]): The request meta holding the service of a product page.
+        FAMILY_META (ClassVar[str]): The request meta holding the menu column of a product page.
+        PRODUCT_PAGE_PRICES (ClassVar[bool]): The catalogue product pages are read too, for their prices.
+        PAGE_TEXT_PRICES (ClassVar[bool]): A product page without price table is read for the prices in its text.
 
     Notes:
         The main source is the products menu of the https://www.seeweb.it/en home page: its columns (Compute,
@@ -36,6 +58,11 @@ class SeewebCrawler(BaseCloudCrawler):
         paragraph (cut at a sentence end when too long), else its meta description, often written in Italian. The
         solution pages are skipped. The catalogue categories of a product are the titles of the menu columns
         listing it (e.g. `Services`).
+        In price mode it reads the plan cards of the product pages of the menu (e.g. the GPU, NPU, shared CPU and
+        high memory servers): a card gives a model, its specification (cores, memory, GPU memory, disk) and its
+        price in euros, hourly or monthly, with reserved hourly prices for 3, 6 and 12 months (commitments). The
+        pages whose price is computed in the browser by a configurator (e.g. Cloud Server, priced by computing
+        units) have no plan card and give no price. Each page is a source.
     """
 
     MENU_COLUMNS: ClassVar[str] = "div.product-column"
@@ -45,10 +72,40 @@ class SeewebCrawler(BaseCloudCrawler):
     SPACE_BEFORE_PUNCTUATION: ClassVar[re.Pattern[str]] = re.compile(r"\s+(?=[.,:!?)])")
     SENTENCE_END: ClassVar[re.Pattern[str]] = re.compile(r"[.!?](?=\s|$)")
     MAX_DESCRIPTION: ClassVar[int] = 1000
+    CARDS: ClassVar[str] = "div.cardType"
+    CARD_TITLE: ClassVar[str] = "div.card-header h2"
+    CARD_NAME: ClassVar[str] = "span.cardname"
+    CARD_SPECS: ClassVar[Tuple[str, ...]] = ("cpuCore", "ram", "gpuRam", "disk", "traffic")
+    CARD_PRICES: ClassVar[str] = 'p[class^="hourly"], p[class^="monthly"]'
+    RESERVATION: ClassVar[re.Pattern[str]] = re.compile(r"^(?P<period>hourly|monthly)_(?P<months>\d+)mnths$")
+    PERIODS: ClassVar[Dict[str, PriceUnit]] = {"hourly": PriceUnit.HOUR, "monthly": PriceUnit.MONTH}
+    TERMS: ClassVar[Dict[int, PriceTerm]] = {
+        3: PriceTerm.THREE_MONTHS,
+        6: PriceTerm.SIX_MONTHS,
+        12: PriceTerm.ONE_YEAR,
+        24: PriceTerm.TWO_YEARS,
+        36: PriceTerm.THREE_YEARS,
+    }
+    NUMBER: ClassVar[re.Pattern[str]] = re.compile(r"\d+(?:[.,]\d+)?")
+    PRICE_CURRENCY: ClassVar[str] = "EUR"
+    REGION: ClassVar[str] = "it"
+    SERVICE_META: ClassVar[str] = "price_service"
+    FAMILY_META: ClassVar[str] = "price_family"
 
+    PRODUCT_PAGE_PRICES: ClassVar[bool] = True
+    PAGE_TEXT_PRICES: ClassVar[bool] = True
     name = "seeweb"
     catalogue_url: ClassVar[str] = "https://www.seeweb.it/en"
     name_prefixes: ClassVar[Tuple[str, ...]] = ("Seeweb ",)
+
+    def __init__(self, crawldir: Optional[Union[str, Path]] = None, interval: float = 300.0) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+        """
+        super().__init__(crawldir=crawldir, interval=interval)
 
     ############################
     # Internal Helpers Methods #
@@ -157,6 +214,147 @@ class SeewebCrawler(BaseCloudCrawler):
         self.logger.info("%d %s product pages to read from the products menu.", len(requests), self.name)
         return requests
 
+    def _number(self, text: str) -> Optional[Decimal]:
+        """Read the first number of a text.
+
+        Args:
+            text (str): The text, e.g. `2.35 €` or `256`.
+
+        Returns:
+            Optional[Decimal]: The number, None when there is none.
+        """
+        match = self.NUMBER.search(text)
+        return Decimal(match.group().replace(",", ".")) if match else None
+
+    def _card_specs(self, card: Selector) -> Dict[str, str]:
+        """Read the specification of a plan card.
+
+        Args:
+            card (Selector): The plan card.
+
+        Returns:
+            Dict[str, str]: Each specification written, by its class (e.g. `ram`: `256`).
+        """
+        specs: Dict[str, str] = {}
+        for spec in self.CARD_SPECS:
+            cell = card.css(f".{spec}").first
+            if cell is not None and (text := self._clean_text(cell.get_all_text(separator=" ", strip=True))):
+                specs[spec] = text
+        return specs
+
+    def _card_prices(self, card: Selector, base: Dict[str, RawValue]) -> Iterator[ServicePrice]:
+        """Read the prices of a plan card.
+
+        Args:
+            card (Selector): The plan card.
+            base (Dict[str, RawValue]): The fields of the card.
+
+        Yields:
+            ServicePrice: Its hourly or monthly price, and its reserved prices (commitments).
+        """
+        for paragraph in card.css(self.CARD_PRICES):
+            kind = paragraph.attrib.get("class", "").split(" ")[0]
+            value = paragraph.css("span").first
+            price = self._number(value.get_all_text(strip=True)) if value is not None else None
+            reserved = self.RESERVATION.match(kind)
+            period = reserved.group("period") if reserved else kind
+            if price is None or period not in self.PERIODS:
+                continue
+            months = int(reserved.group("months")) if reserved else 0
+            fact = self._price_fact(
+                {
+                    **base,
+                    "sku_key": f"{base['sku_key']}/{kind}",
+                    "unit": self.PERIODS[period],
+                    "unit_raw": kind,
+                    "unit_factor": Decimal(1),
+                    "price": price,
+                    "model": PriceModel.FREE
+                    if price == 0
+                    else PriceModel.COMMITMENT
+                    if months
+                    else PriceModel.ON_DEMAND,
+                    "term": self.TERMS.get(months, PriceTerm.NONE),
+                }
+            )
+            if fact is not None:
+                yield fact
+
+    def _page_prices(self, response: Response) -> Iterator[ServicePrice]:
+        """Read the plan cards of a product page.
+
+        Args:
+            response (Response): The product page.
+
+        Yields:
+            ServicePrice: The prices of each plan card.
+        """
+        url = str(response.url)
+        for card in response.css(self.CARDS):
+            title_node = card.css(self.CARD_TITLE).first
+            name_node = card.css(self.CARD_NAME).first
+            title = self._clean_text(title_node.get_all_text(separator=" ", strip=True)) if title_node else ""
+            model = self._clean_text(name_node.get_all_text(separator=" ", strip=True)) if name_node else title
+            if not model:
+                continue
+            specs = self._card_specs(card)
+            cores, ram = self._number(specs.get("cpuCore", "")), self._number(specs.get("ram", ""))
+            base: Dict[str, RawValue] = {
+                "sku_key": f"{urlparse(url).path.strip('/')}/{card.attrib.get('id') or model}",
+                "service": response.meta.get(self.SERVICE_META),
+                "family": response.meta.get(self.FAMILY_META) or None,
+                "region": self.REGION,
+                "instance_type": model,
+                "vcpu": int(cores) if cores is not None and cores == int(cores) and cores > 0 else None,
+                "memory_gib": ram if ram is not None and ram > 0 else None,
+                "attributes": {"title": title, **specs},
+                "currency": self.PRICE_CURRENCY,
+                "source_url": url,
+                "source_kind": PriceSourceKind.PAGE,
+            }
+            yield from self._card_prices(card, base)
+
+    async def _price_requests(self) -> AsyncGenerator[Request]:
+        """Request the home page, whose products menu lists the product pages.
+
+        Yields:
+            Request: Its request.
+        """
+        self.logger.info("Reading the %s product pages listed by %s for their prices.", self.name, self.catalogue_url)
+        yield self._price_request(self.catalogue_url)
+
+    async def _extract_prices(self, response: Response) -> AsyncGenerator[PriceFact]:
+        """Read the home page menu, or the plan cards of a product page.
+
+        Args:
+            response (Response): The page.
+
+        Yields:
+            PriceFact: The product page requests, or the prices of a product page.
+
+        Raises:
+            EmptyCatalogueError: If the menu lists no product page.
+        """
+        if self.SERVICE_META not in response.meta:
+            entries = self._menu_entries(response)
+            if not entries:
+                self.logger.error("The %s menu of %s lists no product page.", self.name, response.url)
+                raise EmptyCatalogueError(self.name, response.url)
+            self.logger.info("%d %s product pages to read for their plans.", len(entries), self.name)
+            for url, label, categories in entries.values():
+                meta: Dict[str, JsonValue] = {
+                    self.SERVICE_META: label,
+                    self.FAMILY_META: categories[0] if categories else "",
+                }
+                yield self._price_request(url, meta)
+            return
+        url = str(response.url)
+        facts = list(self._page_prices(response))
+        for fact in facts:
+            yield fact
+        self._record_price_source(url, len(facts))
+        self.logger.debug("The %s product page %s gave %d prices.", self.name, url, len(facts))
+
     ############################
     # Publicly Exposed Methods #
     ############################
@@ -174,8 +372,10 @@ class SeewebCrawler(BaseCloudCrawler):
             EmptyCatalogueError: If the products menu links to no product page.
         """
         if self.PRODUCT_PAGE not in response.meta:
+            self.logger.debug("Reading the %s menu of %s.", self.name, response.url)
             for request in self._menu_requests(response):
                 yield request
             return
+        self.logger.debug("Reading the %s product page %s.", self.name, response.url)
         async for item in super().parse(response):
             yield item

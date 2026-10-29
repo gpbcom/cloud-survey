@@ -108,3 +108,78 @@ class InvalidDateError(CloudModelError):
         """
         self.value = value
         super().__init__(f"The date must be an ISO 8601 date or a Unix timestamp (got {value!r}).")
+
+
+class InvalidLaunchFieldError(CloudModelError):
+    """Raised when a field of the launch dates catalogue is not what is expected.
+
+    Attributes:
+        field (str): The field.
+        value (str): The rejected value.
+        expected (str): What the field expects.
+    """
+
+    def __init__(self, field: str, value: str, expected: str) -> None:
+        """Initialize the error.
+
+        Args:
+            field (str): The field.
+            value (str): The rejected value.
+            expected (str): What the field expects.
+        """
+        self.field, self.value, self.expected = field, value, expected
+        super().__init__(f"The launch {field} must be {expected} (got {value!r}).")
+
+
+class MissingLaunchSourceError(CloudModelError):
+    """Raised when a curated launch date does not cite its source.
+
+    Attributes:
+        name (str): The product.
+    """
+
+    def __init__(self, name: str) -> None:
+        """Initialize the error.
+
+        Args:
+            name (str): The product.
+        """
+        self.name = name
+        super().__init__(f"The launch date of {name!r} must cite its source (an announcement URL).")
+
+
+class MissingLaunchReasonError(CloudModelError):
+    """Raised when a product of the launch dates catalogue has neither a launch date nor the reason why.
+
+    Attributes:
+        name (str): The product.
+    """
+
+    def __init__(self, name: str) -> None:
+        """Initialize the error.
+
+        Args:
+            name (str): The product.
+        """
+        self.name = name
+        super().__init__(f"The product {name!r} has no launch date: the reason why must be given.")
+
+
+class DuplicateLaunchEntryError(CloudModelError):
+    """Raised when the launch dates catalogue lists a product twice for the same crawler.
+
+    Attributes:
+        crawler (str): The crawler.
+        name (str): The product.
+    """
+
+    def __init__(self, crawler: str, name: str) -> None:
+        """Initialize the error.
+
+        Args:
+            crawler (str): The crawler.
+            name (str): The product.
+        """
+        self.crawler, self.name = crawler, name
+        super().__init__(f"The {crawler} product {name!r} is listed twice in the launch dates catalogue.")
+

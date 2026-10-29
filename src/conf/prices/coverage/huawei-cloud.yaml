@@ -1,0 +1,283 @@
+# Curated price coverage of Huawei Cloud (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: huawei-cloud
+currency: USD
+row_links:
+  'RDS for MySQL': ['^Relational Database Service \| rds/[^/|]*/[^/|]*/rds\.mysql\.']
+  'RDS for PostgreSQL': ['^Relational Database Service \| rds/[^/|]*/[^/|]*/rds\.pg\.']
+  'GPU Accelerated Cloud Server (GACS)': ['^Elastic Cloud Server \|.*Type:GPU-accelerated']
+  'CodeArts Agent': ['^CodeArts \| [^|]*codearts\.agent\.']
+  'CodeArts Build': ['^CodeArts \| [^|]*devcloud\.cloudbuild\.']
+  'CodeArts Check': ['^CodeArts \| [^|]*(devcloud\.codecheck\.|codearts\.extension\.concurrency\.check)']
+  'CodeArts Deploy': ['^CodeArts \| [^|]*codearts\.extension\.concurrency\.deploy']
+  'CodeArts Pipeline': ['^CodeArts \| [^|]*codearts\.extension\.(concurrency|duration)\.pipeline']
+  'CodeArts Artifact': ['^CodeArts \| [^|]*codearts\.extension\.(storage|flow)\.artifact']
+  'CodeArts Repo': ['^CodeArts \| [^|]*codearts\.extension\.storage\.repo']
+  'CodeArts TestPlan': ['^CodeArts \| [^|]*codearts\.extension\.concurrency\.apitest']
+  'Data Lake Factory': ['^DataArts Studio \| [^|]*package\.scheduler\.']
+  'Short Sentence Recognition': ['^Speech Interaction Service \| [^|]*sis\.asr\.general']
+links:
+  'Distributed Cache Service (DCS)': ['^DCS \(for Redis\)$']
+  'Distributed Cache Service (DCS) for Memcached': ['^DCS \(for Memcached\)$']
+  'Distributed Message Service (DMS) for Kafka': ['^DMS \(for Kafka\)$']
+  'Distributed Message Service (DMS) for RabbitMQ': ['^DMS \(for RabbitMQ\)$']
+  'Distributed Message Service (DMS) for RocketMQ': ['^DMS \(for RocketMQ\)$']
+  'SparkRTC': ['^Huawei Cloud Real-Time Communication$']
+  'Image Recognition': ['^Images Recognition$']
+  'DataArts Studio': ['^DataArts (DataService|Migration) Incremental Package$']
+statements:
+  - product: 'Auto Scaling'
+    model: free
+    reason: 'AS is free. Only the instances it adds to an AS group are billed, at the ECS price.'
+    source: 'https://support.huaweicloud.com/intl/en-us/as_faq/faq_440.html'
+  - product: 'Identity and Access Management (IAM)'
+    model: free
+    reason: 'IAM is free of charge. You pay only for the cloud resources in your account.'
+    source: 'https://support.huaweicloud.com/intl/en-us/productdesc-iam/iam_01_0026.html'
+  - product: 'Domain Name Service (DNS)'
+    model: free
+    reason: 'The DNS FAQ states that DNS is a free service.'
+    source: 'https://support.huaweicloud.com/intl/en-us/dns_faq/dns_faq_006.html'
+  - product: 'Server Migration Service (SMS)'
+    model: free
+    reason: 'SMS is free. Only the temporary disks and target servers used by a migration are billed.'
+    source: 'https://support.huaweicloud.com/intl/en-us/sms_faq/sms_faq_0010.html'
+  - product: 'SoftWare Repository for Container (SWR)'
+    model: free
+    reason: 'The SWR FAQ states SWR is currently free, its storage and traffic billing items included.'
+    source: 'https://support.huaweicloud.com/eu/swr_faq/swr_faq_1001.html'
+  - product: 'Tag Management Service'
+    model: free
+    reason: 'The TMS service overview states that TMS is free of charge.'
+    source: 'https://support.huaweicloud.com/intl/en-us/productdesc-tms/Tag%20Management%20Service%20Service%20Overview-pdf.pdf'
+  - product: 'Cloud Trace Service (CTS)'
+    model: free
+    reason: 'The product page states that CTS itself is free. Trace storage in OBS is billed by OBS.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/cts.html'
+  - product: 'Organizations'
+    model: free
+    reason: 'The product page lists Organizations as free.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/organizations.html'
+  - product: 'Resource Access Manager (RAM)'
+    model: free
+    reason: 'The product page lists RAM as free.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/ram.html'
+  - product: 'Image Management Service (IMS)'
+    model: free
+    reason: 'The product page offers free image creation. Image storage and the servers built from images are billed by their own services.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/ims.html'
+  - product: 'Optimization Advisor (OA)'
+    model: free
+    reason: 'The product page states OA is free during its open beta test.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/oa.html'
+  - product: 'ICP Filing'
+    model: free
+    reason: 'ICP filing is a free service of Huawei Cloud for websites hosted on its servers in the Chinese Mainland.'
+    source: 'https://support.huaweicloud.com/intl/en-us/icp/index.html'
+  - product: 'Koo Command Line Interface'
+    model: free
+    reason: 'KooCLI is a downloadable command line tool for the cloud APIs with no charge of its own.'
+    source: 'https://support.huaweicloud.com/intl/en-us/hcli/index.html'
+  - product: 'Distributed Message Service (DMS)'
+    model: included
+    reason: 'Umbrella of DMS for Kafka, RabbitMQ and RocketMQ, each priced separately on the calculator.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/dms.html'
+  - product: 'CodeArts Req'
+    model: included
+    reason: 'Part of the CodeArts editions (Basic, Pro, Enterprise), priced on the calculator as CodeArts packages.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/projectman.html'
+  - product: 'Cloud Server Backup Service (CSBS)'
+    model: not-public
+    reason: 'Not on the public price calculator. CSBS has been superseded by Cloud Backup and Recovery (CBR), which is priced.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/csbs.html'
+  - product: 'Volume Backup Service (VBS)'
+    model: not-public
+    reason: 'Not on the public price calculator. VBS has been superseded by Cloud Backup and Recovery (CBR), which is priced.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/vbs.html'
+  - product: 'Cloud Phone Host (CPH)'
+    model: not-public
+    reason: 'Not on the public price calculator. The product page shows only a starting price per phone per month.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/cph.html'
+  - product: 'Question Answering Bot (QABot)'
+    model: not-public
+    reason: 'Not on the public price calculator. The product page shows only a starting price.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/cbsqa.html'
+  - product: 'Huawei Cloud Stack'
+    model: quote
+    reason: 'On-premises cloud stack deployed in the customer data center and sold through Huawei sales and partners.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/huaweicloudstack.html'
+  - product: 'CloudPond'
+    model: quote
+    reason: 'Edge cloud installed on customer premises, sold through Huawei sales with no public price list.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/cloudpond.html'
+  - product: 'EIHealth'
+    model: quote
+    reason: 'The product page asks customers to email a biomedical specialist. No public price list.'
+    source: 'https://www.huaweicloud.com/intl/en-us/product/eihealth.html'
+  - product: 'Application Service Mesh'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Bare Metal Server (BMS)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Cloud Application Engine (CAE)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Cloud Data Center (CloudDC)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Cloud Eye'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Cloud Operations Center (COC)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Cloud Stream Service (CS)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'CloudTable Service'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'CodeArts Governance'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'CodeArts PerfTest'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Config'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Data Admin Service (DAS)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Data Lake Visualization (DLV)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'DataArts Fabric'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Database and Application Migration UGO'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Edge Data Center Management'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Enterprise Management'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Face Recognition Service'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Global SIM Link (GSL)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'HUAWEI CLOUD WeLink'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Huawei Cloud Astro Canvas'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Huawei Cloud EulerOS'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Huawei HiLens (HiLens)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'IAM Identity Center'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Industry Video Management Service (IVM)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Intelligent Edge Cloud (IEC)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Intelligent EdgeFabric'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'IoT Device Management (IoTDM)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'KooDrive'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'MaaS'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Message & SMS'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'MetaStudio'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Migration Center (MgC)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Object Storage Migration Service (OMS)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'OneAccess'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'PanguBot'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'PanguLargeModels'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Resource Formation Service (RFS)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Resource Governance Center (RGC)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Simple Message Notification (SMN)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Virtual Private Cloud (VPC)'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'
+  - product: 'Web3 Node Engine Service'
+    model: not-public
+    reason: 'Not on the public Huawei Cloud price calculator. Priced in the console or on request.'
+    source: 'https://www.huaweicloud.com/intl/en-us/pricing/calculator.html'

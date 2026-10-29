@@ -94,6 +94,7 @@ class FoldingDock(QDockWidget):
         self.float_button.clicked.connect(lambda: self.setFloating(not self.isFloating()))  # noqa: E501
         self.close_button.clicked.connect(self.close)
         self._apply(not store.expanded(key))
+        self.logger.debug("Dock %s built, %s.", key, "folded" if self.folded else "expanded")
 
     ############################
     # Internal Helpers Methods #
@@ -115,6 +116,7 @@ class FoldingDock(QDockWidget):
         button.setToolTip(tip)
         button.setAccessibleName(tip)
         button.setAutoRaise(True)
+        self.logger.debug("Title button %r of the dock %s built.", text, self.key)
         return button
 
     def _fit_height(self) -> None:
@@ -166,9 +168,11 @@ class FoldingDock(QDockWidget):
             folded (bool): Whether only the title bar is shown.
         """
         if folded == self.folded:
+            self.logger.debug("Dock %s already %s.", self.key, "folded" if folded else "unfolded")
             return
         self._apply(folded)
         self.store.set_expanded(self.key, not folded)
+        self.logger.info("Dock %s %s and remembered.", self.key, "folded" if folded else "unfolded")
         self.folded_changed.emit(folded)
 
     def is_folded(self) -> bool:

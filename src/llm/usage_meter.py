@@ -58,6 +58,7 @@ class UsageMeter:
                 writes.
         """
         if not usage:
+            self.logger.warning("The answer carries no token usage: the call is recorded at no cost.")
             return 0, 0, 0, 0
         details = usage.get("input_token_details")
         cache_read = int(details.get("cache_read", 0) or 0) if isinstance(details, Mapping) else 0  # noqa: E501  
@@ -65,7 +66,15 @@ class UsageMeter:
         total_input = usage.get("input_tokens")
         output = usage.get("output_tokens")
         uncached = max(int(total_input or 0) - cache_read - cache_write, 0) if isinstance(total_input, int) else 0  # noqa: E501
-        return uncached, int(output or 0) if isinstance(output, int) else 0, cache_read, cache_write
+        output_tokens = int(output or 0) if isinstance(output, int) else 0
+        self.logger.debug(
+            "Tokens used: %d uncached input, %d output, %d cache reads, %d cache writes.",
+            uncached,
+            output_tokens,
+            cache_read,
+            cache_write,
+        )
+        return uncached, output_tokens, cache_read, cache_write
 
     def cost(self, cfg: LLMConfiguration, usage: Optional[Mapping[str, UsageValue]]) -> Decimal:  # noqa: E501
         """Price a call.

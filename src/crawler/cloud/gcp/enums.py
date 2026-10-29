@@ -287,3 +287,71 @@ class GcpCardField(StrEnum):
     DESCRIPTION = "description"
     LONG_DESCRIPTION = "longDescription"
     SUBTITLE = "subtitle"
+
+
+@unique
+class GcpSkuField(StrEnum):
+    """Enums representing the fields of the SKU search of the Google Cloud SKUs page, read for the prices.
+
+    Attributes:
+        PAGE_TOKEN (str): The token of the next page, missing on the last one.
+        SKUS (str): The services of a page, then the SKUs of a service.
+        CLOUD_SERVICE_ID (str): The identifier of a service.
+        CATEGORY (str): The name of a service, e.g. `Compute Engine`.
+        SKU_ID (str): The identifier of a SKU, e.g. `4496-8C0D-228F`.
+        DESCRIPTION (str): Its description, e.g. `Confidential RAM Time Bangkok`.
+        SERVICE_REGIONS (str): Its regions.
+        PRICES (str): Its prices, written out, one per tier.
+    """
+
+    PAGE_TOKEN = "pageToken"
+    SKUS = "skus"
+    CLOUD_SERVICE_ID = "cloud_service_id"
+    CATEGORY = "category"
+    SKU_ID = "sku_id"
+    DESCRIPTION = "description"
+    SERVICE_REGIONS = "service_regions"
+    PRICES = "prices"
+
+
+@unique
+class GcpPriceUnit(StrEnum):
+    """Enums representing the units the Google Cloud SKU prices are written per.
+
+    Attributes:
+        HOUR (str): An hour.
+        MINUTE (str): A minute.
+        SECOND (str): A second.
+        MONTH (str): A month.
+        DAY (str): A day.
+        YEAR (str): A year.
+        GIBIBYTE (str): A gibibyte (transferred, processed).
+        MEBIBYTE (str): A mebibyte.
+        TEBIBYTE (str): A tebibyte.
+        GIGABYTE (str): A gigabyte.
+        GIBIBYTE_HOUR (str): A gibibyte for an hour.
+        GIGABYTE_HOUR (str): A gigabyte for an hour.
+        GIBIBYTE_MONTH (str): A gibibyte for a month.
+        GIBIBYTE_DAY (str): A gibibyte for a day.
+        GIBIBYTE_SECOND (str): A gibibyte for a second.
+        TEBIBYTE_MONTH (str): A tebibyte for a month.
+        COUNT (str): A count (requests, calls, operations).
+    """
+
+    HOUR = "hour"
+    MINUTE = "minute"
+    SECOND = "second"
+    MONTH = "month"
+    DAY = "day"
+    YEAR = "year"
+    GIBIBYTE = "gibibyte"
+    MEBIBYTE = "mebibyte"
+    TEBIBYTE = "tebibyte"
+    GIGABYTE = "gigabyte"
+    GIBIBYTE_HOUR = "gibibyte hour"
+    GIGABYTE_HOUR = "gigabyte hour"
+    GIBIBYTE_MONTH = "gibibyte month"
+    GIBIBYTE_DAY = "gibibyte day"
+    GIBIBYTE_SECOND = "gibibyte second"
+    TEBIBYTE_MONTH = "tebibyte month"
+    COUNT = "count"

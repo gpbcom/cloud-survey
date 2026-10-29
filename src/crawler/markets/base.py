@@ -13,9 +13,10 @@ from scrapling.spiders.session import SessionManager
 # First Party Imports.
 from crawler.cloud.base import BaseCloudCrawler
 from crawler.enums import TextEncoding
-from crawler.exception import ParseNotImplementedError
-from crawler.markets.catalog_loader import MarketsCatalogLoader
+from crawler.exception import MarketsCatalogError, ParseNotImplementedError
 from crawler.tls.ca_bundle import CaBundle
+from curated.bundle.bundle_catalogs import BundleCatalogs
+from curated.exception import CuratedError
 from models.markets.crawl_scope import CrawlScope
 from models.markets.enums import MarketFeed
 from models.markets.facts.fx_observation import FxObservation
@@ -63,7 +64,7 @@ class BaseMarketsCrawler(BaseCloudCrawler):
         """Initialize the crawler.
 
         Args:
-            catalog (Optional[MarketsCatalog]): What is read, `conf/history/markets.yaml` by default.
+            catalog (Optional[MarketsCatalog]): What is read, the markets catalogue of the curated bundle by default.
             scope (Optional[CrawlScope]): The part of the catalogue read, all of it by default.
             crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
             interval (float): Seconds between periodic checkpoint saves.
@@ -72,13 +73,28 @@ class BaseMarketsCrawler(BaseCloudCrawler):
             MarketsCatalogError: If the default catalogue cannot be loaded.
         """
         super().__init__(crawldir=crawldir, interval=interval)
-        self.catalog = catalog if catalog else MarketsCatalogLoader(self.logger).load()
+        self.catalog = catalog if catalog else self._bundled_markets()
         self.scope = scope if scope else CrawlScope()
         self.facts = 0
 
     ############################
     # Internal Helpers Methods #
     ############################
+
+    def _bundled_markets(self) -> MarketsCatalog:
+        """Read the markets catalogue of the curated bundle, the default of a crawler.
+
+        Returns:
+            MarketsCatalog: The markets catalogue.
+
+        Raises:
+            MarketsCatalogError: If the bundle cannot be read or is invalid.
+        """
+        try:
+            return BundleCatalogs(logger=self.logger).markets()
+        except CuratedError as e:
+            self.logger.error("The markets catalogue of the bundle cannot be read: %s", e)
+            raise MarketsCatalogError("data/curated/markets.json", str(e)) from e
 
     def _http_session_id(self) -> str:
         """Get the identifier of the HTTP session.

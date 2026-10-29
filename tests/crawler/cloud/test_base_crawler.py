@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from datetime import UTC, datetime
+from decimal import Decimal
 from typing import Awaitable, Callable, ClassVar, Dict, Iterator, List, Optional, Tuple, Union
 from unittest.mock import MagicMock, patch
 
@@ -13,6 +14,7 @@ from scrapling.spiders.session import SessionManager
 
 from crawler.cloud.base import BaseCloudCrawler
 from crawler.exception import CatalogueFormatError, EmptyCatalogueError, ParseNotImplementedError
+from models.cloud.enums import CloudProvider, PriceUnit
 from models.cloud.products.product import CloudProduct
 
 CrawlPage = Callable[[BaseCloudCrawler, Response], Awaitable[List[Union[Dict[str, JsonValue], Request]]]]
@@ -305,9 +307,11 @@ class TestLogging:
 
         ListCrawler()
 
-        assert [(record.levelname, record.getMessage()) for record in caplog.records] == [
+        records = [record for record in caplog.records if "CA bundle" not in record.getMessage()]
+        assert [(record.levelname, record.getMessage()) for record in records] == [
             ("DEBUG", "Configuring the stealth browser session list-crawler-session."),
             ("INFO", "Spider initialized"),
+            ("DEBUG", "list-crawler uses 0 curated launches."),
             (
                 "DEBUG",
                 "list-crawler crawler ready: catalogue https://catalogue.example.com/products/, "
@@ -362,6 +366,7 @@ class TestLogging:
             "Starting the list-crawler catalogue crawl from https://catalogue.example.com/products/.",
             "Resuming the list-crawler catalogue crawl (2 products already streamed).",
             "The list-crawler catalogue crawl is over: 2 products streamed.",
+            "Every list-crawler product has a launch date, known gaps excepted.",
         ]
 
     async def test_fetch_errors_are_logged(self, caplog: pytest.LogCaptureFixture) -> None:
@@ -991,3 +996,117 @@ def test_implausible_dates_are_dropped(value: str, caplog: pytest.LogCaptureFixt
 
     assert PageCrawler()._parse_date(value, "Run") is None
     assert any("Ignoring the implausible date" in message for message in caplog.messages)
+
+
+@pytest.mark.parametrize(
+    ("text", "amount", "currency"),
+    [
+        ("€ 1,234.50 + VAT / month", "1234.50", "EUR"),
+        ("1 297,50 ₽", "1297.50", "RUB"),
+        ("19.99 € + VAT", "19.99", "EUR"),
+        ("US$0.012/hour", "0.012", "USD"),
+        ("1.250.000 \u0440\u0443\u0431.", "1250000", "RUB"),
+        ("£5", "5", "GBP"),
+    ],
+)
+def test_an_amount_of_money_is_read_whatever_its_writing(text: str, amount: str, currency: str) -> None:
+    assert DummyCrawler()._money(text) == (Decimal(amount), currency)
+
+
+def test_the_unit_of_a_page_price_comes_from_the_closest_text() -> None:
+    crawler = DummyCrawler()
+
+    assert crawler._page_unit("€ 9.00", "Monthly price", "Small")[0] == PriceUnit.MONTH
+    assert crawler._page_unit("0.02 € per GB / month")[0] == PriceUnit.GIB_MONTH
+    assert crawler._page_unit("€0,10 / 1GB everywhere")[0] == PriceUnit.GIB
+    assert crawler._page_unit("0.000011907 元/秒/GiB")[0] == PriceUnit.GIB_SECOND
+    assert crawler._page_unit("1 Gbit/s", "Bandwidth")[0] == PriceUnit.OTHER
+    assert crawler._page_unit("€ 5", "Setup", "")[0] == PriceUnit.OTHER
+    assert crawler._page_unit("$2", "Input price (per 1M tokens)")[:2] == (PriceUnit.TOKEN, Decimal(1_000_000))
+    assert crawler._page_unit("1.3 元/百万次")[:2] == (PriceUnit.REQUEST, Decimal(1_000_000))
+
+
+def test_spanned_table_cells_are_repeated_and_placeholders_skipped() -> None:
+    page = (
+        "<table><tr><th>Model</th><th>Tier</th><th colspan='2'>Price</th></tr>"
+        "<tr><td rowspan='2'>qwen</td><td>small</td><td>$1</td><td>$2</td></tr>"
+        "<tr><td>large</td><td colspan='0'></td><td>$3</td><td>$4</td></tr></table>"
+    )
+    response = Response(
+        url="https://x.example/p",
+        content=page.encode(),
+        status=200,
+        reason="OK",
+        cookies={},
+        headers={},
+        request_headers={},
+        meta={},
+    )
+
+    [(_, rows)] = DummyCrawler()._price_tables(response)
+
+    assert rows == [
+        ["Model", "Tier", "Price", "Price"],
+        ["qwen", "small", "$1", "$2"],
+        ["qwen", "large", "$3", "$4"],
+    ]
+
+
+def test_a_page_without_price_table_is_read_for_the_prices_in_its_text() -> None:
+    page = (
+        "<html><head><title>VPS from € 3 / month | X</title></head>"
+        "<body><h2>Firewall</h2><p>0,9 Gbit/s</p><p>11 000 ₽/мес.</p>"
+        "<p>Contact us</p><p>from €5 per month</p><p>Attacks cost</p><p>€78,000</p><p>Mail: 1€</p>"
+        "<p>Disk</p><p>2 €</p><p>/month</p></body></html>"
+    )
+    crawler = DummyCrawler()
+    crawler.use_prices(CloudProvider.SCALEWAY, {}, 2.0)
+    response = Response(
+        url="https://x.example/firewall",
+        content=page.encode(),
+        status=200,
+        reason="OK",
+        cookies={},
+        headers={},
+        request_headers={},
+        meta={crawler.PRODUCT_PAGE_META: "Firewall"},
+    )
+
+    found = list(crawler._page_text_prices(response))
+
+    assert [(price.price, price.currency, price.unit, price.attributes["label"]) for price in found] == [
+        (Decimal(3), "EUR", PriceUnit.MONTH, ""),
+        (Decimal(11000), "RUB", PriceUnit.MONTH, "0,9 Gbit/s"),
+        (Decimal(5), "EUR", PriceUnit.MONTH, "Contact us"),
+        (Decimal(2), "EUR", PriceUnit.MONTH, "Disk"),
+    ]
+    assert found[2].attributes["starting"] is True
+
+
+async def test_the_curated_price_pages_are_requested_and_read_for_their_text() -> None:
+    crawler = DummyCrawler()
+    crawler.use_prices(
+        CloudProvider.SCALEWAY,
+        {},
+        2.0,
+        {"VPS": "https://x.example/vps"},
+        {"VPS": ["https://x.example/vps/pricing#plans"]},
+    )
+
+    requests = [request async for request in crawler.start_requests()]
+    page = requests[-1]
+    response = Response(
+        url=page.url,
+        content=b"<html><body><p>Small</p><p>4 \xe2\x82\xac / month</p></body></html>",
+        status=200,
+        reason="OK",
+        cookies={},
+        headers={},
+        request_headers={},
+        meta=page.meta,
+    )
+    found = [item async for item in crawler._parse_prices(response) if isinstance(item, dict)]
+
+    assert [request.url for request in requests[-1:]] == ["https://x.example/vps/pricing"]
+    assert page.meta[crawler.CURATED_PAGE_META] is True
+    assert [(item["model"].service, item["model"].price) for item in found] == [("VPS", Decimal(4))]

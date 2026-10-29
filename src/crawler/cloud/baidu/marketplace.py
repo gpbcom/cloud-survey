@@ -228,9 +228,14 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         Returns:
             bool: Whether the category is skipped.
         """
-        if category in self.EXCLUDED_CATEGORIES or (category, subcategory) in self.EXCLUDED_SUBCATEGORIES:
-            return True
-        return category == self.API_CATEGORY and subcategory != self.AI_API_SUBCATEGORY
+        excluded = (
+            category in self.EXCLUDED_CATEGORIES
+            or (category, subcategory) in self.EXCLUDED_SUBCATEGORIES
+            or (category == self.API_CATEGORY and subcategory != self.AI_API_SUBCATEGORY)
+        )
+        if excluded:
+            self.logger.debug("Skipping the %s category %r > %r, it holds no software.", self.name, category, subcategory)
+        return excluded
 
     def _detail_request(self, pid: Optional[str], priority: int) -> Optional[Request]:
         """Build the detail request of a product, unless it was already requested or the page limit is reached.
@@ -306,7 +311,9 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         products = self._json_result(response).get(BaiduMarketplaceResultField.RESULT)
         products = products if isinstance(products, list) else []
         share = response.meta.get(self.SHARE)
-        for product in map(self._as_object, products[:share] if isinstance(share, int) else products):
+        listed = products[:share] if isinstance(share, int) else products
+        self.logger.debug("%d %s products listed by %s, %d read.", len(products), self.name, response.url, len(listed))
+        for product in map(self._as_object, listed):
             if (
                 request := self._detail_request(
                     self._as_text(product.get(BaiduMarketplaceListedField.PID)), self.DETAIL_PRIORITY
@@ -508,7 +515,9 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         if not pid or self.PRODUCT_URL.format(pid).casefold() not in self.software_categories:
             return None
         if self.page_limit is not None and len(self.requested_products) >= self.page_limit * self.DETAILS_PER_PAGE:
+            self.logger.debug("Not requesting the %s related products of %s, the page limit is reached.", self.name, pid)
             return None
+        self.logger.debug("Requesting the %s products related to %s.", self.name, pid)
         return Request(
             self.RELATED_URL.format(quote(pid, safe="")),
             priority=self.RELATED_PRIORITY,
@@ -527,7 +536,14 @@ class BaiduMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         await super().on_start(resuming=resuming)
         if not resuming:
+            self.logger.debug(
+                "Forgetting the %d %s products requested before.", len(self.requested_products), self.name
+            )
             self.requested_products.clear()
+        else:
+            self.logger.info(
+                "Resuming the %s crawl with %d products already requested.", self.name, len(self.requested_products)
+            )
 
     def extract_software(self, response: Response) -> Iterator[MarketplaceSoftware]:
         """Extract the software of a product detail.

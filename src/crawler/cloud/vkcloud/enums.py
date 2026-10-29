@@ -138,3 +138,43 @@ class VkCloudHost(StrEnum):
     CURRENT = "cloud.vk.ru"
     LEGACY = "cloud.vk.com"
     LEGACY_WWW = "www.cloud.vk.com"
+
+
+@unique
+class VkCloudPriceColumn(StrEnum):
+    """Enums representing the column headers of the price list tables (their start, the VAT note following).
+
+    Attributes:
+        VALUE (str): The quantity priced, e.g. `1 Гб`.
+        PER_MINUTE (str): The price per minute.
+        PER_30_DAYS (str): The price per 30 days.
+        PER_DAY (str): The price per day.
+        PER_ONE_DAY (str): The price per day, written with its count.
+        PRICE (str): A price of a usage (e.g. a transferred GB), without period.
+    """
+
+    VALUE = "Значение"
+    PER_MINUTE = "Цена за минуту"
+    PER_30_DAYS = "Цена за 30 дней"
+    PER_DAY = "Цена за день"
+    PER_ONE_DAY = "Цена за 1 день"
+    PRICE = "Цена"
+
+
+@unique
+class VkCloudQuantityUnit(StrEnum):
+    """Enums representing the units of the quantities priced by the price list.
+
+    Attributes:
+        PIECE (str): An item (a vCPU, an instance, an address, a license).
+        GB (str): A gigabyte.
+        GB_UPPER (str): A gigabyte, upper-cased.
+        TB (str): A terabyte.
+        USER (str): A user.
+    """
+
+    PIECE = "шт"
+    GB = "Гб"
+    GB_UPPER = "ГБ"
+    TB = "ТБ"
+    USER = "пользователь"

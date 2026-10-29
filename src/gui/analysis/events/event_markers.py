@@ -50,6 +50,7 @@ class EventMarkers:
         self.logger = logger if logger else getLogger(__name__)
         self.timeline = ChronologyTimeline(self.logger)
         self.hits: List[MarkerHit] = []
+        self.logger.debug("Event marker painter ready.")
 
     ############################
     # Publicly Exposed Methods #

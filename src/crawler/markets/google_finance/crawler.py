@@ -3,7 +3,8 @@ from __future__ import annotations
 # Standard Library Imports.
 import json
 from datetime import date
-from typing import AsyncGenerator, ClassVar, Iterator, List, Optional
+from pathlib import Path
+from typing import AsyncGenerator, ClassVar, Iterator, List, Optional, Union
 from urllib.parse import urlencode
 
 # Third Party Imports.
@@ -14,9 +15,11 @@ from scrapling.spiders import Request, Response
 from crawler.enums import HttpMethod
 from crawler.markets.base import BaseMarketsCrawler, MarketFact
 from crawler.markets.google_finance.enums import BatchExecuteField, GoogleFinanceHeader, GoogleFinanceMeta
+from models.markets.crawl_scope import CrawlScope
 from models.markets.enums import MarketFeed
 from models.markets.facts.price_point import PricePoint
 from models.markets.listings.stock_listing import StockListing
+from models.markets.markets_catalog import MarketsCatalog
 
 
 class GoogleFinanceCrawler(BaseMarketsCrawler):
@@ -55,6 +58,26 @@ class GoogleFinanceCrawler(BaseMarketsCrawler):
     feed: ClassVar[MarketFeed] = MarketFeed.GOOGLE_FINANCE
     catalogue_url: ClassVar[str] = "https://www.google.com/finance/"
     download_delay: float = 2.0
+
+    def __init__(
+        self,
+        catalog: Optional[MarketsCatalog] = None,
+        scope: Optional[CrawlScope] = None,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            catalog (Optional[MarketsCatalog]): What is read, `data/curated/markets.json` by default.
+            scope (Optional[CrawlScope]): The part of the catalogue read, all of it by default.
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+
+        Raises:
+            MarketsCatalogError: If the default catalogue cannot be loaded.
+        """
+        super().__init__(catalog=catalog, scope=scope, crawldir=crawldir, interval=interval)
 
     ############################
     # Internal Helpers Methods #

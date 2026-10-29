@@ -124,6 +124,7 @@ class StoredChartController(QObject):
     def _request(self) -> None:
         """Read the data of the chosen axes and filters in the storage thread."""
         if sip.isdeleted(self.panel):
+            self.logger.debug("Chart data not read: its chart was closed.")
             return
         self.timer.stop()
         self.request += 1
@@ -149,6 +150,7 @@ class StoredChartController(QObject):
 
     def refresh(self) -> None:
         """Read the chart data again once the changes stop (the data was written, or the axes changed)."""
+        self.logger.debug("Chart data to read again in %d ms.", self.DELAY_MS)
         self.timer.start()
 
     def set_query(self, query: ItemQuery) -> None:
@@ -158,4 +160,5 @@ class StoredChartController(QObject):
             query (ItemQuery): The filters of the tab.
         """
         self.query = query.model_copy(update={"offset": 0, "with_total": False})
+        self.logger.debug("Filters of the tab applied to the chart: %d providers.", len(self.query.providers))
         self.refresh()

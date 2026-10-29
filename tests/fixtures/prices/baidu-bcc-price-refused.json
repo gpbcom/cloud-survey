@@ -1,0 +1,1 @@
+{"success":false,"status":400,"error":{"requestId":"567c2e2d-a78d-4e76-8ed9-8a9d2e27349e","code":"PriceException.BCCPriceErrorException","message":"BCC价格获取失败","detail":{"global":"BCC价格获取失败","detail":null}},"requestId":"567c2e2d-a78d-4e76-8ed9-8a9d2e27349e","code":"PriceException.BCCPriceErrorException","message":{"global":"BCC价格获取失败","detail":null}}

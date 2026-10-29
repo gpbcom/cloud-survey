@@ -12,9 +12,11 @@ from sqlalchemy.exc import SQLAlchemyError
 # First Party Imports.
 from models.cloud.enums import CloudProvider
 from models.drivers.enums import MetricSource, ProviderMetric
+from models.drivers.metrics.metric_coverage import MetricCoverage
 from models.drivers.metrics.provider_metric_value import ProviderMetricValue
 from storage.engine.database import Database
 from storage.exception import StorageReadError, StorageWriteError
+from storage.mappers.row_store import RowStore
 from storage.tables.base import Base
 from storage.tables.metrics.provider_metric_row import ProviderMetricRow
 
@@ -25,6 +27,7 @@ class ProviderMetricRepository:
     Attributes:
         database (Database): The open database.
         table (Table): The `provider_metrics` table.
+        rows (RowStore[ProviderMetricValue]): The single-measure operations on the table.
         logger (Logger): The repository logger.
 
     Notes:
@@ -43,11 +46,82 @@ class ProviderMetricRepository:
         self.database = database
         self.logger = logger if logger else getLogger(__name__)
         self.table: Table = Base.metadata.tables[ProviderMetricRow.__tablename__]
+        self.rows = RowStore(database, self.table, ProviderMetricValue, "provider metric", self.logger)
         self.logger.debug("Repository of the provider metrics ready.")
 
     ############################
     # Publicly Exposed Methods #
     ############################
+
+    async def create(self, value: ProviderMetricValue) -> ProviderMetricValue:
+        """Insert one measure.
+
+        Args:
+            value (ProviderMetricValue): The measure.
+
+        Returns:
+            ProviderMetricValue: The measure, as stored.
+
+        Raises:
+            StorageWriteError: If a measure has the same key (provider, quarter, metric and source).
+        """
+        self.logger.debug("Creating a provider metric.")
+        return await self.rows.create(value)
+
+    async def read(
+        self, provider: CloudProvider, period: str, metric: ProviderMetric, source: MetricSource
+    ) -> Optional[ProviderMetricValue]:
+        """Read one measure.
+
+        Args:
+            provider (CloudProvider): The provider.
+            period (str): The quarter, written YYYYQn.
+            metric (ProviderMetric): What is measured.
+            source (MetricSource): Where it comes from.
+
+        Returns:
+            Optional[ProviderMetricValue]: The measure, `None` when there is none.
+
+        Raises:
+            StorageReadError: If the measure cannot be read.
+        """
+        return await self.rows.read(
+            {"provider": provider.value, "period": period, "metric": metric.value, "source": source.value}
+        )
+
+    async def update(self, value: ProviderMetricValue) -> bool:
+        """Replace one measure (that of the same provider, quarter, metric and source).
+
+        Args:
+            value (ProviderMetricValue): The measure.
+
+        Returns:
+            bool: Whether the measure existed (none is created otherwise).
+
+        Raises:
+            StorageWriteError: If the measure cannot be written.
+        """
+        self.logger.debug("Updating a provider metric.")
+        return await self.rows.update(value)
+
+    async def delete(self, provider: CloudProvider, period: str, metric: ProviderMetric, source: MetricSource) -> bool:
+        """Delete one measure.
+
+        Args:
+            provider (CloudProvider): The provider.
+            period (str): The quarter, written YYYYQn.
+            metric (ProviderMetric): What is measured.
+            source (MetricSource): Where it comes from.
+
+        Returns:
+            bool: Whether a measure was deleted.
+
+        Raises:
+            StorageWriteError: If the measure cannot be deleted.
+        """
+        return await self.rows.delete(
+            {"provider": provider.value, "period": period, "metric": metric.value, "source": source.value}
+        )
 
     async def upsert(self, values: Sequence[ProviderMetricValue]) -> int:
         """Write measures, replacing those of the same provider, quarter, metric and source.
@@ -119,22 +193,30 @@ class ProviderMetricRepository:
         self.logger.info("%s provider metrics replaced: %d measures.", source.value, written)
         return written
 
-    async def read(
+    async def list(
         self,
         metrics: Optional[Sequence[ProviderMetric]] = None,
         providers: Optional[Sequence[CloudProvider]] = None,
+        offset: int = 0,
+        limit: Optional[int] = None,
     ) -> List[ProviderMetricValue]:
-        """Read measures.
+        """List measures.
 
         Args:
             metrics (Optional[Sequence[ProviderMetric]]): Only these metrics, all of them when `None`.
             providers (Optional[Sequence[CloudProvider]]): Only these providers, all of them when `None` or empty.
+            offset (int): The measures skipped.
+            limit (Optional[int]): The most measures returned, every one when `None`.
 
         Returns:
             List[ProviderMetricValue]: The measures, by provider, quarter, metric and source.
 
         Raises:
             StorageReadError: If the measures cannot be read.
+
+        Notes:
+            A row of an unknown provider, metric or source (e.g. written by a newer version, or by a metric since
+            removed) is skipped, the unknown metrics and sources logged as a warning.
         """
         table = self.table
         statement = select(table).order_by(table.c.provider, table.c.period, table.c.metric, table.c.source)
@@ -142,6 +224,7 @@ class ProviderMetricRepository:
             statement = statement.where(table.c.metric.in_([metric.value for metric in metrics]))
         if providers:
             statement = statement.where(table.c.provider.in_([provider.value for provider in providers]))
+        statement = statement.offset(offset).limit(limit)
         try:
             async with self.database.connect() as connection:
                 rows = (await connection.execute(statement)).mappings().all()
@@ -149,6 +232,85 @@ class ProviderMetricRepository:
             self.logger.error("The provider metrics cannot be read: %s", e)
             raise StorageReadError("provider metrics", str(e)) from e
         known = {provider.value for provider in CloudProvider}
-        values = [ProviderMetricValue.model_validate(dict(row)) for row in rows if row["provider"] in known]
+        metrics_known = {metric.value for metric in ProviderMetric}
+        sources_known = {source.value for source in MetricSource}
+        mentioned = [row for row in rows if row["provider"] in known]
+        kept = [row for row in mentioned if row["metric"] in metrics_known and row["source"] in sources_known]
+        if len(kept) < len(mentioned):
+            unknown = sorted(
+                {
+                    f"{row['metric']}/{row['source']}"
+                    for row in mentioned
+                    if row["metric"] not in metrics_known or row["source"] not in sources_known
+                }
+            )
+            self.logger.warning(
+                "%d stored provider metrics skipped: unknown metric or source (%s).",
+                len(mentioned) - len(kept),
+                ", ".join(unknown),
+            )
+        values = [ProviderMetricValue.model_validate(dict(row)) for row in kept]
         self.logger.debug("%d provider metrics read.", len(values))
         return values
+
+    async def providers(self) -> List[CloudProvider]:
+        """List the providers holding at least one measure.
+
+        Returns:
+            List[CloudProvider]: The providers, in their order of declaration.
+
+        Raises:
+            StorageReadError: If the measures cannot be read.
+        """
+        statement = select(self.table.c.provider).distinct()
+        try:
+            async with self.database.connect() as connection:
+                stored = {str(row[0]) for row in (await connection.execute(statement)).all()}
+        except SQLAlchemyError as e:
+            self.logger.error("The providers of the provider metrics cannot be read: %s", e)
+            raise StorageReadError("provider metrics", str(e)) from e
+        providers = [provider for provider in CloudProvider if provider.value in stored]
+        self.logger.debug("%d providers hold provider metrics.", len(providers))
+        return providers
+
+    async def coverage(self) -> List[MetricCoverage]:
+        """Describe what the stored measures of each criterion cover (the tooltips of the Rise drivers card).
+
+        Returns:
+            List[MetricCoverage]: One entry per criterion stored: its providers, first and last quarter, measures
+                and sources.
+
+        Raises:
+            StorageReadError: If the measures cannot be read.
+        """
+        table = self.table
+        statement = select(
+            table.c.metric,
+            func.count(table.c.provider.distinct()),
+            func.min(table.c.period),
+            func.max(table.c.period),
+            func.count(),
+            func.array_agg(table.c.source.distinct()),
+        ).group_by(table.c.metric)
+        try:
+            async with self.database.connect() as connection:
+                rows = (await connection.execute(statement)).all()
+        except SQLAlchemyError as e:
+            self.logger.error("The coverage of the provider metrics cannot be read: %s", e)
+            raise StorageReadError("provider metrics", str(e)) from e
+        known = {metric.value for metric in ProviderMetric}
+        sources = {source.value for source in MetricSource}
+        coverage = [
+            MetricCoverage(
+                metric=ProviderMetric(metric),
+                providers=int(providers),
+                first=str(first),
+                last=str(last),
+                observations=int(observations),
+                sources=[MetricSource(source) for source in sorted(stored or []) if source in sources],
+            )
+            for metric, providers, first, last, observations, stored in rows
+            if metric in known
+        ]
+        self.logger.debug("Coverage of %d provider metrics read.", len(coverage))
+        return coverage

@@ -126,6 +126,7 @@ class ColumnGuide(QFrame):
         """
         explained = self.help.column(column)
         if explained is None:
+            self.logger.warning("The column %s is not explained in the drivers help: its key is shown.", column.value)
             return column.value
         return (
             f"<qt><p style='margin:0'><b style='color:{self.theme.ACCENT}'>{html.escape(explained.title)}</b></p>"
@@ -165,6 +166,7 @@ class ColumnGuide(QFrame):
         Args:
             index (Optional[int]): The entry, `None` for none.
         """
+        self.logger.debug("Column guide entry %s marked active.", index)
         self.active = index
         for position, entry in enumerate(self.entries):
             entry.setProperty("active", position == index)

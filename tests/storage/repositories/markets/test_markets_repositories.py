@@ -60,12 +60,12 @@ class TestRepositories:
         )
         await storage.shares.upsert([share("Google", 86.0)])
 
-        read = await storage.shares.read("search", "US", Device.ALL)
-        microsoft = await storage.shares.read("search", "US", Device.ALL, companies=["microsoft"])
+        read = await storage.shares.list("search", "US", Device.ALL)
+        microsoft = await storage.shares.list("search", "US", Device.ALL, companies=["microsoft"])
 
         assert [(value.label, value.value) for value in read] == [("Google", 86.0), ("bing", 9.0)]
         assert [value.label for value in microsoft] == ["bing"]
-        assert await storage.shares.read("search", "US", Device.MOBILE) == []
+        assert await storage.shares.list("search", "US", Device.MOBILE) == []
         assert await storage.shares.areas_with_data("search") == {"US": 2, "GB": 1}
 
     async def test_replacing_periods_drops_the_labels_of_an_older_release(self, storage: Storage) -> None:
@@ -75,11 +75,11 @@ class TestRepositories:
 
         await storage.shares.replace_periods([share("Google", 86.0), share("DuckDuckGo", 2.0, company="duckduckgo")])
 
-        assert [(value.label, value.value) for value in await storage.shares.read("search", "US", Device.ALL)] == [
+        assert [(value.label, value.value) for value in await storage.shares.list("search", "US", Device.ALL)] == [
             ("DuckDuckGo", 2.0),
             ("Google", 86.0),
         ]
-        assert len(await storage.shares.read("search", "GB", Device.ALL)) == 1
+        assert len(await storage.shares.list("search", "GB", Device.ALL)) == 1
 
     async def test_the_coverage_reads_months_and_quarters_apart(self, storage: Storage) -> None:
         quarterly = {
@@ -114,10 +114,10 @@ class TestRepositories:
         assert await storage.stocks.upsert(points) == 3
         assert await storage.fx.upsert([FxRate(currency="TWD", day=date(2026, 10, 16), usd_per_unit=1 / 32.4)]) == 1
 
-        ibm = await storage.stocks.read(["NYSE:IBM"], start=date(2000, 1, 1))
+        ibm = await storage.stocks.list(["NYSE:IBM"], start=date(2000, 1, 1))
         assert [(point.day, point.close) for point in ibm] == [(date(2026, 10, 16), 250.0)]
         assert (await storage.stocks.spans())["NYSE:IBM"] == (date(1986, 10, 24), date(2026, 10, 16), 2)
-        assert [rate.currency for rate in await storage.fx.read(["TWD"])] == ["TWD"]
+        assert [rate.currency for rate in await storage.fx.list(["TWD"])] == ["TWD"]
 
 
 class TestMarketsCollector:
@@ -139,7 +139,7 @@ class TestMarketsCollector:
         )
         await collector.finish([MarketFeed.STATCOUNTER, MarketFeed.WORLD_BANK])
 
-        union = {value.label: value for value in await storage.shares.read("search", "eu27", Device.ALL)}
+        union = {value.label: value for value in await storage.shares.list("search", "eu27", Device.ALL)}
         assert written == 3
         assert union["Google"].value == pytest.approx((80 * 90 + 60 * 80) / 140)
         assert union["Google"].estimate
@@ -161,8 +161,8 @@ class TestMarketsCollector:
         await collector.write(MarketFeed.GOOGLE_FINANCE, prices)
         await collector.finish([MarketFeed.GOOGLE_FINANCE])
 
-        cloud = await storage.shares.read("cloud", "ww", Device.ALL, source=ShareSource.SYNERGY)
-        measures = await storage.metrics.read([ProviderMetric.STOCK_VALUE], [CloudProvider.AWS])
+        cloud = await storage.shares.list("cloud", "ww", Device.ALL, source=ShareSource.SYNERGY)
+        measures = await storage.metrics.list([ProviderMetric.STOCK_VALUE], [CloudProvider.AWS])
         assert {(value.label, value.period) for value in cloud} == {
             ("amazon", date(2026, 4, 1)),
             ("Others", date(2026, 4, 1)),
@@ -171,3 +171,45 @@ class TestMarketsCollector:
             ("2026Q1", 200.0, MetricSource.GOOGLE_FINANCE),
             ("2026Q2", 220.0, MetricSource.GOOGLE_FINANCE),
         ]
+
+    async def test_the_new_sources_become_criteria_of_the_providers(
+        self, storage: Storage, markets_catalog: MarketsCatalog, markets_chronology: Chronology
+    ) -> None:
+        collector = MarketsCollector(markets_catalog, markets_chronology, storage)
+        dram = share("Samsung", 40.0, area="ww", company="samsung").model_copy(
+            update={
+                "segment": "dram",
+                "source": ShareSource.TRENDFORCE,
+                "granularity": Granularity.QUARTER,
+                "period": date(2026, 4, 1),
+                "metric": ShareMetric.REVENUE,
+            }
+        )
+        await storage.shares.upsert([dram])
+        await storage.fx.upsert(
+            [
+                FxRate(currency="RUB", day=date(2026, 5, 4), usd_per_unit=1 / 80.0),
+                FxRate(currency="RUB", day=date(2026, 8, 3), usd_per_unit=1 / 100.0),
+            ]
+        )
+        await collector.write(
+            MarketFeed.WORLD_BANK, [weight("IT.NET.USER.ZS", "RU", 90.0), weight("SP.POP.TOTL", "RU", 144e6)]
+        )
+        await collector.write(
+            MarketFeed.STATCOUNTER, [statcounter("ww", "Google", 90.0), statcounter("RU", "YANDEX", 70.0)]
+        )
+
+        await collector.finish([MarketFeed.STATCOUNTER, MarketFeed.WORLD_BANK])
+
+        measures = {
+            (value.provider, value.metric, value.period): value
+            for value in await storage.metrics.list(providers=[CloudProvider.GCP, CloudProvider.YANDEX_CLOUD])
+        }
+        assert measures[(CloudProvider.GCP, ProviderMetric.USAGE_SEARCH, "2026Q3")].value == pytest.approx(90.0)
+        assert measures[(CloudProvider.YANDEX_CLOUD, ProviderMetric.USAGE_SEARCH_HOME, "2026Q3")].value == 70.0
+        assert measures[(CloudProvider.GCP, ProviderMetric.CONTEXT_DRAM_HHI, "2026Q2")].value == pytest.approx(0.16)
+        assert measures[(CloudProvider.YANDEX_CLOUD, ProviderMetric.HOME_FX_CHANGE, "2026Q3")].value > 0
+        assert measures[(CloudProvider.YANDEX_CLOUD, ProviderMetric.HOME_INTERNET_USERS, "2024Q1")].value == (
+            pytest.approx(129.6)
+        )
+        assert CloudProvider.GCP in await storage.metrics.providers()

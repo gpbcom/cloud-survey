@@ -1,0 +1,309 @@
+# Curated price coverage of Oracle Cloud (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: oracle-cloud
+currency: USD
+row_links:
+  'Archive Storage': ['"displayName": "Archive Storage']
+  'Arm-based Compute': ['^Compute - Virtual Machine \|.*"displayName": "Compute - Standard - A[0-9]']
+  'HPC Compute': ['^Compute - Bare Metal \|.*HPC']
+  'Globally Distributed Autonomous AI Database': ['Globally Distributed Autonomous']
+  'Globally Distributed Exadata Database on Exascale Infrastructure': ['Globally Distributed Exadata']
+  'Autonomous AI Database on Exadata Cloud@Customer': ['^(Database - Exadata Database - Cloud@Customer|Oracle Public Cloud Services - CLOUDCM) \|.*Autonomous']
+links:
+  'Generative AI Service': ['^OCI Generative AI - Models$', '^Generative AI - xAI']
+  'Virtual Machines': ['^Compute - Virtual Machine$']
+  'GPU-Accelerated Compute': ['^Compute - GPU']
+  'Bare Metal Servers': ['^Compute - Bare Metal$']
+  'Exadata Cloud@Customer': ['^Database - Exadata Database - Cloud@Customer$', '^Base Database Cloud@Customer$']
+  'Identity and Access Management': ['^OCI IAM$']
+  'Web Application Firewall': ['^WAF$']
+  'Blockchain Platform': ['^Application Development - Blockchain$']
+  'Functions': ['^Application Development - Serverless$']
+  'HeatWave MySQL': ['^(MySQL|HeatWave Cluster|HeatWave Free Tier|Database - MySQL HeatWave on AWS)$']
+  'Zero Data Loss Autonomous Recovery Service': ['^Oracle Database Autonomous Recovery Service$']
+  'DNS Management': ['^Networking - DNS$']
+  'IoT Platform': ['^Application Development - Internet of Things Platform$']
+  'File Storage with Lustre': ['^File Storage with Lustre Service$']
+  'APEX': ['^APEX Application Development$']
+  'API Gateway': ['^Application Development - API Management$']
+  'Visual Builder Studio': ['^Application Development - Developer Cloud Service$']
+  'Health Checks': ['^Edge Services$']
+  'Database Management': ['^Oracle Database$']
+  'Public Safety and Security': ['^Radio Service$']
+  'Search with OpenSearch': ['^Search Service with OpenSearch$']
+statements:
+  - product: 'Load Balancers'
+    model: included
+    reason: 'The same service as Load Balancer, priced by its Flexible Load Balancer parts.'
+    source: 'https://www.oracle.com/cloud/networking/flexible-load-balancer/'
+  - product: 'Network Load Balancer'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: the network load balancer is not charged apart.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/NetworkLoadBalancer/home.htm'
+  - product: 'Audit'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/Audit/home.htm'
+  - product: 'Tagging'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/Tagging/home.htm'
+  - product: 'Compartment Quotas'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/Quotas/home.htm'
+  - product: 'Console Dashboards'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/Dashboards/home.htm'
+  - product: 'Events'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://www.oracle.com/cloud/events-service/'
+  - product: 'Resource Manager'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: only the resources it provisions are billed.'
+    source: 'https://www.oracle.com/cloud/cloud-native/resource-manager/'
+  - product: 'Security Zones'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://www.oracle.com/security/cloud-security/security-zones/'
+  - product: 'Security Advisor'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/SecurityAdvisor/home.htm'
+  - product: 'Cloud Advisor'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://www.oracle.com/cloud/cost-management-and-governance/cloud-advisor/'
+  - product: 'Bastion'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://www.oracle.com/security/cloud-security/bastion/'
+  - product: 'Certificates'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://www.oracle.com/security/cloud-security/ssl-tls-certificates/'
+  - product: 'Connector Hub'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: only the services it moves data to are billed.'
+    source: 'https://www.oracle.com/application-development/connector-hub/'
+  - product: 'Vulnerability Scanning'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://www.oracle.com/security/cloud-security/vulnerability-scanning-service/'
+  - product: 'OS Management Hub'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: no charge of its own for OCI instances.'
+    source: 'https://www.oracle.com/cloud/compute/os-management/'
+  - product: 'Oracle Linux'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: Oracle Linux is included with OCI compute.'
+    source: 'https://docs.oracle.com/en-us/iaas/oracle-linux/home.htm'
+  - product: 'Autonomous Linux'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: included with OCI compute.'
+    source: 'https://www.oracle.com/linux/autonomous-linux/'
+  - product: 'Management Agent'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://docs.oracle.com/en-us/iaas/management-agents/home.htm'
+  - product: 'Management Dashboards'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://docs.oracle.com/en-us/iaas/management-dashboard/home.htm'
+  - product: 'Resource Scheduler'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/resource-scheduler/home.htm'
+  - product: 'Cluster Placement Groups'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/cluster-placement-groups/home.htm'
+  - product: 'Zero Trust Packet Routing'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI feature with no charge of its own.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/zero-trust-packet-routing/home.htm'
+  - product: 'Private Endpoint'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI networking feature with no charge of its own.'
+    source: 'https://www.oracle.com/cloud/networking/private-endpoint/'
+  - product: 'Networking Gateways'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: the internet, NAT and service gateways are not charged apart.'
+    source: 'https://www.oracle.com/cloud/networking/service-gateway/'
+  - product: 'Site-to-Site VPN'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: an OCI networking feature with no charge of its own.'
+    source: 'https://www.oracle.com/cloud/networking/site-to-site-vpn/'
+  - product: 'Service Mesh'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: only the resources it runs on are billed.'
+    source: 'https://www.oracle.com/cloud/cloud-native/service-mesh/'
+  - product: 'Hardware Root of Trust'
+    model: included
+    reason: 'A security feature of OCI hosts, not a part of the Oracle Cloud price list.'
+    source: 'https://www.oracle.com/security/cloud-security/hardware-root-of-trust/'
+  - product: 'Isolated Network Virtualization'
+    model: included
+    reason: 'A feature of the OCI network, not a part of the Oracle Cloud price list.'
+    source: 'https://www.oracle.com/security/cloud-security/isolated-network-virtualization/'
+  - product: 'Oracle Cloud Migrations'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: only the migrated resources are billed.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/cloud-migration/home.htm'
+  - product: 'Container Instances'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: billed as the compute and memory of the containers.'
+    source: 'https://www.oracle.com/cloud/cloud-native/container-instances/'
+  - product: 'Virtual Machines for Data Science'
+    model: included
+    reason: 'Free images: billed as the virtual machines running them.'
+    source: 'https://www.oracle.com/cloud/compute/virtual-machines-data-science/'
+  - product: 'Database Service for Azure'
+    model: included
+    reason: 'No charge for the service itself: the Oracle databases it manages are billed.'
+    source: 'https://www.oracle.com/cloud/azure/oracle-database-for-azure/'
+  - product: 'Java'
+    model: included
+    reason: 'Java SE subscription is included with OCI: not a part of the Oracle Cloud price list.'
+    source: 'https://www.oracle.com/java/'
+  - product: 'Java Management'
+    model: included
+    reason: 'Not a part of the Oracle Cloud price list: included with the Java SE subscription.'
+    source: 'https://www.oracle.com/java/jms/'
+  - product: 'Application Dependency Management'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/application-dependency-management/home.htm'
+  - product: 'Application Performance Monitoring'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://www.oracle.com/manageability/application-performance-monitoring/'
+  - product: 'Artifact Registry'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/artifacts/home.htm'
+  - product: 'Registry'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://www.oracle.com/cloud/cloud-native/container-registry/'
+  - product: 'Automated CEMLI Execution'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/auto-cemli-execution/home.htm'
+  - product: 'Autonomous AI Database Data Studio'
+    model: included
+    reason: 'Part of Autonomous AI Database, priced by its parts.'
+    source: 'https://www.oracle.com/autonomous-database/data-studio/'
+  - product: 'Machine Learning in Oracle Database'
+    model: included
+    reason: 'Part of Oracle AI Database, priced by the database parts.'
+    source: 'https://www.oracle.com/artificial-intelligence/database-machine-learning/'
+  - product: 'MySQL HeatWave AutoML'
+    model: included
+    reason: 'Part of HeatWave MySQL, priced by its parts.'
+    source: 'https://www.oracle.com/mysql/automl/'
+  - product: 'Compute Cloud@Customer Isolated'
+    model: quote
+    reason: 'A dedicated deployment priced per contract, not in the Oracle Cloud price list.'
+    source: 'https://docs.oracle.com/en-us/iaas/compute-cloud-at-customer-isolated/c3i/home.htm'
+  - product: 'Private Cloud Appliance'
+    model: quote
+    reason: 'An on-premises appliance priced per contract, not in the Oracle Cloud price list.'
+    source: 'https://docs.oracle.com/en-us/iaas/private-cloud-appliance/pca/home.htm'
+  - product: 'Roving Edge Classic'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/Rover/home.htm'
+  - product: 'Content Management'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://www.oracle.com/cx/marketing/'
+  - product: 'Data Catalog'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://www.oracle.com/big-data/data-catalog/'
+  - product: 'Data Flow'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://www.oracle.com/big-data/data-flow/'
+  - product: 'Data Labeling'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/data-labeling/using/home.htm'
+  - product: 'Data Science'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://www.oracle.com/artificial-intelligence/data-science/'
+  - product: 'Database Tools'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/database-tools/home.htm'
+  - product: 'DevOps'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://www.oracle.com/cloud/cloud-native/devops-service/'
+  - product: 'Fleet Application Management'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://www.oracle.com/cloud/fleet-application-management/'
+  - product: 'Managed Access'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/managed-access/home.htm'
+  - product: 'Managed Cloud Self Service Platform'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/managed-cloud-self-service/home.htm'
+  - product: 'OCI Control Center'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/control-center/home.htm'
+  - product: 'OpenShift Container Platform on OCI'
+    model: not-public
+    reason: 'Red Hat subscriptions are bought from Red Hat: no part of the Oracle Cloud price list prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/openshift-on-oci/overview.htm'
+  - product: 'Oracle AI Database@AWS'
+    model: not-public
+    reason: 'Sold through the AWS Marketplace, not in the Oracle Cloud price list.'
+    source: 'https://www.oracle.com/cloud/aws/'
+  - product: 'Oracle AI Database@Azure'
+    model: not-public
+    reason: 'Sold through the Azure Marketplace, not in the Oracle Cloud price list.'
+    source: 'https://www.oracle.com/cloud/azure/oracle-database-at-azure/'
+  - product: 'Oracle AI Database@Google Cloud'
+    model: not-public
+    reason: 'Sold through Google Cloud Marketplace, not in the Oracle Cloud price list.'
+    source: 'https://www.oracle.com/cloud/google/oracle-database-at-google-cloud/'
+  - product: 'Process Automation'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/process-automation/index.html'
+  - product: 'Pulse'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/pulse/home.htm'
+  - product: 'Resource Analytics'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/resource-analytics/home.htm'
+  - product: 'Secret Management Service'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/secret-management/home.htm'
+  - product: 'Service Oriented Architecture (SOA)'
+    model: included
+    reason: 'Priced by the SOA Suite parts of Application Integration.'
+    source: 'https://www.oracle.com/integration/soa/'
+  - product: 'Stack Monitoring'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://www.oracle.com/manageability/stack-monitoring/'
+  - product: 'Visual Builder'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/visual-builder/index.html'
+  - product: 'Web Application Acceleration'
+    model: not-public
+    reason: 'No part of the Oracle Cloud price list (cetools API) read prices it.'
+    source: 'https://docs.oracle.com/en-us/iaas/Content/web-app-acceleration/home.htm'

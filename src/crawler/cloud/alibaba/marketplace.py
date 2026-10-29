@@ -158,14 +158,17 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
         await page.locator(self.SIZE_SELECTOR).click()
         await page.locator(self.SIZE_OPTION, has_text=str(self.PAGE_SIZE)).first.click()
         await page.wait_for_function(self.SIZE_APPLIED, arg=[self.CARD, self.PAGE_SIZE])
+        self.logger.debug("The %s result page shows %d products per page.", self.name, self.PAGE_SIZE)
         if number == 1:
             return
         first = await page.locator(self.TITLE).first.text_content()
         jump = page.locator(self.JUMP_INPUT)
         if await jump.count():
+            self.logger.debug("Jumping to the %s result page %d.", self.name, number)
             await jump.fill(str(number))
             await page.locator(self.JUMP_BUTTON).click()
         else:
+            self.logger.debug("No page jump box, clicking the %s pagination button %d.", self.name, number)
             await page.locator(f"button.next-pagination-item[aria-label^='Page {number},']").click()
         await page.wait_for_function(self.PAGE_SHOWN, arg=[number, first])
 
@@ -261,7 +264,10 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         text = response.css(".next-pagination-total::text").get() or ""
         digits = re.sub(r"\D", "", text)
-        return int(digits) if digits else 0
+        if not digits:
+            self.logger.warning("The %s result page %s has no pagination total, counting 0.", self.name, response.url)
+            return 0
+        return int(digits)
 
     def _check_page(self, response: Response, number: int, total: int) -> None:
         """Check that a result page shows the requested page, by `PAGE_SIZE`.
@@ -322,10 +328,15 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
             (line.split(":", 1)[1].strip() for line in info if line.startswith(AlibabaCardInfo.DELIVERY_METHOD)), ""
         )
         if method.casefold() == AlibabaCardDelivery.SERVICE:
+            self.logger.debug("The %s product %s is a service.", self.name, code)
             return None
         if delivery := self.DELIVERIES.get(method.casefold()):
             return delivery
-        return next((delivery for prefix, delivery in self.CODE_DELIVERIES if prefix in code), DeliveryMethod.OTHER)
+        delivery = next((delivery for prefix, delivery in self.CODE_DELIVERIES if prefix in code), DeliveryMethod.OTHER)
+        self.logger.debug(
+            "Delivery %s of the %s product %s, from its code (method %r).", delivery, self.name, code, method
+        )
+        return delivery
 
     def _category_paths(self, top: str, leaf: str) -> List[Optional[MarketplaceCategory]]:
         """Get the category paths of a product, from its queried top category and its leaf category.
@@ -405,9 +416,12 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
         self._read_menu(response)
         top, number = str(response.meta.get(self.TOP)), int(str(response.meta.get(self.PAGE, 1)))
         self._check_page(response, number, self._total(response))
+        found = 0
         for card in response.css(self.CARD):
             if (software := self._card_software(card, top)) is not None:
+                found += 1
                 yield software
+        self.logger.info("%d software on the %s result page %d of the category %s.", found, self.name, number, top)
 
     async def parse(self, response: Response) -> AsyncGenerator[Union[Dict[str, JsonValue], Request]]:
         """Request the top categories from the products page, or stream the software of a result page.
@@ -424,10 +438,14 @@ class AlibabaMarketplaceCrawler(BaseMarketplaceCrawler):
                 requested page.
         """
         if self.TOP not in response.meta:
+            self.logger.debug("Reading the %s top categories of %s.", self.name, response.url)
             for request in self._top_requests(response):
                 yield request
             return
         if response.meta.get(self.PAGE) == 1:
+            self.logger.debug(
+                "Requesting the next %s result pages of the category %s.", self.name, response.meta.get(self.TOP)
+            )
             for request in self._next_requests(response):
                 yield request
         async for item in super().parse(response):

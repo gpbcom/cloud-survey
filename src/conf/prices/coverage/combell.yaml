@@ -1,0 +1,102 @@
+# Curated price coverage of Combell (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: combell
+currency: EUR
+row_links:
+  'OpenStack': ['^[^|]+ \| openstack/']
+statements:
+  - product: 'Database hosting'
+    model: included
+    reason: 'The page states databases are always included with Combell web hosting (Web hosting).'
+    source: 'https://www.combell.com/en/database-hosting'
+  - product: 'Other CMSs'
+    model: included
+    reason: 'A page for CMS sites run on Combell web hosting packages (Web hosting), no price of its own.'
+    source: 'https://www.combell.com/en/hosting/cms'
+  - product: 'Colocation'
+    model: quote
+    reason: 'The page asks to contact Combell for a tailored colocation solution.'
+    source: 'https://www.combell.com/en/colocation'
+  - product: 'Autoscaling'
+    model: quote
+    reason: 'A one-time fee set from the client criteria after an informal meeting, plus metered CPU and memory, no public rate.'
+    source: 'https://www.combell.com/en/autoscaling-scale-up-and-down-flexibly'
+  - product: 'Disaster Recovery'
+    model: quote
+    reason: 'The page asks to contact Combell for a service tailored to the client needs.'
+    source: 'https://www.combell.com/en/disaster-recovery'
+  - product: 'Managed cloud'
+    model: quote
+    reason: 'The page gives no price and offers a tailored solution after contacting Combell.'
+    source: 'https://www.combell.com/en/managed-cloud'
+  - product: 'IT/Cloud consultancy'
+    model: quote
+    reason: 'The page says Combell meets the client and then provides a tailored proposal.'
+    source: 'https://www.combell.com/en/cloud-consultancy'
+  - product: 'Protect your brand online'
+    model: quote
+    reason: 'The page gives no price and offers a tailored solution after contacting Combell.'
+    source: 'https://www.combell.com/en/online-brand-protection'
+  - product: 'Dedicated connectivity'
+    model: quote
+    reason: 'The page gives no price and offers a tailored solution after contacting Combell.'
+    source: 'https://www.combell.com/en/dedicated-connectivity-vpn'
+  - product: 'AI Infrastructure'
+    model: quote
+    reason: 'The page gives no price and asks to contact Combell experts.'
+    source: 'https://www.combell.com/en/ai-infrastructure'
+  - product: 'GPU as a service'
+    model: quote
+    reason: 'The page gives no price and asks to contact Combell experts.'
+    source: 'https://www.combell.com/en/gpu-as-a-service'
+  - product: 'Cloud servers'
+    model: quote
+    reason: 'The page gives no price, Combell staff contact the client after a request.'
+    source: 'https://www.combell.com/en/cloud-server'
+  - product: 'Managed Odoo'
+    model: quote
+    reason: 'The FAQ says Odoo hosting cost depends on many factors and the experts work out a proposal.'
+    source: 'https://www.combell.com/en/managed-odoo-hosting'
+  - product: 'Business continuity'
+    model: not-public
+    reason: 'No price on the product page and not on the Combell OpenStack price list.'
+    source: 'https://www.combell.com/en/openstack-cloud/pricing'
+  - product: 'Cloud replication'
+    model: not-public
+    reason: 'No price on the product page and not on the Combell OpenStack price list.'
+    source: 'https://www.combell.com/en/openstack-cloud/pricing'
+  - product: 'Multi-data centre'
+    model: not-public
+    reason: 'The page only mentions a relatively low extra cost, no public price.'
+    source: 'https://www.combell.com/en/openstack-cloud/pricing'
+  - product: 'Application load testing'
+    model: not-public
+    reason: 'No price on the product page and not on the Combell OpenStack price list.'
+    source: 'https://www.combell.com/en/openstack-cloud/pricing'
+  - product: 'Cloud backup of your server'
+    model: not-public
+    reason: 'No price on the product page and not on the Combell OpenStack price list.'
+    source: 'https://www.combell.com/en/openstack-cloud/pricing'
+  - product: 'Cloud security'
+    model: not-public
+    reason: 'No price on the product page and not on the Combell OpenStack price list.'
+    source: 'https://www.combell.com/en/openstack-cloud/pricing'
+  - product: 'Cloud storage'
+    model: not-public
+    reason: 'No price on the product page and not on the Combell OpenStack price list.'
+    source: 'https://www.combell.com/en/openstack-cloud/pricing'
+  - product: 'IT outsourcing'
+    model: not-public
+    reason: 'No price on the product page and not on the Combell OpenStack price list.'
+    source: 'https://www.combell.com/en/openstack-cloud/pricing'
+  - product: 'Managed container services'
+    model: not-public
+    reason: 'No price on the product page and not on the Combell OpenStack price list.'
+    source: 'https://www.combell.com/en/openstack-cloud/pricing'
+  - product: 'Private cloud'
+    model: not-public
+    reason: 'No price on the product page and not on the Combell OpenStack price list.'
+    source: 'https://www.combell.com/en/openstack-cloud/pricing'
+  - product: 'Unmanaged cloud'
+    model: not-public
+    reason: 'No price on the product page and not on the Combell OpenStack price list.'
+    source: 'https://www.combell.com/en/openstack-cloud/pricing'

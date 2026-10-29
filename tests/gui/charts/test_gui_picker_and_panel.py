@@ -83,6 +83,23 @@ class TestAxisPicker:
         picker.menu.top_actions[None].trigger()
         assert picker.axes().top is None
 
+    def test_every_line_chart_offers_the_rate_of_change(self, qtbot: QtBot, picker: AxisPicker) -> None:
+        picker.set_axes(ChartAxes(scope=ChartScope.MARKETPLACE))
+        action = picker.menu.derivative_action
+        assert action is not None
+        assert action.isVisible()
+        assert "change between two consecutive points" in action.toolTip()
+
+        with qtbot.waitSignal(picker.axes_changed):
+            action.trigger()
+
+        assert picker.axes().derivative
+        assert picker.options_button.text().endswith("\u2022")
+        with qtbot.waitSignal(picker.axes_changed):
+            picker.kind_bar.buttons["area"].click()
+        assert not picker.axes().derivative
+        assert not action.isVisible(), "an area chart has no lines to derive"
+
     def test_the_options_mark_and_the_responsive_rows(self, picker: AxisPicker) -> None:
         picker.set_axes(ChartAxes(scope=ChartScope.MARKETPLACE, top=20))
         assert not picker.options_button.text().endswith("\u2022")

@@ -3,29 +3,32 @@ from __future__ import annotations
 # Standard Library Imports.
 from logging import Logger, getLogger
 from pathlib import Path
-from typing import List, Optional, Set
+from typing import ClassVar, Dict, Optional
 
 # Third Party Imports.
 import yaml
-from pydantic import ValidationError
+from pydantic import JsonValue, ValidationError
 
 # First Party Imports.
-from conf import CHRONOLOGY_PATH, MARKETS_PATH
+from conf import HELP_PATH
 from crawler.exception import MarketsCatalogError
-from models.history.chronology import Chronology
-from models.markets.markets_catalog import MarketsCatalog
+from models.markets.enums import MarketControl
+from models.markets.help.markets_help import MarketsHelp
 
 
 class MarketsCatalogLoader:
-    """Load what the market shares and the stock values are read for (`conf/history/markets.yaml`).
+    """Load the tooltips of the markets cards (the `markets` block of `conf/help.yaml`).
 
     Attributes:
+        HELP_BLOCK (ClassVar[str]): The block of `conf/help.yaml` holding the markets tooltips.
         logger (Logger): The loader logger.
 
     Notes:
-        The catalogue names the companies of the chronology (`conf/history/chronology.yaml`): every company of a
-        label, a listing or a valuation must be defined there, so that the charts can draw it in its colour.
+        The markets catalogue is a curated catalogue, read from the database (`storage.catalogs`) or the bundle
+        (`BundleCatalogs`), with its crawler settings (the `markets` block of `conf/settings.yaml`).
     """
+
+    HELP_BLOCK: ClassVar[str] = "markets"
 
     def __init__(self, logger: Optional[Logger] = None) -> None:
         """Initialize the loader.
@@ -39,97 +42,93 @@ class MarketsCatalogLoader:
     # Internal Helpers Methods #
     ############################
 
-    def _read[Model: (MarketsCatalog, Chronology)](self, path: Path, model: type[Model]) -> Model:
-        """Read and validate a YAML file.
+    def _document(self, path: Path) -> Dict[str, JsonValue]:
+        """Read a YAML file as a mapping.
 
         Args:
             path (Path): The file.
-            model (type[Model]): The model of its content.
 
         Returns:
-            Model: The validated content.
+            Dict[str, JsonValue]: Its content, empty for an empty file.
 
         Raises:
-            MarketsCatalogError: If the file cannot be read, is not valid YAML or is invalid.
+            MarketsCatalogError: If the file cannot be read, is not valid YAML or is not a mapping.
         """
         try:
             with path.open(encoding="utf-8") as file:
-                return model.model_validate(yaml.safe_load(file) or {})
+                content = yaml.safe_load(file) or {}
         except OSError as e:
             self.logger.error("The markets catalogue %s cannot be read: %s", path, e.strerror)
             raise MarketsCatalogError(str(path), f"the file cannot be read ({e.strerror}).") from e
         except yaml.YAMLError as e:
             self.logger.error("The markets catalogue %s is not valid YAML.", path)
             raise MarketsCatalogError(str(path), f"the file is not valid YAML.\n{e}") from e
-        except ValidationError as e:
-            self.logger.error("The markets catalogue %s is invalid (%d errors).", path, e.error_count())
-            raise MarketsCatalogError(str(path), f"the content is invalid.\n{e}") from e
+        if not isinstance(content, dict):
+            self.logger.error("The markets catalogue %s is not a mapping.", path)
+            raise MarketsCatalogError(str(path), "the file is not a mapping.")
+        return content
 
-    def _unknown_companies(self, catalog: MarketsCatalog, companies: Set[str]) -> List[str]:
-        """Get the companies the catalogue names but the chronology does not define.
+    def _block(self, path: Path, block: str) -> Dict[str, JsonValue]:
+        """Read one block of a YAML file of blocks (`conf/settings.yaml`, `conf/help.yaml`).
 
         Args:
-            catalog (MarketsCatalog): The catalogue.
-            companies (Set[str]): The companies of the chronology.
+            path (Path): The file.
+            block (str): The block.
 
         Returns:
-            List[str]: The unknown companies, sorted, each once.
+            Dict[str, JsonValue]: The content of the block.
+
+        Raises:
+            MarketsCatalogError: If the file cannot be read or has no such block.
         """
-        named = {entry.company for entry in catalog.labels}
-        named |= {listing.company for listing in catalog.listings}
-        named |= {point.company for point in catalog.valuations}
-        named |= {share.company for share in catalog.manual_shares if share.company}
-        return sorted(named - companies)
+        content = self._document(path).get(block)
+        if not isinstance(content, dict):
+            self.logger.error("The file %s has no %s block.", path, block)
+            raise MarketsCatalogError(str(path), f"the file has no `{block}` block.")
+        return content
+
+    def _validate(self, path: Path, content: Dict[str, JsonValue]) -> MarketsHelp:
+        """Validate the explanations.
+
+        Args:
+            path (Path): The file (named in the errors).
+            content (Dict[str, JsonValue]): The content of its block.
+
+        Returns:
+            MarketsHelp: The validated explanations.
+
+        Raises:
+            MarketsCatalogError: If the content is invalid.
+        """
+        try:
+            return MarketsHelp.model_validate(content)
+        except ValidationError as e:
+            self.logger.error("The markets explanations %s are invalid (%d errors).", path, e.error_count())
+            raise MarketsCatalogError(str(path), f"the content is invalid.\n{e}") from e
 
     ############################
     # Publicly Exposed Methods #
     ############################
 
-    def chronology(self, path: Path = CHRONOLOGY_PATH) -> Chronology:
-        """Read the chronology defining the companies (their colour, provider and country).
+    def help(self, path: Path = HELP_PATH) -> MarketsHelp:
+        """Read the tooltips of the markets cards.
 
         Args:
-            path (Path): The chronology file.
+            path (Path): The help file, whose `markets` block holds the explanations.
 
         Returns:
-            Chronology: The chronology.
+            MarketsHelp: The explanation of each control and choice, and the correlation method.
 
         Raises:
             MarketsCatalogError: If the file cannot be read or is invalid.
         """
-        return self._read(path, Chronology)
-
-    def load(self, path: Path = MARKETS_PATH, chronology_path: Path = CHRONOLOGY_PATH) -> MarketsCatalog:
-        """Read and validate the catalogue, against the companies of the chronology.
-
-        Args:
-            path (Path): The catalogue file.
-            chronology_path (Path): The chronology defining the companies.
-
-        Returns:
-            MarketsCatalog: The segments, areas, labels, currencies, regions, listings and valuations.
-
-        Raises:
-            MarketsCatalogError: If a file cannot be read, is invalid, or the catalogue names an unknown company.
-        """
-        catalog = self._read(path, MarketsCatalog)
-        chronology = self.chronology(chronology_path)
-        unknown = self._unknown_companies(catalog, {company.key for company in chronology.companies})
-        if unknown:
-            self.logger.error("The markets catalogue %s names unknown companies: %s", path, ", ".join(unknown))
-            raise MarketsCatalogError(str(path), f"unknown companies (define them in the chronology): {unknown}")
-        segments = {segment.key for segment in chronology.segments}
-        for segment in catalog.segments:
-            if segment.chronology and segment.chronology not in segments:
-                self.logger.warning(
-                    "The market segment %s links the unknown chronology segment %s.", segment.key, segment.chronology
-                )
+        explanations = self._validate(path, self._block(path, self.HELP_BLOCK))
+        missing = [control.value for control in MarketControl if explanations.control(control) is None]
+        if missing:
+            self.logger.warning("The markets explanations %s miss: %s.", path, ", ".join(missing))
         self.logger.debug(
-            "Markets catalogue loaded: %d segments, %d areas, %d labels, %d listings, %d valuations.",
-            len(catalog.segments),
-            len(catalog.areas),
-            len(catalog.labels),
-            len(catalog.listings),
-            len(catalog.valuations),
+            "Markets explanations loaded: %d controls, %d choices.",
+            len(explanations.controls),
+            len(explanations.options),
         )
-        return catalog
+        return explanations

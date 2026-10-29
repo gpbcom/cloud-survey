@@ -69,6 +69,7 @@ class FlagPainter:
         """
         self.pixmaps: Dict[Tuple[Country, int], QPixmap] = {}
         self.logger = logger if logger else getLogger(__name__)
+        self.logger.debug("Flag painter ready for %d country designs.", len(self.DESIGNS))
 
     ############################
     # Internal Helpers Methods #

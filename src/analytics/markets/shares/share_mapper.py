@@ -71,6 +71,7 @@ class ShareMapper:
         """
         found = self.PERIOD.match(period)
         if found is None:
+            self.logger.debug("Synergy period %s is neither a year nor a quarter: left out.", period)
             return None
         year, quarter = int(found.group(1)), found.group(2)
         if quarter is None:

@@ -83,6 +83,9 @@ class StockMetrics:
             quarter = self._quarter(point.day)
             if value is not None and (quarter not in ends or point.day >= ends[quarter][0]):
                 ends[quarter] = (point.day, value, point.source_url)
+        if points and not ends:
+            self.logger.warning("None of %d prices could be converted to %s.", len(points), FxConverter.PIVOT)
+        self.logger.debug("%d quarter-end prices out of %d prices.", len(ends), len(points))
         return {quarter: (value, url) for quarter, (_, value, url) in ends.items()}
 
     ############################

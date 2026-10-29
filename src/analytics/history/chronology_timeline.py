@@ -51,7 +51,10 @@ class ChronologyTimeline:
             str: Its label, its key when unknown.
         """
         company = chronology.company(key)
-        return company.label if company else key
+        if company is None:
+            self.logger.warning("No company %s in the chronology: its key is shown.", key)
+            return key
+        return company.label
 
     def _segment(self, chronology: Chronology, key: Optional[str]) -> str:
         """Name a segment.
@@ -66,7 +69,10 @@ class ChronologyTimeline:
         if not key:
             return ""
         segment = chronology.segment(key)
-        return segment.label if segment else key
+        if segment is None:
+            self.logger.warning("No segment %s in the chronology: its key is shown.", key)
+            return key
+        return segment.label
 
     def _inline(self, label: str) -> str:
         """Write a segment name inside a sentence: its first letter lowered, unless it starts an acronym.
@@ -124,6 +130,7 @@ class ChronologyTimeline:
                         source=", ".join(reign.sources),
                     )
                 )
+        self.logger.debug("%d leadership lines from %d reigns.", len(lines), len(reigns))
         return lines
 
     ############################

@@ -13,7 +13,9 @@ from pydantic import JsonValue
 import main as main_module
 from crawler.exception import CrawlerError
 from models.cloud.enums import CloudProvider
+from models.cloud.launch.launch_catalog import LaunchCatalog
 from models.cloud.products.catalogue import CloudCatalogue
+from models.companies.enums import CompanyFeed
 from models.drivers.enums import MetricSource
 from storage.storage import Storage
 
@@ -34,6 +36,9 @@ class FakeCrawler:
             yield item
         if self.error:
             raise self.error
+
+    def use_launches(self, catalog: LaunchCatalog) -> None:
+        self.launches = catalog
 
 
 def product(name: str) -> Dict[str, JsonValue]:
@@ -121,7 +126,7 @@ async def test_unknown_source_is_logged(
     assert last_message(caplog_info).getMessage() == (
         "Unknown crawl source 'pricing': "
         "CRAWLER_SOURCE must be one of catalogue, marketplace, both, reclassify, statistics, import-json, translate, "
-        "correspond, metrics, markets."
+        "correspond, metrics, markets, launch-dates, companies, prices, price-coverage."
     )
     factory.get.assert_not_called()
 
@@ -198,7 +203,7 @@ async def test_writes_every_catalogue(
 
     await main_module.main()
 
-    assert len(await database.datasets.stamps()) == len(CloudProvider)
+    assert len(await database.datasets.list()) == len(CloudProvider)
     assert last_message(caplog_info).getMessage() == f"32 catalogues written to {database.url}."
 
 
@@ -383,6 +388,18 @@ async def test_both_sources(monkeypatch: pytest.MonkeyPatch, factory: MagicMock,
 
 
 @pytest.mark.db
+async def test_launch_dates_needs_no_target(
+    monkeypatch: pytest.MonkeyPatch, caplog_info: pytest.LogCaptureFixture, factory: MagicMock, database: Storage
+) -> None:
+    monkeypatch.setenv("CRAWLER_SOURCE", "launch-dates")
+    factory.CRAWLER_MAP = {}
+
+    await main_module.main()
+
+    assert "0 catalogues dated, 0 products changed." in [record.getMessage() for record in caplog_info.records]
+
+
+@pytest.mark.db
 async def test_reclassify_needs_no_target(
     monkeypatch: pytest.MonkeyPatch, caplog_info: pytest.LogCaptureFixture, factory: MagicMock, database: Storage
 ) -> None:
@@ -483,3 +500,44 @@ async def test_an_invalid_markets_scope_is_logged(
 
     assert "The markets crawl scope is invalid" in caplog.text
     runner.stream_markets.assert_not_called()
+
+
+class TestCompanyFeeds:
+    def test_a_full_run_leaves_the_identity_resolvers_out(self) -> None:
+        feeds = main_module.company_feeds("", logging.getLogger(__name__))
+
+        assert CompanyFeed.EDGAR in feeds
+        assert CompanyFeed.REPORTED in feeds
+        assert not set(feeds) & {
+            CompanyFeed.SEC_IDENTITY,
+            CompanyFeed.OPENALEX_IDENTITY,
+            CompanyFeed.ASSIGNEE_IDENTITY,
+            CompanyFeed.FIGURE_CHECK,
+        }
+
+    def test_a_resolver_runs_when_named(self) -> None:
+        feeds = main_module.company_feeds("sec-identity,assignee-identity", logging.getLogger(__name__))
+
+        assert feeds == [CompanyFeed.SEC_IDENTITY, CompanyFeed.ASSIGNEE_IDENTITY]
+
+
+async def test_the_price_coverage_lists_the_products_without_price(
+    caplog_info: pytest.LogCaptureFixture, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    collector = MagicMock()
+    collector.return_value.curate = AsyncMock(return_value=(0, 0, 1))
+    monkeypatch.setattr(main_module, "PriceCollector", collector)
+    runner = MagicMock()
+    runner.factory.CRAWLER_MAP = {CloudProvider.CIVO: MagicMock(), CloudProvider.AWS: MagicMock()}
+    runner.storage.prices.coverage = AsyncMock(
+        return_value=[("Kubernetes", True, False), ("Object Stores", False, False), ("Support", False, True)]
+    )
+
+    await main_module.report_price_coverage(runner, "civo", logging.getLogger("main"))
+
+    messages = [record.getMessage() for record in caplog_info.records if record.name == "main"]
+    assert "civo: 3 live products, 1 priced, 1 stated unpriced, 1 missing." in messages
+    assert "civo products without price: Object Stores" in messages
+    assert messages[-1] == "Price coverage: 3 live products, 1 priced, 1 stated unpriced, 1 missing."
+    runner.storage.prices.coverage.assert_awaited_once_with("civo")
+    collector.return_value.curate.assert_awaited_once()

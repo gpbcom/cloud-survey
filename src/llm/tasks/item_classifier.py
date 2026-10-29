@@ -82,6 +82,7 @@ class ItemClassifier:
         self.factory = factory if factory else ChatModelFactory(self.logger)
         self.prompt = prompt if prompt else TaxonomyPrompt(logger=self.logger)
         self.meter = UsageMeter(settings.llm_budget, self.logger)
+        self.logger.debug("Item classifier ready: %d items per call.", settings.batch_size)
 
     ############################
     # Internal Helpers Methods #
@@ -129,6 +130,12 @@ class ItemClassifier:
             if slugs:
                 domains = taxonomy.ordered(domain for slug in slugs if (domain := taxonomy.domain_of(slug)))
                 kept[item.id] = (slugs, domains)
+        if len(kept) < len(answer.items):
+            self.logger.debug(
+                "%d of the %d answered items got no known category and stay unclassified.",
+                len(answer.items) - len(kept),
+                len(answer.items),
+            )
         return kept
 
     async def _classify[T: CategorizedItem](
@@ -199,7 +206,7 @@ class ItemClassifier:
         if cfg is None:
             self.logger.info("No language model classifies the items: they stay unclassified.")
             return 0
-        taxonomy = await self.storage.taxonomy.read()
+        taxonomy = await self.storage.taxonomy.list()
         system = self.factory.system_message(cfg, self.prompt.system(self.TASK, taxonomy))
         changed = await self._classify(cfg, self.storage.catalogues, taxonomy, system, provider, limit)
         changed += await self._classify(cfg, self.storage.marketplaces, taxonomy, system, provider, limit)

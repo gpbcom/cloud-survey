@@ -18,7 +18,7 @@ from models.history.timeline.reign import Reign
 
 
 class Chronology(BaseModel):
-    """The leaders of computing and digital infrastructure over time, and the notable events (`conf/history`).
+    """The leaders of computing and digital infrastructure over time, and the notable events (a curated catalogue).
 
     Attributes:
         as_of (str): The date of the chronology: the end of the reigns still running.

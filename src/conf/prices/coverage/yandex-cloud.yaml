@@ -1,0 +1,67 @@
+# Curated price coverage of Yandex Cloud (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: yandex-cloud
+currency: RUB
+row_links:
+  'Managed Service for Prometheus®': ['^Monium \| monitoring\.(prometheus\.|point\.prometheus)']
+  'SourceCraft Code Assistant': ['^SourceCraft \| src\.(tariff_codeassist|codeassist)']
+  'Translate': ['^Yandex AI Studio \| ai\.mt\.translate']
+links:
+  'Yandex MPP Analytics Engine for PostgreSQL': ['^Managed Service for Greenplum$']
+  'SpeechKit': ['^Yandex AI Studio\. SpeechKit$', '^Yandex AI Studio Hybrid\. SpeechKit$']
+  'Yandex Search API': ['^Yandex AI Studio\. Search API$']
+  'Managed Service for GitLab': ['^Managed Gitlab$']
+  'Cloud CDN': ['^Content Delivery Network$']
+  'Vision OCR': ['^Yandex AI Studio\. Vision OCR$']
+  'Network Load Balancer': ['^Load Balancer$']
+  'Cloud Registry': ['^Yandex Cloud Registry$']
+  'Yandex Cloud Detection and Response': ['^Yandex Cloud Detection & Response$']
+  'DataSphere': ['^Cloud AI$']
+statements:
+  - product: 'Certificate Manager'
+    model: free
+    reason: 'The pricing policy states the fee is included in the service price and is not charged separately.'
+    source: 'https://yandex.cloud/en/docs/certificate-manager/pricing'
+  - product: 'Identity and Access Management'
+    model: free
+    reason: 'The pricing policy states the fee is included in the service price and is not charged separately.'
+    source: 'https://yandex.cloud/en/docs/iam/pricing'
+  - product: 'Resource Manager'
+    model: free
+    reason: 'The pricing policy states the fee is included in the service price and is not charged separately.'
+    source: 'https://yandex.cloud/en/docs/resource-manager/pricing'
+  - product: 'Yandex Cloud Quota Manager'
+    model: free
+    reason: 'The pricing policy states the fee is included in the service price and is not charged separately.'
+    source: 'https://yandex.cloud/en/docs/quota-manager/pricing'
+  - product: 'Yandex Cloud Billing'
+    model: free
+    reason: 'The pricing policy states the fee is included in the service price and is not charged separately.'
+    source: 'https://yandex.cloud/en/docs/billing/pricing'
+  - product: 'Yandex Cloud Console'
+    model: free
+    reason: 'The pricing policy states the fee is included in the service price and is not charged separately. Resources used through it are billed.'
+    source: 'https://yandex.cloud/en/docs/console/pricing'
+  - product: 'Yandex WebSQL'
+    model: free
+    reason: 'The pricing policy states that using Yandex WebSQL is free of charge, only the resources it uses are billed.'
+    source: 'https://yandex.cloud/en/docs/websql/pricing'
+  - product: 'Yandex Cloud Router'
+    model: free
+    reason: 'The pricing policy states Cloud Router is free of charge at the Preview stage.'
+    source: 'https://yandex.cloud/en/docs/cloud-router/pricing'
+  - product: 'Yandex SIEM'
+    model: quote
+    reason: 'The pricing policy asks to fill out a request form, a manager then sends the current pricing plans.'
+    source: 'https://yandex.cloud/en/docs/siem/pricing'
+  - product: 'Stackland'
+    model: quote
+    reason: 'The pricing policy asks to fill out a request form, a manager then sends the current pricing plans.'
+    source: 'https://yandex.cloud/en/docs/stackland/pricing'
+  - product: 'Cloud Apps'
+    model: not-public
+    reason: 'No SKU in the public Yandex Cloud price list and no pricing policy page in the documentation.'
+    source: 'https://yandex.cloud/en/prices'
+  - product: 'VibeCraft'
+    model: not-public
+    reason: 'No SKU in the public Yandex Cloud price list and no price on the VibeCraft page.'
+    source: 'https://yandex.cloud/en/prices'

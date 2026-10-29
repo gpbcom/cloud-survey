@@ -239,3 +239,101 @@ class HuaweiDelivery(StrEnum):
     IMAGE = "image"
     CLOUD_SERVER = "cloud server"
     SAAS = "saas"
+
+
+@unique
+class HuaweiPriceField(StrEnum):
+    """Enums representing the fields of the Huawei Cloud price calculator API, read for the prices.
+
+    Attributes:
+        MENU_INFOS (str): The categories of the calculator menu.
+        PARENT_CATEGORY_NAME (str): The name of a category, e.g. `Compute`.
+        SUB_CATEGORY_LISTS (str): Its services.
+        CATEGORY_NAME (str): The name of a service, e.g. `Elastic Cloud Server`.
+        URL_PATH (str): Its code in the calculator, e.g. `ecs`.
+        HAS_CALCULATOR (str): Whether it has a calculator (its prices).
+        REGION_ONLINE (str): Its regions.
+        REGION_LIST (str): The list of its regions.
+        PRODUCT (str): The priced resources of a service in a region, by kind.
+        RESOURCE_TYPE (str): The type of a resource, e.g. `hws.resource.type.volume`.
+        RESOURCE_SPEC_CODE (str): Its specification, e.g. `m9.6xlarge.8.linux`.
+        PRODUCT_SPEC_SYS_DESC (str): Its specification written out (`Memory:196608MB`, `vCPUs:24CORE`, …,
+            semicolon-separated).
+        PLAN_LIST (str): Its prices.
+        BILLING_MODE (str): How a price is charged (`ONDEMAND`, `MONTHLY`, `YEARLY`, `RI`).
+        PERIOD_NUM (str): The periods of a subscription.
+        MEASURE_UNIT (str): The unit of an on-demand price (a measure identifier).
+        AMOUNT (str): The price.
+        AMOUNT_TYPE (str): The kind of amount of a reserved price.
+        PAYMENT_TYPE_KEY (str): The payment of a reserved price, e.g. `NO_UPFRONT`.
+        PLAN_ID (str): The plan of a reserved price.
+        PRODUCT_ID (str): The offer of a price.
+        USAGE_FACTOR (str): What a usage plan measures, e.g. `upflow` or `downflow` for a bandwidth.
+        DIVISION_LIST (str): The tiers of a price.
+        DIVISION (str): The bounds of a tier.
+        BEGIN_VALUE (str): The quantity from which a tier applies.
+        END_VALUE (str): The quantity up to which it applies (-1 without bound).
+        BEGIN_UNIT (str): The measure code of the start of a tier.
+        END_UNIT (str): The measure code of its end, another one when the tier spans two units (e.g. GB to TB).
+    """
+
+    MENU_INFOS = "menuInfos"
+    PARENT_CATEGORY_NAME = "parentCategoryName"
+    SUB_CATEGORY_LISTS = "subCategoryLists"
+    CATEGORY_NAME = "categoryName"
+    URL_PATH = "urlPath"
+    HAS_CALCULATOR = "hasCalculator"
+    REGION_ONLINE = "regionOnline"
+    REGION_LIST = "regionList"
+    PRODUCT = "product"
+    RESOURCE_TYPE = "resourceType"
+    RESOURCE_SPEC_CODE = "resourceSpecCode"
+    PRODUCT_SPEC_SYS_DESC = "productSpecSysDesc"
+    PLAN_LIST = "planList"
+    BILLING_MODE = "billingMode"
+    PERIOD_NUM = "periodNum"
+    MEASURE_UNIT = "measureUnit"
+    AMOUNT = "amount"
+    AMOUNT_TYPE = "amountType"
+    PAYMENT_TYPE_KEY = "paymentTypeKey"
+    PLAN_ID = "planId"
+    PRODUCT_ID = "productId"
+    USAGE_FACTOR = "usageFactor"
+    DIVISION_LIST = "divisionList"
+    DIVISION = "division"
+    BEGIN_VALUE = "beginValue"
+    END_VALUE = "endValue"
+    BEGIN_UNIT = "beginUnit"
+    END_UNIT = "endUnit"
+
+
+@unique
+class HuaweiBillingMode(StrEnum):
+    """Enums representing how a Huawei Cloud price is charged.
+
+    Attributes:
+        ON_DEMAND (str): Pay as you go.
+        MONTHLY (str): A subscription by the month.
+        YEARLY (str): A subscription by the year.
+        RESERVED (str): A reserved instance.
+    """
+
+    ON_DEMAND = "ONDEMAND"
+    MONTHLY = "MONTHLY"
+    YEARLY = "YEARLY"
+    RESERVED = "RI"
+
+
+@unique
+class HuaweiReservedAmount(StrEnum):
+    """Enums representing the amounts of a Huawei Cloud reserved instance price.
+
+    Attributes:
+        UPFRONT (str): The upfront price.
+        MONTHLY (str): The price per month.
+        EFFECTIVE (str): The effective price per hour.
+    """
+
+    UPFRONT = "nodeData.price"
+    MONTHLY = "nodeData.perPrice"
+    EFFECTIVE = "nodeData.perEffectivePrice"

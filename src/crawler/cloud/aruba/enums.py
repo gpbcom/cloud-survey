@@ -36,3 +36,39 @@ class ArubaMenuMarkup(StrEnum):
 
     LIST_ITEM = "li"
     NAV_ITEM = "nav-item"
+
+
+@unique
+class ArubaPriceColumn(StrEnum):
+    """Enums representing the specification column headers of the pricing tables.
+
+    Attributes:
+        MODEL (str): The model priced, the first column.
+        VCPUS (str): The vCPUs of a server.
+        RAM (str): Its memory.
+        STORAGE (str): Its storage.
+        PRICE (str): The price column of a table with a single one.
+    """
+
+    MODEL = "Model"
+    VCPUS = "vCPUs"
+    RAM = "RAM"
+    STORAGE = "Storage"
+    PRICE = "Price"
+
+
+@unique
+class ArubaPricePeriod(StrEnum):
+    """Enums representing the periods of the pricing table prices (`€ 13.20 + VAT / month`).
+
+    Attributes:
+        HOUR (str): Per hour.
+        MONTH (str): Per month.
+        YEAR (str): Per year.
+        MILLION_TOKENS (str): Per million tokens.
+    """
+
+    HOUR = "hour"
+    MONTH = "month"
+    YEAR = "year"
+    MILLION_TOKENS = "Mtoken"

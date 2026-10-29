@@ -1,0 +1,336 @@
+# Curated price coverage of Microsoft Azure (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: microsoft-azure
+currency: USD
+row_links:
+  'Archive Storage': ['^Storage \|.*"meterName": "Archive']
+  'Azure Spot Virtual Machines': ['^Virtual Machines \|.*"skuName": "[^"]* Spot"']
+  'Azure Dedicated Host': ['^Virtual Machines \|.*Dedicated Host']
+  'Azure Red Hat OpenShift': ['"productName": "[^"]*OpenShift']
+  'SQL Server on Azure Virtual Machines': ['^Virtual Machines Licenses \|.*SQL Server']
+  'Windows Server': ['^Virtual Machines Licenses \|.*Windows Server']
+  'Azure Web Application Firewall': ['^(Application Gateway|Azure Front Door Service) \|.*WAF']
+  'Azure DocumentDB': ['"productName": "[^"]*MongoDB \(vCore\)', '"productName": "Azure DocumentDB']
+  'Static Web Apps': ['"productName": "[^"]*Static Web App']
+links:
+  'Azure Blob Storage': ['^(General Block Blob|Block Blob Reservation|Premium Block Blob|Blob Storage|Blob Features|Blob Lifecycle Management|Standard Page Blob|Premium Page Blob|Change Feed)']
+  'Azure Data Lake Storage': ['ADLS|Data Lake Storage']
+  'Azure Files': ['^(Files|Premium Files|Files v2|Files Reserv|Azure Files|File Sync)']
+  'Queue Storage': ['^Queues']
+  'Table Storage': ['^Tables$']
+  'Azure Disk Storage': ['Managed Disks|Ultra Disks|Premium SSD v2|Disk Reservation']
+  'Azure Elastic SAN': ['^Azure Elastic SAN$']
+  'Azure Container Storage': ['^Azure Container Storage$']
+  'Azure Managed Lustre': ['^Azure Managed Lustre$']
+  'Azure Storage Actions': ['^Storage Actions$']
+  'Storage Accounts': ['^Storage Reserved Capacity', '^Storage - ', '^Storage Discovery$', '^Import/Export$', '^Azure Data Transfer$']
+  'Azure Cache for Redis': ['^Azure Redis Cache', '^Redis Cache Reservation$']
+  'Azure Managed Redis': ['^Azure Managed Redis']
+  'AI Anomaly Detector': ['^Anomaly Detector$']
+  'Azure AI Content Safety': ['^Content Safety']
+  'Azure AI Custom Vision': ['^Azure Custom Vision$']
+  'Azure AI Face': ['^Azure Vision - Face$']
+  'Azure AI Immersive Reader': ['Immersive Reader']
+  'Azure AI Video Indexer': ['^Azure Video Indexer$']
+  'Azure Content Understanding in Foundry Tools': ['^Azure Content Understanding$']
+  'Azure Document Intelligence in Foundry Tools': ['^Azure Document Intelligence', '^Form Recognizer$']
+  'Azure Language in Foundry Tools': ['^Azure Language', '^Language Understanding', '^Text Analytics', '^QnA Maker$']
+  'Azure Speech in Foundry Tools': ['^Azure Speech', '^Custom Speech$', '^Speaker ', '^Bing Speech$', '^Custom Recognition$']
+  'Azure Translator in Foundry Tools': ['^Azure Translator', '^Translator (Text|Speech)$']
+  'Azure Vision in Foundry Tools': ['^Azure Vision( - Disconnected)?$']
+  'Foundry Agent Service': ['^Foundry Agents$', '^Azure Agent Unit$']
+  'Observability in Foundry Control Plane': ['^Observability$']
+  'Azure OpenAI in Foundry Models': ['^Azure OpenAI']
+  'Phi open models': ['^Azure Phi Models$']
+  'Azure Spring Apps': ['^Azure Spring Apps']
+  'Azure Artifacts': ['^Azure Artifacts$']
+  'Azure Pipelines': ['^Azure Pipelines$']
+  'Azure Repos': ['^Azure Repos and Boards']
+  'Azure Test Plans': ['^Azure Test Plans$']
+  'GitHub Advanced Security': ['^GitHub Advanced Security']
+  'GitHub Copilot': ['^GitHub Copilot', '^GitHub AI Credit']
+  'Github Enterprise': ['^GitHub']
+  'Microsoft Entra External ID': ['^Microsoft Entra External ID$', '^Azure Active Directory (B2C|B2X|for External Identities)$']
+  'Microsoft Defender for External Attack Surface Management': ['^Defender External Attack Surface Management$']
+  'Azure Communication Services': ['^(Voice|SMS|Phone Numbers|Email|High Volume Email|Messaging|Network Traversal|Routing|Voice Core)$']
+  'Azure Virtual Network Manager': ['^(Azure Virtual Network Manager|Virtual Network Manager)$']
+  'Azure Private Link': ['^Virtual Network Private Link$']
+  'Azure VMware Solution': ['Azure VMware Solution']
+  'Nutanix Cloud Clusters': ['Nutanix']
+  'Azure Managed Grafana': ['^Azure Grafana Service$']
+  'Azure Kubernetes Service Edge Essentials': ['^AKS Edge Essentials$']
+  'Microsoft Energy Data Services': ['^Energy Data Manager$']
+  'Microsoft Defender for IoT': ['^Azure IoT Security$']
+  'Artifact Signing': ['^Trusted Signing$']
+statements:
+  - product: 'Azure Linux'
+    model: free
+    reason: 'Azure Linux is offered at no additional charge to Azure customers.'
+    source: 'https://azure.microsoft.com/en-us/products/azure-linux/'
+  - product: 'Azure Kubernetes Fleet Manager'
+    model: free
+    reason: 'There is no charge for the Fleet Manager resource itself: only the AKS clusters it creates are billed.'
+    source: 'https://azure.microsoft.com/en-us/products/kubernetes-fleet-manager/'
+  - product: 'Microsoft Azure Attestation'
+    model: free
+    reason: 'Azure Attestation services are available at no additional cost.'
+    source: 'https://azure.microsoft.com/en-us/products/azure-attestation/'
+  - product: 'Azure Storage Mover'
+    model: free
+    reason: 'All Azure Storage Mover capabilities are available at no cost: standard storage, transaction and networking charges apply.'
+    source: 'https://azure.microsoft.com/en-us/products/storage-mover'
+  - product: 'Azure Blueprints'
+    model: free
+    reason: 'Azure Blueprints and the other governance services are free for managing Azure services.'
+    source: 'https://azure.microsoft.com/en-us/products/blueprints/'
+  - product: 'Azure Lighthouse'
+    model: free
+    reason: 'Azure Lighthouse usage is free for customers and partners.'
+    source: 'https://azure.microsoft.com/en-us/products/azure-lighthouse/'
+  - product: 'Azure Automanage'
+    model: free
+    reason: 'There are no charges specifically for Automanage: the services it onboards are billed individually.'
+    source: 'https://azure.microsoft.com/en-us/products/azure-automanage/'
+  - product: 'Azure Deployment Environments'
+    model: free
+    reason: 'Azure Deployment Environments is a free service: the resources it deploys are billed.'
+    source: 'https://azure.microsoft.com/en-us/products/deployment-environments/'
+  - product: 'Update management center'
+    model: free
+    reason: 'Azure Update Manager is available at no additional charge for Azure machines (up to 5 USD per Arc server per month).'
+    source: 'https://azure.microsoft.com/en-us/products/azure-update-management-center/'
+  - product: 'Azure Open Datasets'
+    model: free
+    reason: 'There is no additional charge for using most Open Datasets: the services consuming them are billed.'
+    source: 'https://azure.microsoft.com/en-us/products/open-datasets/'
+  - product: 'Azure IoT Edge'
+    model: free
+    reason: 'Free and open-source under the MIT license.'
+    source: 'https://azure.microsoft.com/en-us/products/iot-edge/'
+  - product: 'Azure Network Function Manager'
+    model: free
+    reason: 'The service is offered at no cost on Azure Stack Edge.'
+    source: 'https://azure.microsoft.com/en-us/products/azure-network-function-manager/'
+  - product: 'Azure Multicloud Interconnect'
+    model: free
+    reason: 'Free to use while in public preview; pricing comes with general availability.'
+    source: 'https://azure.microsoft.com/en-us/products/multicloud-interconnect'
+  - product: 'Azure Advisor'
+    model: free
+    reason: 'Azure Advisor is a free, personalized guide to Azure best practices.'
+    source: 'https://azure.microsoft.com/en-us/products/advisor/'
+  - product: 'Visual Studio Code'
+    model: free
+    reason: 'A free code editor.'
+    source: 'https://azure.microsoft.com/en-us/products/visual-studio-code/'
+  - product: 'Azure Resource Manager'
+    model: included
+    reason: 'The deployment and management layer of every Azure subscription, not billed apart (no meter in the Retail Prices API).'
+    source: 'https://azure.microsoft.com/en-us/get-started/azure-portal/resource-manager/'
+  - product: 'Azure Resource Manager templates'
+    model: included
+    reason: 'Templates of Azure Resource Manager, not billed apart: only the deployed resources are billed.'
+    source: 'https://azure.microsoft.com/en-us/products/arm-templates/'
+  - product: 'ARM templates'
+    model: included
+    reason: 'Templates of Azure Resource Manager, not billed apart: only the deployed resources are billed.'
+    source: 'https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/'
+  - product: 'Microsoft Azure portal'
+    model: included
+    reason: 'The management portal of every Azure subscription, not billed apart.'
+    source: 'https://learn.microsoft.com/en-us/azure/azure-portal/'
+  - product: 'Cloud Shell'
+    model: included
+    reason: 'Not billed apart (no meter in the Retail Prices API): only its file share storage is billed.'
+    source: 'https://azure.microsoft.com/en-us/get-started/azure-portal/cloud-shell/'
+  - product: 'Azure Service Health'
+    model: included
+    reason: 'Part of every Azure subscription, not billed apart (no meter in the Retail Prices API).'
+    source: 'https://learn.microsoft.com/en-us/azure/service-health/'
+  - product: 'Cost Management + Billing'
+    model: included
+    reason: 'Free for Azure services, not billed apart (no meter in the Retail Prices API).'
+    source: 'https://learn.microsoft.com/en-us/azure/cost-management-billing/'
+  - product: 'Microsoft Cost Management'
+    model: included
+    reason: 'Free for Azure services, not billed apart (no meter in the Retail Prices API).'
+    source: 'https://azure.microsoft.com/en-us/products/cost-management/'
+  - product: 'Azure Managed Applications'
+    model: included
+    reason: 'No meter of its own in the Retail Prices API: the publisher''s plan and the deployed resources are billed.'
+    source: 'https://azure.microsoft.com/en-us/products/managed-applications/'
+  - product: 'Azure Migrate'
+    model: included
+    reason: 'No meter of its own in the Retail Prices API: the discovery and assessment tools are not billed apart.'
+    source: 'https://azure.microsoft.com/en-us/products/azure-migrate/'
+  - product: 'SDKs'
+    model: included
+    reason: 'Free software development kits.'
+    source: 'https://azure.microsoft.com/en-us/downloads/'
+  - product: 'Storage Explorer'
+    model: included
+    reason: 'A free desktop tool: only the storage it manages is billed.'
+    source: 'https://azure.microsoft.com/en-us/products/storage/storage-explorer/'
+  - product: 'Data Science Virtual Machines'
+    model: included
+    reason: 'Free virtual machine images: billed as the virtual machines running them.'
+    source: 'https://azure.microsoft.com/en-us/products/virtual-machines/data-science-virtual-machines/'
+  - product: 'Batch'
+    model: included
+    reason: 'No meter of its own in the Retail Prices API: only the virtual machines it runs are billed.'
+    source: 'https://azure.microsoft.com/en-us/products/batch/'
+  - product: 'Virtual Machine Scale Sets'
+    model: included
+    reason: 'No meter of its own in the Retail Prices API: only the virtual machines it runs are billed.'
+    source: 'https://azure.microsoft.com/en-us/products/virtual-machine-scale-sets/'
+  - product: 'Azure Compute Fleet'
+    model: included
+    reason: 'No meter of its own in the Retail Prices API: only the virtual machines it runs are billed.'
+    source: 'https://azure.microsoft.com/en-us/products/compute-fleet'
+  - product: 'Azure CycleCloud'
+    model: included
+    reason: 'No meter of its own in the Retail Prices API: only the cluster resources are billed.'
+    source: 'https://learn.microsoft.com/en-us/azure/cyclecloud/index'
+  - product: 'Azure DevTest Labs'
+    model: included
+    reason: 'No meter of its own in the Retail Prices API: only the lab resources are billed.'
+    source: 'https://azure.microsoft.com/en-us/products/devtest-lab/'
+  - product: 'Linux Virtual Machines'
+    model: included
+    reason: 'Priced by the Linux rates of the Virtual Machines meters.'
+    source: 'https://azure.microsoft.com/en-us/products/virtual-machines/linux/'
+  - product: 'SQL Server on Virtual Machines'
+    model: included
+    reason: 'The same offer as SQL Server on Azure Virtual Machines (licence meters of Virtual Machines Licenses).'
+    source: 'https://learn.microsoft.com/en-us/azure/azure-sql/virtual-machines/windows/sql-server-on-azure-vm-iaas-what-is-overview?toc=/azure/virtual-machines/windows/toc.json'
+  - product: 'Azure SQL'
+    model: included
+    reason: 'An umbrella of SQL Database, SQL Managed Instance and SQL Server on Azure Virtual Machines, each priced by its own meters.'
+    source: 'https://azure.microsoft.com/en-us/products/azure-sql/'
+  - product: 'Azure IoT'
+    model: included
+    reason: 'An umbrella of IoT Hub, IoT Central and the other IoT services, each priced by its own meters.'
+    source: 'https://learn.microsoft.com/en-us/azure/iot/'
+  - product: 'Azure OpenAI Service'
+    model: included
+    reason: 'The same service as Azure OpenAI in Foundry Models, priced by its meters.'
+    source: 'https://learn.microsoft.com/en-us/azure/ai-services/openai/'
+  - product: 'Speech'
+    model: included
+    reason: 'The same service as Azure Speech in Foundry Tools, priced by its meters.'
+    source: 'https://learn.microsoft.com/en-us/azure/ai-services/speech-service/'
+  - product: 'Translator'
+    model: included
+    reason: 'The same service as Azure Translator in Foundry Tools, priced by its meters.'
+    source: 'https://learn.microsoft.com/en-us/azure/ai-services/translator/'
+  - product: 'Vision'
+    model: included
+    reason: 'The same service as Azure Vision in Foundry Tools, priced by its meters.'
+    source: 'https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/'
+  - product: 'Defender External Attack Surface Management'
+    model: included
+    reason: 'The same service as Microsoft Defender for External Attack Surface Management, priced by its meters.'
+    source: 'https://azure.microsoft.com/en-us/products/defender-external-attack-surface-management/'
+  - product: 'Microsoft Azure Data Manager for Energy (Preview)'
+    model: included
+    reason: 'The same service as Microsoft Energy Data Services, priced by its meters.'
+    source: 'https://learn.microsoft.com/en-us/azure/energy-data-services/'
+  - product: 'Azure Boards'
+    model: included
+    reason: 'Billed with Azure Repos (the Azure Repos and Boards meters).'
+    source: 'https://azure.microsoft.com/en-us/products/devops/boards/'
+  - product: 'GitHub Advanced Security for Azure DevOps'
+    model: included
+    reason: 'Billed by the GitHub Advanced Security meters.'
+    source: 'https://azure.microsoft.com/en-us/products/devops/github-advanced-security'
+  - product: 'Content Safety in Foundry Control Plane'
+    model: included
+    reason: 'Billed by the Content Safety meters of Foundry Tools.'
+    source: 'https://azure.microsoft.com/en-us/products/ai-services/ai-content-safety/'
+  - product: 'Foundry Control Plane'
+    model: not-public
+    reason: 'No meter of its own in the Azure Retail Prices API.'
+    source: 'https://azure.microsoft.com/en-us/products/ai-foundry/control-plane'
+  - product: 'Foundry IQ'
+    model: not-public
+    reason: 'No meter of its own in the Azure Retail Prices API.'
+    source: 'https://azure.microsoft.com/en-us/products/foundry/iq'
+  - product: 'Azure SRE Agent'
+    model: not-public
+    reason: 'No meter of its own in the Azure Retail Prices API.'
+    source: 'https://azure.microsoft.com/en-us/products/sre-agent'
+  - product: 'Azure HorizonDB'
+    model: not-public
+    reason: 'No meter in the Azure Retail Prices API.'
+    source: 'https://azure.microsoft.com/en-us/products/horizondb'
+  - product: 'Microsoft Dev Box'
+    model: not-public
+    reason: 'No meter of its own in the Azure Retail Prices API.'
+    source: 'https://azure.microsoft.com/en-us/products/dev-box/'
+  - product: 'Azure Dedicated HSM'
+    model: not-public
+    reason: 'No meter in the Azure Retail Prices API.'
+    source: 'https://learn.microsoft.com/en-us/azure/dedicated-hsm/'
+  - product: 'Azure Sphere'
+    model: not-public
+    reason: 'No meter in the Azure Retail Prices API: device security is bought with the chips.'
+    source: 'https://azure.microsoft.com/en-us/products/azure-sphere/'
+  - product: 'Azure Operator Service Manager'
+    model: not-public
+    reason: 'No meter in the Azure Retail Prices API.'
+    source: 'https://azure.microsoft.com/en-us/products/operator-service-manager/'
+  - product: 'Azure Data Manager for Agriculture (Preview)'
+    model: not-public
+    reason: 'No meter in the Azure Retail Prices API.'
+    source: 'https://learn.microsoft.com/en-us/azure/data-manager-for-agri/'
+  - product: 'Data Lake Analytics'
+    model: not-public
+    reason: 'No meter in the Azure Retail Prices API (the service was retired).'
+    source: 'https://azure.microsoft.com/en-us/products/data-lake-analytics/'
+  - product: 'Visual Studio App Center'
+    model: not-public
+    reason: 'No meter in the Azure Retail Prices API (the service was retired).'
+    source: 'https://learn.microsoft.com/en-us/appcenter/'
+  - product: 'Media Services'
+    model: not-public
+    reason: 'Azure Media Services was retired (its documentation moved to previous versions): no current price.'
+    source: 'https://learn.microsoft.com/en-us/azure/media-services/latest/'
+  - product: 'Encoding'
+    model: not-public
+    reason: 'Azure Media Services was retired (its documentation moved to previous versions): no current price.'
+    source: 'https://learn.microsoft.com/en-us/azure/media-services/latest/encode-concept'
+  - product: 'Live and On-Demand Streaming'
+    model: not-public
+    reason: 'Azure Media Services was retired (its documentation moved to previous versions): no current price.'
+    source: 'https://learn.microsoft.com/en-us/azure/media-services/latest/stream-live-tutorial-with-api'
+  - product: 'Content Protection'
+    model: not-public
+    reason: 'Azure Media Services was retired (its documentation moved to previous versions): no current price.'
+    source: 'https://learn.microsoft.com/en-us/azure/media-services/latest/drm-content-protection-concept'
+  - product: 'Azure Media Player'
+    model: not-public
+    reason: 'Azure Media Services was retired (its documentation moved to previous versions): no current price.'
+    source: 'https://learn.microsoft.com/en-us/azure/media-services/latest/player-media-players-concept'
+  - product: 'Health Bot'
+    model: not-public
+    reason: 'No meter in the Azure Retail Prices API.'
+    source: 'https://azure.microsoft.com/en-us/products/bot-services/health-bot/'
+  - product: 'Azure Information Protection'
+    model: not-public
+    reason: 'Licensed with Microsoft 365 / Purview plans, not in the Azure Retail Prices API.'
+    source: 'https://www.microsoft.com/en-us/security/business/information-protection/microsoft-purview-information-protection'
+  - product: 'Microsoft Entra ID (formerly Azure AD)'
+    model: not-public
+    reason: 'Per-user licences sold with Microsoft 365 plans, not in the Azure Retail Prices API.'
+    source: 'https://www.microsoft.com/en-us/security/business/identity-access/microsoft-entra-id'
+  - product: 'Azure Health Data Services'
+    model: included
+    reason: 'Its FHIR service is priced by the Azure API for FHIR meters.'
+    source: 'https://azure.microsoft.com/en-us/products/health-data-services/'
+  - product: 'Microsoft Foundry'
+    model: included
+    reason: 'An umbrella of Foundry Models and Foundry Tools, each priced by its own meters.'
+    source: 'https://azure.microsoft.com/en-us/products/ai-foundry'
+  - product: 'Windows for IoT'
+    model: included
+    reason: 'Priced by the Windows 10 IoT Core Services meters.'
+    source: 'https://azure.microsoft.com/en-us/products/windows-iot/'

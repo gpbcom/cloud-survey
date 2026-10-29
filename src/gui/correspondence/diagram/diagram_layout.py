@@ -305,6 +305,8 @@ class DiagramLayout:
             float: The height of the diagram.
         """
         top = self.MARGIN
+        if not self.groups:
+            self.logger.debug("No row to place in the correspondence diagram.")
         for group in self.groups:
             group.header = QRectF(self.MARGIN, top, self.width - 2 * self.MARGIN, self.GROUP_HEADER)
             top += self.GROUP_HEADER
@@ -313,6 +315,7 @@ class DiagramLayout:
                 top += self._row(concept, top) + self.ROW_GAP
             group.band = QRectF(self.MARGIN, band_top, self.BAND_WIDTH, max(top - self.ROW_GAP - band_top, 0))
             top += self.GROUP_GAP
+            self.logger.debug("Domain %r placed: %d rows.", group.title, len(group.concepts))
         return top + self.MARGIN
 
     ############################

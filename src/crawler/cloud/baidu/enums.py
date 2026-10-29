@@ -340,3 +340,73 @@ class BaiduMarketplaceSitemapPath(StrEnum):
     """
 
     DETAIL = "detail"
+
+
+@unique
+class BaiduPriceField(StrEnum):
+    """Enums representing the fields of the BCC price calculator answers (flavors of a region, price of a flavor).
+
+    Attributes:
+        RESULT (str): The result of a call.
+        SUCCESS (str): Whether the call succeeded.
+        ZONE_RESOURCES (str): The resources of each zone of the region.
+        BCC_RESOURCES (str): The instance resources of a zone.
+        FLAVOR_GROUPS (str): Its flavor groups.
+        FLAVORS (str): The flavors of a group.
+        CPU_COUNT (str): The vCPUs of a flavor.
+        MEMORY (str): Its memory, in GiB.
+        GPU_CARD_TYPE (str): Its GPU card, if any.
+        GPU_CARD_COUNT (str): Its GPU cards.
+        PRODUCT_TYPE (str): Its charge type (`postpay` or `prepay`).
+        INSTANCE_TYPE (str): Its instance type number.
+        INSTANCE_FAMILY (str): Its instance family, e.g. `G1`.
+        SPEC (str): Its specification, e.g. `bcc.e2.c2m2`.
+        SPEC_ID (str): Its specification family, e.g. `e2`.
+        SPEC_FAMILY (str): The name of that family (in Chinese).
+        CPU_MODEL (str): Its processor.
+        PRODUCT_CATEGORY (str): Its category (`gpu` for a GPU instance).
+        SYSTEM_DISK_TYPES (str): The storage types its system disk may use.
+        STATUS (str): Whether it is available (`available`) or sold out (`soldout`).
+        PAY_PRICE (str): The instance part of a price.
+        PRICE (str): The price paid.
+        CATALOG_PRICE (str): The list price.
+        CURRENCY (str): The currency of the price.
+    """
+
+    RESULT = "result"
+    SUCCESS = "success"
+    ZONE_RESOURCES = "zoneResources"
+    BCC_RESOURCES = "bccResources"
+    FLAVOR_GROUPS = "flavorGroups"
+    FLAVORS = "flavors"
+    CPU_COUNT = "cpuCount"
+    MEMORY = "memoryCapacityInGB"
+    GPU_CARD_TYPE = "gpuCardType"
+    GPU_CARD_COUNT = "gpuCardCount"
+    PRODUCT_TYPE = "productType"
+    INSTANCE_TYPE = "instanceType"
+    INSTANCE_FAMILY = "instanceFamily"
+    SPEC = "spec"
+    SPEC_ID = "specId"
+    SPEC_FAMILY = "specFamily"
+    CPU_MODEL = "cpuModel"
+    PRODUCT_CATEGORY = "productCategory"
+    SYSTEM_DISK_TYPES = "systemDiskType"
+    STATUS = "status"
+    PAY_PRICE = "bccPayPriceResult"
+    PRICE = "price"
+    CATALOG_PRICE = "catalogPrice"
+    CURRENCY = "currency"
+
+
+@unique
+class BaiduProductType(StrEnum):
+    """Enums representing the BCC charge types.
+
+    Attributes:
+        POSTPAY (str): Pay as you go, priced by the minute.
+        PREPAY (str): Paid in advance, by month or by years.
+    """
+
+    POSTPAY = "postpay"
+    PREPAY = "prepay"

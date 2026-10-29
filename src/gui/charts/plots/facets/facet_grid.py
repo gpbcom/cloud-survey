@@ -114,6 +114,7 @@ class FacetGrid(QWidget):
         Returns:
             MetricChart: The compact chart, its context menu and zoom wired to the grid.
         """
+        self.logger.debug("Building a small %s chart.", kind.value)
         chart: MetricChart = (
             StackedAreaChart(self.theme, self.logger)
             if kind is ChartKind.AREA
@@ -144,6 +145,9 @@ class FacetGrid(QWidget):
             count (int): The number of facets.
         """
         if kind is not self.kind:
+            self.logger.debug(
+                "Small charts changed from %s to %s.", self.kind.value if self.kind else "none", kind.value
+            )
             self._clear()
             self.kind = kind
         while len(self.cards) > count:
@@ -299,6 +303,7 @@ class FacetGrid(QWidget):
         Args:
             loading (bool): Whether the data is being read.
         """
+        self.logger.debug("%d small charts %s.", len(self.charts), "loading" if loading else "no longer loading")
         for chart in self.charts:
             chart.set_loading(loading)
 

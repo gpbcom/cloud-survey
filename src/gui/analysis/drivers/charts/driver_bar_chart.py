@@ -104,6 +104,8 @@ class DriverBarChart(QWidget):
         self.updateGeometry()
         self.update()
         self.logger.debug("Driver chart shows %d bars.", len(self.bars))
+        if not self.bars:
+            self.logger.warning("Driver chart without bars: it shows %r.", self.message)
 
     def sizeHint(self) -> QSize:
         """Get the preferred size (Qt override): one row per bar.

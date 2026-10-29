@@ -1,0 +1,101 @@
+{
+ "response": {
+  "cachedAt": "2026-10-20 14:26:35",
+  "httpCode": 200,
+  "url": "https://calculator.otc-service.com/en/open-telekom-price-api/",
+  "parameters": [],
+  "code": "Success",
+  "message": "Product data successfully loaded!",
+  "stats": {
+   "count": 5,
+   "recordsCount": 500,
+   "maxPages": 2,
+   "recordsPerPage": 500,
+   "currentPage": 2,
+   "currentUri": "https://calculator.otc-service.com/en/open-telekom-price-api/?limitFrom=0"
+  },
+  "filters": [],
+  "services": {
+   "recordsCount": 0,
+   "records": []
+  },
+  "result": {
+   "bms": [
+    {
+     "id": "OTC_C7T28XL4_P_LI",
+     "idGroupTiered": "",
+     "productId": "BARE METAL",
+     "opiFlavour": "c7t.28xl",
+     "productName": "BM General Purpose c7t.28xl Linux",
+     "osUnit": "Open Linux",
+     "currency": "EUR",
+     "priceAmount": "6.990000 EUR",
+     "unit": "h",
+     "description": "Physical Maschine",
+     "vCpu": "112",
+     "ram": "512 GiB",
+     "additionalText": "",
+     "storageType": "",
+     "storageVolume": "",
+     "serviceType": "c7t",
+     "productIdParameter": "bms",
+     "productSection": "main",
+     "productType": "OTC",
+     "productFamily": "Compute",
+     "productCategory": "General Purpose",
+     "fromOn": 1,
+     "upTo": 999999999999,
+     "minAmount": 1,
+     "maxAmount": 999999999999,
+     "region": "eu-de",
+     "isMRC": false,
+     "R12": "4,050.000000 EUR",
+     "R24": "3,544.000000 EUR",
+     "R36": "0.000000 EUR",
+     "RU12": "3,797.166667 EUR",
+     "RU24": "3,290.833333 EUR",
+     "RU36": "0.000000 EUR",
+     "_idGroup": "OTC_C7T28XL4_P_LI"
+    }
+   ],
+   "cbr": [
+    {
+     "id": "OTC_OBCBRCRR_OUTB",
+     "idGroupTiered": "",
+     "productId": "Cloud Backup and Recovery",
+     "opiFlavour": "cbr.crr.outbound",
+     "productName": "CBR Cross Region Traffic Outbound",
+     "osUnit": "Standard",
+     "currency": "EUR",
+     "priceAmount": "0.022000 EUR",
+     "unit": "GB/month",
+     "description": "CBR Cross Region Traffic Outbound",
+     "vCpu": "0",
+     "ram": "0 GiB",
+     "additionalText": "",
+     "storageType": "",
+     "storageVolume": "",
+     "serviceType": "",
+     "productIdParameter": "cbr",
+     "productSection": "crr_outbound",
+     "productType": "OTC",
+     "productFamily": "Storage",
+     "productCategory": "",
+     "fromOn": 1,
+     "upTo": 999999999999,
+     "minAmount": 1,
+     "maxAmount": 999999999999,
+     "region": "eu-de",
+     "isMRC": false,
+     "R12": "0.000000 EUR",
+     "R24": "0.000000 EUR",
+     "R36": "0.000000 EUR",
+     "RU12": "0.000000 EUR",
+     "RU24": "0.000000 EUR",
+     "RU36": "0.000000 EUR",
+     "_idGroup": "OTC_OBCBRCRR_OUTB"
+    }
+   ]
+  }
+ }
+}

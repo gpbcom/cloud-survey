@@ -1,0 +1,377 @@
+# Curated price coverage of Google Cloud (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: google-cloud-platform
+currency: USD
+row_links:
+  'Cloud GPUs': ['^Compute Engine \|.*"description": "[^"]*(Nvidia|GPU)']
+  'Local SSD': ['^Compute Engine \|.*Local SSD']
+  'Spot VMs': ['^Compute Engine \|.*"description": "Spot Preemptible']
+  'Sole-Tenant Nodes': ['^Compute Engine \|.*Sole Tenan']
+  'Block Storage': ['^Compute Engine \|.*Hyperdisk']
+  'Persistent Disk': ['^Compute Engine \|.*"description": "[^"]*(PD |Persistent Disk|Snapshot)']
+  'Cloud Load Balancing': ['^(Networking|Compute Engine) \|.*(Load Balanc|Forwarding Rule)']
+  'Cloud Armor': ['^Networking \|.*Armor']
+  'Cloud CDN': ['^Networking \|.*Cloud CDN']
+  'Cloud Firewall': ['^Networking \|.*Firewall']
+  'Private Service Connect': ['^Networking \|.*Private Service Connect']
+  'Service Directory': ['Service Directory']
+  'Network Intelligence Center': ['^Networking \|.*(Network Intelligence|Network Analyzer|Connectivity Test|Topology|Performance Dashboard)']
+  'Cloud Connectivity': ['^Networking \|.*(Interconnect|VPN)']
+  'Cloud NAT': ['^Networking \|.*"description": "([^"]*[^A-Za-z])?NAT[^A-Za-z]']
+  'Virtual Private Cloud (VPC)': ['^(Networking|Compute Engine) \|.*"description": "(Network|Networking|Inter-?region|Egress)']
+  'Agent Assist': ['Agent Assist']
+  'Vector Search on Gemini platform': ['^Vertex AI \|.*Vector Search']
+  'Gemini platform Notebooks': ['^Vertex AI \|.*(Notebook|Workbench)']
+  'Managed Service for Prometheus': ['^Cloud Monitoring \|.*Prometheus']
+links:
+  'Gemini platform': ['^Vertex AI$', '^Gemini API$', '^Cloud Machine Learning Engine$', '^Prediction$', '^Cloud AutoML$', '^Cloud Data Labeling Service$', '^Agentic Applications$']
+  'Contact Center as a Service': ['^Cloud Contact Center AI Platform$']
+  'Managed Service for Apache Spark': ['^Dataproc$']
+  'Google Cloud Healthcare Data Engine': ['^Cloud Healthcare$']
+  'Google Security Operations': ['^Chronicle$']
+  'Google Cloud Backup and DR': ['^Backup for GKE$', '^Actifio', '^Backup and DR Service$']
+  'Knowledge Catalog': ['^Dataplex$']
+  'Lakehouse for Apache Iceberg': ['^BigLake$']
+  'Google Maps Platform': ['^(Places|Maps|Google Maps|Roads|Address Validation|Route Optimization|Isochrones|Geocoding|Directions|Distance Matrix|Time Zone|Geolocation|Street View|Aerial View|Navigation)']
+  'Vision AI': ['^Cloud Vision API$', '^Vertex AI Vision$', '^Cloud Vision OCR']
+  'Speech-to-Text': ['^Cloud Speech API$']
+  'Translation AI': ['^Translate$', '^Cloud Media Translation API$']
+  'Video AI': ['^Cloud Video Intelligence API$']
+  'Natural Language AI': ['^Cloud Natural Language$']
+  'Customer Experience Insights': ['^Conversational Insights$']
+  'Sensitive Data Protection': ['^Cloud Data Loss Prevention$']
+  'Cloud Service Mesh': ['^Anthos Service Mesh$']
+  'Gemini Code Assist': ['^Duet AI$']
+  'Spectrum Access System (SAS)': ['^Spectrum SAS$']
+  'Cloud Source Repositories': ['^Source Repository$']
+  'Firebase Authentication': ['^Firebase Auth$']
+  'Google Distributed Cloud Connected': ['^GKE Enterprise / GDC$']
+  'Cloud Composer': ['^Cloud Composer']
+  'Agent Search': ['^Vertex AI Search$']
+  'Customer Experience Agent Studio': ['^Cloud Dialogflow API$']
+  'Gemini for customer experience': ['^Customer Engagement Suite$']
+  'Blockchain Node Engine': ['^Blockchain Node Engine$']
+statements:
+  - product: 'Cloud Code'
+    model: free
+    reason: 'Cloud Code is available to all Google Cloud customers free of charge.'
+    source: 'https://cloud.google.com/code/'
+  - product: 'Cloud SDK'
+    model: free
+    reason: 'Cloud SDK is available at no charge for users with a Google Cloud account.'
+    source: 'https://cloud.google.com/sdk'
+  - product: 'Batch'
+    model: free
+    reason: 'There is no charge for the Batch service: only the resources used to run the jobs are billed.'
+    source: 'https://cloud.google.com/batch'
+  - product: 'Cloud Mobile App'
+    model: free
+    reason: 'The Google Cloud app is free of charge.'
+    source: 'https://cloud.google.com/app'
+  - product: 'Personalized Service Health'
+    model: free
+    reason: 'Personalized Service Health is available free of charge to Google Cloud customers.'
+    source: 'https://cloud.google.com/service-health'
+  - product: 'Dataform'
+    model: free
+    reason: 'Dataform is a free service: only the BigQuery resources it runs are billed.'
+    source: 'https://cloud.google.com/dataform'
+  - product: 'Assured Open Source Software'
+    model: free
+    reason: 'Assured OSS is available at no cost.'
+    source: 'https://cloud.google.com/security/products/assured-open-source-software'
+  - product: 'Data Studio'
+    model: free
+    reason: 'Data Studio is available at no charge for creators and report viewers (Data Studio Pro is a paid subscription).'
+    source: 'https://cloud.google.com/data-studio'
+  - product: 'Migrate to Containers'
+    model: free
+    reason: 'Migrate to Containers is provided at no charge for migrations into Google Cloud.'
+    source: 'https://cloud.google.com/migrate/containers/docs'
+  - product: 'Identity-Aware Proxy'
+    model: free
+    reason: 'Identity-Aware Proxy protects access to Google Cloud resources at no charge (networking and compute are billed).'
+    source: 'https://cloud.google.com/security/products/iap'
+  - product: 'Shielded VMs'
+    model: free
+    reason: 'Shielded VM features come at no additional charge on Compute Engine instances.'
+    source: 'https://cloud.google.com/shielded-vm'
+  - product: 'Knative'
+    model: free
+    reason: 'Open-source software (Apache/MIT licensed), free to use.'
+    source: 'https://cloud.google.com/knative'
+  - product: 'Tekton'
+    model: free
+    reason: 'Open-source software, free to use.'
+    source: 'https://cloud.google.com/tekton'
+  - product: 'Skaffold'
+    model: free
+    reason: 'Open-source software, free to use.'
+    source: 'https://cloud.google.com/skaffold/'
+  - product: 'OpenCue'
+    model: free
+    reason: 'Open-source software, free to use.'
+    source: 'https://www.opencue.io/docs/getting-started/'
+  - product: 'Genkit'
+    model: free
+    reason: 'Open-source framework, free to use (the model calls are billed).'
+    source: 'https://genkit.dev/'
+  - product: 'Cloud Shell'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: free to use with a Google Cloud account.'
+    source: 'https://cloud.google.com/shell'
+  - product: 'Cloud Console'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: the console is free to use.'
+    source: 'https://cloud.google.com/cloud-console'
+  - product: 'Cloud IAM'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: access control is part of every project.'
+    source: 'https://cloud.google.com/security/products/iam'
+  - product: 'Cloud Quotas'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: quota management is part of every project.'
+    source: 'https://cloud.google.com/docs/quotas'
+  - product: 'Cloud APIs'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: each API is billed by its own service.'
+    source: 'https://cloud.google.com/apis'
+  - product: 'Cloud Asset Inventory'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: not billed apart.'
+    source: 'https://cloud.google.com/security/products/asset-inventory'
+  - product: 'Recommender'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: not billed apart.'
+    source: 'https://cloud.google.com/recommender/docs/whatis-activeassist'
+  - product: 'Cloud Profiler'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: not billed apart.'
+    source: 'https://docs.cloud.google.com/profiler/docs'
+  - product: 'Error Reporting'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: billed through the Cloud Logging it reads.'
+    source: 'https://cloud.google.com/error-reporting'
+  - product: 'Cloud Deployment Manager'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: only the resources it deploys are billed.'
+    source: 'https://cloud.google.com/deployment-manager/docs'
+  - product: 'Config Connector'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: only the resources it manages are billed.'
+    source: 'https://docs.cloud.google.com/config-connector/docs'
+  - product: 'Migration Center'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: not billed apart.'
+    source: 'https://docs.cloud.google.com/migration-center/docs'
+  - product: 'Migrate to Virtual Machines'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: only the migrated resources are billed.'
+    source: 'https://cloud.google.com/migrate/virtual-machines'
+  - product: 'Access Context Manager'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: not billed apart.'
+    source: 'https://docs.cloud.google.com/access-context-manager/docs'
+  - product: 'Service Catalog'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: not billed apart.'
+    source: 'https://cloud.google.com/service-catalog'
+  - product: 'Carbon Footprint'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: not billed apart.'
+    source: 'https://cloud.google.com/carbon-footprint'
+  - product: 'Cost Management'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: the billing tools are not billed apart.'
+    source: 'https://cloud.google.com/cost-management'
+  - product: 'Policy Intelligence'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: not billed apart.'
+    source: 'https://cloud.google.com/security/products/policy-intelligence'
+  - product: 'Risk Manager'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: not billed apart.'
+    source: 'https://docs.cloud.google.com/risk-manager/docs'
+  - product: 'Access Transparency'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: part of the support and Assured Workloads offers.'
+    source: 'https://cloud.google.com/security/products/access-transparency'
+  - product: 'Infrastructure Manager'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: billed through the Cloud Build and Cloud Storage it uses.'
+    source: 'https://cloud.google.com/infrastructure-manager'
+  - product: 'Operations Suite'
+    model: included
+    reason: 'An umbrella of Cloud Logging, Cloud Monitoring and Cloud Trace, each priced by its own SKUs.'
+    source: 'https://cloud.google.com/products/observability'
+  - product: 'Cloud Foundation Toolkit'
+    model: included
+    reason: 'Open-source Terraform blueprints, free to use: only the deployed resources are billed.'
+    source: 'https://cloud.google.com/foundation-toolkit'
+  - product: 'Terraform on Google Cloud'
+    model: included
+    reason: 'No SKU of its own in the Google Cloud billing catalogue: only the deployed resources are billed.'
+    source: 'https://docs.cloud.google.com/docs/terraform'
+  - product: 'Deep Learning Containers'
+    model: included
+    reason: 'Container images free to use: billed through the compute that runs them.'
+    source: 'https://cloud.google.com/deep-learning-containers'
+  - product: 'Cloud Functions for Firebase'
+    model: included
+    reason: 'Billed as Cloud Run functions, through its SKUs.'
+    source: 'https://firebase.google.com/products/functions'
+  - product: 'Cloud Storage for Firebase'
+    model: included
+    reason: 'Billed as Cloud Storage, through its SKUs.'
+    source: 'https://firebase.google.com/products/storage/'
+  - product: 'Firebase App Check'
+    model: included
+    reason: 'A no-cost Firebase product, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://firebase.google.com/pricing'
+  - product: 'Firebase Cloud Messaging'
+    model: included
+    reason: 'A no-cost Firebase product, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://firebase.google.com/pricing'
+  - product: 'Firebase Crashlytics'
+    model: included
+    reason: 'A no-cost Firebase product, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://firebase.google.com/pricing'
+  - product: 'Firebase In-App Messaging'
+    model: included
+    reason: 'A no-cost Firebase product, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://firebase.google.com/pricing'
+  - product: 'Firebase Performance Monitoring'
+    model: included
+    reason: 'A no-cost Firebase product, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://firebase.google.com/pricing'
+  - product: 'Firebase App Distribution'
+    model: included
+    reason: 'A no-cost Firebase product, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://firebase.google.com/pricing'
+  - product: 'Firebase AI Logic client SDKs'
+    model: included
+    reason: 'Client SDKs free to use: the model calls are billed by the Gemini API.'
+    source: 'https://firebase.google.com/pricing'
+  - product: 'Mandiant Academy'
+    model: quote
+    reason: 'Mandiant training is priced on request, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://cloud.google.com/learn/security/mandiant-academy'
+  - product: 'Mandiant Consulting Services'
+    model: quote
+    reason: 'Mandiant consulting is priced on request, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://cloud.google.com/security/consulting/mandiant-services'
+  - product: 'Mandiant Incident Response Services'
+    model: quote
+    reason: 'Mandiant incident response is priced on request (retainers), with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://cloud.google.com/security/consulting/mandiant-incident-response-services'
+  - product: 'Mandiant Managed Detection and Response'
+    model: quote
+    reason: 'Priced on request, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://cloud.google.com/security/products/managed-defense'
+  - product: 'Mandiant Security Validation'
+    model: quote
+    reason: 'Priced on request, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://cloud.google.com/security/products/mandiant-security-validation'
+  - product: 'Mandiant Attack Surface Management'
+    model: quote
+    reason: 'Priced on request, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://cloud.google.com/security/products/attack-surface-management'
+  - product: 'Mandiant Digital Threat Monitoring'
+    model: quote
+    reason: 'Priced on request, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://cloud.google.com/security/products/digital-threat-monitoring'
+  - product: 'Google Threat Intelligence'
+    model: quote
+    reason: 'Licensed on request, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://cloud.google.com/security/products/threat-intelligence'
+  - product: 'Virus Total'
+    model: quote
+    reason: 'VirusTotal enterprise licences are priced on request, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://www.virustotal.com/gui/intelligence-overview'
+  - product: 'Google Distributed Cloud Air-gapped'
+    model: quote
+    reason: 'A private deployment priced per contract, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://cloud.google.com/distributed-cloud-air-gapped'
+  - product: 'Telecom Data Fabric'
+    model: quote
+    reason: 'Priced on request, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://cloud.google.com/telecom-data-fabric'
+  - product: 'Anti Money Laundering AI'
+    model: quote
+    reason: 'Priced on request, with no SKU in the Google Cloud billing catalogue.'
+    source: 'https://cloud.google.com/anti-money-laundering-ai'
+  - product: 'Google Workspace'
+    model: not-public
+    reason: 'Not in the Google Cloud billing catalogue (SKUs): a subscription sold on its own price list, not read.'
+    source: 'https://workspace.google.com/'
+  - product: 'Google Workspace Essentials'
+    model: not-public
+    reason: 'Not in the Google Cloud billing catalogue (SKUs): a subscription sold on its own price list, not read.'
+    source: 'https://workspace.google.com/essentials/'
+  - product: 'AppSheet'
+    model: not-public
+    reason: 'Not in the Google Cloud billing catalogue (SKUs): a subscription sold on its own price list, not read.'
+    source: 'https://about.appsheet.com/home/'
+  - product: 'Appsheet Automation'
+    model: not-public
+    reason: 'Not in the Google Cloud billing catalogue (SKUs): part of the AppSheet subscriptions, not read.'
+    source: 'https://cloud.google.com/appsheet/automation'
+  - product: 'Chrome Enterprise'
+    model: not-public
+    reason: 'Not in the Google Cloud billing catalogue (SKUs): licences sold on their own price list, not read.'
+    source: 'https://chromeenterprise.google/'
+  - product: 'Google Marketing Platform'
+    model: not-public
+    reason: 'Not in the Google Cloud billing catalogue (SKUs): sold by contract on its own price list.'
+    source: 'https://marketingplatform.google.com/about/enterprise/#?modal_active=none'
+  - product: 'Cloud Identity'
+    model: not-public
+    reason: 'Not in the Google Cloud billing catalogue (SKUs): a free edition and a per-user Premium subscription sold on its own price list.'
+    source: 'https://cloud.google.com/identity'
+  - product: 'Assured Workloads'
+    model: not-public
+    reason: 'Not in the Google Cloud billing catalogue (SKUs): its premium tier is a subscription sold apart.'
+    source: 'https://cloud.google.com/security/products/assured-workloads'
+  - product: 'Titan Security Key'
+    model: not-public
+    reason: 'Hardware sold on the Google Store, not in the Google Cloud billing catalogue.'
+    source: 'https://cloud.google.com/security/products/titan-security-key'
+  - product: 'Gemini for your business'
+    model: not-public
+    reason: 'Not in the Google Cloud billing catalogue (SKUs): per-user Gemini Enterprise subscriptions sold on their own price list.'
+    source: 'https://cloud.google.com/gemini-enterprise'
+  - product: 'Datadog'
+    model: not-public
+    reason: 'A partner product sold through Google Cloud Marketplace, priced by the partner, not in the Google Cloud SKU catalogue.'
+    source: 'https://console.cloud.google.com/marketplace/product/datadog-public/datadog'
+  - product: 'Elastic Cloud (Elasticsearch Service)'
+    model: not-public
+    reason: 'A partner product sold through Google Cloud Marketplace, priced by the partner, not in the Google Cloud SKU catalogue.'
+    source: 'https://console.cloud.google.com/marketplace/product/elastic-prod/elastic-cloud'
+  - product: 'MongoDB Atlas (pay-as-you-go)'
+    model: not-public
+    reason: 'A partner product sold through Google Cloud Marketplace, priced by the partner, not in the Google Cloud SKU catalogue.'
+    source: 'https://console.cloud.google.com/marketplace/product/mongodb/mdb-atlas-self-service'
+  - product: 'Device Connect for Fitbit'
+    model: not-public
+    reason: 'No price in the Google Cloud billing catalogue (SKUs).'
+    source: 'https://cloud.google.com/device-connect'
+  - product: 'Managed Service for Apache Airflow'
+    model: included
+    reason: 'The managed Apache Airflow of Cloud Composer, priced by the Cloud Composer SKUs.'
+    source: 'https://cloud.google.com/products/managed-service-for-apache-airflow'
+  - product: 'Network Service Tiers'
+    model: included
+    reason: 'The network tiers are priced as the internet data transfer SKUs of the services (Premium or Standard tier), with no SKU of their own.'
+    source: 'https://cloud.google.com/network-tiers'
+  - product: 'Gemini Cloud Assist'
+    model: not-public
+    reason: 'No SKU in the Google Cloud billing catalogue for Gemini Cloud Assist.'
+    source: 'https://cloud.google.com/products/gemini/cloud-assist'
+  - product: 'Blockchain RPC'
+    model: not-public
+    reason: 'No SKU of its own in the Google Cloud billing catalogue read (searchskus).'
+    source: 'https://cloud.google.com/products/blockchain-rpc/'
+  - product: 'Cloud Endpoints'
+    model: not-public
+    reason: 'No SKU of its own in the Google Cloud billing catalogue read (searchskus).'
+    source: 'https://cloud.google.com/endpoints/'

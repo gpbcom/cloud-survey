@@ -87,6 +87,7 @@ class WarningBoard(QWidget):
 
     def _clear(self) -> None:
         """Remove every chip."""
+        self.logger.debug("Removing the %d chips of the warning board.", len(self.chips))
         for chip in self.chips:
             self.flow.removeWidget(chip)
             chip.deleteLater()
@@ -126,6 +127,8 @@ class WarningBoard(QWidget):
         """
         severity = self._severity(warning)
         explained = self.help.warning(warning.kind)
+        if explained is None:
+            self.logger.warning("The warning %s is not explained in the drivers help.", warning.kind.value)
         color = self.theme.WARNING_COLORS[severity]
         title = html.escape(explained.title if explained else warning.kind.value)
         parts = [
@@ -202,6 +205,7 @@ class WarningBoard(QWidget):
             chip.clicked.connect(partial(self._on_chip, index))
             self.warnings.append(warning)
         if not warnings:
+            self.logger.debug("No caveat limits the analysis.")
             self._add(
                 QColor(self.theme.DRIVER_POSITIVE),
                 "✓",
@@ -213,6 +217,9 @@ class WarningBoard(QWidget):
         self.caption.setText(f"Caveats ({len(warnings)})" if warnings else "Caveats")
         self.setVisible(True)
         self.logger.debug("Warning board shows %d warnings.", len(warnings))
+        blocking = sum(1 for warning in warnings if self._severity(warning) is WarningSeverity.BLOCKING)
+        if blocking:
+            self.logger.warning("%d blocking caveats limit the rise drivers analysis.", blocking)
 
     def show_error(self, message: str) -> None:
         """Show an error stopping the analysis (storage, files).
@@ -220,6 +227,7 @@ class WarningBoard(QWidget):
         Args:
             message (str): The error.
         """
+        self.logger.debug("Warning board shows the error %r.", message.splitlines()[0] if message else "")
         self._clear()
         severity = WarningSeverity.BLOCKING
         self._add(

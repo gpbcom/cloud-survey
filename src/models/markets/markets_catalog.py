@@ -29,7 +29,7 @@ from models.markets.press.press_family import PressFamily
 
 
 class MarketsCatalog(BaseModel):
-    """What the market shares and the stock values are read for (`conf/history/markets.yaml`).
+    """What the market shares and the stock values are read for (`data/curated/markets.json`).
 
     Attributes:
         MONTH (ClassVar[Pattern[str]]): The format of a month: `YYYY-MM`.
@@ -49,13 +49,17 @@ class MarketsCatalog(BaseModel):
         manual_shares (List[ManualShare]): The shares of the source dossier no crawled source gives (pre-2009).
         press_names (List[str]): The companies the press releases name without a company of the chronology (Elpida,
             Powerchip…): read under their own name, so that their share never goes to the company named before.
+        country_currencies (Dict[str, str]): The currency of each country of headquarters (ISO 3166-1 alpha-2 to ISO
+            4217), for the home-currency criteria of the Rise drivers.
 
     Notes:
         The companies named by the labels, the listings and the valuations are the chronology's
-        (`conf/history/chronology.yaml`): the loader checks them against it.
+        (`data/curated/chronology.json`): the catalogues check them against it.
     """
 
     MONTH: ClassVar[Pattern[str]] = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
+    COUNTRY: ClassVar[Pattern[str]] = re.compile(r"^[A-Z]{2}$")
+    CURRENCY: ClassVar[Pattern[str]] = re.compile(r"^[A-Z]{3}$")
     CHECK: ClassVar[MarketFieldCheck] = MarketFieldCheck()
     UNIQUE_KEYS: ClassVar[Dict[str, str]] = {
         "segments": "segment",
@@ -81,6 +85,7 @@ class MarketsCatalog(BaseModel):
     press: List[PressFamily] = Field(default_factory=list, description="The families of press releases read.")
     manual_shares: List[ManualShare] = Field(default_factory=list, description="The shares of the source dossier.")
     press_names: List[str] = Field(default_factory=list, description="The unmapped companies of the releases.")
+    country_currencies: Dict[str, str] = Field(default_factory=dict, description="The currency of each country.")
 
     @field_validator("statcounter_from", mode="before")
     def validate_statcounter_from(cls, value: JsonValue) -> JsonValue:
@@ -235,6 +240,41 @@ class MarketsCatalog(BaseModel):
                 raise UnknownMarketReferenceError("currency", code)
         return value
 
+    @field_validator("country_currencies", mode="before")
+    def validate_country_currencies(cls, value: JsonValue, info: ValidationInfo) -> JsonValue:
+        """Validate the raw country currencies: ISO country codes mapped to the US dollar or a currency with a series.
+
+        Args:
+            value (JsonValue): The raw mapping.
+            info (ValidationInfo): The fields validated before (the currencies).
+
+        Returns:
+            JsonValue: The mapping, its codes trimmed and upper-cased.
+
+        Raises:
+            InvalidMarketListError: If it is not a mapping.
+            InvalidMarketValueError: If a key is not a country code or a value not a currency code.
+            UnknownMarketReferenceError: If a currency has no FRED series.
+        """
+        if value is None:
+            return {}
+        if not isinstance(value, dict):
+            raise InvalidMarketListError("catalogue country currencies", "a mapping of countries to currencies")
+        series = info.data.get("currencies")
+        known = {"USD"} | ({entry.currency for entry in series} if isinstance(series, list) else set())
+        mapping: Dict[str, JsonValue] = {}
+        for raw_country, raw_currency in value.items():
+            country = str(raw_country).strip().upper()
+            currency = raw_currency.strip().upper() if isinstance(raw_currency, str) else str(raw_currency)
+            if not cls.COUNTRY.match(country):
+                raise InvalidMarketValueError("country of a currency", country, "an ISO 3166-1 alpha-2 code")
+            if not cls.CURRENCY.match(currency):
+                raise InvalidMarketValueError(f"currency of {country}", currency, "an ISO 4217 code")
+            if currency not in known:
+                raise UnknownMarketReferenceError("currency", currency)
+            mapping[country] = currency
+        return mapping
+
     ############################
     # Publicly Exposed Methods #
     ############################
@@ -333,6 +373,17 @@ class MarketsCatalog(BaseModel):
             Optional[CurrencySeries]: Its series, `None` for the US dollar or an unknown currency.
         """
         return next((entry for entry in self.currencies if entry.currency == currency), None)
+
+    def currency_of(self, country: Optional[str]) -> Optional[str]:
+        """Get the currency of a country of headquarters.
+
+        Args:
+            country (Optional[str]): The country, ISO 3166-1 alpha-2.
+
+        Returns:
+            Optional[str]: Its currency, ISO 4217, `None` when the catalogue does not say.
+        """
+        return self.country_currencies.get(country) if country else None
 
     def region_of(self, country: Optional[str]) -> Optional[HqRegion]:
         """Get the region of a country of headquarters.

@@ -226,6 +226,8 @@ class TestFredAndWorldBank:
 
         assert len(requests) == 2
         assert "AT;BE;BG" in requests[0].url
+        assert ";US;" in requests[0].url, "the home countries of the providers"
+        assert ";CN;" in requests[0].url
         assert {weight.indicator for weight in weights} == {WeightIndicator.INTERNET_USERS}
         assert {weight.country for weight in weights} == {"DE", "FR", "MT"}
         assert all(weight.year < 2025 for weight in weights if weight.country == "DE"), "the null years are left out"

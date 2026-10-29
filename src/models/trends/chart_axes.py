@@ -35,6 +35,8 @@ class ChartAxes(BaseModel):
         transform (ValueTransform): How the values are transformed.
         forecast (bool): Whether the trend of each series is extrapolated.
         log_scale (bool): Whether the bubble chart axes are logarithmic.
+        derivative (bool): Whether a line chart draws the rate of change of each series (per year over time, per
+            unit of x otherwise) instead of its values, after the transform.
         top (Optional[int]): The largest number of series (or matrix rows and columns) shown, the largest first,
             `None` to show every one of them.
         preset (Optional[ChartPreset]): The ready-made chart these axes come from, `None` once customized.
@@ -63,6 +65,7 @@ class ChartAxes(BaseModel):
     transform: ValueTransform = Field(default=ValueTransform.RAW, description="How the values are transformed.")
     forecast: bool = Field(default=False, description="Whether the trends are extrapolated.")
     log_scale: bool = Field(default=False, description="Whether the bubble chart axes are logarithmic.")
+    derivative: bool = Field(default=False, description="Whether the lines draw the rate of change of the values.")
     top: Optional[int] = Field(default=None, ge=1, le=20, description="The largest number of series, `None` for all.")
     preset: Optional[ChartPreset] = Field(default=None, description="The ready-made chart of the axes.")
 

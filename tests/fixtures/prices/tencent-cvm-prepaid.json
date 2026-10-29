@@ -1,0 +1,174 @@
+{
+ "data": {
+  "Response": {
+   "InstanceTypeQuotaSet": [
+    {
+     "Zone": "ap-guangzhou-5",
+     "InstanceType": "MA9m.MEDIUM16",
+     "InstanceChargeType": "PREPAID",
+     "NetworkCard": 200,
+     "Externals": {
+      "UnsupportNetworks": [
+       "BASIC",
+       "VPC1.0"
+      ],
+      "extra_specs": {
+       "tx_queue_size": 4096
+      }
+     },
+     "Cpu": 2,
+     "Memory": 16,
+     "InstanceFamily": "MA9m",
+     "Architecture": "X86计算",
+     "TypeName": "内存型MA9m",
+     "LocalDiskTypeList": [],
+     "Status": "SELL",
+     "SoldOutReason": "",
+     "StorageBlockAmount": 0,
+     "InstanceBandwidth": 2,
+     "InstancePps": 30,
+     "CpuType": "AMD EPYC Turin-D",
+     "Frequency": "-/3.4GHz",
+     "Gpu": 0,
+     "GpuCount": 0,
+     "Fpga": 0,
+     "Remark": "",
+     "ExtraProperty": {},
+     "Price": {
+      "OriginalPrice": 399.2,
+      "DiscountPrice": 399.2,
+      "Discount": 100,
+      "OriginalPriceOneYear": 4790.4,
+      "DiscountPriceOneYear": 3976.03,
+      "DiscountOneYear": 83,
+      "OriginalPriceThreeYears": 14371.2,
+      "DiscountPriceThreeYears": 7185.6,
+      "DiscountThreeYears": 50,
+      "OriginalPriceFiveYears": 23952,
+      "DiscountPriceFiveYears": 11976,
+      "DiscountFiveYears": 50,
+      "OriginalPriceSixYears": 28742.4,
+      "DiscountPriceSixYears": 14371.2,
+      "DiscountSixYears": 50
+     },
+     "StatusCategory": "EnoughStock",
+     "Disable": "ENABLE",
+     "DeviceClass": "VSLMEMAMDM_9",
+     "StorageBlock": 0
+    },
+    {
+     "Zone": "ap-guangzhou-5",
+     "InstanceType": "MA9m.16XLARGE512",
+     "InstanceChargeType": "PREPAID",
+     "NetworkCard": 200,
+     "Externals": {
+      "UnsupportNetworks": [
+       "BASIC",
+       "VPC1.0"
+      ],
+      "extra_specs": {
+       "tx_queue_size": 4096
+      }
+     },
+     "Cpu": 64,
+     "Memory": 512,
+     "InstanceFamily": "MA9m",
+     "Architecture": "X86计算",
+     "TypeName": "内存型MA9m",
+     "LocalDiskTypeList": [],
+     "Status": "SOLD_OUT",
+     "SoldOutReason": "ResourcesSoldOut.SpecifiedInstanceType",
+     "StorageBlockAmount": 0,
+     "InstanceBandwidth": 50,
+     "InstancePps": 1120,
+     "CpuType": "AMD EPYC Turin-D",
+     "Frequency": "-/3.4GHz",
+     "Gpu": 0,
+     "GpuCount": 0,
+     "Fpga": 0,
+     "Remark": "",
+     "ExtraProperty": {},
+     "Price": {
+      "OriginalPrice": 12774.4,
+      "DiscountPrice": 12774.4,
+      "Discount": 100,
+      "OriginalPriceOneYear": 153292.8,
+      "DiscountPriceOneYear": 127233.02,
+      "DiscountOneYear": 83,
+      "OriginalPriceThreeYears": 459878.4,
+      "DiscountPriceThreeYears": 229939.2,
+      "DiscountThreeYears": 50,
+      "OriginalPriceFiveYears": 766464,
+      "DiscountPriceFiveYears": 383232,
+      "DiscountFiveYears": 50,
+      "OriginalPriceSixYears": 919756.8,
+      "DiscountPriceSixYears": 459878.4,
+      "DiscountSixYears": 50
+     },
+     "StatusCategory": "WithoutStock",
+     "Disable": "ENABLE",
+     "DeviceClass": "VSLMEMAMDM_9",
+     "StorageBlock": 0
+    },
+    {
+     "Zone": "ap-guangzhou-7",
+     "InstanceType": "PTX1.7XLARGE116",
+     "InstanceChargeType": "PREPAID",
+     "NetworkCard": 100,
+     "Externals": {
+      "GpuAttr": {
+       "NPU_DEV": true,
+       "Type": "ptx1"
+      },
+      "UnsupportNetworks": [
+       "BASIC",
+       "VPC1.0"
+      ],
+      "GPUVram": "16GB"
+     },
+     "Cpu": 28,
+     "Memory": 116,
+     "InstanceFamily": "PTX1",
+     "Architecture": "异构计算",
+     "TypeName": "NPU计算型PTX1",
+     "LocalDiskTypeList": [],
+     "Status": "SELL",
+     "SoldOutReason": "",
+     "StorageBlockAmount": 0,
+     "InstanceBandwidth": 13,
+     "InstancePps": 220,
+     "CpuType": "AMD EPYC™ Milan",
+     "Frequency": "2.55GHz/-",
+     "Gpu": 1,
+     "GpuCount": 1,
+     "Fpga": 0,
+     "Remark": "1*NPU",
+     "ExtraProperty": {},
+     "Price": {
+      "OriginalPrice": 5240.95,
+      "DiscountPrice": 5240.95,
+      "Discount": 100,
+      "OriginalPriceOneYear": 62891.4,
+      "DiscountPriceOneYear": 52199.86,
+      "DiscountOneYear": 83,
+      "OriginalPriceThreeYears": 188674.2,
+      "DiscountPriceThreeYears": 94337.1,
+      "DiscountThreeYears": 50,
+      "OriginalPriceFiveYears": 314457,
+      "DiscountPriceFiveYears": 157228.5,
+      "DiscountFiveYears": 50,
+      "OriginalPriceSixYears": 377348.4,
+      "DiscountPriceSixYears": 188674.2,
+      "DiscountSixYears": 50
+     },
+     "StatusCategory": "UnderStock",
+     "Disable": "ENABLE",
+     "DeviceClass": "VSNPUTXZIXIAOC100_5",
+     "StorageBlock": 0
+    }
+   ],
+   "RequestId": "1fe99eeb-e66d-493e-a525-a6001d9823df"
+  }
+ },
+ "code": 0
+}

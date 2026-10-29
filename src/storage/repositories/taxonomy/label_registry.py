@@ -182,6 +182,7 @@ class LabelRegistry:
         """
         language = self.normalizer.language(label_text)
         english = label_text if language is Language.ENGLISH else None
+        self.logger.debug("New source label %r (%s), keyed %s.", label_text, language.value, key)
         return {
             "key": key,
             "text": label_text,

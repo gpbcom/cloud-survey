@@ -1,0 +1,942 @@
+{
+ "offset": 0,
+ "limit": 200,
+ "count": 355,
+ "resource_count": 200,
+ "first": "https://globalcatalog.cloud.ibm.com/api/v1?_limit=200&languages=%2A&q=kind%3Aservice",
+ "next": "https://globalcatalog.cloud.ibm.com/api/v1?_limit=200&_offset=200&languages=%2A&q=kind%3Aservice",
+ "resources": [
+  {
+   "id": "databases-for-elasticsearch-group",
+   "_id": "databases-for-elasticsearch-group",
+   "_rev": "823-017346264835f038524455fad47beaa9",
+   "catalog_crn": "crn:v1:bluemix:public:globalcatalog::::service:databases-for-elasticsearch-group",
+   "name": "databases-for-elasticsearch-group",
+   "kind": "service",
+   "overview_ui": {
+    "en": {
+     "display_name": "Databases for Elasticsearch",
+     "long_description": "Databases for Elasticsearch is the next generation of Compose for Elasticsearch. The service is natively integrated in the IBM Cloud and provides a fully managed, highly available Elasticsearch deployment with serverless scaling, backup orchestration, and integration for bring your encryption key for data at rest.",
+     "description": "Elasticsearch combines the power of a full text search engine with the indexing strengths of a JSON document database."
+    }
+   },
+   "children_url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-elasticsearch-group/%2A",
+   "disabled": false,
+   "active": true,
+   "tags": [
+    "big_data",
+    "data_management",
+    "database",
+    "eu_access",
+    "gc_migrate",
+    "group",
+    "hipaa",
+    "ibm_created",
+    "service_endpoint_supported",
+    "support_ibm",
+    "vpc_private_endpoint"
+   ],
+   "geo_tags": [
+    "au-syd",
+    "br-sao",
+    "ca-mon",
+    "ca-tor",
+    "che01",
+    "eu-de",
+    "eu-es",
+    "eu-gb",
+    "in-che",
+    "in-mum",
+    "jp-osa",
+    "jp-tok",
+    "par01",
+    "us-east",
+    "us-south"
+   ],
+   "pricing_tags": [
+    "paygo",
+    "paid_only",
+    "paid",
+    "allow_internal_users"
+   ],
+   "group": true,
+   "provider": {
+    "name": "IBM"
+   },
+   "created": "2019-02-05T14:45:39.362Z",
+   "updated": "2026-09-02T01:27:27.708872366-04:00",
+   "complete": true,
+   "url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-elasticsearch-group?languages=%2A",
+   "images": {
+    "feature_image": "https://broker.br-sao.databases.cloud.ibm.com/images/elasticsearch.svg",
+    "image": "https://broker.br-sao.databases.cloud.ibm.com/images/elasticsearch.svg",
+    "medium_image": "https://broker.br-sao.databases.cloud.ibm.com/images/elasticsearch.svg",
+    "small_image": "https://broker.br-sao.databases.cloud.ibm.com/images/elasticsearch.svg"
+   },
+   "metadata": {
+    "rc_compatible": true,
+    "service": {
+     "type": "",
+     "iam_compatible": false,
+     "unique_api_key": false,
+     "rc_provisionable": false,
+     "bindable": true,
+     "async_provisioning_supported": false,
+     "async_unprovisioning_supported": false,
+     "user_defined_service": null,
+     "extension": null,
+     "plan_updateable": false,
+     "state": "",
+     "service_check_enabled": false,
+     "test_check_interval": 0,
+     "service_key_supported": true,
+     "custom_create_page_hybrid_enabled": false,
+     "parameters": null
+    },
+    "ui": {
+     "side_by_side_index": 304,
+     "primary_offering_id": "databases-for-elasticsearch",
+     "urls": {
+      "doc_url": "https://cloud.ibm.com/docs/databases-for-elasticsearch"
+     }
+    }
+   },
+   "visibility": {
+    "restrictions": "public"
+   },
+   "children": [
+    {
+     "id": "ComposeElasticsearch-P",
+     "_id": "ComposeElasticsearch-P",
+     "_rev": "1-abbf6b4e2efe90aa0543b77c7489c6ec",
+     "catalog_crn": "crn:v1:bluemix:public:globalcatalog::::service:ComposeElasticsearch-P",
+     "name": "compose-for-elasticsearch",
+     "kind": "service",
+     "overview_ui": {
+      "en": {
+       "display_name": "Compose for Elasticsearch",
+       "long_description": "*Before deploying, consider using our new offering, Databases for Elasticsearch.* Elasticsearch combines the power of a full text search engine with the indexing strengths of a JSON document database to create a powerful tool for rich data analysis on large volumes of data. Pricing is based on underlying disk usage. CPU & I/O resources scale with the underlying disk usage. IBM Compose for Elasticsearch makes Elasticsearch even better by managing it for you. Features include auto-scaling deployments, high availability, and automated no-stop backups.",
+       "description": "This offering is deprecated and all instances will be removed after March 1st, 2023. Consider using our next generation service, Databases for Elasticsearch."
+      }
+     },
+     "parent_id": "databases-for-elasticsearch-group",
+     "children_url": "https://globalcatalog.cloud.ibm.com/api/v1/ComposeElasticsearch-P/%2A",
+     "parent_url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-elasticsearch-group",
+     "disabled": false,
+     "active": false,
+     "tags": [
+      "big_data",
+      "data_management",
+      "database",
+      "eu_access",
+      "gc_migrate",
+      "ibm_created",
+      "ibm_dedicated_public",
+      "ibm_deprecated",
+      "support_ibm"
+     ],
+     "geo_tags": [
+      "au-syd",
+      "eu-de",
+      "eu-gb",
+      "us-east",
+      "us-south"
+     ],
+     "pricing_tags": [
+      "paid_only",
+      "paygo"
+     ],
+     "provider": {
+      "name": "IBM"
+     },
+     "created": "2017-12-07T20:06:16Z",
+     "updated": "2023-03-09T09:39:00.921Z",
+     "complete": true,
+     "url": "https://globalcatalog.cloud.ibm.com/api/v1/ComposeElasticsearch-P?languages=%2A",
+     "images": {
+      "feature_image": "https://cache.globalcatalog.cloud.ibm.com/api/v1/ComposeElasticsearch-P/artifacts/cache/6f39127edb3df2d26b569355f7ba84d9-public/compose-Elastic_50.png",
+      "image": "https://cache.globalcatalog.cloud.ibm.com/api/v1/ComposeElasticsearch-P/artifacts/cache/ab27d594e22c41f0fe3293a6fab5f050-public/compose-Elastic_64.png",
+      "medium_image": "https://cache.globalcatalog.cloud.ibm.com/api/v1/ComposeElasticsearch-P/artifacts/cache/b810706e78170c3d83568ce55dce579d-public/compose-Elastic_32.png",
+      "small_image": "https://cache.globalcatalog.cloud.ibm.com/api/v1/ComposeElasticsearch-P/artifacts/cache/42f192da738db9a5df723d0b97ac0c4b-public/compose-Elastic_24.png"
+     },
+     "metadata": {
+      "rc_compatible": false,
+      "original_name": "compose-for-elasticsearch",
+      "service": {
+       "type": "",
+       "iam_compatible": false,
+       "unique_api_key": false,
+       "rc_provisionable": false,
+       "bindable": false,
+       "async_provisioning_supported": false,
+       "async_unprovisioning_supported": false,
+       "user_defined_service": null,
+       "extension": null,
+       "plan_updateable": false,
+       "state": "",
+       "service_check_enabled": false,
+       "test_check_interval": 0,
+       "service_key_supported": true,
+       "custom_create_page_hybrid_enabled": false,
+       "cf_guid": {
+        "au-syd": "46353e6b-a5e8-4e5b-afee-f2152f2022af",
+        "eu-de": "2384f531-65e6-4408-a698-84a895e38c55",
+        "eu-gb": "2e605a00-9165-4573-9d30-e6720e494c45",
+        "us-east": "5d29000a-5a36-4b41-911a-28228380f719",
+        "us-south": "1a3cc31a-c58e-4c05-a0c2-c5087a6ee8bd"
+       },
+       "parameters": [
+        {
+         "associations": {
+          "plan": {
+           "showFor": [
+            "ComposeElasticsearchEnterprise"
+           ]
+          }
+         },
+         "displayname": "Select Compose Enterprise cluster for deployment",
+         "name": "cluster_id",
+         "optionsUrl": "https://composebroker-public.us-east.mybluemix.net/compose/enterpriseClusterIds",
+         "required": true,
+         "type": "dropdown"
+        },
+        {
+         "description": "This parameter controls the version of the database to deploy.  By default, the latest preferred version is deployed.  The latest preferred version is the latest stable release available on Compose.",
+         "displayname": "Select a database version",
+         "name": "db_version",
+         "optionsUrl": "https://composebroker-public.us-east.mybluemix.net/compose/databaseVersions/elastic_search",
+         "required": false,
+         "type": "dropdown"
+        }
+       ]
+      },
+      "plan": {
+       "bindable": false,
+       "reservable": false,
+       "allow_internal_users": true,
+       "async_provisioning_supported": false,
+       "async_unprovisioning_supported": false,
+       "test_check_interval": 0,
+       "single_scope_instance": "",
+       "service_check_enabled": false,
+       "provision_type": ""
+      },
+      "ui": {
+       "strings": {
+        "en": {
+         "bullets": [
+          {
+           "title": "Compliance: GDPR",
+           "icon": "https://cache.globalcatalog.cloud.ibm.com/static/images/g2/icon-availability.svg"
+          },
+          {
+           "title": "No integration with IAM, Resource Groups, Activity Tracker, Monitoring or Key Protect",
+           "icon": "https://cache.globalcatalog.cloud.ibm.com/static/images/g2/api.svg"
+          },
+          {
+           "title": "Data on disk, in motion, and backups are encrypted at rest",
+           "icon": "https://cache.globalcatalog.cloud.ibm.com/static/images/g2/security.svg"
+          },
+          {
+           "title": "3 month backup retention",
+           "icon": "https://cache.globalcatalog.cloud.ibm.com/static/images/g2/regions.svg"
+          },
+          {
+           "title": "Fixed 1:1 Disk to RAM ratio",
+           "icon": "https://cache.globalcatalog.cloud.ibm.com/static/images/g2/icon-storage.svg"
+          },
+          {
+           "title": "Pay-as-you-go, hourly billing",
+           "icon": "https://cache.globalcatalog.cloud.ibm.com/static/images/g2/plans.svg"
+          }
+         ],
+         "compare_version_message": "Looking for Databases for Elasticsearch?"
+        }
+       },
+       "urls": {
+        "doc_url": "/docs/services/ComposeForElasticsearch/index.html",
+        "terms_url": "http://www-03.ibm.com/software/sla/sladb.nsf/sla/bm-7477-04"
+       }
+      },
+      "callbacks": {
+       "broker_url": "https://composebroker-public.us-east.mybluemix.net",
+       "service_monitor_api": "http://composebroker-public.us-east.mybluemix.net/util/monitor/healthcheck"
+      }
+     },
+     "visibility": {
+      "restrictions": "public"
+     }
+    },
+    {
+     "id": "databases-for-elasticsearch",
+     "_id": "databases-for-elasticsearch",
+     "_rev": "826-11ef26ed591e202a9f82c579fdfeb10b",
+     "catalog_crn": "crn:v1:bluemix:public:globalcatalog::::service:databases-for-elasticsearch",
+     "name": "databases-for-elasticsearch",
+     "kind": "service",
+     "overview_ui": {
+      "en": {
+       "display_name": "Databases for Elasticsearch",
+       "long_description": "Elasticsearch combines the power of a full text search engine with the indexing strengths of a JSON document database to create a powerful tool for rich data analysis on large volumes of data. Databases for Elasticsearch makes Elasticsearch even better by managing it for you. Features include high availability, automated backup orchestration, autoscaling, and de-coupled allocation of storage, RAM, and vCPUs. Databases for Elasticsearch pricing is based on underlying disk, RAM, and optional vCPU allocation, as well as backup storage usage. The service is HIPAA-Ready and compliant with PCI-DSS, SOC 1 Type 2, SOC 2 Type 2, ISO 27001, ISO 27017, ISO 27018, ISO 27701, GDPR and HITRUST. You can also learn more by viewing docs, API docs, and terms.",
+       "description": "Elasticsearch combines the power of a full text search engine with the indexing strengths of a JSON document database."
+      }
+     },
+     "parent_id": "databases-for-elasticsearch-group",
+     "children_url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-elasticsearch/%2A",
+     "parent_url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-elasticsearch-group",
+     "disabled": false,
+     "active": true,
+     "tags": [
+      "cbr_enabled",
+      "data_management",
+      "database",
+      "disable_reclamation",
+      "eu_access",
+      "hipaa",
+      "ibm_created",
+      "rc_compatible",
+      "service_endpoint_supported",
+      "support_ibm",
+      "vpc_private_endpoint"
+     ],
+     "geo_tags": [
+      "au-syd",
+      "br-sao",
+      "ca-mon",
+      "ca-tor",
+      "che01",
+      "eu-de",
+      "eu-es",
+      "eu-gb",
+      "in-che",
+      "in-mum",
+      "jp-osa",
+      "jp-tok",
+      "par01",
+      "us-east",
+      "us-south"
+     ],
+     "pricing_tags": [
+      "paygo",
+      "paid_only",
+      "paid",
+      "allow_internal_users"
+     ],
+     "provider": {
+      "name": "IBM"
+     },
+     "created": "2018-10-22T23:42:28.668Z",
+     "updated": "2026-09-25T02:50:41.755427346-04:00",
+     "complete": true,
+     "url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-elasticsearch?languages=%2A",
+     "images": {
+      "feature_image": "https://broker.br-sao.databases.cloud.ibm.com/images/elasticsearch.svg",
+      "image": "https://broker.br-sao.databases.cloud.ibm.com/images/elasticsearch.svg",
+      "medium_image": "https://broker.br-sao.databases.cloud.ibm.com/images/elasticsearch.svg",
+      "small_image": "https://broker.br-sao.databases.cloud.ibm.com/images/elasticsearch.svg"
+     },
+     "metadata": {
+      "rc_compatible": true,
+      "original_name": "databases-for-elasticsearch",
+      "other": {
+       "pricing": {
+        "reseller-channels": [
+         "2c95500b-ea86-4b13-8bb5-b2f0c2fa8200"
+        ]
+       },
+       "sysdig-monitor": {
+        "databases-for-elasticsearch-gen2-enterprise": {
+         "route": {
+          "scope": [
+           "ibm_location = \"{{location}}\"",
+           "ibm_service_instance = \"{{instanceId}}\""
+          ],
+          "seconds": 3600,
+          "service": "ibm_databases_for_elasticsearch_gen2"
+         }
+        },
+        "databases-for-elasticsearch-gen2-standard": {
+         "route": {
+          "scope": [
+           "ibm_location = \"{{location}}\"",
+           "ibm_service_instance = \"{{instanceId}}\""
+          ],
+          "seconds": 3600,
+          "service": "ibm_databases_for_elasticsearch_gen2"
+         }
+        },
+        "default": {
+         "route": {
+          "scope": [
+           "ibm_location = \"{{location}}\"",
+           "ibm_service_instance = \"{{instanceId}}\""
+          ],
+          "seconds": 3600,
+          "service": "ibm_databases_for_elasticsearch"
+         }
+        }
+       }
+      },
+      "service": {
+       "type": "Public",
+       "iam_compatible": false,
+       "unique_api_key": false,
+       "rc_provisionable": true,
+       "bindable": true,
+       "async_provisioning_supported": true,
+       "async_unprovisioning_supported": false,
+       "user_defined_service": null,
+       "extension": null,
+       "plan_updateable": false,
+       "state": "",
+       "service_check_enabled": false,
+       "test_check_interval": 0,
+       "service_key_supported": true,
+       "custom_create_page_hybrid_enabled": false,
+       "parameters": []
+      },
+      "ui": {
+       "side_by_side_index": 1,
+       "strings": {
+        "en": {
+         "bullets": [
+          {
+           "title": "Compliance: HIPAA-ready, PCI-DSS, SOC 1 Type 2, SOC 2 Type 2, ISO 27001, ISO 27017, ISO 27018, ISO 27701, GDPR, and HITRUST.",
+           "icon": "https://cache.globalcatalog.cloud.ibm.com/static/images/g2/icon-availability.svg"
+          },
+          {
+           "title": "Integration with IBM Cloud IAM, Logging, Activity Tracker, Monitoring, Virtual Private Endpoints, and Key Protect or Hyper Protect Crypto Services",
+           "icon": "https://cache.globalcatalog.cloud.ibm.com/static/images/g2/api.svg"
+          },
+          {
+           "title": "Data and backups are encrypted in motion and at rest",
+           "icon": "https://cache.globalcatalog.cloud.ibm.com/static/images/g2/security.svg"
+          },
+          {
+           "title": "30 day backup retention on Cross-Regional IBM Cloud Object Storage where available",
+           "icon": "https://cache.globalcatalog.cloud.ibm.com/static/images/g2/regions.svg"
+          },
+          {
+           "title": "Independent scaling of Disk, RAM, and vCPUs with serverless auto-scaling",
+           "icon": "https://cache.globalcatalog.cloud.ibm.com/static/images/g2/icon-storage.svg"
+          },
+          {
+           "title": "Pay-as-you-go, hourly billing",
+           "icon": "https://cache.globalcatalog.cloud.ibm.com/static/images/g2/plans.svg"
+          }
+         ]
+        }
+       },
+       "urls": {
+        "doc_url": "https://cloud.ibm.com/docs/databases-for-elasticsearch",
+        "terms_url": "https://www.ibm.com/support/customer/csol/terms/?id=i126-8186",
+        "apidocs_url": "https://cloud.ibm.com/apidocs/cloud-databases-api",
+        "catalog_details_url": "https://cloud.ibm.com/databases/databases-for-elasticsearch/create"
+       }
+      },
+      "callbacks": {
+       "broker_url": "https://broker.br-sao.databases.cloud.ibm.com"
+      }
+     },
+     "visibility": {
+      "restrictions": "public"
+     }
+    }
+   ]
+  },
+  {
+   "id": "4db08950-01bb-11ec-a538-57bede45088a",
+   "_id": "4db08950-01bb-11ec-a538-57bede45088a",
+   "_rev": "2-b5a0617adf73092d18c35c6a38ff43af",
+   "catalog_crn": "crn:v1:bluemix:public:globalcatalog::::service:4db08950-01bb-11ec-a538-57bede45088a",
+   "name": "3p-summusrender-xaas-simplecl0ud",
+   "kind": "service",
+   "overview_ui": {
+    "en": {
+     "display_name": "SimpleCloud",
+     "long_description": "SimpleCloud is a global cloud-based workspace as a service for working, creating and learning collaboratively, working in pure cloud as well as hybrid environments, expanding your existing infrastructure. To serve all demanding projects needs, it uses virtual desk solutions with customizable graphic capacity in the cloud, allowing users to connect to powerful virtual desktops from anywhere through any equipment, while keeping their own way of working and their own software, engine and tools.  \n\nAll information is kept in IBM Cloud data centres in SSD storages and remains therefore under the constant control of the project leader, ensuring secure use of third party contractors or remote work situation at all time.",
+     "description": "SimpleCloud is the best End-User SaaS Workspace to Accelerate and Run Demanding Projects (Uniquely Automated, Collaborative)"
+    }
+   },
+   "children_url": "https://globalcatalog.cloud.ibm.com/api/v1/4db08950-01bb-11ec-a538-57bede45088a/%2A",
+   "disabled": false,
+   "active": false,
+   "tags": [
+    "compute",
+    "ibm_third_party",
+    "integration",
+    "platform_service",
+    "rc_compatible",
+    "storage",
+    "support_third_party",
+    "supports_syndication",
+    "virtualservers"
+   ],
+   "geo_tags": [
+    "global"
+   ],
+   "pricing_tags": [
+    "paid",
+    "paid_only"
+   ],
+   "provider": {
+    "name": "SimpleCloud"
+   },
+   "created": "2021-12-10T18:11:28.197Z",
+   "updated": "2024-05-06T09:59:22.057437654-04:00",
+   "complete": true,
+   "url": "https://globalcatalog.cloud.ibm.com/api/v1/4db08950-01bb-11ec-a538-57bede45088a?languages=%2A",
+   "images": {
+    "feature_image": "https://www.simplecloud.io/img/icon-32x32.svg",
+    "image": "https://www.simplecloud.io/img/icon-32x32.svg",
+    "medium_image": "https://www.simplecloud.io/img/icon-32x32.svg",
+    "small_image": "https://www.simplecloud.io/img/icon-32x32.svg"
+   },
+   "metadata": {
+    "rc_compatible": true,
+    "other": {
+     "PC": {
+      "onboardingOfferingId": "afc7ca6ec5f949a2b7962ac084517e92:o:9609623c-a4ac-4605-b77e-0bf0b676a5e9"
+     },
+     "iam": {
+      "supportedAttributes": []
+     }
+    },
+    "service": {
+     "type": "",
+     "iam_compatible": false,
+     "unique_api_key": false,
+     "rc_provisionable": true,
+     "bindable": true,
+     "async_provisioning_supported": false,
+     "async_unprovisioning_supported": false,
+     "user_defined_service": null,
+     "extension": null,
+     "plan_updateable": true,
+     "state": "",
+     "service_check_enabled": false,
+     "test_check_interval": 0,
+     "service_key_supported": false,
+     "custom_create_page_hybrid_enabled": false,
+     "parameters": [
+      {
+       "description": "User's email who buys the plan",
+       "displayname": "Email",
+       "name": "email",
+       "required": false,
+       "type": "text"
+      },
+      {
+       "description": "User's username at Simple Cloud",
+       "displayname": "Username",
+       "name": "username",
+       "required": false,
+       "type": "text"
+      }
+     ]
+    },
+    "ui": {
+     "hidden": true,
+     "strings": {
+      "en": {
+       "bullets": [
+        {
+         "description": "Our platform is available in multiple languages. We can give service from any of the IBM Cloud datacenters around the world. If we are not present in your closest datacenter.",
+         "title": "Multi-site and Multi-language collaboration"
+        },
+        {
+         "description": "Multi factor authentication supported in the key layers of the platform.",
+         "title": "Content security management with MFA support"
+        },
+        {
+         "description": "We provide access from our dashboard to the statistics of usage of your studio in SimpleCloud in real time",
+         "title": "User usage metering and real time monitoring"
+        },
+        {
+         "description": "Any proprietary or 3PP software can be installed in our virtual workstations, and you can select the software that is going to be used in each workstation profile just with a drag and drop movement of your mouse.",
+         "title": "Support of any commercial and proprietary software with instant and dynamic deployment to users"
+        },
+        {
+         "description": "The license model for 3PP software is bring your own license, and to make it as easy as possible, every studio has a license server that is automatically created within the studio where you can manage your licenses.",
+         "title": "Third party license management"
+        },
+        {
+         "description": "You can directly select the amount of resources that is going to be available for your studio in real time.",
+         "title": "Resource self-provisioning"
+        },
+        {
+         "description": "Virtual workstation and storage available in Linux and Windows OS",
+         "title": "Linux/Windows environments"
+        },
+        {
+         "description": "To meet the needs of Studios and Companies that already have their own infrastructure but need to extend it to the cloud to give access to remote team members who are in different geographic locations while maintaining data security, SimpleCloud has developed a solution which performs a continuous synchronization between the local storage and SimpleCloud, allowing for all members access at all times.",
+         "title": "Hybrid environment solutions"
+        },
+        {
+         "description": "A complete automated workflow is available and completely configurable.",
+         "title": "Workflow customizations"
+        },
+        {
+         "description": "Our platform is based in the Nvidia Grid virtualization that allows our users to enjoy all the power of the CUDA processors of the Nvidia graphic cards in their virtual workstations desktops and when they use it for processing or rendering tasks.",
+         "title": "CUDA processing and viewport"
+        },
+        {
+         "description": "Wacom boards are fully compatible with our platform and many other human interface devices as well",
+         "title": "Wacom and other HID native and performant Support "
+        },
+        {
+         "description": "You can integer any digital asset manager you use in our worflow.",
+         "title": "DAM integration (Shotgun, Ftrack, Excel, Project, proprietary ….)"
+        },
+        {
+         "description": "GPU and CPU render nodes are available in SimpleCloud and with just a couple of clicks, you can configure a complete processing farm directly in your studio.",
+         "title": "Cloud processing farms (for render, simulation, research,…)"
+        },
+        {
+         "description": "Our workflow is completely configurable through our graphic interface.",
+         "title": "Graphic pipeline/workflow design"
+        },
+        {
+         "description": "You have access to configure everything through our API and REST API as well",
+         "title": "REST API and Python API"
+        },
+        {
+         "description": "SSO and corporate custom portals  available",
+         "title": "SSO and corporate custom portals "
+        }
+       ],
+       "media": [
+        {
+         "caption": "What is SimpleCloud, CEO and President interview",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/prev/captura_pitch_olivier_sergio.jpg",
+         "type": "youtube",
+         "url": "https://www.youtube.com/embed/SU1jC8b4tcA"
+        },
+        {
+         "caption": "Initial Setup demo",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/prev/thumbnail_sc_demo.jpg",
+         "type": "youtube",
+         "url": "https://www.youtube.com/embed/5FDYzbpFoLo"
+        },
+        {
+         "caption": "Team management features",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/prev/thumbnail_sc_allindustries.jpg",
+         "type": "youtube",
+         "url": "https://www.youtube.com/embed/p-0SluDFeEc"
+        },
+        {
+         "caption": "SimpleCloud AECM (Architecture, Construction, Engineering & Manufacturing)",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/prev/thumbnail_aecm.jpg",
+         "type": "youtube",
+         "url": "https://www.youtube.com/embed/aaslHsy73Es"
+        },
+        {
+         "caption": "Welcome",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva1.jpg",
+         "type": "image",
+         "url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva1.jpg"
+        },
+        {
+         "caption": "What is SimpleCloud?",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva2.jpg",
+         "type": "image",
+         "url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva2.jpg"
+        },
+        {
+         "caption": "SimpleCloud is the ideal multi-level solution to create easily secure and collaborative workspaces",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva3.jpg",
+         "type": "image",
+         "url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva3.jpg"
+        },
+        {
+         "caption": "Solving the complexity of cloud integration and the most demanding needs of Remote Work and Education",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva4.jpg",
+         "type": "image",
+         "url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva4.jpg"
+        },
+        {
+         "caption": "SimpleCloud provides seamless remote work and collaboration, even for the most demanding tasks. A true Digital Workspace.",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva5.jpg",
+         "type": "image",
+         "url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva5.jpg"
+        },
+        {
+         "caption": "SimpleCloud is end-user focused and generates time and resources savings.",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva6.jpg",
+         "type": "image",
+         "url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva6.jpg"
+        },
+        {
+         "caption": "SimpleCloud main technical features and architecture.",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva7.jpg",
+         "type": "image",
+         "url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva7.jpg"
+        },
+        {
+         "caption": "SimpleCloud is end-user focused thanks to its unique UI/UX",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva8.jpg",
+         "type": "image",
+         "url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva8.jpg"
+        },
+        {
+         "caption": "Let's work together! Trial and POC's ready in no time!",
+         "thumbnail_url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva9.jpg",
+         "type": "image",
+         "url": "https://www.simplecloud.io/ibmmktimg/ppt/diapositiva9.jpg"
+        }
+       ]
+      }
+     },
+     "urls": {
+      "doc_url": "https://support.simplecloud.io/en/support/solutions",
+      "terms_url": "https://www.simplecloud.io/en/terms-conditions/terms_IBM.pdf"
+     }
+    }
+   },
+   "visibility": {
+    "restrictions": "public"
+   }
+  },
+  {
+   "id": "20aaec51-7943-4509-a180-5360036fd649",
+   "_id": "20aaec51-7943-4509-a180-5360036fd649",
+   "_rev": "51-78ce95e4062a31f20f2c9578f9dec195",
+   "catalog_crn": "crn:v1:bluemix:public:globalcatalog::::service:20aaec51-7943-4509-a180-5360036fd649",
+   "name": "11x-alice",
+   "kind": "service",
+   "overview_ui": {
+    "en": {
+     "display_name": "Alice",
+     "long_description": "11x's Alice provides deep, granular customer research, drives email and LinkedIn outreach, mastering your playbook, converting prospects into high-value leads.",
+     "description": "The 11x AI SDR that provides granular customer research and drives outreach campaigns converting prospects into high-value leads."
+    }
+   },
+   "children_url": "https://globalcatalog.cloud.ibm.com/api/v1/20aaec51-7943-4509-a180-5360036fd649/%2A",
+   "disabled": false,
+   "active": true,
+   "tags": [
+    "watson",
+    "ibm_third_party",
+    "ai",
+    "sales",
+    "sdr",
+    "account-based marketing",
+    "lead generation",
+    "lead nurturing",
+    "ai",
+    "sales",
+    "sdr",
+    "account-based marketing",
+    "lead generation",
+    "lead nurturing",
+    "customer research",
+    "multi-channel",
+    "intelligent automation",
+    "customer data coverage",
+    "ai_agent",
+    "support_third_party"
+   ],
+   "geo_tags": [
+    "global"
+   ],
+   "pricing_tags": [
+    "paid",
+    "paid_only"
+   ],
+   "provider": {
+    "name": "11x AI"
+   },
+   "created": "2025-04-29T05:43:52.459688108-04:00",
+   "updated": "2025-09-19T08:34:51.803065172-04:00",
+   "complete": true,
+   "url": "https://globalcatalog.cloud.ibm.com/api/v1/20aaec51-7943-4509-a180-5360036fd649?languages=%2A",
+   "images": {
+    "image": "https://cdn.sammylabs.com/docs/745bc35a-b84d-4777-8bca-fd9a9617b90a/logo.svg"
+   },
+   "metadata": {
+    "rc_compatible": true,
+    "other": {
+     "PC": {
+      "onboardingOfferingId": "4b8fa333ee5b41a5854ae88263c40c85:o:6d57a1f1-e5e0-446a-a76e-ce37fa1b2e2a",
+      "support": {
+       "languages": [
+        "en"
+       ],
+       "locations": [
+        "GB",
+        "US"
+       ],
+       "process": "Our dedicated support team ensures partners and their clients realize fast, tangible outcomes—maximizing adoption, value, and retention.",
+       "status_url": "https://11x-alice-knowledge-base.sammylabs.com/",
+       "support_details": [
+        {
+         "availability": {
+          "always_available": false,
+          "times": [
+           {
+            "day": 0,
+            "end_time": "19:00",
+            "start_time": "09:00"
+           },
+           {
+            "day": 1,
+            "end_time": "19:00",
+            "start_time": "09:00"
+           },
+           {
+            "day": 2,
+            "end_time": "19:00",
+            "start_time": "09:00"
+           },
+           {
+            "day": 3,
+            "end_time": "19:00",
+            "start_time": "09:00"
+           },
+           {
+            "day": 4,
+            "end_time": "19:00",
+            "start_time": "09:00"
+           }
+          ],
+          "timezone": "America/New_York"
+         },
+         "contact": "support@11x.ai",
+         "response_wait_time": {
+          "type": "hour",
+          "value": 8
+         },
+         "type": "email"
+        }
+       ],
+       "support_escalation": {
+        "contact": "support@11x.ai",
+        "escalation_wait_time": {
+         "type": "hour",
+         "value": 8
+        },
+        "response_wait_time": {
+         "type": "hour",
+         "value": 8
+        }
+       },
+       "support_type": "third_party",
+       "url": "https://11x-alice-knowledge-base.sammylabs.com/"
+      }
+     }
+    },
+    "service": {
+     "type": "",
+     "iam_compatible": false,
+     "unique_api_key": false,
+     "rc_provisionable": true,
+     "bindable": true,
+     "async_provisioning_supported": false,
+     "async_unprovisioning_supported": false,
+     "user_defined_service": null,
+     "extension": null,
+     "plan_updateable": false,
+     "state": "",
+     "service_check_enabled": false,
+     "test_check_interval": 0,
+     "service_key_supported": false,
+     "custom_create_page_hybrid_enabled": false,
+     "parameters": [
+      {
+       "description": null,
+       "displayname": "Contact Email",
+       "hidden": false,
+       "i18n": null,
+       "invalidmessage": null,
+       "layout": null,
+       "name": "email",
+       "optionsUrl": null,
+       "pattern": null,
+       "placeholder": null,
+       "readonly": false,
+       "required": false,
+       "type": "text",
+       "validationUrl": null,
+       "value": null
+      },
+      {
+       "description": null,
+       "displayname": "Contact Name",
+       "hidden": false,
+       "i18n": null,
+       "invalidmessage": null,
+       "layout": null,
+       "name": "contact_name",
+       "optionsUrl": null,
+       "pattern": null,
+       "placeholder": null,
+       "readonly": false,
+       "required": false,
+       "type": "text",
+       "validationUrl": null,
+       "value": null
+      },
+      {
+       "description": null,
+       "displayname": "Company Name",
+       "hidden": false,
+       "i18n": null,
+       "invalidmessage": null,
+       "layout": null,
+       "name": "company_name",
+       "optionsUrl": null,
+       "pattern": null,
+       "placeholder": null,
+       "readonly": false,
+       "required": false,
+       "type": "text",
+       "validationUrl": null,
+       "value": null
+      }
+     ]
+    },
+    "ui": {
+     "strings": {
+      "en": {
+       "bullets": [
+        {
+         "description": "Alice removes the need to create a complex sales tech stack to detect new leads - it's built into Alice from the start.",
+         "title": "Identify new Leads"
+        },
+        {
+         "description": "We work with 17+ high-quality data providers, offering exclusive access to intent signals, partnership intel, deep technographics, and more.",
+         "title": "Granular Customer Research"
+        },
+        {
+         "description": "Alice is a GTM platform powered by deep retrieval-augmented generation knowledge agents—enabling smarter, context-aware execution.",
+         "title": "Intelligent Automation"
+        },
+        {
+         "description": "11x is SOC 2 Type II certified, trusted by leading enterprises for its security, reliability, and safeguards against LLM-related risks.",
+         "title": "Enterprise-Grade Compliance"
+        },
+        {
+         "description": "Whether it’s intent-based outreach, trigger campaigns, CRM reactivation, cold, or nurture workflows—Alice supports it all, with precision.",
+         "title": "Diverse Use Cases from Marketing to Sales Execution"
+        }
+       ]
+      }
+     },
+     "urls": {
+      "doc_url": "https://11x-alice-knowledge-base.sammylabs.com/",
+      "terms_url": "https://www.11x.ai/legal/terms-ibm-channel-partnership"
+     }
+    },
+    "pricing": {
+     "origin": "pricing_catalog",
+     "url": "https://globalcatalog.cloud.ibm.com/api/v1/20aaec51-7943-4509-a180-5360036fd649/pricing",
+     "starting_price": {},
+     "metrics": null
+    }
+   },
+   "visibility": {
+    "restrictions": "public"
+   }
+  }
+ ]
+}

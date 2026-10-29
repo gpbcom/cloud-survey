@@ -76,8 +76,12 @@ class CorrelationAnalysis:
         """
         draws = [rho for rows in samples if (rho := self.spearman.rho(x[rows], y[rows])) is not None]
         if len(draws) < 20:
+            self.logger.warning(
+                "Only %d of %d bootstrap draws give a correlation: no interval.", len(draws), len(samples)
+            )
             return None, None
         low, high = numpy.percentile(draws, [2.5, 97.5])
+        self.logger.debug("Bootstrap interval from %d draws: %.3f to %.3f.", len(draws), low, high)
         return float(low), float(high)
 
     ############################

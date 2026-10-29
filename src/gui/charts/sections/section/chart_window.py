@@ -71,6 +71,8 @@ class ChartWindow(QDialog):
         if screen is not None:
             area = screen.availableGeometry()
             self.resize(int(area.width() * self.SCREEN_SHARE), int(area.height() * self.SCREEN_SHARE))
+        else:
+            self.logger.warning("No primary screen: the chart window %r keeps its default size.", title)
         self.logger.debug("Chart %r opened in its own window.", title)
 
     ############################
@@ -99,4 +101,7 @@ class ChartWindow(QDialog):
         layout = self.layout()
         if layout is not None:
             layout.removeWidget(self.body)
+        else:
+            self.logger.warning("The chart window %r has no layout to release its chart from.", self.windowTitle())
+        self.logger.debug("Chart released from the window %r.", self.windowTitle())
         return self.body

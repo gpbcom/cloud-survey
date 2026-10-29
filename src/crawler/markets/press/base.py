@@ -31,7 +31,7 @@ class BasePressCrawler(BaseMarketsCrawler):
 
     Notes:
         - A release is read when its title (and the caption of its table) matches a family of the catalogue
-          (`press` in `conf/history/markets.yaml`), which gives its segment and its area.
+          (`press` in `data/curated/markets.json`), which gives its segment and its area.
         - Its tables are read first: a release with a share table gives every company of every period column. A
           release without (TrendForce) gives the shares its sentences state, for the companies the catalogue names.
         - The shares are streamed as stated, the label as printed: mapping them to the companies is left to
@@ -50,7 +50,7 @@ class BasePressCrawler(BaseMarketsCrawler):
         """Initialize the crawler.
 
         Args:
-            catalog (Optional[MarketsCatalog]): What is read, `conf/history/markets.yaml` by default.
+            catalog (Optional[MarketsCatalog]): What is read, `data/curated/markets.json` by default.
             scope (Optional[CrawlScope]): The part read: the releases published since `scope.since` only.
             crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
             interval (float): Seconds between periodic checkpoint saves.

@@ -91,12 +91,15 @@ class ChronologyTable(QTableWidget):
         if key:
             self.logger.debug("Chronology line %s picked.", key)
             self.picked.emit(str(key))
+        else:
+            self.logger.debug("Chronology line %d clicked without a key: nothing picked.", row)
 
     def _fit(self) -> None:
         """Fit the table to `VISIBLE_ROWS` lines (it scrolls beyond)."""
         header = self.horizontalHeader()
         rows = min(self.rowCount(), self.VISIBLE_ROWS) * self.ROW_HEIGHT
         self.setFixedHeight((header.sizeHint().height() if header else 24) + rows + 2 * self.frameWidth() + 2)
+        self.logger.debug("Chronology table fitted to %d pixels.", self.height())
 
     ############################
     # Publicly Exposed Methods #
@@ -127,6 +130,8 @@ class ChronologyTable(QTableWidget):
             self.keys.append(entry.key)
         self._fit()
         self.logger.debug("Chronology table of %d lines.", len(entries))
+        if not entries:
+            self.logger.warning("The chronology table has no line.")
 
     def select_key(self, key: str) -> None:
         """Select the first line of a reign or an event, and scroll to it.
@@ -139,4 +144,6 @@ class ChronologyTable(QTableWidget):
             if item is not None and item.data(Qt.ItemDataRole.UserRole) == key:
                 self.selectRow(row)
                 self.scrollToItem(item, QTableWidget.ScrollHint.PositionAtCenter)
+                self.logger.debug("Chronology line %d selected for %s.", row, key)
                 return
+        self.logger.warning("No chronology line for %s.", key)

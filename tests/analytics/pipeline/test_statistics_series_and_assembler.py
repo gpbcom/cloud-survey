@@ -13,7 +13,15 @@ from models.cloud.enums import MarketPlayer, MarketRegion
 from models.stats.market_report import MarketReport
 from models.stats.market_statistics import MarketStatistics
 from models.trends.chart_axes import ChartAxes
-from models.trends.enums import ChartKind, ChartMetric, ChartNote, ChartScope, SeriesGrouping, ValueTransform
+from models.trends.enums import (
+    ChartKind,
+    ChartMetric,
+    ChartNote,
+    ChartScope,
+    OptionBlock,
+    SeriesGrouping,
+    ValueTransform,
+)
 from models.trends.metric_point import MetricPoint
 from models.trends.metric_series import MetricSeries
 from models.trends.trend_result import TrendResult
@@ -210,3 +218,23 @@ class TestFacetAssembly:
             assert keys[:2] == ["crm", "erp"], "kept by their weight over every facet"
             assert keys[2:] == [SeriesTransformer.OTHERS_KEY], "the others merged in each facet"
         assert result.total_count == 3
+
+
+class TestDerivativeAssembly:
+    def test_a_line_chart_draws_the_rate_of_change_of_its_transformed_values(self) -> None:
+        axes = ChartAxes(scope=ChartScope.CATALOGUE, transform=ValueTransform.INDEXED, derivative=True)
+        raw = TrendResult(series=[line("aws", [(0, 50), (12, 100), (24, 75)])])
+
+        result = ChartAssembler().assemble(axes, raw)
+
+        assert [(point.x, point.y) for point in result.series[0].points] == [(12, 100.0), (24, -50.0)]
+        assert ChartNote.DERIVATIVE in result.notes
+
+    def test_only_line_charts_keep_the_derivative(self) -> None:
+        rules = ChartAssembler().rules
+        area = ChartAxes(scope=ChartScope.CATALOGUE, chart=ChartKind.AREA, derivative=True)
+        lines = ChartAxes(scope=ChartScope.CATALOGUE, derivative=True)
+
+        assert rules.repair(area).derivative is False
+        assert rules.repair(lines).derivative is True
+        assert rules.derivable(area) is OptionBlock.NEEDS_LINE_CHART

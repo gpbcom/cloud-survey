@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 # Standard Library Imports.
-from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Tuple
+from pathlib import Path
+from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Tuple, Union
 
 # Third Party Imports.
 from pydantic import JsonValue, ValidationError
@@ -10,6 +11,7 @@ from scrapling.spiders import Request, Response
 # First Party Imports.
 from crawler.metrics.base import BaseMetricsCrawler, MetricFact
 from crawler.metrics.edgar.enums import EdgarField
+from models.drivers.collectors.collector_catalog import CollectorCatalog
 from models.drivers.enums import MetricSource
 from models.drivers.facts.capex_fact import CapexFact
 
@@ -36,6 +38,25 @@ class EdgarCrawler(BaseMetricsCrawler):
     name = "edgar"
     source: ClassVar[MetricSource] = MetricSource.EDGAR
     catalogue_url: ClassVar[str] = "https://data.sec.gov/"
+
+    def __init__(
+        self,
+        catalog: Optional[CollectorCatalog] = None,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            catalog (Optional[CollectorCatalog]): Where each provider is found, `conf/metrics/collectors.yaml` by
+                default.
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+
+        Raises:
+            CollectorCatalogError: If the default catalogue cannot be loaded.
+        """
+        super().__init__(catalog=catalog, crawldir=crawldir, interval=interval)
 
     ############################
     # Internal Helpers Methods #

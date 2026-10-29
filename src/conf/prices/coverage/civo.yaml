@@ -1,0 +1,43 @@
+# Curated price coverage of Civo (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: civo
+currency: USD
+links:
+  'Civo Compute': ['^Compute Instances$']
+  'Civo Managed Databases': ['^Databases$']
+  'Block storage': ['^Volumes$']
+  'Civo Managed Kubernetes': ['^Kubernetes$']
+  'Cloud GPU': ['^Nvidia Gpus$']
+  'Object Store': ['^Object Store$', '^Data Transfer$']
+statements:
+  - product: 'FlexCore'
+    model: quote
+    reason: 'CivoStack Enterprise is priced per GB of vRAM, the bundle sized with Civo.'
+    source: 'https://www.civo.com/private-cloud/flexcore'
+  - product: 'VMware Alternative'
+    model: quote
+    reason: 'CivoStack Enterprise licensed by vRAM on the customer hardware, priced with Civo.'
+    source: 'https://www.civo.com/private-cloud/vmware-alternative'
+  - product: 'VMware for service providers'
+    model: quote
+    reason: 'CivoStack Enterprise licensed by vRAM on the service provider hardware, priced with Civo.'
+    source: 'https://www.civo.com/private-cloud/vmware-service-providers'
+  - product: 'VMware migration'
+    model: free
+    reason: 'Free migration support included as standard with CivoStack.'
+    source: 'https://www.civo.com/private-cloud/vmware-migration-tool'
+  - product: 'Konstruct'
+    model: quote
+    reason: 'Contact the Civo team.'
+    source: 'https://www.civo.com/konstruct'
+  - product: 'Private AI'
+    model: not-public
+    reason: 'No price on its page, a private cloud built with Civo.'
+    source: 'https://www.civo.com/ai/private'
+  - product: 'Sovereign AI'
+    model: included
+    reason: 'Sovereignty is included as standard with no regional markup, priced by the Civo services used.'
+    source: 'https://www.civo.com/ai/sovereign'
+  - product: 'UK Sovereign Cloud'
+    model: included
+    reason: 'The Civo UK regions, priced by the Civo services used.'
+    source: 'https://www.civo.com/uk-sovereign-cloud'

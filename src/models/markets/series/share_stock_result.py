@@ -7,7 +7,7 @@ from typing import ClassVar, Dict, List, Optional
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationInfo, field_validator
 
 # First Party Imports.
-from models.markets.enums import Granularity
+from models.markets.enums import CorrelationCounterpart, Granularity
 from models.markets.exception import InvalidMarketListError
 from models.markets.field_check import MarketFieldCheck
 from models.markets.series.coverage_entry import CoverageEntry
@@ -15,7 +15,7 @@ from models.markets.series.lag_correlation import LagCorrelation
 
 
 class ShareStockResult(BaseModel):
-    """Whether a company's market share and its stock value move together, and which one moves first.
+    """Whether a company's market share and another series (its stock by default) move together, and which leads.
 
     Attributes:
         TEXTS (ClassVar[Dict[str, int]]): The longest text of each text field.
@@ -24,13 +24,16 @@ class ShareStockResult(BaseModel):
         segment (str): The segment of the shares.
         area (str): The area of the shares.
         device (str): The devices of the shares.
-        listing (Optional[str]): The listing of the returns (the company's primary one), `None` when it has none.
+        listing (Optional[str]): The listing of the returns (the company's primary one), `None` when it has none or
+            the counterpart is not its stock.
+        counterpart (CorrelationCounterpart): What the share changes are correlated with.
+        counterpart_label (Optional[str]): The name of that series, e.g. `NASDAQ:GOOGL` or `DRAM concentration`.
         granularity (Granularity): The period of the analysis: the month, or the quarter of the analyst releases.
         share_coverage (Optional[CoverageEntry]): The points of the share series.
-        stock_coverage (Optional[CoverageEntry]): The points of the return series.
-        lags (List[LagCorrelation]): The correlation of the share changes with the returns, by lag.
-        share_leads_p (Optional[float]): The Granger p-value of "the share changes predict the returns".
-        stock_leads_p (Optional[float]): The Granger p-value of "the returns predict the share changes".
+        stock_coverage (Optional[CoverageEntry]): The points of the counterpart series (the returns of a stock).
+        lags (List[LagCorrelation]): The correlation of the share changes with the counterpart's changes, by lag.
+        share_leads_p (Optional[float]): The Granger p-value of "the share changes predict the counterpart's".
+        stock_leads_p (Optional[float]): The Granger p-value of "the counterpart's changes predict the share's".
         granger_lags (int): The periods of past used by the Granger tests.
         refusal (Optional[str]): Why nothing was computed (too few points, no listing), `None` when computed.
     """
@@ -41,6 +44,7 @@ class ShareStockResult(BaseModel):
         "area": 12,
         "device": 8,
         "listing": 30,
+        "counterpart_label": 120,
         "refusal": 600,
     }
     CHECK: ClassVar[MarketFieldCheck] = MarketFieldCheck()
@@ -52,6 +56,10 @@ class ShareStockResult(BaseModel):
     area: str = Field(min_length=1, description="The area of the shares.")
     device: str = Field(min_length=1, description="The devices of the shares.")
     listing: Optional[str] = Field(default=None, description="The listing of the returns.")
+    counterpart: CorrelationCounterpart = Field(
+        default=CorrelationCounterpart.STOCK, description="What the share changes are correlated with."
+    )
+    counterpart_label: Optional[str] = Field(default=None, description="The name of that series.")
     granularity: Granularity = Field(default=Granularity.MONTH, description="The period of the analysis.")
     share_coverage: Optional[CoverageEntry] = Field(default=None, description="The points of the share series.")
     stock_coverage: Optional[CoverageEntry] = Field(default=None, description="The points of the return series.")
@@ -78,9 +86,9 @@ class ShareStockResult(BaseModel):
         name = str(info.field_name)
         return cls.CHECK.text(value, f"correlation {name}", cls.TEXTS[name], collapse=False)
 
-    @field_validator("listing", "refusal", mode="before")
+    @field_validator("listing", "counterpart_label", "refusal", mode="before")
     def validate_optional_text(cls, value: JsonValue, info: ValidationInfo) -> JsonValue:
-        """Validate a raw listing or refusal: a text within its length, `None` when missing.
+        """Validate a raw listing, counterpart label or refusal: a text within its length, `None` when missing.
 
         Args:
             value (JsonValue): The raw text.
@@ -109,6 +117,21 @@ class ShareStockResult(BaseModel):
             InvalidMarketChoiceError: If it is not a known granularity.
         """
         return cls.CHECK.choice(value, "correlation period", [granularity.value for granularity in Granularity])
+
+    @field_validator("counterpart", mode="before")
+    def validate_counterpart(cls, value: JsonValue) -> JsonValue:
+        """Validate the raw counterpart: a `CorrelationCounterpart` value.
+
+        Args:
+            value (JsonValue): The raw counterpart.
+
+        Returns:
+            JsonValue: The counterpart.
+
+        Raises:
+            InvalidMarketChoiceError: If it is not a known counterpart.
+        """
+        return cls.CHECK.choice(value, "correlation counterpart", [kind.value for kind in CorrelationCounterpart])
 
     @field_validator("share_coverage", "stock_coverage", mode="before")
     def validate_coverage(cls, value: JsonValue, info: ValidationInfo) -> JsonValue:

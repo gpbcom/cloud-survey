@@ -10,12 +10,15 @@ from PyQt6.QtGui import QDesktopServices
 from PyQt6.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QVBoxLayout, QWidget
 
 from gui.product_model.product_row import ProductRow
+from gui.storage_bridge.storage_loop import StorageLoop
 from gui.taxonomy.taxonomy_cache import TaxonomyCache
 from gui.theme import Theme
 
 # First Party Imports.
 from gui.widgets.details.detail_sheet import DetailSheet
+from gui.widgets.details.history.version_history import VersionHistory
 from models.cloud.enums import PricingPolicy
+from models.storage.enums import DatasetKind
 
 
 class ProductDetails(QFrame):
@@ -39,6 +42,8 @@ class ProductDetails(QFrame):
         description_label (QLabel): The product description.
         pricing_label (QLabel): The pricing policies, empty when the catalogue gives none.
         link_label (QLabel): The link to the product page, empty without page.
+        history (VersionHistory): The stored versions of the product, one row per crawl which changed it (hidden
+            without storage thread).
         history_label (QLabel): When the product was added, updated and deleted, and where the dates come from.
         caveat_label (QLabel): The warnings about the approximate dates, empty when there is none.
         crawled_label (QLabel): The crawl date.
@@ -59,13 +64,21 @@ class ProductDetails(QFrame):
     copied = pyqtSignal(str)
     filter_requested = pyqtSignal(str, str)
 
-    def __init__(self, theme: Theme, logger: Optional[Logger] = None, taxonomy: Optional[TaxonomyCache] = None) -> None:
+    def __init__(
+        self,
+        theme: Theme,
+        logger: Optional[Logger] = None,
+        taxonomy: Optional[TaxonomyCache] = None,
+        loop: Optional[StorageLoop] = None,
+    ) -> None:
         """Build the panel, without product.
 
         Args:
             theme (Theme): The application theme.
             logger (Optional[Logger]): The panel logger.
             taxonomy (Optional[TaxonomyCache]): The names of the categories, those of the seed by default.
+            loop (Optional[StorageLoop]): The storage thread of the GUI, reading the versions of the product
+                (`None` hides the History section).
         """
         super().__init__()
         self.setObjectName("details")
@@ -94,6 +107,7 @@ class ProductDetails(QFrame):
         self.history_label = QLabel()
         self.history_label.setObjectName("muted")
         self.history_label.setWordWrap(True)
+        self.history = VersionHistory(loop, self.logger)
         self.caveat_label = QLabel()
         self.caveat_label.setObjectName("warning")
         self.caveat_label.setWordWrap(True)
@@ -112,6 +126,7 @@ class ProductDetails(QFrame):
             self.pricing_label,
             self.link_label,
             self.history_label,
+            self.history,
             self.caveat_label,
             self.crawled_label,
         ):
@@ -231,6 +246,7 @@ class ProductDetails(QFrame):
             self.provider_label.setStyleSheet("")
             self.flag_label.clear()
             self.description_label.setText("Select a product in the table to see its details.")
+            self.history.load(None, DatasetKind.CATALOGUE)
             return
         product = row.product
         color = self.theme.PROVIDER_COLORS[row.provider]
@@ -250,6 +266,7 @@ class ProductDetails(QFrame):
         crawled = row.crawled_at.astimezone().strftime("%d %b %Y at %H:%M") if row.crawled_at else "an unknown date"
         self.crawled_label.setText(f"Crawled on {crawled}")
         self.history_label.setText(self.theme.history_text(product))
+        self.history.load(row.id, DatasetKind.CATALOGUE)
         self.caveat_label.setText(self.theme.caveat_text(product))
         self.logger.debug("Details of the product %r shown.", product.name)
 

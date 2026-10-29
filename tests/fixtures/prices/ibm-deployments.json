@@ -1,0 +1,469 @@
+{
+ "offset": 0,
+ "limit": 50,
+ "count": 13,
+ "resource_count": 13,
+ "first": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-postgresql-standard/deployment?languages=%2A",
+ "resources": [
+  {
+   "id": "databases-for-postgresql-standard:au-syd",
+   "_id": "databases-for-postgresql-standard:au-syd",
+   "_rev": "11-19cad65cdcaa503c4a3c8fa0b96cc3b1",
+   "catalog_crn": "crn:v1:bluemix:public:globalcatalog::::deployment:databases-for-postgresql-standard%3Aau-syd",
+   "name": "standard-au-syd",
+   "kind": "deployment",
+   "overview_ui": {
+    "en": {
+     "display_name": "standard-au-syd au-syd deployment",
+     "long_description": "standard-au-syd au-syd deployment",
+     "description": "standard-au-syd au-syd deployment"
+    }
+   },
+   "parent_id": "databases-for-postgresql-standard",
+   "children_url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-postgresql-standard:au-syd/%2A",
+   "parent_url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-postgresql-standard",
+   "disabled": false,
+   "active": true,
+   "tags": [
+    "gc_migrate",
+    "hipaa",
+    "service_endpoint_supported"
+   ],
+   "geo_tags": [
+    "au-syd"
+   ],
+   "pricing_tags": [
+    "paygo",
+    "paid_only"
+   ],
+   "provider": {
+    "name": "IBM"
+   },
+   "created": "2019-01-09T15:16:58.982Z",
+   "updated": "2025-11-25T10:07:42.788189446-05:00",
+   "complete": true,
+   "url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-postgresql-standard:au-syd?languages=%2A",
+   "images": {
+    "feature_image": "https://broker.au-syd.databases.cloud.ibm.com/images/postgresql.svg",
+    "image": "https://broker.au-syd.databases.cloud.ibm.com/images/postgresql.svg",
+    "medium_image": "https://broker.au-syd.databases.cloud.ibm.com/images/postgresql.svg",
+    "small_image": "https://broker.au-syd.databases.cloud.ibm.com/images/postgresql.svg"
+   },
+   "metadata": {
+    "rc_compatible": true,
+    "other": {
+     "disable_default_service_endpoints": true
+    },
+    "service": {
+     "type": "",
+     "iam_compatible": false,
+     "unique_api_key": false,
+     "rc_provisionable": true,
+     "bindable": false,
+     "async_provisioning_supported": true,
+     "async_unprovisioning_supported": false,
+     "user_defined_service": null,
+     "extension": null,
+     "plan_updateable": false,
+     "state": "",
+     "service_check_enabled": false,
+     "test_check_interval": 0,
+     "service_key_supported": true,
+     "custom_create_page_hybrid_enabled": false,
+     "parameters": [
+      {
+       "displayname": "Select an initial memory allocation",
+       "name": "members_memory_allocation_mb",
+       "optionsUrl": "https://broker.au-syd.databases.cloud.ibm.com/deployables/postgresql/parameters/memory/member",
+       "required": false,
+       "type": "dropdown"
+      },
+      {
+       "displayname": "Select an initial disk allocation",
+       "name": "members_disk_allocation_mb",
+       "optionsUrl": "https://broker.au-syd.databases.cloud.ibm.com/deployables/postgresql/parameters/disk/member",
+       "required": false,
+       "type": "dropdown"
+      },
+      {
+       "description": "CPU allocation is optional. Selecting CPU allocation ensures your database has dedicated compute resources for your workload.",
+       "displayname": "Select an initial CPU allocation",
+       "name": "members_cpu_allocation_count",
+       "optionsUrl": "https://broker.au-syd.databases.cloud.ibm.com/deployables/postgresql/parameters/cpu/member",
+       "required": false,
+       "type": "dropdown"
+      },
+      {
+       "description": "IBM Cloud recommends provisioning the preferred version. For more information on version types see the see the IBM Cloud Databases Versioning Policy in the documentation.",
+       "displayname": "Select a database version",
+       "name": "version",
+       "optionsUrl": "https://broker.au-syd.databases.cloud.ibm.com/deployables/postgresql/parameters/version",
+       "required": false,
+       "type": "dropdown"
+      },
+      {
+       "description": "Please ensure Databases for PostgreSQL has been authorized to access the selected KMS instance. You can manage service-to-service authorizations at any time by visiting Manage > Access (IAM) and choosing Authorizations.",
+       "displayname": "Select a KMS instance",
+       "name": "disk_encryption_instance_crn",
+       "optionsUrl": "https://broker.au-syd.databases.cloud.ibm.com/deployables/postgresql/parameters/disk_encryption_instance_crn",
+       "required": false,
+       "type": "dropdown"
+      },
+      {
+       "associations": {
+        "parameters": [
+         {
+          "name": "disk_encryption_instance_crn",
+          "optionsRefresh": true
+         }
+        ]
+       },
+       "description": "Warning: deleting this key will result in the loss of all data stored in this PostgreSQL instance.",
+       "displayname": "Select a disk encryption key",
+       "name": "disk_encryption_key_crn",
+       "optionsUrl": "https://broker.au-syd.databases.cloud.ibm.com/deployables/postgresql/parameters/disk_encryption_key_crn",
+       "required": false,
+       "type": "dropdown"
+      },
+      {
+       "displayname": "Endpoints",
+       "name": "service-endpoints",
+       "options": [
+        {
+         "displayname": "Public network",
+         "value": "public"
+        },
+        {
+         "displayname": "Private network",
+         "value": "private"
+        },
+        {
+         "displayname": "Both public & private network",
+         "value": "public-and-private"
+        }
+       ],
+       "required": false,
+       "type": "dropdown",
+       "value": "private"
+      }
+     ]
+    },
+    "plan": {
+     "bindable": false,
+     "reservable": false,
+     "allow_internal_users": true,
+     "async_provisioning_supported": true,
+     "async_unprovisioning_supported": false,
+     "test_check_interval": 0,
+     "single_scope_instance": "",
+     "service_check_enabled": false,
+     "provision_type": ""
+    },
+    "deployment": {
+     "location": "au-syd",
+     "location_url": "https://globalcatalog.cloud.ibm.com/api/v1/au-syd",
+     "target_crn": "crn:v1:bluemix:public::au-syd:::environment:bluemix-au-syd",
+     "broker": {
+      "name": "ibm-cloud-databases-au-syd",
+      "guid": "crn:v1:bluemix:public:resource-controller::a/247a00ed76bf9a51d847b85652ee202f::resource-broker:a6c57e69-a8ce-42ea-a66b-e3e10fefba7b"
+     },
+     "target_network": "cse_private+public"
+    },
+    "ui": {
+     "navigation_order": [
+      "gettingStarted",
+      "manage",
+      "groups",
+      "readOnlyReplicas",
+      "backups",
+      "edit",
+      "credentials",
+      "connectedObjects",
+      "plan"
+     ],
+     "side_by_side_index": 1,
+     "strings": {
+      "en": {
+       "navigation_items": [
+        {
+         "id": "manage",
+         "url": "https://cloud.ibm.com/databases-console/databases-for-postgresql/",
+         "label": "Overview",
+         "default": true,
+         "panel_menu": false
+        },
+        {
+         "id": "groups",
+         "url": "https://cloud.ibm.com/databases-console/databases-for-postgresql/",
+         "label": "Resources",
+         "panel_menu": false
+        },
+        {
+         "id": "backups",
+         "url": "https://cloud.ibm.com/databases-console/databases-for-postgresql/",
+         "label": "Backups and restore",
+         "panel_menu": false
+        },
+        {
+         "id": "edit",
+         "url": "https://cloud.ibm.com/databases-console/databases-for-postgresql/",
+         "label": "Settings",
+         "panel_menu": false
+        },
+        {
+         "id": "readOnlyReplicas",
+         "url": "https://cloud.ibm.com/databases-console/databases-for-postgresql/",
+         "label": "Read-only replicas",
+         "panel_menu": false
+        }
+       ]
+      }
+     }
+    },
+    "pricing": {
+     "origin": "pricing_catalog",
+     "type": "paygo",
+     "url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-postgresql-standard:au-syd/pricing",
+     "starting_price": {},
+     "metrics": null
+    },
+    "callbacks": {
+     "broker_url": "https://broker.au-syd.databases.cloud.ibm.com"
+    }
+   },
+   "visibility": {
+    "restrictions": "public"
+   }
+  },
+  {
+   "id": "databases-for-postgresql-standard:br-sao",
+   "_id": "databases-for-postgresql-standard:br-sao",
+   "_rev": "8-e4af25017d06578e6bcb523943160cf4",
+   "catalog_crn": "crn:v1:bluemix:public:globalcatalog::::deployment:databases-for-postgresql-standard%3Abr-sao",
+   "name": "standard-br-sao",
+   "kind": "deployment",
+   "overview_ui": {
+    "en": {
+     "display_name": "standard-br-sao br-sao deployment",
+     "long_description": "standard-br-sao br-sao deployment",
+     "description": "standard-br-sao br-sao deployment"
+    }
+   },
+   "parent_id": "databases-for-postgresql-standard",
+   "children_url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-postgresql-standard:br-sao/%2A",
+   "parent_url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-postgresql-standard",
+   "disabled": false,
+   "active": true,
+   "tags": [
+    "gc_migrate",
+    "hipaa",
+    "service_endpoint_supported"
+   ],
+   "geo_tags": [
+    "br-sao"
+   ],
+   "pricing_tags": [
+    "paygo",
+    "paid_only"
+   ],
+   "provider": {
+    "name": "IBM"
+   },
+   "created": "2021-07-13T21:58:53.767Z",
+   "updated": "2025-11-25T10:07:42.39321198-05:00",
+   "complete": true,
+   "url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-postgresql-standard:br-sao?languages=%2A",
+   "images": {
+    "feature_image": "https://broker.br-sao.databases.cloud.ibm.com/images/postgresql.svg",
+    "image": "https://broker.br-sao.databases.cloud.ibm.com/images/postgresql.svg",
+    "medium_image": "https://broker.br-sao.databases.cloud.ibm.com/images/postgresql.svg",
+    "small_image": "https://broker.br-sao.databases.cloud.ibm.com/images/postgresql.svg"
+   },
+   "metadata": {
+    "rc_compatible": true,
+    "other": {
+     "disable_default_service_endpoints": true
+    },
+    "service": {
+     "type": "",
+     "iam_compatible": false,
+     "unique_api_key": false,
+     "rc_provisionable": true,
+     "bindable": false,
+     "async_provisioning_supported": true,
+     "async_unprovisioning_supported": false,
+     "user_defined_service": null,
+     "extension": null,
+     "plan_updateable": false,
+     "state": "",
+     "service_check_enabled": false,
+     "test_check_interval": 0,
+     "service_key_supported": true,
+     "custom_create_page_hybrid_enabled": false,
+     "parameters": [
+      {
+       "displayname": "Select an initial memory allocation",
+       "name": "members_memory_allocation_mb",
+       "optionsUrl": "https://broker.br-sao.databases.cloud.ibm.com/deployables/postgresql/parameters/memory/member",
+       "required": false,
+       "type": "dropdown"
+      },
+      {
+       "displayname": "Select an initial disk allocation",
+       "name": "members_disk_allocation_mb",
+       "optionsUrl": "https://broker.br-sao.databases.cloud.ibm.com/deployables/postgresql/parameters/disk/member",
+       "required": false,
+       "type": "dropdown"
+      },
+      {
+       "description": "CPU allocation is optional. Selecting CPU allocation ensures your database has dedicated compute resources for your workload.",
+       "displayname": "Select an initial CPU allocation",
+       "name": "members_cpu_allocation_count",
+       "optionsUrl": "https://broker.br-sao.databases.cloud.ibm.com/deployables/postgresql/parameters/cpu/member",
+       "required": false,
+       "type": "dropdown"
+      },
+      {
+       "description": "IBM Cloud recommends provisioning the preferred version. For more information on version types see the see the IBM Cloud Databases Versioning Policy in the documentation.",
+       "displayname": "Select a database version",
+       "name": "version",
+       "optionsUrl": "https://broker.br-sao.databases.cloud.ibm.com/deployables/postgresql/parameters/version",
+       "required": false,
+       "type": "dropdown"
+      },
+      {
+       "description": "Please ensure Databases for PostgreSQL has been authorized to access the selected KMS instance. You can manage service-to-service authorizations at any time by visiting Manage > Access (IAM) and choosing Authorizations.",
+       "displayname": "Select a KMS instance",
+       "name": "disk_encryption_instance_crn",
+       "optionsUrl": "https://broker.br-sao.databases.cloud.ibm.com/deployables/postgresql/parameters/disk_encryption_instance_crn",
+       "required": false,
+       "type": "dropdown"
+      },
+      {
+       "associations": {
+        "parameters": [
+         {
+          "name": "disk_encryption_instance_crn",
+          "optionsRefresh": true
+         }
+        ]
+       },
+       "description": "Warning: deleting this key will result in the loss of all data stored in this PostgreSQL instance.",
+       "displayname": "Select a disk encryption key",
+       "name": "disk_encryption_key_crn",
+       "optionsUrl": "https://broker.br-sao.databases.cloud.ibm.com/deployables/postgresql/parameters/disk_encryption_key_crn",
+       "required": false,
+       "type": "dropdown"
+      },
+      {
+       "displayname": "Endpoints",
+       "name": "service-endpoints",
+       "options": [
+        {
+         "displayname": "Public network",
+         "value": "public"
+        },
+        {
+         "displayname": "Private network",
+         "value": "private"
+        },
+        {
+         "displayname": "Both public & private network",
+         "value": "public-and-private"
+        }
+       ],
+       "required": false,
+       "type": "dropdown",
+       "value": "private"
+      }
+     ]
+    },
+    "plan": {
+     "bindable": false,
+     "reservable": false,
+     "allow_internal_users": true,
+     "async_provisioning_supported": true,
+     "async_unprovisioning_supported": false,
+     "test_check_interval": 0,
+     "single_scope_instance": "",
+     "service_check_enabled": false,
+     "provision_type": ""
+    },
+    "deployment": {
+     "location": "br-sao",
+     "location_url": "https://globalcatalog.cloud.ibm.com/api/v1/br-sao",
+     "target_crn": "crn:v1:bluemix:public::br-sao:::environment:bluemix-br-sao",
+     "broker": {
+      "name": "ibm-cloud-databases-br-sao",
+      "guid": "crn:v1:bluemix:public:resource-controller::a/247a00ed76bf9a51d847b85652ee202f::resource-broker:2e64c1a6-d1d1-4de0-aee6-fe2d876d3311"
+     },
+     "target_network": "cse_private+public"
+    },
+    "ui": {
+     "navigation_order": [
+      "gettingStarted",
+      "manage",
+      "groups",
+      "readOnlyReplicas",
+      "backups",
+      "edit",
+      "credentials",
+      "connectedObjects",
+      "plan"
+     ],
+     "side_by_side_index": 1,
+     "strings": {
+      "en": {
+       "navigation_items": [
+        {
+         "id": "manage",
+         "url": "https://cloud.ibm.com/databases-console/databases-for-postgresql/",
+         "label": "Overview",
+         "default": true,
+         "panel_menu": false
+        },
+        {
+         "id": "groups",
+         "url": "https://cloud.ibm.com/databases-console/databases-for-postgresql/",
+         "label": "Resources",
+         "panel_menu": false
+        },
+        {
+         "id": "backups",
+         "url": "https://cloud.ibm.com/databases-console/databases-for-postgresql/",
+         "label": "Backups and restore",
+         "panel_menu": false
+        },
+        {
+         "id": "edit",
+         "url": "https://cloud.ibm.com/databases-console/databases-for-postgresql/",
+         "label": "Settings",
+         "panel_menu": false
+        },
+        {
+         "id": "readOnlyReplicas",
+         "url": "https://cloud.ibm.com/databases-console/databases-for-postgresql/",
+         "label": "Read-only replicas",
+         "panel_menu": false
+        }
+       ]
+      }
+     }
+    },
+    "pricing": {
+     "origin": "pricing_catalog",
+     "type": "paygo",
+     "url": "https://globalcatalog.cloud.ibm.com/api/v1/databases-for-postgresql-standard:br-sao/pricing",
+     "starting_price": {},
+     "metrics": null
+    },
+    "callbacks": {
+     "broker_url": "https://broker.br-sao.databases.cloud.ibm.com"
+    }
+   },
+   "visibility": {
+    "restrictions": "public"
+   }
+  }
+ ]
+}

@@ -1,0 +1,469 @@
+# Curated price coverage of Tencent Cloud (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: tencent-cloud
+currency: CNY
+row_links:
+  'Cloud GPU Service': ['^Cloud Virtual Machine \|.*"TypeName": "GPU[^"]*型(G|PNV)']
+  'Cloud Bare Metal': ['^Cloud Virtual Machine \|.*"TypeName": "[^"]*型BM']
+  'Hyper Computing Cluster': ['^Cloud Virtual Machine \|.*"TypeName": "[^"]*型HCC']
+  'Tencent HY': ['^LLM Service TokenHub \|.*"row": "(h ?y ?-|hy[0-9 -])']
+statements:
+  - product: 'Auto Scaling'
+    model: free
+    reason: 'The product page states AS is free of charge. The CVM instances it launches are billed by CVM.'
+    source: 'https://www.tencentcloud.com/products/as'
+  - product: 'Batch Compute'
+    model: free
+    reason: 'The product page states Batch Compute is free of charge. The CVM instances it uses are billed by CVM.'
+    source: 'https://www.tencentcloud.com/products/batch'
+  - product: 'Cloud Access Management'
+    model: free
+    reason: 'The product page states CAM is free of charge.'
+    source: 'https://www.tencentcloud.com/products/cam'
+  - product: 'CloudAudit'
+    model: free
+    reason: 'The product page states CloudAudit is currently free of charge.'
+    source: 'https://www.tencentcloud.com/products/cloudaudit'
+  - product: 'Cloud Migration'
+    model: free
+    reason: 'The product page states Cloud Migration is free of charge. Only the resources used by and after the migration are billed.'
+    source: 'https://www.tencentcloud.com/products/cmg'
+  - product: 'Control Center'
+    model: free
+    reason: 'The product page states Control Center is a free service with no additional charges.'
+    source: 'https://www.tencentcloud.com/products/controlcenter'
+  - product: 'TencentDB for DBbrain'
+    model: free
+    reason: 'The product page states DBbrain is currently in beta and free of charge.'
+    source: 'https://www.tencentcloud.com/products/dbbrain'
+  - product: 'Database Management Center'
+    model: free
+    reason: 'The product page states DMC is in beta test and free of charge.'
+    source: 'https://www.tencentcloud.com/products/dmc'
+  - product: 'Flow Logs'
+    model: free
+    reason: 'The product page states Flow Logs is free of charge. Log storage in CLS is billed by CLS.'
+    source: 'https://www.tencentcloud.com/products/fl'
+  - product: 'Tencent Cloud Organization'
+    model: free
+    reason: 'The product page states TCO is free of charge. Only the resources used by member accounts are billed.'
+    source: 'https://www.tencentcloud.com/products/organization'
+  - product: 'Tencent Cloud Automation Tools'
+    model: free
+    reason: 'The product page states TAT is free of charge.'
+    source: 'https://www.tencentcloud.com/products/tat'
+  - product: 'Tencent Infrastructure Automation for Terraform'
+    model: free
+    reason: 'The product page states it is free at no additional charge. Only the created resources are billed.'
+    source: 'https://www.tencentcloud.com/products/iatf'
+  - product: 'Tencent Kubernetes Engine Distributed Cloud Center'
+    model: free
+    reason: 'The product page states TDCC is currently free of charge.'
+    source: 'https://www.tencentcloud.com/products/tdcc'
+  - product: 'Virtual Private Cloud'
+    model: free
+    reason: 'The product page states VPC is free of charge. NAT Gateway, VPN and Peering Connection are billed separately.'
+    source: 'https://www.tencentcloud.com/products/vpc'
+  - product: 'Smart Media Hosting'
+    model: included
+    reason: 'The product page states SMH storage is billed by Cloud Object Storage (COS) and data processing by Cloud Infinite (CI).'
+    source: 'https://www.tencentcloud.com/products/smh'
+  - product: 'Tencent TCE Security Suite'
+    model: included
+    reason: 'A suite of Tencent Cloud security products, each enabled and billed through its own product page.'
+    source: 'https://www.tencentcloud.com/products/tce-security'
+  - product: 'Game Video Analyzer'
+    model: quote
+    reason: 'The product page asks to contact sales for pricing details.'
+    source: 'https://www.tencentcloud.com/products/gva'
+  - product: 'Game Video Processor'
+    model: quote
+    reason: 'The product page asks to contact sales for pricing details.'
+    source: 'https://www.tencentcloud.com/products/gvp'
+  - product: 'Game Video Transcoder'
+    model: quote
+    reason: 'The product page asks to contact sales for pricing details.'
+    source: 'https://www.tencentcloud.com/products/gvt'
+  - product: 'Vulnerability Scan Service'
+    model: quote
+    reason: 'The product page asks to contact a sales representative.'
+    source: 'https://www.tencentcloud.com/products/vss'
+  - product: 'Fusion Analytics'
+    model: quote
+    reason: 'The product page asks to contact Tencent Cloud to purchase.'
+    source: 'https://www.tencentcloud.com/products/tmcfa'
+  - product: 'Tencent WorkBuddy Managed Agents'
+    model: quote
+    reason: 'The product page asks to contact the sales team for details or a trial.'
+    source: 'https://www.tencentcloud.com/products/workbuddy-managed-agents'
+  - product: 'Tencent Cloud Enterprise'
+    model: quote
+    reason: 'Private cloud platform deployed for the customer. The product page refers buyers to sales.'
+    source: 'https://www.tencentcloud.com/products/tce'
+  - product: 'Peering Connection'
+    model: not-public
+    reason: 'Intra-region peering is free per the product page. Cross-region tiered prices are not in the billing docs read.'
+    source: 'https://www.tencentcloud.com/products/pc'
+  - product: 'Tencent Cloud Elastic Microservice'
+    model: not-public
+    reason: 'The product page states compute is free during beta and prices will be announced. No price in the billing docs read.'
+    source: 'https://www.tencentcloud.com/products/tem'
+  - product: 'Multiple Network Acceleration'
+    model: not-public
+    reason: 'The product page states MNA is in beta by application. No public price.'
+    source: 'https://www.tencentcloud.com/products/mna'
+  - product: 'AI Agent Security Gateway'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'API Gateway'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Analysis Platform for Pneumonia CT Image'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Anti-Cheat Expert'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Anti-DDoS'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Anti-Fraud'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Anycast Internet Acceleration'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Application Load Balancer'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Application Performance Management'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Bastion Host'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'CVM Dedicated Host'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Captcha'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Cloud Automated Testing'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Cloud Dedicated Cluster'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Cloud Dedicated Zone'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Cloud HDFS'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Cloud Native Database TDSQL-C'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Cloud Real-time Rendering'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Cloud Resource Center'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Cloud Security Center'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Cloud Virtual Desktop'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Cloud Workload Protection Platform'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Config'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Data Lake Accelerator Goose FileSystem'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Data Security Audit'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Database Expert Service'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Digital and Intelligent Medical Imaging Platform'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Domains'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'EventBridge'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Game Multimedia Engine'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Gateway Load Balancer'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Global Accelerator 2.0'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Global Application Acceleration Platform'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Global Office Access'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Identity Aware Platform'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Image Creation'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Intelligent Guidance'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Intelligent Pre-Consultation'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Intelligent music platform'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'IoT Hub'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'LLM Knowledge Engine Basic API'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Penetration Testing Service'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Private Link'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Quota Center'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Real User Monitoring'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Risk Control Engine'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Security Expert Service'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Security Service Platform'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Security Token Service'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Service Registry and Governance'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Simple Email Service'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'StreamLink'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'StreamLive'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'StreamPackage'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'T-Sec WeTest Game Quality Monitoring'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'TDSQL'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'TDSQL Boundless'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tag'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Big Data Suite'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Cloud Agent Development Platform'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Cloud Code Analysis'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Cloud Command Line Interface'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Cloud Health Dashboard'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Cloud LighthouseCOS'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Cloud Super App as a Service'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Cloud-native Suite'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent CodeBuddy'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Container Security Service'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Ecard'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Effect SDK'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Games GVoice'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Kubernetes Engine'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Kubernetes Engine for Serverless'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent LearnShare'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent OneID Identity Security'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Push Notification Service'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Smart Advisor-Chaotic Fault Generator'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent Smart Advisor-Tencent RTC Copilot'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent WorkBuddy'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent WorkBuddy Enterprise'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent eSign'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Tencent iOA Zero Trust Security Management System'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'TencentCloud API'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'TencentCloud Managed Service for Grafana'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'TencentDB for CTSDB'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'TencentDB for Tendis'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'TencentOS Server'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Terminal Performance Monitoring PRO'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'
+  - product: 'Web Application Firewall'
+    model: not-public
+    reason: 'Not in the price data read from the Tencent Cloud billing documentation and CVM price API.'
+    source: 'https://cloud.tencent.com/document/product'

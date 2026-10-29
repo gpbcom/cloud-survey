@@ -45,6 +45,8 @@ class DiagramScrollArea(QScrollArea):
         scroll_bar = self.horizontalScrollBar()
         if scroll_bar is not None:
             scroll_bar.valueChanged.connect(header.set_offset)
+        else:
+            self.logger.warning("The diagram area has no horizontal scroll bar: the header does not follow it.")
         diagram.laid_out.connect(self._on_laid_out)
         self.logger.debug("Diagram scroll area built.")
 

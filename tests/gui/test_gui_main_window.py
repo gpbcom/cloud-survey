@@ -24,7 +24,9 @@ from gui.storage_bridge.storage_loop import StorageLoop
 from gui.theme import Theme
 from gui.window.main_window import MainWindow
 from models.cloud.enums import CloudProvider, Country, MarketPlayer, SoftwareCategory
+from models.cloud.launch.launch_catalog import LaunchCatalog
 from models.cloud.software.marketplace_software import MarketplaceSoftware
+from models.companies.enums import CompanyFeed
 from models.configuration.storage.storage_settings import StorageSettings
 from models.markets.enums import MarketFeed
 from models.stats.market_statistics import MarketStatistics
@@ -38,6 +40,9 @@ MARKETPLACE_PROVIDERS = [CloudProvider.AWS, CloudProvider.CIVO]
 
 class FakeCrawler:
     """Stand-in for a crawler, streaming one item, optionally after a gate opens or with an error."""
+
+    def use_launches(self, catalog: LaunchCatalog) -> None:
+        self.launches = catalog
 
     source = "Synergy Research Group"
 
@@ -569,6 +574,7 @@ def test_the_taxonomy_menu_opens_the_categories_manager(
         "Source labels…",
         "Unclassified items…",
         "Recompute the categories",
+        "Curated catalogues…",
         "Service correspondences",
         "Match services with AI",
     ]
@@ -651,3 +657,133 @@ def test_the_markets_button_is_disabled_while_crawling(
 
     assert disabled
     assert window.markets_button.isEnabled()
+
+
+def test_the_markets_menu_crawls_the_cloud_market_history_and_the_compounding_sources(
+    make_window: Callable[[Optional[MagicMock]], MainWindow], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    window = make_window(None)
+    start = MagicMock()
+    monkeypatch.setattr(window, "_start_crawl", start)
+    actions = {action.text(): action for action in window.markets_menu.actions()}
+
+    actions["Crawl cloud market history (Synergy)"].trigger()
+    actions["Crawl all compounding sources"].trigger()
+    window.crawl_compounding_sources([CloudProvider.SCALEWAY])
+    window.crawl_compounding_sources([])
+    window.analysis_view.compounding.crawl_requested.emit("history")
+
+    assert window.compounding_providers() == [
+        CloudProvider.AWS,
+        CloudProvider.AZURE,
+        CloudProvider.GCP,
+        CloudProvider.ORACLE,
+        CloudProvider.HUAWEI,
+        CloudProvider.SCALEWAY,
+        CloudProvider.STACKIT,
+        CloudProvider.EXOSCALE,
+        CloudProvider.CTYUN,
+    ]
+    started = [
+        (call.args[2], call.kwargs.get("providers"), call.kwargs["market_history"]) for call in start.call_args_list
+    ]
+    assert started == [
+        (CrawlSource.STATISTICS, None, True),
+        (CrawlSource.CATALOGUE, window.compounding_providers(), True),
+        (CrawlSource.CATALOGUE, [CloudProvider.SCALEWAY], True),
+        (CrawlSource.STATISTICS, None, True),
+        (CrawlSource.STATISTICS, None, True),
+    ]
+
+
+def test_the_history_actions_are_disabled_while_crawling(
+    make_window: Callable[[Optional[MagicMock]], MainWindow],
+) -> None:
+    window = make_window(None)
+
+    window._set_crawling(True, "Crawling")
+    disabled = not window.history_action.isEnabled() and not window.compounding_action.isEnabled()
+    window._set_crawling(False, "Idle")
+
+    assert disabled
+    assert window.history_action.isEnabled()
+    assert window.compounding_action.isEnabled()
+
+
+def test_the_patents_and_papers_tab_searches_the_companies_picked(
+    make_window: Callable[[Optional[MagicMock]], MainWindow], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    window = make_window(None)
+    start = MagicMock()
+    monkeypatch.setattr(window, "_start_crawl", start)
+
+    window.research_view.search_requested.emit(["ibm", "opera"], ["google-patents", "openalex"])
+
+    assert window.tabs.tabText(window.tabs.count() - 1).replace("&&", "&") == "Patents & Papers"
+    assert start.call_args.args[2] is CrawlSource.COMPANIES
+    assert start.call_args.kwargs["companies"] == ["ibm", "opera"]
+    assert start.call_args.kwargs["company_feeds"] == [CompanyFeed.GOOGLE_PATENTS, CompanyFeed.OPENALEX]
+
+
+def test_stop_asks_the_running_crawl_to_end(make_window: Callable[[Optional[MagicMock]], MainWindow]) -> None:
+    window = make_window(None)
+    worker = MagicMock()
+    window.stop_crawl()
+    window.crawl_worker = worker
+
+    window.research_view.stop_requested.emit()
+
+    worker.request_stop.assert_called_once()
+
+
+def test_a_companies_search_ends_in_the_tab(make_window: Callable[[Optional[MagicMock]], MainWindow]) -> None:
+    window = make_window(None)
+    window.crawl_source = CrawlSource.COMPANIES
+    window.research_view.start(["opera"], [CompanyFeed.OPENALEX])
+
+    window._on_crawl_succeeded("12 companies rows written from openalex (stopped)")
+
+    status = window.research_view.progress.item(0, 1)
+    assert status is not None
+    assert status.text() == "stopped"
+
+
+def test_a_refused_patents_search_is_shown_as_refused(make_window: Callable[[Optional[MagicMock]], MainWindow]) -> None:
+    window = make_window(None)
+    window.crawl_source = CrawlSource.COMPANIES
+    window.research_view.resume_box.setChecked(False)
+    window.research_view.start(["amazon"], [CompanyFeed.GOOGLE_PATENTS])
+
+    window._on_crawl_succeeded("0 companies rows written from google-patents. Google Patents refused (refused)")
+
+    status = window.research_view.progress.item(0, 1)
+    assert status is not None
+    assert status.text() == "refused"
+    assert "Google Patents refused" in window.research_view.status.text()
+
+
+class TestCuratedCatalogues:
+    def test_the_tabs_are_built_again_from_edited_catalogues(
+        self, make_window: Callable[[Optional[MagicMock]], MainWindow]
+    ) -> None:
+        window = make_window(None)
+        bundled = window._bundled()
+        assert bundled is not None
+        companies = [
+            company.model_copy(update={"label": "Big Blue"}) if company.key == "ibm" else company
+            for company in bundled.chronology.companies
+        ]
+        edited = bundled.model_copy(update={"chronology": bundled.chronology.model_copy(update={"companies": companies})})
+        analysis, research = window.analysis_view, window.research_view
+
+        window._on_curated(bundled)
+        unchanged = window.analysis_view
+        window._on_curated(edited)
+
+        assert unchanged is analysis
+        assert window.analysis_view is not analysis
+        assert window.research_view is not research
+        assert window.tabs.indexOf(window.analysis_view) >= 0
+        assert window.tabs.indexOf(window.research_view) >= 0
+        assert window.research_view.names["ibm"] == "Big Blue"
+        assert window.curated == edited

@@ -158,6 +158,16 @@ class RoleLegend(QWidget):
             scope (DriverScope): The scope picked.
             lag (int): The lag picked.
         """
+        self.logger.debug(
+            "Role legend shows target %s, %d criteria, %d controls, %s scope, lag %d.",
+            target.value if target else None,
+            len(criteria),
+            len(controls),
+            scope.value,
+            lag,
+        )
+        if target is None:
+            self.logger.warning("Role legend without a target: its chip shows none.")
         panel = scope is DriverScope.PANEL
         values: RoleValues = {
             DriverRole.TARGET: [catalog.label(target)] if target else [],

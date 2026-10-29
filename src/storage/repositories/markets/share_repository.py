@@ -15,6 +15,7 @@ from models.markets.enums import Device, Granularity, ShareMetric, ShareSource
 from models.markets.values.market_share_value import MarketShareValue
 from storage.engine.database import Database
 from storage.exception import StorageReadError, StorageWriteError
+from storage.mappers.row_store import RowStore
 from storage.tables.base import Base
 from storage.tables.markets.market_share_row import MarketShareRow
 
@@ -26,6 +27,7 @@ class MarketShareRepository:
         CHUNK (int): The rows written per statement.
         database (Database): The open database.
         table (Table): The `market_shares` table.
+        rows (RowStore[MarketShareValue]): The single-share operations on the table.
         logger (Logger): The repository logger.
 
     Notes:
@@ -45,11 +47,127 @@ class MarketShareRepository:
         self.database = database
         self.logger = logger if logger else getLogger(__name__)
         self.table: Table = Base.metadata.tables[MarketShareRow.__tablename__]
+        self.rows = RowStore(database, self.table, MarketShareValue, "market share", self.logger)
         self.logger.debug("Repository of the market shares ready.")
 
     ############################
     # Publicly Exposed Methods #
     ############################
+
+    async def create(self, value: MarketShareValue) -> MarketShareValue:
+        """Insert one share.
+
+        Args:
+            value (MarketShareValue): The share.
+
+        Returns:
+            MarketShareValue: The share, as stored.
+
+        Raises:
+            StorageWriteError: If a share has the same key (segment, area, period, granularity, device, metric,
+                source and label).
+        """
+        self.logger.debug("Creating a market share.")
+        return await self.rows.create(value)
+
+    async def read(
+        self,
+        segment: str,
+        area: str,
+        period: date,
+        granularity: Granularity,
+        device: Device,
+        metric: ShareMetric,
+        source: ShareSource,
+        label: str,
+    ) -> Optional[MarketShareValue]:
+        """Read one share.
+
+        Args:
+            segment (str): The segment.
+            area (str): The area.
+            period (date): The first day of the period.
+            granularity (Granularity): The kind of period.
+            device (Device): The devices measured.
+            metric (ShareMetric): What the share is a share of.
+            source (ShareSource): Where it comes from.
+            label (str): The label, as printed.
+
+        Returns:
+            Optional[MarketShareValue]: The share, `None` when there is none.
+
+        Raises:
+            StorageReadError: If the share cannot be read.
+        """
+        return await self.rows.read(
+            {
+                "segment": segment,
+                "area": area,
+                "period": period,
+                "granularity": granularity.value,
+                "device": device.value,
+                "metric": metric.value,
+                "source": source.value,
+                "label": label,
+            }
+        )
+
+    async def update(self, value: MarketShareValue) -> bool:
+        """Replace one share (that of the same segment, area, period, granularity, device, metric, source and label).
+
+        Args:
+            value (MarketShareValue): The share.
+
+        Returns:
+            bool: Whether the share existed (none is created otherwise).
+
+        Raises:
+            StorageWriteError: If the share cannot be written.
+        """
+        self.logger.debug("Updating a market share.")
+        return await self.rows.update(value)
+
+    async def delete(
+        self,
+        segment: str,
+        area: str,
+        period: date,
+        granularity: Granularity,
+        device: Device,
+        metric: ShareMetric,
+        source: ShareSource,
+        label: str,
+    ) -> bool:
+        """Delete one share.
+
+        Args:
+            segment (str): The segment.
+            area (str): The area.
+            period (date): The first day of the period.
+            granularity (Granularity): The kind of period.
+            device (Device): The devices measured.
+            metric (ShareMetric): What the share is a share of.
+            source (ShareSource): Where it comes from.
+            label (str): The label, as printed.
+
+        Returns:
+            bool: Whether a share was deleted.
+
+        Raises:
+            StorageWriteError: If the share cannot be deleted.
+        """
+        return await self.rows.delete(
+            {
+                "segment": segment,
+                "area": area,
+                "period": period,
+                "granularity": granularity.value,
+                "device": device.value,
+                "metric": metric.value,
+                "source": source.value,
+                "label": label,
+            }
+        )
 
     async def upsert(self, values: Sequence[MarketShareValue]) -> int:
         """Write shares, replacing those with the same key.
@@ -170,7 +288,7 @@ class MarketShareRepository:
         self.logger.info("%d periods of market shares replaced: %d shares.", len(periods), written)
         return written
 
-    async def read(
+    async def list(
         self,
         segment: str,
         area: str,
@@ -178,8 +296,10 @@ class MarketShareRepository:
         metric: Optional[ShareMetric] = None,
         source: Optional[ShareSource] = None,
         companies: Optional[Sequence[str]] = None,
+        offset: int = 0,
+        limit: Optional[int] = None,
     ) -> List[MarketShareValue]:
-        """Read the shares of a segment in an area, on a device.
+        """List the shares of a segment in an area, on a device.
 
         Args:
             segment (str): The segment.
@@ -189,6 +309,8 @@ class MarketShareRepository:
             source (Optional[ShareSource]): Only this source, every one when `None`.
             companies (Optional[Sequence[str]]): Only the labels of these companies, every label when `None` or
                 empty.
+            offset (int): The shares skipped.
+            limit (Optional[int]): The most shares returned, every one when `None`.
 
         Returns:
             List[MarketShareValue]: The shares, by period then label.
@@ -209,6 +331,7 @@ class MarketShareRepository:
             statement = statement.where(table.c.source == source.value)
         if companies:
             statement = statement.where(table.c.company.in_(list(companies)))
+        statement = statement.offset(offset).limit(limit)
         try:
             async with self.database.connect() as connection:
                 rows = (await connection.execute(statement)).mappings().all()
@@ -300,3 +423,36 @@ class MarketShareRepository:
             quarters.setdefault((str(segment), str(area), str(source)), []).append(period)
         self.logger.debug("Quarters of %d share series read.", len(quarters))
         return quarters
+
+    async def series_of(self, company: str) -> List[Tuple[str, str, ShareSource, Granularity]]:
+        """List the share series a company appears in, on every device (the counterparts of the correlation card).
+
+        Args:
+            company (str): The company.
+
+        Returns:
+            List[Tuple[str, str, ShareSource, Granularity]]: The segment, area, source and period of each series,
+                ordered by segment, area and source.
+
+        Raises:
+            StorageReadError: If the shares cannot be read.
+        """
+        table = self.table
+        statement = (
+            select(table.c.segment, table.c.area, table.c.source, table.c.granularity)
+            .where(table.c.company == company, table.c.device == Device.ALL.value)
+            .distinct()
+            .order_by(table.c.segment, table.c.area, table.c.source, table.c.granularity)
+        )
+        try:
+            async with self.database.connect() as connection:
+                rows = (await connection.execute(statement)).all()
+        except SQLAlchemyError as e:
+            self.logger.error("The share series of %s cannot be read: %s", company, e)
+            raise StorageReadError("market shares", str(e)) from e
+        series = [
+            (str(segment), str(area), ShareSource(source), Granularity(granularity))
+            for segment, area, source, granularity in rows
+        ]
+        self.logger.debug("%s appears in %d share series.", company, len(series))
+        return series

@@ -3,7 +3,7 @@ from __future__ import annotations
 # Standard Library Imports.
 from datetime import UTC, datetime
 from logging import Logger, getLogger
-from typing import Optional
+from typing import List, Optional
 
 # Third Party Imports.
 from sqlalchemy import Boolean, Table, delete, literal_column, select
@@ -25,7 +25,7 @@ from storage.writer.crawl_recorder import CrawlRecorder
 
 
 class StatisticsRepository:
-    """Read and write the cloud market statistics of the sources (e.g. Synergy Research Group).
+    """Create, read, update, delete and list the cloud market statistics of the sources (e.g. Synergy Research Group).
 
     Attributes:
         database (Database): The open database.
@@ -40,6 +40,8 @@ class StatisticsRepository:
     Notes:
         The statistics of a source are replaced as a whole by each crawl:
             a report missing from the crawl is removed.
+        The statistics of a source are one aggregate: their reports and the state of their dataset are created,
+        replaced and deleted together.
     """
 
     def __init__(self, database: Database, logger: Optional[Logger] = None) -> None:
@@ -52,10 +54,10 @@ class StatisticsRepository:
         self.database = database
         self.table: Table = Base.metadata.tables[MarketReportRow.__tablename__]
         self.logger = logger if logger else getLogger(__name__)
-        self.mapper = ReportMapper(self.table, self.logger)
-        self.datasets = DatasetRepository(database, self.logger)
-        self.lock = DatasetLock(self.logger)
-        self.recorder = CrawlRecorder(self.logger)
+        self.mapper = ReportMapper(self.table)
+        self.datasets = DatasetRepository(database)
+        self.lock = DatasetLock()
+        self.recorder = CrawlRecorder()
         self.logger.debug("Statistics repository ready.")
 
     ############################
@@ -136,7 +138,81 @@ class StatisticsRepository:
             raise StorageWriteError(label, str(e)) from e
         return summary
 
-    async def load(self, name: str) -> Optional[MarketStatistics]:
+    async def create(self, name: str, statistics: MarketStatistics) -> CrawlSummary:
+        """Store the statistics of a source never stored.
+
+        Args:
+            name (str): The source name, e.g. `synergy`.
+            statistics (MarketStatistics): The statistics.
+
+        Returns:
+            CrawlSummary: What was written.
+
+        Raises:
+            StorageWriteError: If the statistics of the source are already stored, or cannot be written.
+            StorageLockError: If the statistics of the source are being written by a crawl.
+        """
+        if await self.datasets.read(DatasetKind.STATISTICS, name) is not None:
+            self.logger.error("The %s statistics are already stored: not created.", name)
+            raise StorageWriteError(f"{name} statistics", "already stored")
+        self.logger.debug("Creating the %s statistics.", name)
+        return await self.replace(name, statistics)
+
+    async def update(self, name: str, statistics: MarketStatistics) -> Optional[CrawlSummary]:
+        """Replace the stored statistics of a source.
+
+        Args:
+            name (str): The source name, e.g. `synergy`.
+            statistics (MarketStatistics): The statistics.
+
+        Returns:
+            Optional[CrawlSummary]: What was written, `None` when the source was never stored (nothing is created).
+
+        Raises:
+            StorageWriteError: If the statistics cannot be written.
+            StorageLockError: If the statistics of the source are being written by a crawl.
+        """
+        if await self.datasets.read(DatasetKind.STATISTICS, name) is None:
+            self.logger.warning("No %s statistics stored: nothing updated.", name)
+            return None
+        self.logger.debug("Updating the %s statistics.", name)
+        return await self.replace(name, statistics)
+
+    async def delete(self, name: str) -> bool:
+        """Delete the statistics of a source: its reports and the state of its dataset (its crawls are kept).
+
+        Args:
+            name (str): The source name, e.g. `synergy`.
+
+        Returns:
+            bool: Whether the source was stored.
+
+        Raises:
+            StorageLockError: If the statistics of the source are being written by a crawl.
+            StorageWriteError: If the statistics cannot be deleted.
+        """
+        table = self.table
+        datasets = self.datasets.table
+        try:
+            async with self.database.connect() as connection, connection.begin():
+                if not await self.lock.acquire_for_transaction(connection, DatasetKind.STATISTICS, name):
+                    self.logger.error("The %s statistics are being written by a crawl: not deleted.", name)
+                    raise StorageLockError(DatasetKind.STATISTICS.value, name)
+                reports = await connection.execute(delete(table).where(table.c.source == name))
+                stamps = await connection.execute(
+                    delete(datasets).where(datasets.c.kind == DatasetKind.STATISTICS.value, datasets.c.dataset == name)
+                )
+        except SQLAlchemyError as e:
+            self.logger.error("The %s statistics cannot be deleted: %s", name, e)
+            raise StorageWriteError(f"{name} statistics", str(e)) from e
+        found = bool(stamps.rowcount or reports.rowcount)
+        if found:
+            self.logger.info("The %s statistics deleted: %d reports.", name, reports.rowcount)
+        else:
+            self.logger.debug("No %s statistics stored: nothing deleted.", name)
+        return found
+
+    async def read(self, name: str) -> Optional[MarketStatistics]:
         """Read the statistics of a source.
 
         Args:
@@ -151,7 +227,7 @@ class StatisticsRepository:
         """
         try:
             async with self.database.connect() as connection:
-                stamp = await self.datasets.read(connection, DatasetKind.STATISTICS, name)
+                stamp = await self.datasets.stamp(connection, DatasetKind.STATISTICS, name)
                 if stamp is None:
                     self.logger.debug("No %s statistics stored.", name)
                     return None
@@ -164,3 +240,25 @@ class StatisticsRepository:
             raise StorageReadError(f"{name} statistics", str(e)) from e
         self.logger.info("%d %s market reports read.", len(reports), name)
         return MarketStatistics(source=stamp.label or name, crawled_at=stamp.crawled_at, reports=reports)
+
+    async def list(self, offset: int = 0, limit: Optional[int] = None) -> List[MarketStatistics]:
+        """List the statistics of the stored sources.
+
+        Args:
+            offset (int): The sources skipped.
+            limit (Optional[int]): The most sources returned, every one when `None`.
+
+        Returns:
+            List[MarketStatistics]: The statistics, by source name.
+
+        Raises:
+            StorageReadError: If the statistics cannot be read.
+        """
+        stamps = await self.datasets.list([DatasetKind.STATISTICS], offset, limit)
+        listed: List[MarketStatistics] = []
+        for stamp in stamps:
+            statistics = await self.read(stamp.dataset)
+            if statistics is not None:
+                listed.append(statistics)
+        self.logger.debug("Statistics of %d sources listed.", len(listed))
+        return listed

@@ -60,6 +60,7 @@ class SectionsToolbar(QWidget):
             ChartSection: The same section, to add it to its layout too.
         """
         self.sections.append(section)
+        self.logger.debug("Chart section %s added to the toolbar, %d sections.", section.key, len(self.sections))
         return section
 
     def set_all(self, expanded: bool) -> None:
@@ -69,6 +70,9 @@ class SectionsToolbar(QWidget):
             expanded (bool): Whether the sections are expanded.
         """
         self.logger.debug("%s %d chart sections.", "Expanding" if expanded else "Collapsing", len(self.sections))
+        changed = 0
         for section in self.sections:
             if section.is_expanded() != expanded:
                 section.set_expanded(expanded)
+                changed += 1
+        self.logger.info("%d chart sections %s.", changed, "expanded" if expanded else "collapsed")

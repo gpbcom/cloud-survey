@@ -165,6 +165,7 @@ class AzureMarketplaceCrawler(BaseMarketplaceCrawler):
         if filters and page == 1:
             meta[self.MAY_BE_EMPTY] = True
         url = f"{self.TILES_URL}?{urlencode({**self.QUERY, **filters, AzureTilesParameter.PAGE: page})}"
+        self.logger.debug("Requesting the %s tiles page %d of the query %s.", self.name, page, filters or "all apps")
         return self._api_request(url, meta=meta, priority=0 if filters else self.PRIMARY_PRIORITY)
 
     def _catalog_request(self, url: str) -> Request:
@@ -385,7 +386,10 @@ class AzureMarketplaceCrawler(BaseMarketplaceCrawler):
         """
         lowered = self._as_text(tile.get(AzureTileField.ENTITY_ID_LOWERED_CASED))
         entity_id = lowered or self._as_text(tile.get(AzureTileField.ENTITY_ID))
-        return self.PRODUCT_URL.format(entity_id.casefold().replace("|", "%7c")) if entity_id else None
+        if not entity_id:
+            self.logger.debug("A %s tile has no app identifier, it has no app page.", self.name)
+            return None
+        return self.PRODUCT_URL.format(entity_id.casefold().replace("|", "%7c"))
 
     def _tile_paths(self, tile: Dict[str, JsonValue]) -> List[Optional[MarketplaceCategory]]:
         """Get the category paths of an app tile.

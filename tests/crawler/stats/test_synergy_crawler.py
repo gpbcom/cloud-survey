@@ -421,7 +421,7 @@ async def test_approximate_band_share(crawl_page: CrawlPage) -> None:
     "sentence",
     [
         "Their Q4 worldwide market shares were 20%, 30% and 10% respectively.",
-        "Their Q4 worldwide market shares were 30%, 20% and 1% respectively.",
+        "Their Q4 worldwide market shares were 25%, 8% and 1% respectively.",
         "Their Q4 worldwide market shares were 50%, 20% and 10% respectively.",
     ],
     ids=["not-descending", "too-small", "too-large"],
@@ -506,18 +506,183 @@ async def test_europe_without_figures(crawl_page: CrawlPage) -> None:
 
 
 @pytest.mark.parametrize(
-    ("fixture", "message"),
-    [("synergy_not_cloud.html", "it gives no cloud market figure"), ("synergy_q2_2020.html", "2020Q2 report")],
-    ids=["not-cloud", "before-2021"],
+    ("first_year", "variable", "fixture", "message"),
+    [
+        (None, None, "synergy_not_cloud.html", "it gives no cloud market figure"),
+        (2021, None, "synergy_q2_2020.html", "2020Q2 report"),
+        (None, "2021", "synergy_q2_2020.html", "2020Q2 report"),
+    ],
+    ids=["not-cloud", "before-first-year", "before-first-year-variable"],
 )
 async def test_articles_without_kept_figures(
-    crawl_page: CrawlPage, caplog: pytest.LogCaptureFixture, fixture: str, message: str
+    crawl_page: CrawlPage,
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
+    first_year: Optional[int],
+    variable: Optional[str],
+    fixture: str,
+    message: str,
 ) -> None:
+    if variable is not None:
+        monkeypatch.setenv(SynergyResearchCrawler.FIRST_YEAR_VARIABLE, variable)
     with caplog.at_level(logging.DEBUG):
-        results = await crawl_page(SynergyResearchCrawler(), fixture_page(ARTICLE_URL, fixture))
+        results = await crawl_page(SynergyResearchCrawler(first_year=first_year), fixture_page(ARTICLE_URL, fixture))
 
     assert results == []
     assert logged(caplog, "DEBUG", message)
+
+
+@pytest.mark.parametrize(("variable", "expected"), [(None, 2013), ("2016", 2016), ("soon", 2013), ("", 2013)])
+def test_first_year_is_configurable(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, variable: Optional[str], expected: int
+) -> None:
+    monkeypatch.delenv(SynergyResearchCrawler.FIRST_YEAR_VARIABLE, raising=False)
+    if variable is not None:
+        monkeypatch.setenv(SynergyResearchCrawler.FIRST_YEAR_VARIABLE, variable)
+
+    assert SynergyResearchCrawler().first_year == expected
+    assert SynergyResearchCrawler(first_year=2019).first_year == 2019
+    assert logged(caplog, "WARNING", "is not a year") is (variable == "soon")
+
+
+@pytest.mark.parametrize(
+    ("fixture", "period", "size", "twelve_month", "growth", "expected", "mentions", "methodology_break"),
+    [
+        (
+            "synergy_q3_2014.html",
+            "2014Q3",
+            4.0,
+            14.5,
+            None,
+            [
+                ("amazon", 27.0, None, False, None),
+                ("microsoft", 10.0, None, True, None),
+                ("ibm", 7.0, None, False, None),
+            ],
+            ["Rackspace"],
+            True,
+        ),
+        ("synergy_q1_2016.html", "2016Q1", 7.0, None, None, [("amazon", 31.0, None, False, None)], ["IBM"], True),
+        (
+            "synergy_q1_2018.html",
+            "2018Q1",
+            15.0,
+            None,
+            51.0,
+            [("amazon", 33.0, None, True, None), ("ibm", 8.0, None, True, None)],
+            ["Alibaba"],
+            False,
+        ),
+        (
+            "synergy_q2_2020.html",
+            "2020Q2",
+            30.5,
+            111.0,
+            None,
+            [
+                ("amazon", 33.0, None, True, None),
+                ("microsoft", 18.0, None, False, None),
+                ("google", 9.0, None, False, None),
+            ],
+            ["Alibaba", "Tencent", "Baidu"],
+            False,
+        ),
+        (
+            "synergy_q3_2019.html",
+            "2019Q3",
+            24.0,
+            89.0,
+            37.0,
+            [],
+            ["Alibaba", "Salesforce", "IBM", "Oracle", "Tencent", "Rackspace"],
+            False,
+        ),
+    ],
+)
+async def test_older_worldwide_release(
+    crawl_page: CrawlPage,
+    fixture: str,
+    period: str,
+    size: float,
+    twelve_month: Optional[float],
+    growth: Optional[float],
+    expected: List[Share],
+    mentions: List[str],
+    methodology_break: bool,
+) -> None:
+    results = await crawl_page(SynergyResearchCrawler(), fixture_page(ARTICLE_URL, fixture))
+
+    report = report_of(results, period)
+    assert (report.market_size_bn, report.twelve_month_bn, report.growth_pct) == (size, twelve_month, growth)
+    assert shares(report) == expected
+    assert [mention.name for mention in report.mentions] == mentions
+    assert report.methodology_break is methodology_break
+
+
+async def test_shares_given_on_public_iaas_paas_go_to_its_report(crawl_page: CrawlPage) -> None:
+    results = await crawl_page(SynergyResearchCrawler(), fixture_page(ARTICLE_URL, "synergy_q3_2019.html"))
+
+    public = report_of(results, "2019Q3", PUBLIC)
+    assert (public.market_size_bn, public.growth_pct, public.methodology_break) == (20.0, 40.0, False)
+    assert shares(public) == [("amazon", 40.0, None, True, None)]
+    assert report_of(results, "2019Q3").shares == []
+
+
+@pytest.mark.parametrize(
+    ("sentence", "expected"),
+    [
+        ("Behind them Oracle is ranked fourth with a 3% market share.", [("oracle", 3.0, None, False, None)]),
+        (
+            "They are followed by Alibaba (4%) and Huawei Cloud (2.5%).",
+            [
+                ("alibaba", 4.0, None, False, None),
+                ("huawei", 2.5, None, False, None),
+            ],
+        ),
+        ("Tencent market share has nudged up to around 2%.", [("tencent", 2.0, None, True, None)]),
+        ("IBM's share was 5%.", [("ibm", 5.0, None, False, None)]),
+    ],
+    ids=["with-share", "in-brackets", "share-at", "share-was"],
+)
+async def test_other_players_shares(crawl_page: CrawlPage, sentence: str, expected: List[Share]) -> None:
+    body = f"{SIZE_SENTENCE} Their Q4 worldwide market shares were 30%, 20% and 13% respectively. {sentence}"
+
+    results = await crawl_page(SynergyResearchCrawler(), article(body))
+
+    report = report_of(results, "2024Q4")
+    assert shares(report)[3:] == expected
+    assert all(mention.name not in sentence for mention in report.mentions), "a player with a share is not mentioned"
+
+
+async def test_other_players_are_not_part_of_the_big_three(crawl_page: CrawlPage) -> None:
+    body = (
+        f"{SIZE_SENTENCE} Their Q4 worldwide market shares were 30%, 20% and 13% respectively. In aggregate the three "
+        "leaders accounted for 63% of the worldwide market. They are followed by Alibaba (4%)."
+    )
+
+    results = await crawl_page(SynergyResearchCrawler(), article(body))
+
+    report = report_of(results, "2024Q4")
+    assert shares(report)[-1] == ("alibaba", 4.0, None, False, None)
+    others = report.others()
+    assert others is not None
+    assert others.share_pct == 33.0
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    ["They are followed by Alibaba (40%).", "They are followed by Alibaba (30%), Oracle (12%) and IBM (10%)."],
+    ids=["above-the-leader", "over-100"],
+)
+async def test_implausible_other_players_drop_the_shares(
+    crawl_page: CrawlPage, caplog: pytest.LogCaptureFixture, sentence: str
+) -> None:
+    body = f"{SIZE_SENTENCE} Their Q4 worldwide market shares were 30%, 20% and 13% respectively. {sentence}"
+
+    results = await crawl_page(SynergyResearchCrawler(), article(body))
+
+    assert report_of(results, "2024Q4").shares == []
+    assert logged(caplog, "WARNING", "Dropping the implausible synergy shares")
 
 
 async def test_page_without_article_is_an_error(crawl_page: CrawlPage, caplog: pytest.LogCaptureFixture) -> None:
@@ -643,3 +808,21 @@ async def test_article_text_excludes_the_company_boilerplate(crawl_page: CrawlPa
 
     report = report_of(results, "2024Q4")
     assert (report.shares, report.mentions) == ([], [])
+
+
+async def test_archive_requests_the_older_titles(crawl_page: CrawlPage) -> None:
+    crawler = SynergyResearchCrawler()
+    rows = (
+        '[["original"], ["https://www.srgresearch.com/articles/aws-remains-dominant-despite-microsoft-and-google-growth"],'
+        ' ["https://www.srgresearch.com/articles/ibm-microsoft-and-google-still-playing-catch-amazon-iaaspaas-market"],'
+        ' ["https://www.srgresearch.com/articles/chasing-pack-gain-market-share-q1-amazon-maintains-clear-lead"],'
+        ' ["https://www.srgresearch.com/articles/microsoft-charges-ahead-saas-market"]]'
+    )
+
+    results = await crawl_page(crawler, page(crawler.CDX_URL, rows))
+
+    assert slugs(results) == [
+        "aws-remains-dominant-despite-microsoft-and-google-growth",
+        "ibm-microsoft-and-google-still-playing-catch-amazon-iaaspaas-market",
+        "chasing-pack-gain-market-share-q1-amazon-maintains-clear-lead",
+    ]

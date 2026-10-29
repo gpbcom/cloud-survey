@@ -1,0 +1,275 @@
+{
+ "body": [
+  [
+   {
+    "location": "Luxembourg-1",
+    "period": "hour",
+    "tableType": "gpu_g1",
+    "name": " g1-gpu-4-16-1 ",
+    "pricePerHour": "0.353",
+    "pricePerMonth": "257.54",
+    "vcpus": "4vCPU",
+    "ram": "16GB RAM",
+    "gpu": "1 GPU"
+   },
+   {
+    "location": "Luxembourg-1",
+    "period": "hour",
+    "tableType": "gpu_g1",
+    "name": " g1-gpu-8-32-1 ",
+    "pricePerHour": "0.469",
+    "pricePerMonth": "342.66",
+    "vcpus": "8vCPU",
+    "ram": "32GB RAM",
+    "gpu": "1 GPU"
+   },
+   {
+    "location": "Luxembourg-1",
+    "period": "hour",
+    "tableType": "gpu_g1",
+    "name": " g1-gpu-8-32-2 ",
+    "pricePerHour": "0.706",
+    "pricePerMonth": "515.09",
+    "vcpus": "8vCPU",
+    "ram": "32GB RAM",
+    "gpu": "2 GPU"
+   },
+   {
+    "location": "Luxembourg-1",
+    "period": "hour",
+    "tableType": "gpu_g1",
+    "name": " g1-gpu-16-64-4 ",
+    "pricePerHour": "1.411",
+    "pricePerMonth": "1,030.10",
+    "vcpus": "16vCPU",
+    "ram": "64GB RAM",
+    "gpu": "4 GPU"
+   },
+   {
+    "location": "Luxembourg-1",
+    "period": "hour",
+    "tableType": "gpu_g1",
+    "name": " g1-gpu-32-128-4 ",
+    "pricePerHour": "1.878",
+    "pricePerMonth": "1,370.79",
+    "vcpus": "32vCPU",
+    "ram": "128GB RAM",
+    "gpu": "4 GPU"
+   }
+  ],
+  [
+   {
+    "location": "Paris-2",
+    "period": "hour",
+    "tableType": "lb1",
+    "name": " lb1-1-2 ",
+    "pricePerHour": "0.021",
+    "pricePerMonth": "15.18",
+    "vcpus": "1vCPU",
+    "ram": "2GB RAM"
+   },
+   {
+    "location": "Paris-2",
+    "period": "hour",
+    "tableType": "lb1",
+    "name": " lb1-2-4 ",
+    "pricePerHour": "0.042",
+    "pricePerMonth": "30.44",
+    "vcpus": "2vCPU",
+    "ram": "4GB RAM"
+   },
+   {
+    "location": "Santa-Clara-1",
+    "period": "hour",
+    "tableType": "lb1",
+    "name": " lb1-4-8 ",
+    "pricePerHour": "0.083",
+    "pricePerMonth": "60.81",
+    "vcpus": "4vCPU",
+    "ram": "8GB RAM"
+   },
+   {
+    "location": "Istanbul-1",
+    "period": "hour",
+    "tableType": "lb1",
+    "name": " lb1-8-16 ",
+    "pricePerHour": "0.167",
+    "pricePerMonth": "121.69",
+    "vcpus": "8vCPU",
+    "ram": "16GB RAM"
+   }
+  ],
+  [
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-1-2 ",
+    "pricePerHour": "0.023",
+    "pricePerMonth": "16.92",
+    "vcpus": "1vCPU",
+    "ram": "2GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-2-4 ",
+    "pricePerHour": "0.046",
+    "pricePerMonth": "33.84",
+    "vcpus": "2vCPU",
+    "ram": "4GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-2-8 ",
+    "pricePerHour": "0.055",
+    "pricePerMonth": "40.46",
+    "vcpus": "2vCPU",
+    "ram": "8GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-4-8 ",
+    "pricePerHour": "0.093",
+    "pricePerMonth": "67.69",
+    "vcpus": "4vCPU",
+    "ram": "8GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-4-16 ",
+    "pricePerHour": "0.111",
+    "pricePerMonth": "80.94",
+    "vcpus": "4vCPU",
+    "ram": "16GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-8-16 ",
+    "pricePerHour": "0.185",
+    "pricePerMonth": "135.39",
+    "vcpus": "8vCPU",
+    "ram": "16GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-8-32 ",
+    "pricePerHour": "0.222",
+    "pricePerMonth": "161.88",
+    "vcpus": "8vCPU",
+    "ram": "32GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-16-32 ",
+    "pricePerHour": "0.371",
+    "pricePerMonth": "270.78",
+    "vcpus": "16vCPU",
+    "ram": "32GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-16-64 ",
+    "pricePerHour": "0.444",
+    "pricePerMonth": "323.77",
+    "vcpus": "16vCPU",
+    "ram": "64GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-32-64 ",
+    "pricePerHour": "0.742",
+    "pricePerMonth": "541.57",
+    "vcpus": "32vCPU",
+    "ram": "64GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-32-128 ",
+    "pricePerHour": "0.887",
+    "pricePerMonth": "647.54",
+    "vcpus": "32vCPU",
+    "ram": "128GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-64-128 ",
+    "pricePerHour": "1.439",
+    "pricePerMonth": "1,050.40",
+    "vcpus": "64vCPU",
+    "ram": "128GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-64-256 ",
+    "pricePerHour": "1.700",
+    "pricePerMonth": "1,241.07",
+    "vcpus": "64vCPU",
+    "ram": "256GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-96-128 ",
+    "pricePerHour": "2.028",
+    "pricePerMonth": "1,480.28",
+    "vcpus": "96vCPU",
+    "ram": "128GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-96-256 ",
+    "pricePerHour": "2.289",
+    "pricePerMonth": "1,670.94",
+    "vcpus": "96vCPU",
+    "ram": "256GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-96-490 ",
+    "pricePerHour": "2.671",
+    "pricePerMonth": "1,949.66",
+    "vcpus": "96vCPU",
+    "ram": "490GB RAM"
+   },
+   {
+    "location": "Frankfurt-2",
+    "period": "hour",
+    "tableType": "standard_g3aw",
+    "name": " g3aw-standard-96-512 ",
+    "pricePerHour": "2.811",
+    "pricePerMonth": "2,052.28",
+    "vcpus": "96vCPU",
+    "ram": "512GB RAM"
+   }
+  ]
+ ]
+}

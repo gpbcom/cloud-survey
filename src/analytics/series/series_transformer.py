@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 # Standard Library Imports.
+import itertools
 from logging import Logger, getLogger
-from typing import ClassVar, Dict, List, Optional, Set, Tuple
+from statistics import median
+from typing import ClassVar, Dict, List, Optional, Sequence, Set, Tuple
 
 # First Party Imports.
 from analytics.series.time_axis import TimeAxis
@@ -22,13 +24,22 @@ class SeriesTransformer:
         OTHERS_KEY (ClassVar[str]): The key of the series merging the series not kept.
         YOY_MONTHS (ClassVar[float]): The distance of the year-on-year comparison, in months.
         TOLERANCE (ClassVar[float]): How far two x values may be and still be the same point.
+        GAP_FACTOR (ClassVar[float]): How many times the usual spacing of a series two of its points may be apart and
+            still give a rate of change (farther, the gap is not bridged).
+        MONTHS_PER_YEAR (ClassVar[float]): The months of a year: a rate over a time axis is given per year.
         time (TimeAxis): The time axis.
         logger (Logger): The transformer logger.
+
+    Notes:
+        The derivative of a series is its rate of change: the difference between two consecutive points divided by
+        the distance between them, put at the later point (per year over a time axis, per unit of x otherwise).
     """
 
     OTHERS_KEY: ClassVar[str] = "*"
     YOY_MONTHS: ClassVar[float] = 12.0
     TOLERANCE: ClassVar[float] = 0.5
+    GAP_FACTOR: ClassVar[float] = 2.5
+    MONTHS_PER_YEAR: ClassVar[float] = 12.0
 
     def __init__(self, logger: Optional[Logger] = None) -> None:
         """Initialize the transformer.
@@ -324,6 +335,57 @@ class SeriesTransformer:
                 return self._rank(series)
             case _:
                 return series
+
+    def rates(
+        self, points: Sequence[Tuple[float, float]], per: float = 1.0, widest: Optional[float] = None
+    ) -> List[Tuple[float, float]]:
+        """Get the rate of change between consecutive points (the discrete derivative).
+
+        Args:
+            points (Sequence[Tuple[float, float]]): The `(x, y)` points, in increasing x order.
+            per (float): The x distance a rate is given for (12 months for a rate per year over months).
+            widest (Optional[float]): The widest x distance two points may be apart to give a rate, by default
+                `GAP_FACTOR` times the median spacing (a yearly series says 1.1 years so a missing year breaks it).
+
+        Returns:
+            List[Tuple[float, float]]: One `(x, rate)` per pair of consecutive points, at the later point: the
+                change of y divided by the change of x, times `per`.
+
+        Notes:
+            A pair farther apart than `GAP_FACTOR` times the median spacing of the series gives no rate: a gap
+            (no publication for years) is never turned into one smooth slope. Points at the same x are skipped.
+        """
+        if widest is None:
+            spacings = [b[0] - a[0] for a, b in itertools.pairwise(points) if b[0] > a[0]]
+            widest = self.GAP_FACTOR * median(spacings) if spacings else 0.0
+        found = [
+            (b[0], (b[1] - a[1]) / (b[0] - a[0]) * per)
+            for a, b in itertools.pairwise(points)
+            if 0 < b[0] - a[0] <= widest
+        ]
+        self.logger.debug("%d rates of change from %d points.", len(found), len(points))
+        return found
+
+    def derivative(self, series: List[MetricSeries], time_axis: bool) -> List[MetricSeries]:
+        """Replace the values of each series with their rate of change.
+
+        Args:
+            series (List[MetricSeries]): The series, their points in increasing x order.
+            time_axis (bool): Whether x is a month ordinal (the rate is then per year).
+
+        Returns:
+            List[MetricSeries]: The series of the rates, a point fewer than their values (more across gaps). A rate
+                reaching a projected point is projected too.
+        """
+        per = self.MONTHS_PER_YEAR if time_axis else 1.0
+        derived: List[MetricSeries] = []
+        for one in series:
+            projected = {point.x for point in one.points if point.projected}
+            rates = self.rates([(point.x, point.y) for point in one.points], per)
+            points = [MetricPoint(x=x, y=rate, projected=x in projected) for x, rate in rates]
+            derived.append(one.model_copy(update={"points": points}))
+        self.logger.debug("Derivative of %d series (per %s).", len(series), "year" if time_axis else "unit of x")
+        return derived
 
     def pair(
         self,

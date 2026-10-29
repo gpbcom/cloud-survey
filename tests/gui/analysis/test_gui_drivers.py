@@ -31,6 +31,7 @@ from models.drivers.enums import (
     WarningSeverity,
 )
 from models.drivers.metrics.metric_catalog import MetricCatalog
+from models.drivers.metrics.metric_coverage import MetricCoverage
 from models.drivers.metrics.provider_metric_value import ProviderMetricValue
 from models.drivers.query.driver_query import DriverQuery
 from storage.exception import StorageReadError
@@ -148,7 +149,7 @@ class TestDriversPanel:
         job, on_done, _ = loop.submit.call_args.args
         storage = MagicMock()
         storage.refresh_metrics = AsyncMock(return_value=90)
-        storage.metrics.read = AsyncMock(return_value=planted())
+        storage.metrics.list = AsyncMock(return_value=planted())
         outcome = asyncio.run(job(storage))
         storage.refresh_metrics.assert_awaited_once()
         on_done(outcome)
@@ -271,6 +272,7 @@ class TestAnalysisViewDrivers:
             "analysis/drivers-correlations",
             "analysis/drivers-importance",
             "analysis/drivers-scatter",
+            "analysis/drivers-metrics",
         ]
         assert view.driver_sections[0].widen_button is None
         window = view.driver_sections[1].open_window()
@@ -549,3 +551,80 @@ class TestScatterGrid:
         assert all(chart.window() is window for chart in view.drivers.scatters.charts)
         window.close_button.click()
         assert view.drivers.scatters.window() is not window
+
+
+class TestDriverTooltips:
+    def test_every_target_criterion_control_and_scope_explains_itself(
+        self, qtbot: QtBot, catalog: MetricCatalog
+    ) -> None:
+        panel = DriversPanel(Theme(), MagicMock(), catalog)
+        qtbot.addWidget(panel)
+        controls = panel.controls
+        menus = [controls.criteria_button.menu(), controls.controls_button.menu()]
+        actions = [action for menu in menus if menu is not None for action in menu.actions() if action.isCheckable()]
+
+        targets = [
+            str(controls.target_box.itemData(index, Qt.ItemDataRole.ToolTipRole))
+            for index in range(controls.target_box.count())
+        ]
+        scopes = [
+            str(controls.scope_box.itemData(index, Qt.ItemDataRole.ToolTipRole))
+            for index in range(controls.scope_box.count())
+        ]
+
+        assert all(menu is not None and menu.toolTipsVisible() for menu in menus)
+        assert len(actions) == 2 * len(catalog.definitions)
+        assert all("Transformed:" in action.toolTip() and "Source:" in action.toolTip() for action in actions)
+        assert all("Transformed:" in tip for tip in targets)
+        assert all(tip.startswith("<qt>") and len(tip) > 60 for tip in scopes)
+        assert "quarters the criteria lead" in controls.lag_box.toolTip()
+        context = next(action for action in actions if action.data() == ProviderMetric.CONTEXT_DRAM_HHI.value).toolTip()
+        assert "Criteria common to every provider" in context
+
+    def test_the_run_tooltip_says_what_will_be_computed(self, qtbot: QtBot, catalog: MetricCatalog) -> None:
+        panel = DriversPanel(Theme(), MagicMock(), catalog)
+        qtbot.addWidget(panel)
+        controls = panel.controls
+        controls.target_box.setCurrentIndex(controls.target_box.findData(ProviderMetric.STOCK_VALUE.value))
+        controls.set_checked([ProviderMetric.USAGE_SEARCH, ProviderMetric.HOME_FX_CHANGE], [ProviderMetric.AGE])
+
+        latest = controls.run_button.toolTip()
+        controls.scope_box.setCurrentIndex(controls.scope_box.findData(DriverScope.PANEL.value))
+        controls.lag_box.setValue(2)
+        panel_tip = controls.run_button.toolTip()
+
+        assert "Explain</b> Stock value" in latest
+        assert "With 2 criteria:</b> Search usage share (world), Home currency change against USD" in latest
+        assert "Held constant:</b> Age" in latest
+        assert "Lag:" not in latest
+        assert "the criteria 2 quarters before the target" in panel_tip
+        assert "Checked (2):" in controls.criteria_button.toolTip()
+
+    def test_the_stored_coverage_reaches_the_tooltips(self, qtbot: QtBot, catalog: MetricCatalog) -> None:
+        loop = MagicMock()
+        panel = DriversPanel(Theme(), loop, catalog)
+        qtbot.addWidget(panel)
+
+        panel.refresh()
+        job, on_done, _ = loop.submit.call_args.args
+        storage = MagicMock()
+        storage.metrics.coverage = AsyncMock(
+            return_value=[
+                MetricCoverage(
+                    metric=ProviderMetric.USAGE_SEARCH,
+                    providers=6,
+                    first="2009Q1",
+                    last="2026Q4",
+                    observations=420,
+                    sources=[MetricSource.STATCOUNTER],
+                )
+            ]
+        )
+        on_done(asyncio.run(job(storage)))
+
+        menu = panel.controls.criteria_button.menu()
+        assert menu is not None
+        usage = next(action for action in menu.actions() if action.data() == ProviderMetric.USAGE_SEARCH.value)
+        assert "Stored:</b> 6 providers, 2009Q1 to 2026Q4, 420 measures (statcounter)" in usage.toolTip()
+        age = next(action for action in menu.actions() if action.data() == ProviderMetric.AGE.value)
+        assert "nothing yet" in age.toolTip()

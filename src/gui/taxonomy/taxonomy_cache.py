@@ -94,7 +94,7 @@ class TaxonomyCache(QObject):
             self.logger.debug("No storage: the taxonomy cache keeps the seed.")
             return
         self.logger.debug("Reading the stored taxonomy and labels.")
-        self.loop.submit(lambda storage: storage.taxonomy.read(), self._on_taxonomy, self._on_error)
+        self.loop.submit(lambda storage: storage.taxonomy.list(), self._on_taxonomy, self._on_error)
         self.loop.submit(lambda storage: storage.labels.read_all(), self._on_labels, self._on_error)
 
     def name(self, slug: str) -> str:

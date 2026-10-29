@@ -14,7 +14,7 @@ class DriverWarning(BaseModel):
     """What limits the conclusions of a driver analysis: its kind, the sentence of this run, the criteria concerned.
 
     Attributes:
-        kind (DriverWarningKind): What limits the conclusions (its explanation is in `conf/metrics/drivers-help.yaml`).
+        kind (DriverWarningKind): What limits the conclusions (explained in the `drivers` block of `conf/help.yaml`).
         message (str): The warning of this run, with its figures.
         subjects (List[ProviderMetric]): The criteria concerned, if any.
     """

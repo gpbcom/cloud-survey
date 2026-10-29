@@ -21,6 +21,12 @@ class CrawlSource(StrEnum):
         METRICS (str): Compute the measures of the providers (the criteria of the driver analysis) again.
         MARKETS (str): Crawl the market shares (StatCounter), the stock prices (Google Finance), the exchange rates
             (FRED) and the union weights (World Bank) of the leaders of the chronology.
+        LAUNCH_DATES (str): Date the stored catalogue products by their curated launch (the launch dates catalogue),
+            without crawling.
+        COMPANIES (str): Crawl the financial statements (SEC EDGAR, Google Finance), the patents (Google Patents)
+            and the research papers (OpenAlex) of the chronology's companies, and derive their indicator series.
+        PRICES (str): Crawl the prices and the free offers of the cloud services of the providers.
+        PRICE_COVERAGE (str): Report, per provider, the catalogue products priced, stated unpriced, or missing.
     """
 
     CATALOGUE = "catalogue"
@@ -33,6 +39,10 @@ class CrawlSource(StrEnum):
     CORRESPOND = "correspond"
     METRICS = "metrics"
     MARKETS = "markets"
+    LAUNCH_DATES = "launch-dates"
+    COMPANIES = "companies"
+    PRICES = "prices"
+    PRICE_COVERAGE = "price-coverage"
 
 
 @unique
@@ -49,6 +59,7 @@ class HtmlAttribute(StrEnum):
         CONTENT (str): The value of a `meta` element.
         SRC (str): The source of an image or a script.
         ALT (str): The alternative text of an image.
+        DATETIME (str): The machine-readable date of a `time` element.
     """
 
     HREF = "href"
@@ -60,6 +71,7 @@ class HtmlAttribute(StrEnum):
     CONTENT = "content"
     SRC = "src"
     ALT = "alt"
+    DATETIME = "datetime"
 
 
 @unique

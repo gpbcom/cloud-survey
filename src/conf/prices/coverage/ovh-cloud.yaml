@@ -1,0 +1,234 @@
+# Curated price coverage of OVHcloud (read by `analytics.prices.coverage_catalog_reader.CoverageCatalogReader`).
+provider: ovh-cloud
+currency: EUR
+row_links:
+  'Nvidia H100': ['\| cloud/addons/h100-']
+  'Nvidia H200': ['\| cloud/addons/h200-']
+  'NVIDIA L40S': ['\| cloud/addons/l40s-']
+  'Nvidia L4': ['\| cloud/addons/l4-']
+  'Cloud GPU': ['\| cloud/addons/(a10|a100|t1|t2|v100|rtx)']
+  'Metal Instances': ['\| cloud/addons/bm-']
+  'Virtual Machine Instances': ['^Public Cloud Instance \|', '\| cloud/addons/bandwidth_instance']
+  'Cold Archive': ['deep-archive', 'coldarchive']
+  'Object Storage': ['\| cloud/addons/(storage|bandwidth_storage)']
+  'Block Storage': ['\| cloud/addons/(volume|snapshot)']
+  'File Storage': ['\| cloud/addons/share']
+  'Managed Kubernetes Service': ['\| cloud/addons/mks']
+  'Managed Private Registry': ['\| cloud/addons/[^|]*registry']
+  'Managed Rancher Service': ['\| cloud/addons/rancher']
+  'AI Deploy': ['\| cloud/addons/ai-(app|serving-engine)']
+  'AI Notebooks': ['\| cloud/addons/ai-notebook']
+  'Data Processing Engine': ['\| cloud/addons/data-processing']
+  'Quantum Emulators': ['\| cloud/addons/quantum-notebook']
+  'Quantum Processing Units (QPU)': ['\| cloud/addons/quantum-processing']
+  'Connectors': ['\| cloud/addons/data-integration']
+  'Logs Data Platform': ['\| logs/']
+  'IP Addresses': ['\| privateCloud/addons/pcc-option-ip']
+  'NSX Datacentre for vSphere': ['\| privateCloud/[^|]*nsx']
+  'vSAN': ['\| privateCloud/[^|]*vsan']
+  'SAP HANA on Private Cloud': ['\| privateCloud/[^|]*sap']
+  'Managed VMware vSphere': ['\| privateCloud/[^|]*management-fee']
+  'vSphere': ['\| privateCloud/']
+  'Distributions & Licences': ['(windows-server|sql-server|option-windows)']
+  'cPanel VPS': ['\| vps/[^|]*cpanel']
+  'Plesk VPS': ['\| vps/[^|]*plesk']
+  'VPS 2027': ['\| vps/']
+  'Kimsufi (T1/T2)': ['\| eco/']
+  'Advance (T3)': ['\| baremetalServers/[^|]*adv']
+  'Scale (T4)': ['\| baremetalServers/[^|]*scale']
+  'High Grade (T5)': ['\| baremetalServers/[^|]*(hgr|-hg)']
+  'Game (T3)': ['\| baremetalServers/[^|]*game']
+  'Agencies - Designed for web agencies': ['\| webHosting/[^|]*hosting-agency']
+  'Business - For professionals': ['\| webHosting/plans/business']
+  'Eco - For accessible prices': ['\| webHosting/plans/(hosting-starter|hosting-perso|start|perso|starter)']
+  'Managed Hosting for WordPress': ['\| webHosting/[^|]*wordpress']
+  'Hosted Exchange': ['\| webHosting/[^|]*exchange']
+statements:
+  - product: 'AI Endpoints - Batch API'
+    model: free
+    reason: 'Free of charge during the Beta phase.'
+    source: 'https://labs.ovhcloud.com/en/ai-endpoint-batch-api/'
+  - product: 'AI Endpoints - Model Catalogue'
+    model: not-public
+    reason: 'Per-model token prices rendered client-side in the catalogue.'
+    source: 'https://www.ovhcloud.com/en-gb/public-cloud/ai-endpoints/catalog/'
+  - product: 'Anti-DDoS Infrastructure'
+    model: included
+    reason: 'Built into the price of every OVHcloud product at no additional cost.'
+    source: 'https://www.ovhcloud.com/en-gb/security/anti-ddos/'
+  - product: 'BGP Services'
+    model: not-public
+    reason: 'An alpha in OVHcloud Labs, joined through a form, without a published price.'
+    source: 'https://labs.ovhcloud.com/en/bgp-service/?_gl=1%2Axjbbtb%2A_gcl_au%2AMTc5Mzg4ODYwMS4xNzU5MjE5NjA1'
+  - product: 'Backbone'
+    model: included
+    reason: 'The OVHcloud network, available at no additional cost for any product.'
+    source: 'https://www.ovhcloud.com/en/network/backbone/'
+  - product: 'Bare Metal Pod'
+    model: quote
+    reason: 'Contact the OVHcloud teams for Bare Metal Pod pricing.'
+    source: 'https://www.ovhcloud.com/en-gb/bare-metal/secnumcloud/'
+  - product: 'Bring Your Own IP'
+    model: free
+    reason: 'Included at no extra cost.'
+    source: 'https://www.ovhcloud.com/en-gb/network/byoip/'
+  - product: 'Cloud HSM'
+    model: free
+    reason: 'Free during Alpha.'
+    source: 'https://labs.ovhcloud.com/en/managed-hsm/'
+  - product: 'Cloud-ready'
+    model: quote
+    reason: 'On-premises cloud platform sold through the contact form.'
+    source: 'https://www.ovhcloud.com/en-gb/hosted-private-cloud/onprem-cloud-platform/landing-zone-manager/'
+  - product: 'Infrastructure as a Service'
+    model: quote
+    reason: 'On-premises cloud platform sold through the contact form.'
+    source: 'https://www.ovhcloud.com/en-gb/hosted-private-cloud/onprem-cloud-platform/opcp-core/'
+  - product: 'Platform as a Service'
+    model: quote
+    reason: 'On-premises cloud platform sold through the contact form.'
+    source: 'https://www.ovhcloud.com/en-gb/hosted-private-cloud/onprem-cloud-platform/cloud-store/'
+  - product: 'Cluster on demand'
+    model: quote
+    reason: 'Its catalogue page points to the OVHcloud contact page.'
+    source: 'https://www.ovhcloud.com/en-gb/contact/'
+  - product: 'Connectivity'
+    model: included
+    reason: 'Unlimited connectivity included by default in Hosted Private Cloud.'
+    source: 'https://www.ovhcloud.com/en/hosted-private-cloud/vmware/connectivity/'
+  - product: 'DDoS mitigation'
+    model: included
+    reason: 'Part of the OVHcloud Anti-DDoS Infrastructure, at no additional cost.'
+    source: 'https://www.ovhcloud.com/en/security/anti-ddos/ddos-attack-mitigation/'
+  - product: 'Disaster Recovery (DRaaS)'
+    model: quote
+    reason: 'Book a demo and get a custom quote from the OVHcloud experts.'
+    source: 'https://www.ovhcloud.com/en/hosted-private-cloud/nutanix/disaster-recovery/'
+  - product: 'End-to-End Encryption (TBC by E2E Encryption team)'
+    model: not-public
+    reason: 'An OVHcloud Labs preview without a published price.'
+    source: 'https://labs.ovhcloud.com/en/end-to-end-encryption/'
+  - product: 'FinOps'
+    model: not-public
+    reason: 'An OVHcloud Labs preview without a published price.'
+    source: 'https://labs.ovhcloud.com/en/finops-focus/'
+  - product: 'Game DDoS Protection'
+    model: included
+    reason: 'Attacks are mitigated at no additional cost, as part of the game server offers.'
+    source: 'https://www.ovhcloud.com/en-gb/security/game-ddos-protection/'
+  - product: 'Identity and Access Management (IAM)'
+    model: free
+    reason: 'The IAM feature is included in the OVHcloud account at no extra cost.'
+    source: 'https://www.ovhcloud.com/en-gb/identity-security-operations/identity-access-management/'
+  - product: 'Landing Zone'
+    model: free
+    reason: 'Deployments via Infrastructure as Code scripts, simple and subscription-free.'
+    source: 'https://www.ovhcloud.com/en-gb/public-cloud/landing-zone/'
+  - product: 'MCP Server'
+    model: included
+    reason: 'A client tool for the OVHcloud API, it has no price of its own.'
+    source: 'https://www.ovhcloud.com/en-gb/public-cloud/mcp-server/'
+  - product: 'OVHcloud CLI'
+    model: included
+    reason: 'A client tool for the OVHcloud API, it has no price of its own.'
+    source: 'https://www.ovhcloud.com/en-gb/public-cloud/cli/'
+  - product: 'Terraform provider'
+    model: included
+    reason: 'A client tool for the OVHcloud API, it has no price of its own.'
+    source: 'https://www.ovhcloud.com/en-gb/public-cloud/terraform/'
+  - product: 'SHAI'
+    model: included
+    reason: 'A client tool for the OVHcloud API, it has no price of its own.'
+    source: 'https://www.ovhcloud.com/en-gb/public-cloud/shai/'
+  - product: 'OVHcloud Cloud Shell'
+    model: included
+    reason: 'A beta browser shell including the OVHcloud CLI, it has no price of its own.'
+    source: 'https://www.ovhcloud.com/en-gb/public-cloud/cloud-shell/'
+  - product: 'OpenStack'
+    model: included
+    reason: 'The API of OVHcloud Public Cloud, priced through its instances and storage.'
+    source: 'https://www.ovhcloud.com/en/public-cloud/openstack/'
+  - product: 'NVIDIA NGC Platform'
+    model: included
+    reason: 'The NVIDIA AI frameworks are included with the GPU instances.'
+    source: 'https://www.ovhcloud.com/en/public-cloud/nvidia-gpu-cloud/'
+  - product: 'Load balancer with Kubernetes'
+    model: included
+    reason: 'Priced as the Public Cloud Load Balancer it provisions.'
+    source: 'https://www.ovhcloud.com/en/public-cloud/kubernetes/kubernetes-load-balancer/'
+  - product: 'Load Balancer for Managed Kubernetes Service'
+    model: included
+    reason: 'Priced as the Public Cloud Load Balancer it provisions.'
+    source: 'https://www.ovhcloud.com/en/public-cloud/load-balancer-kubernetes/'
+  - product: 'SecNumCloud Private Cloud'
+    model: quote
+    reason: 'Charged at SecNumCloud rates, contact OVHcloud to find out more.'
+    source: 'https://www.ovhcloud.com/en-gb/enterprise/products/hosted-private-cloud/secnumcloud-qualified/'
+  - product: 'SecNumCloud-qualified solutions'
+    model: included
+    reason: 'A family of SecNumCloud offers, each priced on its own.'
+    source: 'https://www.ovhcloud.com/en-gb/secnumcloud/'
+  - product: 'Service Logs'
+    model: free
+    reason: 'A free-of-charge solution integrated with OVHcloud managed services.'
+    source: 'https://www.ovhcloud.com/en-gb/identity-security-operations/service-logs/'
+  - product: 'Wholesale'
+    model: quote
+    reason: 'Partner prices, contact OVHcloud for more information.'
+    source: 'https://www.ovhcloud.com/en-gb/bare-metal/wholesale/'
+  - product: 'SAP HANA on OVHcloud'
+    model: quote
+    reason: 'Contact the OVHcloud sales team.'
+    source: 'https://www.ovhcloud.com/en-gb/hosted-private-cloud/sap-hana/'
+  - product: 'vRealize Operations (vROps)'
+    model: not-public
+    reason: 'No price on its page.'
+    source: 'https://www.ovhcloud.com/en/hosted-private-cloud/vmware/vrops/'
+  - product: 'Nutanix Packs'
+    model: quote
+    reason: 'Contact OVHcloud for a quote on the software options and add-ons.'
+    source: 'https://www.ovhcloud.com/en-gb/hosted-private-cloud/nutanix/packaged/'
+  - product: 'Nutanix BYOL'
+    model: quote
+    reason: 'Demo and custom quotes from the OVHcloud experts.'
+    source: 'https://www.ovhcloud.com/en-gb/hosted-private-cloud/nutanix/byol/'
+  - product: 'Nutanix on OVHcloud'
+    model: quote
+    reason: 'Demo and custom quotes from the OVHcloud experts.'
+    source: 'https://www.ovhcloud.com/en-gb/hosted-private-cloud/nutanix/'
+  - product: 'Nutanix Cloud Clusters (NC2) on OVHcloud'
+    model: not-public
+    reason: 'No price on its page.'
+    source: 'https://www.ovhcloud.com/en/hosted-private-cloud/nutanix/nc2/'
+  - product: 'Nutanix disaster recovery with OVHcloud Object Storage'
+    model: included
+    reason: 'Priced by the OVHcloud Object Storage classes it uses.'
+    source: 'https://www.ovhcloud.com/en/hosted-private-cloud/nutanix/mst-object-storage/'
+  - product: 'Private VCF as-a-Service Stretched Cluster (3-AZ)'
+    model: not-public
+    reason: 'No price on its page, BYOL or integrated VCF 9 licence.'
+    source: 'https://www.ovhcloud.com/en-gb/hosted-private-cloud/vmware/private-vcf-aas-3-az/'
+  - product: 'Workflow Management'
+    model: not-public
+    reason: 'No price on its page.'
+    source: 'https://www.ovhcloud.com/en/public-cloud/workflow-management/'
+  - product: 'Lakehouse Manager'
+    model: not-public
+    reason: 'No price on its page.'
+    source: 'https://www.ovhcloud.com/en/public-cloud/lakehouse-manager/'
+  - product: 'Infrastructure automation Template'
+    model: included
+    reason: 'Templates deploying Public Cloud resources, priced through those resources.'
+    source: 'https://www.ovhcloud.com/en/public-cloud/infrastructure-automation/'
+  - product: 'Private Network (vRack)'
+    model: not-public
+    reason: 'Its price is rendered client-side, without a public price list.'
+    source: 'https://www.ovhcloud.com/en-gb/public-cloud/private-network/'
+  - product: 'Cloud Disk Array'
+    model: not-public
+    reason: 'No price on its page.'
+    source: 'https://www.ovhcloud.com/en-gb/storage-solutions/cloud-disk-array/'
+  - product: 'Send your pro text messages'
+    model: not-public
+    reason: 'Priced per message inside the page SMS calculator (about 0.063 GBP per SMS), not as a readable price list.'
+    source: 'https://www.ovhcloud.com/en-gb/sms/'

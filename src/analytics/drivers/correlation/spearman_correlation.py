@@ -103,6 +103,7 @@ class SpearmanCorrelation:
             permuted = self._pearson(ranks_x, ranks_y[list(order)])
             total += 1
             hits += permuted is not None and abs(permuted) >= abs(rho) - 1e-12
+        self.logger.debug("Exact p-value of rho %.3f: %d of %d permutations as extreme.", rho, hits, total)
         return hits / total if total else 1.0
 
     ############################
@@ -135,7 +136,11 @@ class SpearmanCorrelation:
             Optional[float]: The partial correlation, `None` without enough values left.
         """
         if len(x) < controls.shape[1] + 3:
+            self.logger.warning(
+                "Too few observations (%d) for a partial correlation with %d controls.", len(x), controls.shape[1]
+            )
             return None
+        self.logger.debug("Partial correlation of %d observations with %d controls.", len(x), controls.shape[1])
         ranked = self._ranks(controls)
         return self._pearson(self._residuals(self._ranks(x), ranked), self._residuals(self._ranks(y), ranked))
 
@@ -152,8 +157,12 @@ class SpearmanCorrelation:
         """
         freedom = observations - 2 - controls
         if freedom < 1:
+            self.logger.warning(
+                "No degree of freedom left (%d observations, %d controls): p-value 1.", observations, controls
+            )
             return 1.0
         if abs(rho) >= 1.0:
+            self.logger.debug("Perfect correlation over %d observations: p-value 0.", observations)
             return 0.0
         statistic = rho * math.sqrt(freedom / (1.0 - rho * rho))
         return min(1.0, max(0.0, float(2.0 * stats.t.sf(abs(statistic), freedom))))
@@ -170,5 +179,6 @@ class SpearmanCorrelation:
             float: The p-value.
         """
         if len(x) <= self.EXACT_LIMIT:
+            self.logger.debug("%d observations: exact permutation p-value.", len(x))
             return self._exact_p_value(x, y, rho)
         return self.p_value(rho, len(x))

@@ -1,0 +1,727 @@
+{
+ "catalogId": 9886,
+ "locale": {
+  "currencyCode": "EUR",
+  "subsidiary": "FR",
+  "taxRate": 20
+ },
+ "plans": [
+  {
+   "planCode": "fr",
+   "invoiceName": ".fr",
+   "addonFamilies": [
+    {
+     "name": "DNS",
+     "exclusive": true,
+     "mandatory": false,
+     "addons": [
+      "dnsanycast"
+     ],
+     "default": null
+    },
+    {
+     "name": "domain",
+     "exclusive": false,
+     "mandatory": false,
+     "addons": [
+      "dnssec"
+     ],
+     "default": null
+    },
+    {
+     "name": "offer",
+     "exclusive": true,
+     "mandatory": false,
+     "addons": [
+      "diamond-offer",
+      "platinum-offer"
+     ],
+     "default": null
+    },
+    {
+     "name": "zone",
+     "exclusive": true,
+     "mandatory": false,
+     "addons": [
+      "dns-zone"
+     ],
+     "default": null
+    },
+    {
+     "name": "trade",
+     "exclusive": true,
+     "mandatory": false,
+     "addons": [
+      "fr-trade"
+     ],
+     "default": null
+    },
+    {
+     "name": "hosting",
+     "exclusive": true,
+     "mandatory": false,
+     "addons": [
+      "hosting-start10m",
+      "hosting-free-100m"
+     ],
+     "default": null
+    }
+   ],
+   "product": "fr-product",
+   "pricingType": "rental",
+   "consumptionConfiguration": null,
+   "pricings": [
+    {
+     "phase": 0,
+     "capacities": [
+      "installation",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Creation of a .fr domain name - 1 year",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": 1
+     },
+     "price": 499000000,
+     "formattedPrice": "4.99 €",
+     "tax": 99800000,
+     "mode": "create-default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 1,
+     "capacities": [
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Renewal of a .fr domain name - 1 year",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 779000000,
+     "formattedPrice": "7.79 €",
+     "tax": 155800000,
+     "mode": "create-default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [
+      {
+       "description": ".FR : 1 an offert",
+       "discount": {
+        "value": 499000000,
+        "formattedValue": "4.99 €",
+        "tax": 99800000
+       },
+       "duration": 12,
+       "context": "standard",
+       "customFieldValues": [],
+       "endDate": "2026-12-31T23:59:59+01:00",
+       "formattedValue": "2.80 €",
+       "globalQuantity": null,
+       "isForTestingPurpose": false,
+       "isGlobalQuantityLimited": false,
+       "minimumDuration": 24,
+       "name": "domain_fr_renew_2026",
+       "quantity": null,
+       "startDate": "2026-01-02T01:00:00+01:00",
+       "tags": null,
+       "total": {
+        "value": 280000000,
+        "formattedValue": "2.80 €",
+        "tax": 56000000
+       },
+       "type": "forced_amount",
+       "value": 280000000
+      }
+     ],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 0,
+     "capacities": [
+      "dynamic",
+      "installation",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Creation of a .fr domain name - 1 year",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": 1
+     },
+     "price": 99999900000000,
+     "formattedPrice": "999999.00 €",
+     "tax": 19999980000000,
+     "mode": "create-premium",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 1,
+     "capacities": [
+      "dynamic",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Renewal of a .fr domain name - 1 year",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 99999900000000,
+     "formattedPrice": "999999.00 €",
+     "tax": 19999980000000,
+     "mode": "create-premium",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 0,
+     "capacities": [
+      "installation",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Creation of a .fr domain name - 1 year",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": 1
+     },
+     "price": 0,
+     "formattedPrice": "0.00 €",
+     "tax": 0,
+     "mode": "restore-default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 1,
+     "capacities": [
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Request for reactivation of a .fr domain name in redemption period + 1 year renewal",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 4999000000,
+     "formattedPrice": "49.99 €",
+     "tax": 999800000,
+     "mode": "restore-default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 0,
+     "capacities": [
+      "dynamic",
+      "installation",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Creation of a .fr domain name - 1 year",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": 1
+     },
+     "price": 0,
+     "formattedPrice": "0.00 €",
+     "tax": 0,
+     "mode": "restore-premium",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 1,
+     "capacities": [
+      "dynamic",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Request for reactivation of a .fr domain name in redemption period + 1 year renewal",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 99999900000000,
+     "formattedPrice": "999999.00 €",
+     "tax": 19999980000000,
+     "mode": "restore-premium",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 0,
+     "capacities": [
+      "dynamic",
+      "installation",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Transfer request of a .fr domain name on a market place",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": 1
+     },
+     "price": 99999900000000,
+     "formattedPrice": "999999.00 €",
+     "tax": 19999980000000,
+     "mode": "transfer-aftermarket1",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 1,
+     "capacities": [
+      "dynamic",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Renewal of a .fr domain name - 1 year",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 99999900000000,
+     "formattedPrice": "999999.00 €",
+     "tax": 19999980000000,
+     "mode": "transfer-aftermarket1",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 0,
+     "capacities": [
+      "dynamic",
+      "installation",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Transfer request of a .fr domain name on a market place",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": 1
+     },
+     "price": 99999900000000,
+     "formattedPrice": "999999.00 €",
+     "tax": 19999980000000,
+     "mode": "transfer-aftermarket2",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 1,
+     "capacities": [
+      "dynamic",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Renewal of a .fr domain name - 1 year",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 99999900000000,
+     "formattedPrice": "999999.00 €",
+     "tax": 19999980000000,
+     "mode": "transfer-aftermarket2",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 0,
+     "capacities": [
+      "installation",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Transfer request of a .fr domain name",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": 1
+     },
+     "price": 499000000,
+     "formattedPrice": "4.99 €",
+     "tax": 99800000,
+     "mode": "transfer-default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [
+      {
+       "description": ".FR Transfer Prix barre",
+       "discount": {
+        "value": 40000000,
+        "formattedValue": "0.40 €",
+        "tax": 8000000
+       },
+       "duration": null,
+       "context": "standard",
+       "customFieldValues": [],
+       "endDate": "2028-12-31T23:59:59+01:00",
+       "formattedValue": "4.59 €",
+       "globalQuantity": null,
+       "isForTestingPurpose": false,
+       "isGlobalQuantityLimited": false,
+       "minimumDuration": 1,
+       "name": "domain_fr_transfer_promo_ovh",
+       "quantity": null,
+       "startDate": "2019-02-20T15:00:00+01:00",
+       "tags": null,
+       "total": {
+        "value": 459000000,
+        "formattedValue": "4.59 €",
+        "tax": 91800000
+       },
+       "type": "forced_amount",
+       "value": 459000000
+      }
+     ],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 1,
+     "capacities": [
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Renewal of a .fr domain name - 1 year",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 779000000,
+     "formattedPrice": "7.79 €",
+     "tax": 155800000,
+     "mode": "transfer-default",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 0,
+     "capacities": [
+      "dynamic",
+      "installation",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Transfer request of a .fr domain name",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": 1
+     },
+     "price": 99999900000000,
+     "formattedPrice": "999999.00 €",
+     "tax": 19999980000000,
+     "mode": "transfer-premium",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    },
+    {
+     "phase": 1,
+     "capacities": [
+      "dynamic",
+      "renew"
+     ],
+     "commitment": 0,
+     "description": "Renewal of a .fr domain name - 1 year",
+     "interval": 12,
+     "intervalUnit": "month",
+     "quantity": {
+      "min": 1,
+      "max": 1
+     },
+     "repeat": {
+      "min": 1,
+      "max": null
+     },
+     "price": 99999900000000,
+     "formattedPrice": "999999.00 €",
+     "tax": 19999980000000,
+     "mode": "transfer-premium",
+     "strategy": "tiered",
+     "mustBeCompleted": false,
+     "type": "rental",
+     "promotions": [],
+     "engagementConfiguration": null
+    }
+   ],
+   "configurations": [],
+   "family": null,
+   "blobs": {
+    "commercial": {
+     "brick": "Domain",
+     "name": ".fr",
+     "price": {
+      "interval": "P1Y"
+     }
+    }
+   }
+  }
+ ],
+ "addons": [],
+ "products": [
+  {
+   "name": "fr-product",
+   "description": "Domain .fr",
+   "blobs": null,
+   "configurations": [
+    {
+     "name": "legacy_domain",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "domain",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "ACKNOWLEDGE_PREMIUM_PRICE",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "DNSSEC",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "DNS",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "OWNER_CONTACT",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "TECH_CONTACT",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "BILLING_CONTACT",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "ADMIN_CONTACT",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "REASON",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "ACCEPT_CONDITIONS",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "CLAIMS_NOTICE",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "KEEP_DNS",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "PROTECTION_CODE",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "OWNER_LEGAL_AGE",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "AUTH_INFO",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "dom_renew_promotion_name",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "dom_pack_id",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "dom_pack_name",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    },
+    {
+     "name": "dom_promotion_name",
+     "isCustom": true,
+     "isMandatory": false,
+     "values": null
+    }
+   ]
+  }
+ ],
+ "planFamilies": []
+}

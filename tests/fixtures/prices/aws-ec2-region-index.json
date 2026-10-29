@@ -1,0 +1,15 @@
+{
+ "formatVersion": "v1.0",
+ "disclaimer": "This pricing list is for informational purposes only. All prices are subject to the additional terms included in the pricing pages on http://aws.amazon.com. All Free Tier prices are also subject to the terms included at https://aws.amazon.com/free/",
+ "publicationDate": "2026-10-28T18:03:52Z",
+ "regions": {
+  "il-central-1": {
+   "regionCode": "il-central-1",
+   "currentVersionUrl": "/offers/v1.0/aws/AmazonEC2/20261028180352/il-central-1/index.json"
+  },
+  "eu-west-3": {
+   "regionCode": "eu-west-3",
+   "currentVersionUrl": "/offers/v1.0/aws/AmazonEC2/20261028180352/eu-west-3/index.json"
+  }
+ }
+}

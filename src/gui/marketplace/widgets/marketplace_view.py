@@ -171,7 +171,7 @@ class MarketplaceView(QWidget):
         self.end_user_card = StatCard("End-user software")
         self.both_card = StatCard("Both audiences")
         self.marketplaces_card = StatCard("Marketplaces crawled")
-        self.chart = DomainBarChart(theme)
+        self.chart = DomainBarChart(theme, self.logger)
         self.store = store if store else ChartStateStore(logger=self.logger)
         self.trends = ChartPanel(theme, ChartScope.MARKETPLACE, "marketplace/trends", self.store, None, self.logger)
         self.controller = StoredChartController(self.trends, loop, statistics_source, self.logger)
@@ -186,7 +186,7 @@ class MarketplaceView(QWidget):
         self.bloc_box.setToolTip("Show only the software of the providers of a geopolitical bloc")
         self.provider_picker = ProviderPicker(theme, self.providers, self.logger)
         self.table = QTableView()
-        self.details = SoftwareDetails(theme, taxonomy=self.taxonomy)
+        self.details = SoftwareDetails(theme, taxonomy=self.taxonomy, loop=loop)
         self.count_label = QLabel()
         self.count_label.setObjectName("muted")
         self.deleted_box = QCheckBox("Show deleted")
@@ -557,6 +557,7 @@ class MarketplaceView(QWidget):
             )
             for domain, count in facets.by_domain.items()
         ]
+        self.logger.debug("Software of %d domains shown.", len(bars))
         self.chart.set_bars(bars)
 
     def _show_stats(self, facets: SoftwareFacets) -> None:

@@ -88,9 +88,11 @@ class DriverScatterGrid(QWidget):
         """
         values = [y for _, _, points in panels for _, _, _, y in points]
         if not values:
+            self.logger.warning("No dot in the %d scatter charts: each chart keeps its own target axis.", len(panels))
             return None
         pad = (max(values) - min(values)) * 0.06 or 0.5
         low = max(min(values) - pad, 0.0) if min(values) > 0 else min(values) - pad
+        self.logger.debug("Shared target axis of %d dots: %.3g to %.3g.", len(values), low, max(values) + pad)
         return low, max(values) + pad
 
     def _relayout(self) -> None:
@@ -104,6 +106,7 @@ class DriverScatterGrid(QWidget):
         if not self.charts:
             self.grid.addWidget(self.message, 0, 0)
             self.columns = 0
+            self.logger.debug("Scatter grid laid out without charts: it shows its message.")
             return
         self.columns = self._columns_for(self.width())
         for index, chart in enumerate(self.charts):
@@ -129,6 +132,7 @@ class DriverScatterGrid(QWidget):
             y_color (QColor): The colour of the target axis titles (its role).
             message (str): What the grid says without charts.
         """
+        self.logger.debug("Replacing the %d scatter charts with %d of %s.", len(self.charts), len(panels), y_label)
         for chart in self.charts:
             self.grid.removeWidget(chart)
             chart.deleteLater()
@@ -143,6 +147,8 @@ class DriverScatterGrid(QWidget):
             self.charts.append(chart)
         self._relayout()
         self.logger.debug("Scatter grid shows %d criteria.", len(self.charts))
+        if not self.charts:
+            self.logger.warning("Scatter grid without criteria: it shows %r.", self.message.text())
 
     def sizeHint(self) -> QSize:
         """Get the preferred size: the rows of charts (Qt override).

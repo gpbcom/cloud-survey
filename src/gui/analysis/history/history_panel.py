@@ -7,10 +7,11 @@ from typing import List, Optional
 # Third Party Imports.
 from PyQt6.QtCore import QObject
 
-# First Party Imports.
-from analytics.history.chronology_loader import ChronologyLoader
 from analytics.history.chronology_timeline import ChronologyTimeline
-from analytics.history.exception import ChronologyFileError
+
+# First Party Imports.
+from curated.bundle.bundle_catalogs import BundleCatalogs
+from curated.exception import CuratedError
 from gui.analysis.history.chronology_table import ChronologyTable
 from gui.analysis.history.event_selector import EventSelector
 from gui.analysis.history.leadership_chart import LeadershipChart
@@ -31,7 +32,7 @@ class HistoryPanel(QObject):
         logger (Logger): The panel logger.
 
     Notes:
-        The chronology is read from `conf/history/chronology.yaml` once. A band or marker clicked in the chart selects
+        The chronology is read from `data/curated/chronology.json` once. A band or marker clicked in the chart selects
         its line in the table, and a line clicked in the table highlights its band or marker.
     """
 
@@ -40,7 +41,7 @@ class HistoryPanel(QObject):
 
         Args:
             theme (Theme): The application theme.
-            chronology (Optional[Chronology]): The chronology, read from `conf/history/chronology.yaml` by default.
+            chronology (Optional[Chronology]): The chronology, read from `data/curated/chronology.json` by default.
             logger (Optional[Logger]): The panel logger.
         """
         super().__init__()
@@ -50,8 +51,8 @@ class HistoryPanel(QObject):
         message = ""
         if chronology is None:
             try:
-                chronology = ChronologyLoader(self.logger).load()
-            except ChronologyFileError as e:
+                chronology = BundleCatalogs(logger=self.logger).chronology()
+            except CuratedError as e:
                 self.logger.error("The leaders of digital infrastructure cannot be shown: %s", e.message)
                 message = e.message
         self.chronology = chronology
@@ -63,6 +64,7 @@ class HistoryPanel(QObject):
             self.table.set_entries(self.timeline.entries(chronology), self.timeline)
             self._on_events(self.selector.selected())
         else:
+            self.logger.warning("No chronology: the leaders chart shows %r.", message)
             self.chart.set_message(message)
         self.selector.changed.connect(self._on_events)
         self.chart.picked.connect(self.table.select_key)
@@ -80,5 +82,8 @@ class HistoryPanel(QObject):
             keys (List[str]): Their keys.
         """
         wanted = set(keys)
+        if self.chronology is None:
+            self.logger.warning("No chronology: the %d events picked cannot be drawn.", len(keys))
         events = [event for event in self.chronology.events if event.key in wanted] if self.chronology else []
+        self.logger.debug("Drawing %d of the %d events picked on the leaders chart.", len(events), len(keys))
         self.chart.set_events(events)

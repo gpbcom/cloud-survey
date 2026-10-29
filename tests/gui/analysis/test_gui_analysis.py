@@ -79,8 +79,8 @@ class TestChartsInTheWindow:
 
         qtbot.waitUntil(lambda: window.available is not None, timeout=5000)
 
-        tabs: List[str] = [window.tabs.tabText(index) for index in range(window.tabs.count())]
-        assert tabs == ["Products", "Marketplaces", "Statistics", "Analysis", "Correspondences"]
+        tabs: List[str] = [window.tabs.tabText(index).replace("&&", "&") for index in range(window.tabs.count())]
+        assert tabs == ["Products", "Marketplaces", "Statistics", "Analysis", "Correspondences", "Patents & Papers"]
         assert window.available == frozenset({DatasetKind.CATALOGUE, DatasetKind.MARKETPLACE})
         sections = window.findChildren(ChartSection)
         charts = [
@@ -88,7 +88,7 @@ class TestChartsInTheWindow:
             for section in sections
             if not section.key.endswith("/table") and not section.key.startswith("correspondence/")
         ]
-        assert len(charts) == 20
+        assert len(charts) == 36
         assert all(scrolled(section) for section in charts)
         assert sorted(section.key for section in sections if section not in charts) == [
             "analysis/drivers/table",

@@ -115,9 +115,14 @@ class ColumnPicker(QWidget):
             List[CloudProvider]: The providers (all of them until the catalogue sizes are read, two at least).
         """
         held = [provider for provider in self.providers if self.sizes.get(provider, 0) > 0] if self.sizes else []
+        if not held:
+            self.logger.debug("No catalogue size known yet: every provider is a column.")
         held = held or list(self.providers)
         missing = CorrespondenceQuery.MIN_COLUMNS - len(held)
         if missing > 0:
+            self.logger.warning(
+                "Only %d providers hold a catalogue: %d empty columns are added.", len(held), missing
+            )
             held += [provider for provider in self.providers if provider not in held][:missing]
         ranked = self._ranked(held)
         return [provider for bloc in GeoBloc for provider in ranked if provider.bloc is bloc]
@@ -136,6 +141,7 @@ class ColumnPicker(QWidget):
             members = [provider for provider in ranked if provider.bloc is bloc][: self.PRESET_SIZE]
             if len(members) >= CorrespondenceQuery.MIN_COLUMNS:
                 presets[f"{self.theme.bloc_label(bloc)}: largest"] = members
+        self.logger.debug("%d column presets built.", len(presets))
         return presets
 
     def _chip(self, index: int, provider: CloudProvider) -> QToolButton:
@@ -204,6 +210,11 @@ class ColumnPicker(QWidget):
                 action.setData([provider.value for provider in columns])
         preset_menu.triggered.connect(self._on_preset)
         self.preset_button.setMenu(preset_menu)
+        self.logger.debug(
+            "Column picker rebuilt: %s, %d providers listed.",
+            "every provider" if showing_all else f"{len(self.chosen)} columns",
+            listed,
+        )
 
     def _set(self, columns: List[CloudProvider]) -> None:
         """Replace the columns, then tell.
@@ -229,7 +240,9 @@ class ColumnPicker(QWidget):
         index = self.chosen.index(provider)
         target = index + step
         if not 0 <= target < len(self.chosen):
+            self.logger.warning("The column %s cannot move %+d: it is at the edge.", provider.value, step)
             return
+        self.logger.debug("Moving the column %s from %d to %d.", provider.value, index, target)
         columns = list(self.chosen)
         columns[index], columns[target] = columns[target], columns[index]
         self._set(columns)
@@ -241,7 +254,13 @@ class ColumnPicker(QWidget):
             provider (CloudProvider): The column.
         """
         if len(self.chosen) <= CorrespondenceQuery.MIN_COLUMNS:
+            self.logger.warning(
+                "The column %s is not removed: %d columns at least are shown.",
+                provider.value,
+                CorrespondenceQuery.MIN_COLUMNS,
+            )
             return
+        self.logger.debug("Removing the column %s.", provider.value)
         self._set([column for column in self.chosen if column is not provider])
 
     def _add(self, provider: CloudProvider) -> None:
@@ -251,7 +270,11 @@ class ColumnPicker(QWidget):
             provider (CloudProvider): The provider.
         """
         if provider in self.chosen or len(self.chosen) >= self.MANUAL_LIMIT:
+            self.logger.warning(
+                "The column %s is not added: already shown, or %d columns are shown.", provider.value, self.MANUAL_LIMIT
+            )
             return
+        self.logger.debug("Adding the column %s.", provider.value)
         self._set([*self.chosen, provider])
 
     def _on_chip_action(self, action: QAction) -> None:
@@ -262,6 +285,7 @@ class ColumnPicker(QWidget):
         """
         value, step = action.data()
         provider = CloudProvider(value)
+        self.logger.debug("Column menu action on %s, step %s.", provider.value, step)
         if step:
             self._move(provider, int(step))
         else:
@@ -275,6 +299,8 @@ class ColumnPicker(QWidget):
         """
         if action.data():
             self._add(CloudProvider(action.data()))
+        else:
+            self.logger.warning("The chosen entry of the provider menu names no provider.")
 
     def _on_preset(self, action: QAction) -> None:
         """Replace the columns with the chosen preset.
@@ -282,6 +308,7 @@ class ColumnPicker(QWidget):
         Args:
             action (QAction): The chosen entry, its data the providers of the preset.
         """
+        self.logger.debug("Column preset %r chosen.", action.text())
         self._set([CloudProvider(value) for value in action.data()])
 
     def _on_all(self, checked: bool) -> None:
@@ -322,4 +349,5 @@ class ColumnPicker(QWidget):
             sizes (Dict[CloudProvider, int]): The listed services of each provider.
         """
         self.sizes = dict(sizes)
+        self.logger.debug("Catalogue sizes of %d providers known.", len(self.sizes))
         self._rebuild()

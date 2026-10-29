@@ -8,10 +8,11 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 # First Party Imports.
-from analytics.history.chronology_loader import ChronologyLoader
 from analytics.history.chronology_renderer import ChronologyRenderer
-from analytics.history.exception import ChronologyFileError
-from conf import CHRONOLOGY_DOC_PATH, CHRONOLOGY_PATH
+from conf import CHRONOLOGY_DOC_PATH, CURATED_DIR
+from curated.bundle.bundle_catalogs import BundleCatalogs
+from curated.bundle.bundle_files import BundleFiles
+from curated.exception import CuratedError
 from logger import setup_logging
 
 
@@ -19,29 +20,23 @@ class ChronologyDocWriter:
     """Write the chronology guide from the chronology: `uv run render-chronology`.
 
     Attributes:
-        loader (ChronologyLoader): Reads `conf/history/chronology.yaml`.
         renderer (ChronologyRenderer): Prints it as Markdown.
         logger (Logger): The writer logger.
 
     Notes:
-        `--check` writes nothing and fails when the guide is not what the chronology prints (for the CI).
+        - The chronology is read from the bundle (`data/curated/chronology.json`), the reviewed copy: run
+          `uv run curated export` first to print the edits made in the explorer.
+        - `--check` writes nothing and fails when the guide is not what the chronology prints (for the CI).
     """
 
-    def __init__(
-        self,
-        loader: Optional[ChronologyLoader] = None,
-        renderer: Optional[ChronologyRenderer] = None,
-        logger: Optional[Logger] = None,
-    ) -> None:
+    def __init__(self, renderer: Optional[ChronologyRenderer] = None, logger: Optional[Logger] = None) -> None:
         """Initialize the writer.
 
         Args:
-            loader (Optional[ChronologyLoader]): Reads the chronology.
             renderer (Optional[ChronologyRenderer]): Prints it as Markdown.
             logger (Optional[Logger]): The writer logger.
         """
         self.logger = logger if logger else getLogger(__name__)
-        self.loader = loader if loader else ChronologyLoader(self.logger)
         self.renderer = renderer if renderer else ChronologyRenderer(logger=self.logger)
 
     ############################
@@ -61,7 +56,7 @@ class ChronologyDocWriter:
             prog="render-chronology",
             description="Print the computing chronology as docs/analysis/leaders-chronology.md.",
         )
-        parser.add_argument("--source", type=Path, default=CHRONOLOGY_PATH, help="The chronology YAML.")
+        parser.add_argument("--bundle", type=Path, default=CURATED_DIR, help="The curated bundle directory.")
         parser.add_argument("--output", type=Path, default=CHRONOLOGY_DOC_PATH, help="The guide to write.")
         parser.add_argument("--check", action="store_true", help="Only check that the guide is up to date.")
         return parser.parse_args(argv)
@@ -70,19 +65,20 @@ class ChronologyDocWriter:
     # Publicly Exposed Methods #
     ############################
 
-    def render(self, source: Path = CHRONOLOGY_PATH) -> str:
+    def render(self, bundle: Path = CURATED_DIR) -> str:
         """Print the chronology.
 
         Args:
-            source (Path): The chronology YAML.
+            bundle (Path): The curated bundle directory.
 
         Returns:
             str: The guide.
 
         Raises:
-            ChronologyFileError: If the chronology cannot be loaded.
+            CuratedError: If the chronology cannot be read from the bundle.
         """
-        return self.renderer.markdown(self.loader.load(source))
+        catalogs = BundleCatalogs(BundleFiles(bundle, self.logger), logger=self.logger)
+        return self.renderer.markdown(catalogs.chronology())
 
     def parse(self, argv: Optional[Sequence[str]] = None) -> int:
         """Run the command line.
@@ -95,8 +91,8 @@ class ChronologyDocWriter:
         """
         arguments = self._arguments(argv)
         try:
-            text = self.render(arguments.source)
-        except ChronologyFileError as e:
+            text = self.render(arguments.bundle)
+        except CuratedError as e:
             self.logger.error("%s", e)
             return 1
         output: Path = arguments.output

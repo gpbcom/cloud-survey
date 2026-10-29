@@ -271,7 +271,7 @@ class TrendLoader:
             return TrendResult()
         metrics = [axes.x, axes.y] + ([axes.size] if axes.size is not None else [])
         needs_statistics = any(self._dataset(metric, axes) is DatasetKind.STATISTICS for metric in metrics)
-        statistics = await storage.statistics.load(self.statistics_source) if needs_statistics else None
+        statistics = await storage.statistics.read(self.statistics_source) if needs_statistics else None
         as_of: Optional[float] = None
         dataset = self._dataset(axes.y, axes)
         if axes.x is ChartMetric.CRAWL_DATE:

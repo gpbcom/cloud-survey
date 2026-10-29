@@ -10,28 +10,43 @@ from typing import ClassVar, Dict, List, Optional, Sequence, Tuple
 # Third Party Imports.
 from PyQt6 import sip
 from PyQt6.QtCore import QObject
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
-# First Party Imports.
 from analytics.markets.correlation.share_stock_correlation import ShareStockCorrelation
+from analytics.markets.counterparts.counterpart_series import CounterpartSeries
 from analytics.markets.shares.share_table import ShareTable
 from analytics.markets.stocks.fx_converter import FxConverter
 from analytics.markets.stocks.stock_table import StockTable
 from crawler.exception import MarketsCatalogError
 from crawler.markets.catalog_loader import MarketsCatalogLoader
-from gui.analysis.markets.lag_chart import LagChart
-from gui.analysis.markets.share_controls import ShareControls
-from gui.analysis.markets.stock_controls import StockControls
-from gui.analysis.markets.time_series_chart import TimeSeriesChart
+
+# First Party Imports.
+from curated.bundle.bundle_catalogs import BundleCatalogs
+from curated.exception import CuratedError
+from gui.analysis.markets.charts.lag_chart import LagChart
+from gui.analysis.markets.charts.time_series_chart import TimeSeriesChart
+from gui.analysis.markets.controls.correlation_controls import CorrelationControls
+from gui.analysis.markets.controls.share_controls import ShareControls
+from gui.analysis.markets.controls.stock_controls import StockControls
+from gui.analysis.markets.notes.markets_tooltips import MarketsTooltips
 from gui.storage_bridge.storage_loop import StorageLoop
 from gui.theme import Theme
-from gui.widgets.compact_combo import CompactCombo
 from models.history.chronology import Chronology
 from models.history.timeline.notable_event import NotableEvent
 from models.history.timeline.partial_date import PartialDate
 from models.markets.charts.chart_dot import ChartDot
 from models.markets.charts.chart_line import ChartLine
-from models.markets.enums import AreaKind, Device, Granularity, PriceScale, ShareSource, StockView
+from models.markets.correlation.counterpart import Counterpart
+from models.markets.enums import (
+    AreaKind,
+    CorrelationCounterpart,
+    Device,
+    Granularity,
+    PriceScale,
+    ShareSource,
+    StockView,
+)
+from models.markets.help.markets_help import MarketsHelp
 from models.markets.markets_catalog import MarketsCatalog
 from models.markets.series.share_series import ShareSeries
 from models.markets.series.share_stock_result import ShareStockResult
@@ -63,8 +78,11 @@ class MarketsPanel(QObject):
         stock_chart (TimeSeriesChart): A line per listing, per region index, or the valuation points.
         stock_note (QLabel): The source and the limits of the values shown.
         stock_body (QWidget): The card body of the stocks.
-        company_box (CompactCombo): The company correlated, among those of the share chart.
-        correlate_button (QPushButton): Runs the correlation.
+        tooltips (MarketsTooltips): Writes the tooltips of every control and choice of the three cards.
+        counterpart_series (CounterpartSeries): Lists and reads what a share can be correlated with.
+        correlation_controls (CorrelationControls): The company, what its share is correlated with, Correlate.
+        company_box (CompactCombo): The company correlated (the one of `correlation_controls`).
+        correlate_button (QPushButton): Runs the correlation (the one of `correlation_controls`).
         correlation_summary (QLabel): The Granger tests, the months used, or why nothing was computed.
         lag_chart (LagChart): The correlation by lag.
         correlation_body (QWidget): The card body of the correlation.
@@ -72,8 +90,11 @@ class MarketsPanel(QObject):
         logger (Logger): The panel logger.
 
     Notes:
-        The data are read through the storage thread (`StorageLoop`), never on the GUI thread, and drawn from the
-        stored crawls of `CRAWLER_SOURCE=markets`: the guide is `docs/analysis/market-shares-and-stocks.md`.
+        - The data are read through the storage thread (`StorageLoop`), never on the GUI thread, and drawn from the
+          stored crawls of `CRAWLER_SOURCE=markets`: the guide is `docs/analysis/market-shares-and-stocks.md`.
+        - The correlation card correlates the share of a company drawn in the share chart with its stock, its share
+          in another segment, area or source, its home currency or a TrendForce concentration. Every control says
+          in its tooltip what it computes (the `markets` block of `conf/help.yaml`).
     """
 
     SOURCES: ClassVar[Dict[ShareSource, str]] = {
@@ -111,25 +132,28 @@ class MarketsPanel(QObject):
         Args:
             theme (Theme): The application theme.
             loop (StorageLoop): The storage thread of the GUI.
-            catalog (Optional[MarketsCatalog]): The markets catalogue, `conf/history/markets.yaml` by default.
-            chronology (Optional[Chronology]): The chronology, `conf/history/chronology.yaml` by default.
+            catalog (Optional[MarketsCatalog]): The markets catalogue, `data/curated/markets.json` by default.
+            chronology (Optional[Chronology]): The chronology, `data/curated/chronology.json` by default.
             logger (Optional[Logger]): The panel logger.
         """
         super().__init__()
         self.theme, self.loop = theme, loop
         self.logger = logger if logger else getLogger(__name__)
         message = ""
-        if catalog is None or chronology is None:
-            try:
-                loader = MarketsCatalogLoader(self.logger)
-                catalog = catalog or loader.load()
-                chronology = chronology or loader.chronology()
-            except MarketsCatalogError as e:
-                self.logger.error("The market shares and stock values cannot be shown: %s", e)
-                message = str(e)
+        explanations = MarketsHelp()
+        try:
+            bundled = BundleCatalogs(logger=self.logger)
+            catalog = catalog or bundled.markets()
+            chronology = chronology or bundled.chronology()
+            explanations = MarketsCatalogLoader(self.logger).help()
+        except (MarketsCatalogError, CuratedError) as e:
+            self.logger.error("The market shares and stock values cannot be shown: %s", e)
+            message = str(e)
         self.catalog = catalog or MarketsCatalog()
         self.chronology = chronology
-        self.generations: Dict[str, int] = {"shares": 0, "stocks": 0, "correlation": 0}
+        self.generations: Dict[str, int] = {"shares": 0, "stocks": 0, "correlation": 0, "counterparts": 0}
+        self.tooltips = MarketsTooltips(theme, self.catalog, explanations, self._names(), self.logger)
+        self.counterpart_series = CounterpartSeries(self.catalog, chronology, self.logger)
         self.share_controls = ShareControls(self.catalog, self.logger)
         self.share_chart = TimeSeriesChart(theme, self.logger)
         self.share_note = self._note()
@@ -138,30 +162,25 @@ class MarketsPanel(QObject):
         self.stock_chart = TimeSeriesChart(theme, self.logger)
         self.stock_note = self._note()
         self.stock_body = self._body(self.stock_controls, self.stock_chart, self.stock_note)
-        self.company_box = CompactCombo(18)
-        self.company_box.setToolTip("The company whose share changes are correlated with its stock returns")
-        self.correlate_button = QPushButton("Correlate")
-        self.correlate_button.setToolTip(
-            "Spearman correlation of the monthly share changes (segment, area and devices of the share chart) with "
-            "the monthly returns of the company's primary listing in US dollars, lag by lag, and Granger tests"
-        )
+        self.share_controls.explain(self.tooltips)
+        self.stock_controls.explain(self.tooltips)
+        self.correlation_controls = CorrelationControls(self.tooltips, self.logger)
+        self.company_box = self.correlation_controls.company_box
+        self.correlate_button = self.correlation_controls.correlate_button
         self.correlation_summary = self._note()
-        self.correlation_summary.setText("Pick a company drawn in the share chart, then Correlate.")
+        self.correlation_summary.setText("Pick a company drawn in the share chart and what to correlate it with.")
         self.lag_chart = LagChart(theme, self.logger)
-        picker = QWidget()
-        row = QHBoxLayout(picker)
-        row.setContentsMargins(0, 0, 0, 0)
-        row.addWidget(QLabel("Company"))
-        row.addWidget(self.company_box)
-        row.addWidget(self.correlate_button)
-        row.addStretch(1)
-        self.correlation_body = self._body(picker, self.lag_chart, self.correlation_summary)
+        self.correlation_body = self._body(self.correlation_controls, self.lag_chart, self.correlation_summary)
         if message:
             self.share_chart.set_message(message)
             self.stock_chart.set_message(message)
         self.share_controls.changed.connect(self._load_shares)
         self.stock_controls.changed.connect(self._load_stocks)
         self.correlate_button.clicked.connect(self.correlate)
+        self.share_controls.derivative_box.toggled.connect(self.share_chart.set_derivative)
+        self.stock_controls.derivative_box.toggled.connect(self.stock_chart.set_derivative)
+        self.correlation_controls.company_changed.connect(self._load_counterparts)
+        self.correlation_controls.against_changed.connect(self._describe_correlation)
         self.logger.debug("Markets panel built.")
 
     ############################
@@ -240,6 +259,60 @@ class MarketsPanel(QObject):
         segment, area, device, top = self.share_controls.query()
         return segment.key, area.key, device, segment.source, top
 
+    def _describe_correlation(self) -> None:
+        """Write in the Correlate tooltip what it will compute with the share chart and the choices made."""
+        segment_key, area_key, device, _, _ = self._share_query()
+        self.correlate_button.setToolTip(
+            self.tooltips.correlate(
+                self.correlation_controls.company(),
+                self.catalog.segment(segment_key),
+                self.catalog.area(area_key),
+                device.value,
+                self.correlation_controls.counterpart(),
+            )
+        )
+
+    async def _read_counterparts(self, company: str, query: ShareQuery, storage: Storage) -> List[Counterpart]:
+        """List what a company's share can be correlated with (storage thread).
+
+        Args:
+            company (str): The company.
+            query (ShareQuery): The segment, area and source of its share.
+            storage (Storage): The open storage.
+
+        Returns:
+            List[Counterpart]: The choices, in display order.
+        """
+        segment, area, _, source, _ = query
+        return await self.counterpart_series.options(company, segment, area, source, storage)
+
+    def _on_counterparts(self, generation: int, counterparts: List[Counterpart]) -> None:
+        """Offer the counterparts read, unless another company was picked since (GUI thread).
+
+        Args:
+            generation (int): The number of the request.
+            counterparts (List[Counterpart]): The choices.
+        """
+        if sip.isdeleted(self.lag_chart) or generation != self.generations["counterparts"]:
+            return
+        self.correlation_controls.set_counterparts(counterparts)
+        self._describe_correlation()
+        self.logger.debug("%d counterparts offered.", len(counterparts))
+
+    def _load_counterparts(self) -> None:
+        """Read what the company picked can be correlated with (storage thread), then offer it."""
+        company = self.correlation_controls.company()
+        self.generations["counterparts"] += 1
+        if company is None or not self.catalog.segments:
+            self.correlation_controls.set_counterparts([])
+            self._describe_correlation()
+            return
+        self.loop.submit(
+            partial(self._read_counterparts, company, self._share_query()),
+            partial(self._on_counterparts, self.generations["counterparts"]),
+            partial(self._on_error, self.share_chart),
+        )
+
     def _on_error(self, chart: TimeSeriesChart, error: StorageError) -> None:
         """Report a storage error in a chart (GUI thread).
 
@@ -269,7 +342,7 @@ class MarketsPanel(QObject):
             company and a period.
         """
         segment, area, device, source, top = query
-        values = await storage.shares.read(segment, area, device)
+        values = await storage.shares.list(segment, area, device)
         own = [value for value in values if value.source is source]
         granularities = Counter(value.granularity for value in own)
         main = granularities.most_common(1)[0][0] if granularities else None
@@ -331,15 +404,7 @@ class MarketsPanel(QObject):
                 if part
             )
         )
-        companies = [line.company for line in series if line.company and self.catalog.listings_of(line.company)]
-        current = self.company_box.currentData()
-        self.company_box.blockSignals(True)
-        self.company_box.clear()
-        for key in companies:
-            self.company_box.addItem(self._names().get(key, key), key)
-        index = self.company_box.findData(current)
-        self.company_box.setCurrentIndex(max(index, 0))
-        self.company_box.blockSignals(False)
+        self.correlation_controls.set_companies([line.company for line in series if line.company], self._names())
         self.logger.info(
             "Market shares shown: %s in %s (%s), %d lines.", segment_key, area_key, device.value, len(lines)
         )
@@ -388,8 +453,8 @@ class MarketsPanel(QObject):
                 for listing in self.catalog.listings_of(company)
                 if listing.primary or secondary
             ]
-        prices = await storage.stocks.read([listing.symbol for listing in listings])
-        table = StockTable(FxConverter(await storage.fx.read(), self.logger), self.logger)
+        prices = await storage.stocks.list([listing.symbol for listing in listings])
+        table = StockTable(FxConverter(await storage.fx.list(), self.logger), self.logger)
         if view is StockView.REGIONS:
             countries = (
                 {company.key: company.country or "" for company in self.chronology.companies} if self.chronology else {}
@@ -486,11 +551,14 @@ class MarketsPanel(QObject):
             partial(self._on_error, self.stock_chart),
         )
 
-    async def _read_correlation(self, company: str, query: ShareQuery, storage: Storage) -> ShareStockResult:
-        """Read a company's shares and prices, and correlate them (storage thread).
+    async def _read_correlation(
+        self, company: str, counterpart: Counterpart, query: ShareQuery, storage: Storage
+    ) -> ShareStockResult:
+        """Read a company's shares and the counterpart picked, and correlate them (storage thread).
 
         Args:
             company (str): The company.
+            counterpart (Counterpart): What its share is correlated with.
             query (ShareQuery): The segment, area and devices of the shares.
             storage (Storage): The open storage.
 
@@ -498,14 +566,11 @@ class MarketsPanel(QObject):
             ShareStockResult: The correlation by lag and the Granger tests, or why nothing was computed.
         """
         segment, area, device, source, _ = query
-        values = await storage.shares.read(segment, area, device, source=source, companies=[company])
-        listings = [listing for listing in self.catalog.listings_of(company) if listing.primary]
-        listing = listings[0].symbol if listings else None
-        prices = await storage.stocks.read([listing]) if listing else []
-        table = StockTable(FxConverter(await storage.fx.read(), self.logger), self.logger)
-        return ShareStockCorrelation(table, self.logger).analyse(
-            company, segment, area, device.value, values, listing, prices
-        )
+        values = await storage.shares.list(segment, area, device, source=source, companies=[company])
+        table = StockTable(FxConverter(await storage.fx.list(), self.logger), self.logger)
+        engine = ShareStockCorrelation(table, self.logger)
+        levels, granularity = await self.counterpart_series.levels(company, counterpart, engine, storage)
+        return engine.compare(company, segment, area, device.value, values, counterpart, levels, granularity)
 
     def _on_correlation(self, generation: int, result: ShareStockResult) -> None:
         """Show a correlation, unless a later one was asked (GUI thread).
@@ -526,21 +591,23 @@ class MarketsPanel(QObject):
             (lag for lag in result.lags if lag.rho is not None), key=lambda lag: abs(lag.rho or 0.0), default=None
         )
         share_p = f"{result.share_leads_p:.3g}" if result.share_leads_p is not None else "-"
-        stock_p = f"{result.stock_leads_p:.3g}" if result.stock_leads_p is not None else "-"
+        other_p = f"{result.stock_leads_p:.3g}" if result.stock_leads_p is not None else "-"
         strongest = (
             f"Strongest: lag {best.lag:+d}, {self.RHO} {best.rho:+.2f} (q {best.q_value:.2g})."
             if best is not None and best.rho is not None and best.q_value is not None
             else ""
         )
         unit = "months" if result.granularity is Granularity.MONTH else "quarters"
-        self.lag_chart.set_lags(result.lags, unit=unit)
+        against = result.counterpart_label or result.listing or result.counterpart.value
+        changes = "returns" if result.counterpart is CorrelationCounterpart.STOCK else f"{against} changes"
+        self.lag_chart.set_lags(result.lags, unit=unit, counterpart=f"the {changes}")
         self.correlation_summary.setText(
-            f"{self._names().get(result.company, result.company)} ({result.listing}) in {result.segment}, "
-            f"{result.area}, {result.device}: up to {months} {unit} paired. {strongest} Granger ({result.granger_lags} "
-            f"{unit} of past): share changes lead returns p = {share_p}, returns lead share changes p = {stock_p}. "
-            "Correlation is not causation: both may follow the same cycle."
+            f"{self._names().get(result.company, result.company)} in {result.segment}, {result.area}, "
+            f"{result.device} against {against}: up to {months} {unit} paired. {strongest} Granger "
+            f"({result.granger_lags} {unit} of past): share changes lead the {changes} p = {share_p}, the {changes} "
+            f"lead share changes p = {other_p}. Correlation is not causation: both may follow the same cycle."
         )
-        self.logger.info("Share-stock correlation shown for %s.", result.company)
+        self.logger.info("Share correlation shown for %s against %s.", result.company, against)
 
     ############################
     # Publicly Exposed Methods #
@@ -553,16 +620,20 @@ class MarketsPanel(QObject):
         self._load_stocks()
 
     def correlate(self) -> None:
-        """Correlate the company picked with its stock, on the shares of the share chart."""
-        company = self.company_box.currentData()
-        if not company or not self.catalog.segments:
-            self.correlation_summary.setText("No listed company in the share chart: pick another segment or area.")
+        """Correlate the company picked with the counterpart picked, on the shares of the share chart."""
+        company = self.correlation_controls.company()
+        counterpart = self.correlation_controls.counterpart()
+        if company is None or counterpart is None or not self.catalog.segments:
+            self.correlation_summary.setText(
+                "Pick a company drawn in the share chart and what to correlate it with (its stock, another share, "
+                "its home currency or a chip supply context)."
+            )
             return
         self.generations["correlation"] += 1
         self.correlate_button.setEnabled(False)
         self.correlation_summary.setText("Correlating...")
         self.loop.submit(
-            partial(self._read_correlation, str(company), self._share_query()),
+            partial(self._read_correlation, company, counterpart, self._share_query()),
             partial(self._on_correlation, self.generations["correlation"]),
             partial(self._on_error, self.share_chart),
         )

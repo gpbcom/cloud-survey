@@ -37,13 +37,17 @@ from gui.analysis.drivers.charts.driver_scatter_chart import DriverPoint
 from gui.analysis.drivers.charts.driver_scatter_grid import DriverScatterGrid, ScatterPanel
 from gui.analysis.drivers.controls.driver_controls import DriverControls
 from gui.analysis.drivers.controls.role_legend import RoleLegend
+from gui.analysis.drivers.metrics.metrics_table import MetricsTable
 from gui.analysis.drivers.notes.column_guide import ColumnGuide
+from gui.analysis.drivers.notes.criterion_tooltip import CriterionTooltip
 from gui.analysis.drivers.notes.warning_board import WarningBoard
 from gui.storage_bridge.storage_loop import StorageLoop
 from gui.theme import Theme
 from models.drivers.enums import DriverColumn, DriverRole, DriverScope, MetricScale, ProviderMetric
 from models.drivers.help.driver_help import DriverHelp
 from models.drivers.metrics.metric_catalog import MetricCatalog
+from models.drivers.metrics.metric_coverage import MetricCoverage
+from models.drivers.metrics.provider_metric_value import ProviderMetricValue
 from models.drivers.query.driver_query import DriverQuery
 from models.drivers.results.driver_result import DriverResult
 from storage.exception import StorageError
@@ -67,6 +71,7 @@ class DriversPanel(QWidget):
         analysis (DriverAnalysis): The statistics.
         controls (DriverControls): The pickers.
         help (DriverHelp): The explanation of each role and each warning.
+        tooltips (CriterionTooltip): Writes the tooltips of the criteria, the choices and the buttons.
         legend (RoleLegend): The role of each parameter picked, explained on hover.
         caveats (WarningBoard): The warnings of the last analysis, explained on hover.
         guide (ColumnGuide): What each column of the table shows, right of the table.
@@ -77,6 +82,8 @@ class DriversPanel(QWidget):
         scatters (DriverScatterGrid): The target against each criterion, a chart each, the most predominant first.
         scale_button (QToolButton): Switches the scatter between the logarithmic scale of the analysis and the
             natural values (checked: logarithmic).
+        metrics_table (MetricsTable): Every stored provider metric with its source (a card of its own).
+        measures (List[ProviderMetricValue]): The measures the last run read, shown in the table of the metrics.
         stale (bool): Whether the provider metrics must be computed again before the next run.
         generation (int): The number of the last run (a late answer of an older run is dropped).
         outcome (Optional[DriverOutcome]): The last result and its observations.
@@ -133,7 +140,8 @@ class DriversPanel(QWidget):
             self.help, message = DriverHelp(), message or e.message
         self.catalog = catalog
         self.analysis = DriverAnalysis(catalog, self.logger)
-        self.controls = DriverControls(catalog, self.logger)
+        self.tooltips = CriterionTooltip(theme, catalog, self.help, self.logger)
+        self.controls = DriverControls(catalog, self.logger, self.tooltips)
         self.legend = RoleLegend(theme, self.help, self.logger)
         self.caveats = WarningBoard(theme, self.help, catalog, self.logger)
         if message:
@@ -167,6 +175,8 @@ class DriversPanel(QWidget):
             "Checked: the logarithms the analysis works on (the counts and amounts). Unchecked: the natural values "
             "(and in a panel the yearly change in percent)."
         )
+        self.metrics_table = MetricsTable(theme, catalog, self.help, self.logger)
+        self.measures: List[ProviderMetricValue] = []
         self.stale = True
         self.generation = 0
         self.outcome: Optional[DriverOutcome] = None
@@ -243,13 +253,106 @@ class DriversPanel(QWidget):
         Returns:
             DriverOutcome: The result and its observations.
         """
+        self.logger.debug("Computing the rise drivers of %s (refresh %s).", query.target.value, refresh)
         if refresh:
             written = await storage.refresh_metrics(datetime.now(UTC))
             self.logger.info("Provider metrics computed again: %d measures.", written)
-        values = await storage.metrics.read()
+        values = await storage.metrics.list()
+        self.measures = values
+        if not values:
+            self.logger.warning("No provider metric stored: the rise drivers of %s have no data.", query.target.value)
         result = await asyncio.to_thread(self.analysis.run, query, values)
         matrix = await asyncio.to_thread(self.analysis.panel.build, query, values)
+        self.logger.info(
+            "Rise drivers of %s computed from %d measures: %d observations.",
+            query.target.value,
+            len(values),
+            result.observations,
+        )
         return result, matrix
+
+    async def _read_coverage(self, storage: Storage) -> List[MetricCoverage]:
+        """Read what the stored measures of each criterion cover, in the storage thread.
+
+        Args:
+            storage (Storage): The open storage.
+
+        Returns:
+            List[MetricCoverage]: One entry per stored criterion.
+        """
+        self.logger.debug("Reading the coverage of the criteria.")
+        coverage = await storage.metrics.coverage()
+        self.logger.debug("Coverage of %d criteria read.", len(coverage))
+        return coverage
+
+    def _on_coverage(self, coverage: List[MetricCoverage]) -> None:
+        """Write the coverage into the tooltips (GUI thread).
+
+        Args:
+            coverage (List[MetricCoverage]): One entry per stored criterion.
+        """
+        if sip.isdeleted(self):
+            self.logger.debug("Rise drivers panel closed: coverage of %d criteria dropped.", len(coverage))
+            return
+        self.tooltips.set_coverage(coverage)
+        self.controls.refresh_tooltips()
+        self.logger.info("Tooltips of the Rise drivers updated with the coverage of %d criteria.", len(coverage))
+
+    def _on_coverage_error(self, error: StorageError) -> None:
+        """Keep the tooltips without coverage when it cannot be read (the analysis itself is not affected).
+
+        Args:
+            error (StorageError): The error.
+        """
+        self.logger.warning("The coverage of the criteria cannot be read for the tooltips: %s", error)
+
+    def _load_coverage(self) -> None:
+        """Read the coverage of the criteria (storage thread), then write it into the tooltips."""
+        self.logger.debug("Asking for the coverage of the criteria.")
+        self.loop.submit(self._read_coverage, self._on_coverage, self._on_coverage_error)
+
+    async def _read_metrics(self, storage: Storage) -> List[ProviderMetricValue]:
+        """Read every stored provider metric for the table of the metrics, in the storage thread.
+
+        Args:
+            storage (Storage): The open storage.
+
+        Returns:
+            List[ProviderMetricValue]: The measures, by provider, quarter, metric and source.
+        """
+        self.logger.debug("Reading the stored provider metrics for their table.")
+        values = await storage.metrics.list()
+        self.logger.debug("%d stored provider metrics read for their table.", len(values))
+        return values
+
+    def _on_metrics(self, values: List[ProviderMetricValue]) -> None:
+        """Show the stored provider metrics in their table (GUI thread).
+
+        Args:
+            values (List[ProviderMetricValue]): The measures.
+        """
+        if sip.isdeleted(self) or sip.isdeleted(self.metrics_table):
+            self.logger.debug("Rise drivers panel closed: %d provider metrics dropped.", len(values))
+            return
+        self.metrics_table.load(values)
+        self.logger.info("Table of the provider metrics refreshed: %d measures.", len(values))
+
+    def _on_metrics_error(self, error: StorageError) -> None:
+        """Report in the table of the metrics that they cannot be read.
+
+        Args:
+            error (StorageError): The error.
+        """
+        if sip.isdeleted(self) or sip.isdeleted(self.metrics_table):
+            self.logger.warning("Rise drivers panel closed before the provider metrics error was shown: %s", error)
+            return
+        self.logger.warning("The stored provider metrics cannot be read for their table: %s", error)
+        self.metrics_table.show_error(f"The provider metrics cannot be read: {error}")
+
+    def _load_metrics(self) -> None:
+        """Read every stored provider metric (storage thread), then show them in their table."""
+        self.logger.debug("Asking for the stored provider metrics.")
+        self.loop.submit(self._read_metrics, self._on_metrics, self._on_metrics_error)
 
     def _axis(self, metric: ProviderMetric, scope: DriverScope, logarithmic: bool) -> str:
         """Name an axis of the scatter by the values it shows.
@@ -303,6 +406,7 @@ class DriversPanel(QWidget):
             )
             label = f"{self._label(cell.criterion)} {self._stars(cell.q_value)}".strip()
             bars.append((label, cell.rho, cell.low, cell.high, color, tooltip, cell.partial))
+        self.logger.debug("%d correlation bars built.", len(bars))
         return bars
 
     def _importance_bars(self, result: DriverResult) -> List[DriverBar]:
@@ -315,6 +419,8 @@ class DriversPanel(QWidget):
             List[DriverBar]: A bar per regressed criterion, the most important first.
         """
         explained = result.r2 or 0.0
+        if explained <= 0 and result.coefficients:
+            self.logger.warning("No explained variance: the %d importances are shown as 0%%.", len(result.coefficients))
         bars: List[DriverBar] = []
         for coefficient in result.coefficients:
             part = coefficient.importance / explained if explained > 0 else 0.0
@@ -341,6 +447,7 @@ class DriversPanel(QWidget):
                     None,
                 )
             )
+        self.logger.debug("%d importance bars built.", len(bars))
         return bars
 
     def _ranked(self, result: DriverResult, matrix: DriverMatrix) -> List[ProviderMetric]:
@@ -356,7 +463,9 @@ class DriversPanel(QWidget):
         ranked = [coefficient.criterion for coefficient in result.coefficients]
         ranked += [cell.criterion for cell in result.correlations]
         ranked += list(matrix.criteria)
-        return [*dict.fromkeys(ranked)]
+        ordered = [*dict.fromkeys(ranked)]
+        self.logger.debug("%d criteria ranked for the charts.", len(ordered))
+        return ordered
 
     def _points(
         self, result: DriverResult, matrix: DriverMatrix, criterion: ProviderMetric, logarithmic: bool
@@ -373,6 +482,7 @@ class DriversPanel(QWidget):
             List[DriverPoint]: A dot per observation holding both.
         """
         if criterion not in matrix.criteria:
+            self.logger.warning("The criterion %s has no observation in the matrix: no dot.", criterion.value)
             return []
         column = matrix.criteria.index(criterion)
         rows = numpy.flatnonzero(numpy.isfinite(matrix.y) & numpy.isfinite(matrix.x[:, column]))
@@ -386,6 +496,14 @@ class DriversPanel(QWidget):
                     continue
                 x, y = shown_x, shown_y
             points.append((matrix.providers[row], matrix.periods[row], x, y))
+        if len(points) < len(rows):
+            self.logger.debug(
+                "%d of the %d observations of %s have no natural value: not plotted.",
+                len(rows) - len(points),
+                len(rows),
+                criterion.value,
+            )
+        self.logger.debug("%d dots of %s against the target.", len(points), criterion.value)
         return points
 
     def _weight(self, result: DriverResult, criterion: ProviderMetric) -> str:
@@ -416,6 +534,7 @@ class DriversPanel(QWidget):
         """
         logarithmic = self.scale_button.isChecked()
         scope = result.query.scope
+        self.logger.debug("Showing the rise drivers scatter of %s.", result.query.target.value)
         panels: List[ScatterPanel] = [
             (
                 self._weight(result, criterion),
@@ -431,6 +550,7 @@ class DriversPanel(QWidget):
             self.theme.driver_role_color(DriverRole.TARGET),
             f"No criterion to plot against {self._label(result.query.target)}.",
         )
+        self.logger.debug("Rise drivers scatter shows %d criteria.", len(panels))
 
     def _fit_width(self) -> None:
         """Size the table to its columns, the guide taking the rest of the width."""
@@ -443,6 +563,7 @@ class DriversPanel(QWidget):
             else 0
         )
         self.table.setFixedWidth(columns + extra + 2 * self.table.frameWidth() + 2)
+        self.logger.debug("Rise drivers table fitted to %d pixels.", self.table.width())
 
     def _fill_table(self, result: DriverResult) -> None:
         """Write every figure of every criterion in the table.
@@ -484,6 +605,7 @@ class DriversPanel(QWidget):
         height = (header.height() if header else 24) + sum(self.table.rowHeight(row) for row in range(rows))
         self.table.setFixedHeight(height + 2 * self.table.frameWidth() + 2)
         self._fit_width()
+        self.logger.debug("Rise drivers table filled: %d criteria, %d regressed.", len(order), len(coefficients))
 
     def _show(self, result: DriverResult, matrix: DriverMatrix) -> None:
         """Show a result in the charts, the table, the summary and the caveats.
@@ -493,6 +615,15 @@ class DriversPanel(QWidget):
             matrix (DriverMatrix): Its observations.
         """
         target = self._label(result.query.target)
+        self.logger.debug(
+            "Showing the rise drivers of %s: %d correlations, %d coefficients, %d warnings.",
+            result.query.target.value,
+            len(result.correlations),
+            len(result.coefficients),
+            len(result.warnings),
+        )
+        if result.r2 is None:
+            self.logger.warning("No regression for the rise drivers of %s.", result.query.target.value)
         self.correlation_chart.set_bars(
             self._correlation_bars(result), 1.0, f"No criterion can be correlated with {target}."
         )
@@ -536,11 +667,14 @@ class DriversPanel(QWidget):
             outcome (DriverOutcome): Its result and observations.
         """
         if sip.isdeleted(self) or generation != self.generation:
+            self.logger.debug("Outcome of the rise drivers run %d dropped (last run %d).", generation, self.generation)
             return
         self.stale = False
         self.outcome = outcome
         self.controls.run_button.setEnabled(True)
         self._show(*outcome)
+        self.metrics_table.load(self.measures)
+        self._load_coverage()
         self.logger.info("Rise drivers of %s shown.", outcome[0].query.target)
 
     def _on_selection(self) -> None:
@@ -554,6 +688,7 @@ class DriversPanel(QWidget):
         Args:
             role (str): The role (its value).
         """
+        self.logger.debug("Role %s picked in the legend.", role)
         self.controls.open_picker(DriverRole(role))
 
     def _on_column(self, index: int) -> None:
@@ -568,6 +703,8 @@ class DriversPanel(QWidget):
             flags = QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Columns
             selection.select(self.table.model().index(0, index), flags)  # type: ignore[union-attr]
             self.logger.debug("Column %s selected from the guide.", self.COLUMNS[index].value)
+        else:
+            self.logger.debug("Column selection of the rise drivers table cleared.")
 
     def _on_subjects(self, subjects: List[str]) -> None:
         """Highlight in the table the criteria of a warning clicked on the board.
@@ -594,6 +731,7 @@ class DriversPanel(QWidget):
             error (StorageError): The error.
         """
         if sip.isdeleted(self):
+            self.logger.warning("Rise drivers panel closed before its error was shown: %s", error)
             return
         self.logger.error("The rise drivers cannot be analysed: %s", error)
         self.controls.run_button.setEnabled(True)
@@ -607,6 +745,7 @@ class DriversPanel(QWidget):
             path (Path): The file.
             matrix (DriverMatrix): The observations.
         """
+        self.logger.debug("Writing %d observations to %s.", len(matrix.providers), path)
         names = [self._label(metric) for metric in (matrix.target, *matrix.criteria, *matrix.controls)]
         with path.open("w", encoding="utf-8", newline="") as file:
             writer = csv.writer(file)
@@ -644,8 +783,15 @@ class DriversPanel(QWidget):
         )
 
     def refresh(self) -> None:
-        """Mark the provider metrics stale (a dataset was written): the next run computes them again."""
+        """Mark the provider metrics stale (a dataset was written): the next run computes them again.
+
+        Notes:
+            The coverage shown in the tooltips and the table of the provider metrics are read again at once: a
+            markets crawl writes new criteria.
+        """
         self.stale = True
+        self._load_metrics()
+        self._load_coverage()
         self.logger.debug("Provider metrics marked stale.")
 
     def export(self, path: Optional[Path] = None) -> Optional[Path]:
@@ -663,6 +809,7 @@ class DriversPanel(QWidget):
         if path is None:
             name, _ = QFileDialog.getSaveFileName(self, "Export the observations", "rise-drivers.csv", "CSV (*.csv)")
             if not name:
+                self.logger.warning("Export of the rise drivers observations cancelled.")
                 return None
             path = Path(name)
         try:
@@ -671,4 +818,5 @@ class DriversPanel(QWidget):
             self.logger.error("The observations cannot be exported to %s: %s", path, e.strerror)
             self.caveats.show_error(f"The observations cannot be exported to {path}: {e.strerror}")
             return None
+        self.logger.info("Rise drivers observations of %s exported to %s.", self.outcome[0].query.target.value, path)
         return path

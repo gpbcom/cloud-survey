@@ -357,8 +357,11 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
             resuming (bool): Whether the crawl is resumed from a checkpoint.
         """
         await super().on_start(resuming=resuming)
-        if not resuming:
-            self.category_names.clear()
+        if resuming:
+            self.logger.info("%s crawl resumed: %d category names kept.", self.name, len(self.category_names))
+            return
+        self.logger.debug("%s crawl started: the category names are forgotten.", self.name)
+        self.category_names.clear()
 
     async def start_requests(self) -> AsyncGenerator[Request]:
         """Start the crawl from the front category tree, then the first page of products.
@@ -411,8 +414,10 @@ class VolcanoEngineMarketplaceCrawler(BaseMarketplaceCrawler):
             EmptyCatalogueError: If the first page holds no software.
         """
         if response.meta.get(self.CATEGORIES):
+            self.logger.debug("Reading the %s categories of %s.", self.name, response.url)
             self._read_categories(response)
             return
+        self.logger.debug("Reading the %s listings page %s.", self.name, response.meta.get(self.PAGE))
         async for item in super().parse(response):
             yield item
         if (request := self._next_request(response)) is not None:

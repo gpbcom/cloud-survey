@@ -60,6 +60,7 @@ class UnionEstimator:
             population = by_key.get((country, year, WeightIndicator.POPULATION))
             if population:
                 users[country][year] = value / 100.0 * population
+        self.logger.debug("Internet users of %d countries from %d weights.", len(users), len(weights))
         return users
 
     def _weight(self, users: Dict[int, float], year: int) -> Optional[float]:

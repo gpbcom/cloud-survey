@@ -2,7 +2,7 @@ from __future__ import annotations
 
 # Standard Library Imports.
 from logging import Logger, getLogger
-from typing import Dict, Final, List, Optional, Type, Union
+from typing import Dict, Final, List, Optional, Sequence, Type, Union
 
 from classifier.software_classifier import SoftwareClassifier
 
@@ -66,6 +66,15 @@ from crawler.cloud.volcengine.crawler import VolcanoEngineCrawler
 from crawler.cloud.volcengine.marketplace import VolcanoEngineMarketplaceCrawler
 from crawler.cloud.yandex.crawler import YandexCloudCrawler
 from crawler.cloud.yandex.marketplace import YandexMarketplaceCrawler
+from crawler.companies.base import BaseCompanyCrawler
+from crawler.companies.edgar.crawler import EdgarFinancialsCrawler
+from crawler.companies.edgar_schedules.crawler import EdgarSchedulesCrawler
+from crawler.companies.figure_documents.crawler import FigureDocumentsCrawler
+from crawler.companies.google_finance.crawler import GoogleFinanceStatementsCrawler
+from crawler.companies.google_patents.crawler import GooglePatentsCrawler
+from crawler.companies.openalex.crawler import OpenAlexCrawler
+from crawler.companies.openalex_identity.crawler import OpenAlexIdentityCrawler
+from crawler.companies.sec_identity.crawler import SecIdentityCrawler
 from crawler.exception import NoMarketplaceError, UnknownCrawlerTargetError
 from crawler.marketplace.base import BaseMarketplaceCrawler
 from crawler.markets.base import BaseMarketsCrawler
@@ -83,8 +92,14 @@ from crawler.metrics.wikidata.crawler import WikidataCrawler
 from crawler.stats.base import BaseStatsCrawler
 from crawler.stats.synergy import SynergyResearchCrawler
 from models.cloud.enums import CloudProvider
+from models.companies.companies_catalog import CompaniesCatalog
+from models.companies.concepts.financial_concepts import FinancialConcepts
+from models.companies.enums import CompanyFeed
+from models.companies.figures.reported_figures import ReportedFigures
+from models.companies.patents.patent_window import PatentWindow
 from models.drivers.collectors.collector_catalog import CollectorCatalog
 from models.drivers.enums import MetricSource
+from models.history.chronology import Chronology
 from models.markets.crawl_scope import CrawlScope
 from models.markets.enums import MarketFeed
 from models.markets.markets_catalog import MarketsCatalog
@@ -103,6 +118,9 @@ class CrawlerFactory:
         METRICS_MAP (Final[Dict[MetricSource, Type[BaseMetricsCrawler]]]): The crawler of each metric source.
         MARKETS_MAP (Final[Dict[MarketFeed, Type[BaseMarketsCrawler]]]): The crawler of each source of the market
             shares, the stock prices and the exchange rates, in the order a full markets crawl runs them.
+        COMPANIES_MAP (Final[Dict[CompanyFeed, Type[BaseCompanyCrawler]]]): The crawler of each source of the
+            companies' statements, patents and papers, in the order a full companies crawl runs them (the patent
+            pages after the search finding the publications).
     """
 
     CRAWLER_MAP: Final[Dict[CloudProvider, Type[BaseCloudCrawler]]] = {
@@ -175,6 +193,17 @@ class CrawlerFactory:
         MetricSource.WIKIDATA: WikidataCrawler,
         MetricSource.PEERINGDB: PeeringdbCrawler,
         MetricSource.GITHUB: GithubCrawler,
+    }
+    COMPANIES_MAP: Final[Dict[CompanyFeed, Type[BaseCompanyCrawler]]] = {
+        CompanyFeed.EDGAR: EdgarFinancialsCrawler,
+        CompanyFeed.EDGAR_SCHEDULES: EdgarSchedulesCrawler,
+        CompanyFeed.GOOGLE_FINANCE: GoogleFinanceStatementsCrawler,
+        CompanyFeed.GOOGLE_PATENTS: GooglePatentsCrawler,
+        CompanyFeed.GOOGLE_PATENT_PAGES: GooglePatentsCrawler,
+        CompanyFeed.OPENALEX: OpenAlexCrawler,
+        CompanyFeed.SEC_IDENTITY: SecIdentityCrawler,
+        CompanyFeed.OPENALEX_IDENTITY: OpenAlexIdentityCrawler,
+        CompanyFeed.FIGURE_CHECK: FigureDocumentsCrawler,
     }
     MARKETS_MAP: Final[Dict[MarketFeed, Type[BaseMarketsCrawler]]] = {
         MarketFeed.FRED: FredCrawler,
@@ -320,7 +349,7 @@ class CrawlerFactory:
 
         Args:
             feed (MarketFeed): The source, e.g. StatCounter.
-            catalog (Optional[MarketsCatalog]): What is read, `conf/history/markets.yaml` by default.
+            catalog (Optional[MarketsCatalog]): What is read, `data/curated/markets.json` by default.
             scope (Optional[CrawlScope]): The part of the catalogue read, all of it by default.
 
         Returns:
@@ -336,3 +365,74 @@ class CrawlerFactory:
             raise UnknownCrawlerTargetError(feed.value)
         self.logger.info("Instantiating %s for the %s markets data.", crawler.__name__, feed.value)
         return crawler(catalog=catalog, scope=scope)
+
+    def get_companies(
+        self,
+        feed: CompanyFeed,
+        companies: Optional[CompaniesCatalog] = None,
+        concepts: Optional[FinancialConcepts] = None,
+        markets: Optional[MarketsCatalog] = None,
+        scope: Optional[CrawlScope] = None,
+        known: Optional[Sequence[PatentWindow]] = None,
+        queue: Optional[Sequence[str]] = None,
+        chronology: Optional[Chronology] = None,
+        figures: Optional[ReportedFigures] = None,
+    ) -> BaseCompanyCrawler:
+        """Get the crawler instance of a companies source.
+
+        Args:
+            feed (CompanyFeed): The source, e.g. SEC EDGAR.
+            companies (Optional[CompaniesCatalog]): Where each company is found, `data/curated/companies.json` by
+                default.
+            concepts (Optional[FinancialConcepts]): How the statement lines are read, by default
+                the `concepts` block of `conf/settings.yaml`.
+            markets (Optional[MarketsCatalog]): The listings, `data/curated/markets.json` by default.
+            scope (Optional[CrawlScope]): The companies read, every one by default.
+            known (Optional[Sequence[PatentWindow]]): The patents windows already searched (the patents search only).
+            queue (Optional[Sequence[str]]): The publications whose page to read (the patent pages only).
+            chronology (Optional[Chronology]): The names of the companies (the identity resolvers only),
+                `data/curated/chronology.json` by default.
+            figures (Optional[ReportedFigures]): The researched figures (the figures check only),
+                `data/curated/figures.json` by default.
+
+        Returns:
+            BaseCompanyCrawler: The companies crawler ready to run.
+
+        Raises:
+            UnknownCrawlerTargetError: If there is no crawler for the source.
+            CompaniesCatalogError: If a default catalogue cannot be loaded.
+            MarketsCatalogError: If the default markets catalogue cannot be loaded.
+        """
+        crawler = self.COMPANIES_MAP.get(feed)
+        if crawler is None:
+            self.logger.error("There is no companies crawler for the source: %s", feed.value)
+            raise UnknownCrawlerTargetError(feed.value)
+        self.logger.info("Instantiating %s for the %s companies data.", crawler.__name__, feed.value)
+        match feed:
+            case CompanyFeed.GOOGLE_PATENTS:
+                return GooglePatentsCrawler(
+                    companies=companies, concepts=concepts, markets=markets, scope=scope, known=known
+                )
+            case CompanyFeed.GOOGLE_PATENT_PAGES:
+                return GooglePatentsCrawler(
+                    companies=companies,
+                    concepts=concepts,
+                    markets=markets,
+                    scope=scope,
+                    queue=queue,
+                    source=CompanyFeed.GOOGLE_PATENT_PAGES,
+                )
+            case CompanyFeed.SEC_IDENTITY:
+                return SecIdentityCrawler(
+                    companies=companies, concepts=concepts, markets=markets, scope=scope, chronology=chronology
+                )
+            case CompanyFeed.OPENALEX_IDENTITY:
+                return OpenAlexIdentityCrawler(
+                    companies=companies, concepts=concepts, markets=markets, scope=scope, chronology=chronology
+                )
+            case CompanyFeed.FIGURE_CHECK:
+                return FigureDocumentsCrawler(
+                    companies=companies, concepts=concepts, markets=markets, scope=scope, figures=figures
+                )
+            case _:
+                return crawler(companies=companies, concepts=concepts, markets=markets, scope=scope)

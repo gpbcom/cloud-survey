@@ -2,7 +2,8 @@ from __future__ import annotations
 
 # Standard Library Imports.
 from datetime import UTC, datetime
-from typing import AsyncGenerator, ClassVar, Iterator, List
+from pathlib import Path
+from typing import AsyncGenerator, ClassVar, Iterator, List, Optional, Union
 from urllib.parse import urlencode
 
 # Third Party Imports.
@@ -12,12 +13,14 @@ from scrapling.spiders import Request, Response
 # First Party Imports.
 from crawler.markets.base import BaseMarketsCrawler, MarketFact
 from crawler.markets.worldbank.enums import WorldBankField
+from models.markets.crawl_scope import CrawlScope
 from models.markets.enums import AreaKind, MarketFeed, WeightIndicator
 from models.markets.facts.weight_observation import WeightObservation
+from models.markets.markets_catalog import MarketsCatalog
 
 
 class WorldBankCrawler(BaseMarketsCrawler):
-    """Crawl the World Bank indicators weighting the members of the unions (internet users and population).
+    """Crawl the World Bank internet users and population of the union members and of the catalogue's countries.
 
     Attributes:
         URL (ClassVar[str]): The indicator document of a list of countries, formatted with them and the indicator.
@@ -30,6 +33,8 @@ class WorldBankCrawler(BaseMarketsCrawler):
         - Two documents per union: the share of the population using the internet (`IT.NET.USER.ZS`) and the
           population (`SP.POP.TOTL`) of each member, per year. Their product is the member's internet users, its
           weight in the union estimate (`analytics.markets`).
+        - The countries of the catalogue are read too: the home internet users of the providers' companies are a
+          criterion of the Rise drivers. The World Bank has no Taiwan.
         - The latest years are often missing (`null`): they are left out, the estimate carries the last known
           year forward.
         - The World Bank data are open (CC BY 4.0) and the API host has no `robots.txt`.
@@ -41,32 +46,53 @@ class WorldBankCrawler(BaseMarketsCrawler):
     feed: ClassVar[MarketFeed] = MarketFeed.WORLD_BANK
     catalogue_url: ClassVar[str] = "https://api.worldbank.org/"
 
+    def __init__(
+        self,
+        catalog: Optional[MarketsCatalog] = None,
+        scope: Optional[CrawlScope] = None,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            catalog (Optional[MarketsCatalog]): What is read, `data/curated/markets.json` by default.
+            scope (Optional[CrawlScope]): The part of the catalogue read, all of it by default.
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+
+        Raises:
+            MarketsCatalogError: If the default catalogue cannot be loaded.
+        """
+        super().__init__(catalog=catalog, scope=scope, crawldir=crawldir, interval=interval)
+
     ############################
     # Internal Helpers Methods #
     ############################
 
-    def _members(self) -> List[str]:
-        """Get the member countries of every union of the catalogue.
+    def _countries(self) -> List[str]:
+        """Get the member countries of every union, then the other countries of the catalogue.
 
         Returns:
             List[str]: The countries, each once.
         """
         members = [member for area in self.catalog.areas if area.kind is AreaKind.UNION for member in area.members]
-        return [*dict.fromkeys(members)]
+        countries = [area.key for area in self.catalog.areas if area.kind is AreaKind.COUNTRY]
+        return [*dict.fromkeys(members + countries)]
 
     ############################
     # Publicly Exposed Methods #
     ############################
 
     async def start_requests(self) -> AsyncGenerator[Request]:
-        """Request both indicators for the members of the unions.
+        """Request both indicators for the union members and the countries of the catalogue.
 
         Yields:
             Request: A request per indicator.
         """
-        members = self._members()
+        members = self._countries()
         if not members:
-            self.logger.warning("The markets catalogue has no union: no World Bank weight to read.")
+            self.logger.warning("The markets catalogue has no country: no World Bank weight to read.")
             return
         query = urlencode({"format": "json", "date": f"{self.FIRST_YEAR}:{datetime.now(UTC).year}", "per_page": 5000})
         headers = self._headers("application/json")

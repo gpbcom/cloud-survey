@@ -5,13 +5,16 @@ from logging import Logger, getLogger
 from typing import ClassVar, List, Optional, Tuple
 
 # Third Party Imports.
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QMenu, QPushButton, QSpinBox, QToolButton, QWidget
 
 # First Party Imports.
+from gui.analysis.drivers.notes.criterion_tooltip import CriterionTooltip
+from gui.theme import Theme
 from gui.widgets.compact_combo import CompactCombo
 from models.drivers.enums import DriverRole, DriverScope, MetricFamily, ProviderMetric
+from models.drivers.help.driver_help import DriverHelp
 from models.drivers.metrics.metric_catalog import MetricCatalog
 from models.drivers.query.driver_query import DriverQuery
 
@@ -37,7 +40,12 @@ class DriverControls(QWidget):
         lag_box (QSpinBox): How many quarters the criteria lead the target (panel only).
         run_button (QPushButton): Runs the analysis.
         export_button (QPushButton): Exports the observations as CSV.
+        tooltips (CriterionTooltip): Writes the tooltip of every criterion, choice and button.
         logger (Logger): The controls logger.
+
+    Notes:
+        Every target, criterion, control and scope says in its tooltip what it measures, from where, transformed
+        how and what is stored of it. The criteria, controls and Run buttons follow the selection.
     """
 
     DEFAULT_CRITERIA: ClassVar[Tuple[ProviderMetric, ...]] = (
@@ -55,18 +63,21 @@ class DriverControls(QWidget):
     export_requested = pyqtSignal()
     changed = pyqtSignal()
 
-    def __init__(self, catalog: MetricCatalog, logger: Optional[Logger] = None) -> None:
+    def __init__(
+        self, catalog: MetricCatalog, logger: Optional[Logger] = None, tooltips: Optional[CriterionTooltip] = None
+    ) -> None:
         """Build the pickers.
 
         Args:
             catalog (MetricCatalog): The definitions of the criteria and the targets.
             logger (Optional[Logger]): The controls logger.
+            tooltips (Optional[CriterionTooltip]): The tooltip writer, one without explanations by default.
         """
         super().__init__()
         self.catalog = catalog
         self.logger = logger if logger else getLogger(__name__)
+        self.tooltips = tooltips if tooltips else CriterionTooltip(Theme(), catalog, DriverHelp(), self.logger)
         self.target_box = CompactCombo(22)
-        self.target_box.setToolTip("The measure of the rise to explain")
         for definition in catalog.targets():
             self.target_box.addItem(definition.label, definition.metric.value)
         self.criteria_button = QToolButton()
@@ -80,17 +91,11 @@ class DriverControls(QWidget):
         self.scope_box = CompactCombo(18)
         self.scope_box.addItem("Latest quarter", DriverScope.CROSS_SECTION.value)
         self.scope_box.addItem("Every quarter (panel)", DriverScope.PANEL.value)
-        self.scope_box.setToolTip(
-            "Latest quarter: one observation per provider. Panel: the yearly changes of every quarter, with "
-            "provider and quarter effects (needs a history of crawls)."
-        )
         self.lag_box = QSpinBox()
         self.lag_box.setRange(0, 8)
         self.lag_box.setValue(1)
         self.lag_box.setSuffix(" q lag")
-        self.lag_box.setToolTip("How many quarters the criteria lead the target (panel only)")
         self.run_button = QPushButton("Run")
-        self.run_button.setToolTip("Refresh the provider metrics if needed and run the analysis")
         self.export_button = QPushButton("Export CSV")
         self.export_button.setToolTip("Save the observations of the last analysis")
         self.export_button.setEnabled(False)
@@ -112,10 +117,12 @@ class DriverControls(QWidget):
         layout.addWidget(self.export_button)
         self._fill(self.criteria_button, self.DEFAULT_CRITERIA)
         self._fill(self.controls_button, ())
+        self.refresh_tooltips()
         self._on_target()
         self._on_scope()
         self.target_box.currentIndexChanged.connect(self._on_target)
         self.scope_box.currentIndexChanged.connect(self._on_scope)
+        self.lag_box.valueChanged.connect(self._describe)
         self.lag_box.valueChanged.connect(self.changed)
         self.run_button.clicked.connect(self.run_requested)
         self.export_button.clicked.connect(self.export_requested)
@@ -139,20 +146,26 @@ class DriverControls(QWidget):
         """
         menu = button.menu()
         if menu is None:
+            self.logger.warning("The %r button has no menu: no criterion listed.", button.toolTip())
             return
+        menu.setToolTipsVisible(True)
+        listed = 0
         for family in MetricFamily:
             definitions = self.catalog.of_family(family)
             if not definitions:
+                self.logger.debug("No criterion of the %s family to list.", family.value)
                 continue
             menu.addSection(family.value.replace("-", " ").capitalize())
             for definition in definitions:
                 action = menu.addAction(definition.label)
                 if action is None:
+                    self.logger.warning("No menu entry made for the criterion %s.", definition.metric.value)
                     continue
                 action.setCheckable(True)
                 action.setChecked(definition.metric in checked)
                 action.setData(definition.metric.value)
-                action.setToolTip(definition.description)
+                listed += 1
+        self.logger.debug("%d criteria listed in a menu, %d checked at first.", listed, len(checked))
 
     def _actions(self, button: QToolButton) -> List[QAction]:
         """Get the criteria entries of a button.
@@ -190,17 +203,52 @@ class DriverControls(QWidget):
         data = self.target_box.currentData()
         return ProviderMetric(str(data)) if data else None
 
+    def _describe(self) -> None:
+        """Write the tooltips following the selection: the criteria and controls checked, and what Run computes."""
+        target = self._target()
+        criteria = [metric for metric in self._checked(self.criteria_button) if metric is not target]
+        controls = [metric for metric in self._checked(self.controls_button) if metric is not target]
+        scope = DriverScope(str(self.scope_box.currentData() or DriverScope.CROSS_SECTION.value))
+        lag = self.lag_box.value()
+        self.criteria_button.setToolTip(self.tooltips.picked(DriverRole.CRITERION, criteria))
+        self.controls_button.setToolTip(self.tooltips.picked(DriverRole.CONTROL, controls))
+        resamples = int(DriverQuery.model_fields["bootstrap"].default)
+        self.run_button.setToolTip(
+            self.tooltips.run(target, criteria, controls, scope, lag if scope is DriverScope.PANEL else 0, resamples)
+        )
+        if target is not None:
+            self.target_box.setToolTip(self.tooltips.metric(target, DriverRole.TARGET))
+        self.logger.debug(
+            "Driver selection described: target %s, %d criteria, %d controls, %s scope, lag %d.",
+            target.value if target else None,
+            len(criteria),
+            len(controls),
+            scope.value,
+            lag,
+        )
+
     def _label(self) -> None:
         """Write the number of checked criteria and controls on their buttons, and allow a run with criteria."""
         criteria, controls = self._checked(self.criteria_button), self._checked(self.controls_button)
         self.criteria_button.setText(f"Criteria ({len(criteria)}) ▾")
         self.controls_button.setText(f"Controls ({len(controls)}) ▾")
-        self.run_button.setEnabled(bool(criteria) and self._target() is not None)
+        runnable = bool(criteria) and self._target() is not None
+        self.run_button.setEnabled(runnable)
+        self.logger.debug(
+            "%d criteria and %d controls checked, the analysis %s run.",
+            len(criteria),
+            len(controls),
+            "can" if runnable else "cannot",
+        )
+        self._describe()
         self.changed.emit()
 
     def _on_target(self) -> None:
         """Disable the target among the criteria and the controls (a criterion cannot explain itself)."""
         target = self._target()
+        self.logger.debug("Driver target picked: %s.", target.value if target else None)
+        if target is None:
+            self.logger.warning("No driver target picked: the analysis cannot run.")
         for button in (self.criteria_button, self.controls_button):
             for action in self._actions(button):
                 action.setEnabled(str(action.data()) != (target.value if target else ""))
@@ -208,7 +256,10 @@ class DriverControls(QWidget):
 
     def _on_scope(self) -> None:
         """Allow the lag in a panel only."""
-        self.lag_box.setEnabled(self.scope_box.currentData() == DriverScope.PANEL.value)
+        panel = self.scope_box.currentData() == DriverScope.PANEL.value
+        self.logger.debug("Driver scope picked: %s, the lag is %s.", self.scope_box.currentData(), "on" if panel else "off")
+        self.lag_box.setEnabled(panel)
+        self._describe()
         self.changed.emit()
 
     def _limit(self, button: QToolButton, action: QAction, limit: int) -> None:
@@ -244,6 +295,24 @@ class DriverControls(QWidget):
     # Publicly Exposed Methods #
     ############################
 
+    def refresh_tooltips(self) -> None:
+        """Write the tooltip of every target, criterion, control and scope again (the coverage was read)."""
+        for index in range(self.target_box.count()):
+            metric = ProviderMetric(str(self.target_box.itemData(index)))
+            self.target_box.setItemData(
+                index, self.tooltips.metric(metric, DriverRole.TARGET), Qt.ItemDataRole.ToolTipRole
+            )
+        for button, role in ((self.criteria_button, DriverRole.CRITERION), (self.controls_button, DriverRole.CONTROL)):
+            for action in self._actions(button):
+                action.setToolTip(self.tooltips.metric(ProviderMetric(str(action.data())), role))
+        for index in range(self.scope_box.count()):
+            scope = DriverScope(str(self.scope_box.itemData(index)))
+            self.scope_box.setItemData(index, self.tooltips.scope(scope), Qt.ItemDataRole.ToolTipRole)
+        self.scope_box.setToolTip(self.tooltips.role(DriverRole.SCOPE))
+        self.lag_box.setToolTip(self.tooltips.role(DriverRole.LAG))
+        self._describe()
+        self.logger.debug("Driver tooltips written.")
+
     def set_checked(self, criteria: List[ProviderMetric], controls: Optional[List[ProviderMetric]] = None) -> None:
         """Check criteria and controls, unchecking the others.
 
@@ -251,6 +320,7 @@ class DriverControls(QWidget):
             criteria (List[ProviderMetric]): The criteria.
             controls (Optional[List[ProviderMetric]]): The controls, none by default.
         """
+        self.logger.debug("Checking %d criteria and %d controls.", len(criteria), len(controls or []))
         for button, wanted in ((self.criteria_button, criteria), (self.controls_button, controls or [])):
             values = {metric.value for metric in wanted}
             for action in self._actions(button):
@@ -302,8 +372,12 @@ class DriverControls(QWidget):
         target = self._target()
         criteria = [metric for metric in self._checked(self.criteria_button) if metric is not target]
         if target is None or not criteria:
+            self.logger.warning(
+                "No analysis to run: target %s, %d criteria.", target.value if target else None, len(criteria)
+            )
             return None
         scope = DriverScope(str(self.scope_box.currentData()))
+        self.logger.debug("Driver query built: target %s, %d criteria, %s scope.", target.value, len(criteria), scope.value)
         return DriverQuery(
             target=target,
             criteria=criteria[: self.MAX_CRITERIA],

@@ -186,6 +186,7 @@ class SectionStack(FoldingPane):
         self.column.insertWidget(self.column.count() - 1, widget, 0)
         self.fixed.append(widget)
         self._cap()
+        self.logger.debug("Fixed widget %d added to the section stack.", len(self.fixed))
         return widget
 
     def add_section(self, section: ChartSection, weight: int = 1) -> ChartSection:

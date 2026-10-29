@@ -245,6 +245,7 @@ class BulkSelectDialog[T: CategorizedItem](QDialog):
         for button in (self.export_button, self.delete_button):
             button.setEnabled(False)
         self.count_timer.start()
+        self.logger.debug("Selection criteria changed (generation %d): counting again shortly.", self.generation)
 
     def _choose(self, action: SelectionAction) -> None:
         """Close the dialog with what to do with the matching items.
@@ -319,7 +320,9 @@ class BulkSelectDialog[T: CategorizedItem](QDialog):
             )
         )
         if state is DeletedState.DELETED:
+            self.logger.debug("Only the deleted items are chosen.")
             query = query.model_copy(update={"deleted": query.deleted.model_copy(update={"known": True})})
+        self.logger.debug("Selection query built: %d providers, %s items.", len(query.providers), state.value)
         return query
 
     def _show_count(self, generation: int, count: int) -> None:

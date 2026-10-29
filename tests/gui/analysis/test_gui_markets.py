@@ -8,15 +8,24 @@ import pytest
 from PyQt6.QtCore import QPointF, Qt
 from pytestqt.qtbot import QtBot
 
-from gui.analysis.markets.lag_chart import LagChart
+from gui.analysis.markets.charts.lag_chart import LagChart
+from gui.analysis.markets.charts.time_series_chart import TimeSeriesChart
 from gui.analysis.markets.markets_panel import MarketsPanel
-from gui.analysis.markets.time_series_chart import TimeSeriesChart
 from gui.storage_bridge.storage_loop import StorageLoop
 from gui.theme import Theme
 from models.history.chronology import Chronology
 from models.markets.charts.chart_dot import ChartDot
 from models.markets.charts.chart_line import ChartLine
-from models.markets.enums import Device, MarketFeed, PriceScale, ShareMetric, ShareSource, StockView
+from models.markets.correlation.counterpart import Counterpart
+from models.markets.enums import (
+    CorrelationCounterpart,
+    Device,
+    MarketFeed,
+    PriceScale,
+    ShareMetric,
+    ShareSource,
+    StockView,
+)
 from models.markets.facts.price_point import PricePoint
 from models.markets.markets_catalog import MarketsCatalog
 from models.markets.series.lag_correlation import LagCorrelation
@@ -119,6 +128,34 @@ class TestTimeSeriesChart:
         assert 2 * 92 < quarterly < 365, "a line named in releases years apart is broken, a missed quarter is not"
         assert yearly > 365, "consecutive years stay joined"
 
+    def test_the_rate_of_change_replaces_the_values_and_back(self, qtbot: QtBot) -> None:
+        chart = TimeSeriesChart(Theme())
+        qtbot.addWidget(chart)
+        chart.resize(900, 400)
+        points = [(date(2020, 1, 1), 10.0), (date(2021, 1, 1), 14.0), (date(2022, 1, 1), 12.0)]
+        dot = ChartDot(day=date(2020, 6, 1), value=40.0, color="#7e57c2", label="IPO", tooltip="S-1")
+        chart.set_data([ChartLine(key="a", label="A", color="#ff0000", points=points)], [dot], "%", True, True, "k")
+
+        chart.set_derivative(True)
+        chart.grab()
+        derived = chart.lines[0].points
+
+        assert [day for day, _ in derived] == [date(2021, 1, 1), date(2022, 1, 1)]
+        assert derived[0][1] == pytest.approx(4.0, rel=0.01)
+        assert derived[1][1] == pytest.approx(-2.0, rel=0.01)
+        assert (chart.unit, chart.log_y, chart.floor_zero, chart.dots) == ("pts/yr", False, False, [])
+        chart.set_derivative(False)
+        assert (chart.lines[0].points, chart.unit, chart.log_y, len(chart.dots)) == (points, "%", True, 1)
+
+    def test_lone_values_say_why_nothing_is_derived(self, qtbot: QtBot) -> None:
+        chart = TimeSeriesChart(Theme())
+        dot = ChartDot(day=date(2020, 6, 1), value=40.0, color="#7e57c2", label="IPO", tooltip="S-1")
+        chart.set_data([], [dot], "USD bn", True, False, "k")
+
+        chart.set_derivative(True)
+
+        assert chart.message.startswith("No line to derive")
+
     def test_without_data_the_message_shows(self, qtbot: QtBot) -> None:
         chart = TimeSeriesChart(Theme())
         qtbot.addWidget(chart)
@@ -147,7 +184,10 @@ class TestMarketsPanel:
         lines = built.share_chart.lines
         assert [line.key for line in lines] == ["google", "duckduckgo", "others"]
         assert lines[0].color == Theme().company_color(markets_chronology.company("google")).name()  # type: ignore[arg-type]
-        assert [built.company_box.itemData(index) for index in range(built.company_box.count())] == ["google"]
+        assert [built.company_box.itemData(index) for index in range(built.company_box.count())] == [
+            "google",
+            "duckduckgo",
+        ], "every company drawn: a company without listing can still be correlated with another series"
         assert "StatCounter" in built.share_note.text()
 
     def test_a_late_answer_is_dropped(
@@ -262,6 +302,20 @@ class TestMarketsOnTheDatabase:
                 for day, value in months(48)
                 for label, company, weight in (("Google", "google", 1.0), ("bing", "microsoft", 0.1))
             ]
+            + [
+                MarketShareValue(
+                    segment="browsers",
+                    area="ww",
+                    period=day,
+                    metric=ShareMetric.USAGE,
+                    device=Device.ALL,
+                    source=ShareSource.STATCOUNTER,
+                    label="Chrome",
+                    company="google",
+                    value=value / 2 + (index % 5),
+                )
+                for index, (day, value) in enumerate(months(48))
+            ]
         )
         await storage.stocks.upsert(
             [
@@ -280,9 +334,23 @@ class TestMarketsOnTheDatabase:
         qtbot.waitUntil(lambda: len(built.share_chart.lines) == 2, timeout=10_000)
         qtbot.waitUntil(lambda: bool(built.stock_chart.lines), timeout=10_000)
         assert [line.key for line in built.stock_chart.lines] == ["NASDAQ:GOOGL"]
+        qtbot.waitUntil(lambda: built.correlation_controls.counterpart() is not None, timeout=10_000)
+        offered = built.correlation_controls.counterparts
+        assert [(entry.kind, entry.label) for entry in offered[:2]] == [
+            (CorrelationCounterpart.STOCK, "NASDAQ:GOOGL stock"),
+            (CorrelationCounterpart.SHARE, "Web browsers / Worldwide / statcounter"),
+        ]
+        assert [entry.segment for entry in offered[2:]] == ["foundry", "dram", "nand"], "no home currency in USD"
         built.correlate()
         qtbot.waitUntil(lambda: built.correlate_button.isEnabled(), timeout=10_000)
-        assert "share changes lead returns" in built.correlation_summary.text()
+        assert "share changes lead the returns" in built.correlation_summary.text()
+        built.correlation_controls.against_box.setCurrentIndex(1)
+        built.correlate()
+        qtbot.waitUntil(lambda: "Web browsers" in built.correlation_summary.text(), timeout=10_000)
+        assert (
+            "against Web browsers / Worldwide / statcounter: up to 47 months paired" in built.correlation_summary.text()
+        )
+        assert "the Web browsers / Worldwide / statcounter changes" in built.lag_chart.counterpart
 
     async def test_manual_points_fill_only_the_periods_the_source_leaves_empty(
         self, storage: Storage, gui_loop: StorageLoop, markets_catalog: MarketsCatalog, markets_chronology: Chronology
@@ -312,3 +380,78 @@ class TestMarketsOnTheDatabase:
         lines = await built._read_shares(("pcs", "ww", Device.ALL, ShareSource.IDC, 8), storage)
 
         assert dict(lines[0].points) == {date(1984, 1, 1): 26.0, date(2025, 1, 1): 24.0}
+
+
+class TestMarketsTooltips:
+    def test_every_control_and_choice_explains_itself(
+        self, qtbot: QtBot, markets_catalog: MarketsCatalog, markets_chronology: Chronology
+    ) -> None:
+        built = panel(qtbot, markets_catalog, markets_chronology)
+        shares, stocks = built.share_controls, built.stock_controls
+        boxes = [
+            shares.segment_box,
+            shares.area_box,
+            shares.device_box,
+            stocks.view_box,
+            stocks.currency_box,
+            stocks.scale_box,
+        ]
+
+        missing = [
+            (box.itemText(index), box.toolTip()[:20])
+            for box in boxes
+            for index in range(box.count())
+            if len(str(box.itemData(index, Qt.ItemDataRole.ToolTipRole) or "")) < 60
+        ]
+
+        assert missing == []
+        for widget in (
+            *boxes,
+            shares.top_box,
+            shares.derivative_box,
+            stocks.companies_button,
+            stocks.secondary_box,
+            stocks.derivative_box,
+            built.company_box,
+        ):
+            assert widget.toolTip().startswith("<qt>")
+        eu27 = str(shares.area_box.itemData(shares.area_box.findData("eu27"), Qt.ItemDataRole.ToolTipRole))
+        assert "internet users" in eu27
+        assert "27 member states" in eu27
+        shares.derivative_box.setChecked(True)
+        stocks.derivative_box.setChecked(True)
+        assert built.share_chart.derivative
+        assert built.stock_chart.derivative
+
+    def test_the_correlate_tooltip_follows_the_counterpart(
+        self, qtbot: QtBot, markets_catalog: MarketsCatalog, markets_chronology: Chronology
+    ) -> None:
+        built = panel(qtbot, markets_catalog, markets_chronology)
+        controls = built.correlation_controls
+        controls.set_companies(["google"], {"google": "Google"})
+        controls.set_counterparts(
+            [
+                Counterpart(kind=CorrelationCounterpart.STOCK, label="NASDAQ:GOOGL stock", listing="NASDAQ:GOOGL"),
+                Counterpart(
+                    kind=CorrelationCounterpart.CONTEXT,
+                    label="DRAM concentration (HHI)",
+                    segment="dram",
+                    source=ShareSource.TRENDFORCE,
+                ),
+            ]
+        )
+
+        monthly = built.correlate_button.toolTip()
+        controls.against_box.setCurrentIndex(1)
+        quarterly = built.correlate_button.toolTip()
+
+        assert "Google&#x27;s share of Web search" in monthly
+        assert "NASDAQ:GOOGL stock" in monthly
+        assert "-12 to +12 months" in monthly
+        assert "400 resamples" in monthly
+        assert "-4 to +4 quarters" in quarterly
+        assert "HHI" in quarterly
+        assert "Google" in str(controls.company_box.itemData(0, Qt.ItemDataRole.ToolTipRole))
+        assert all(
+            len(str(controls.against_box.itemData(index, Qt.ItemDataRole.ToolTipRole))) > 60 for index in range(2)
+        )

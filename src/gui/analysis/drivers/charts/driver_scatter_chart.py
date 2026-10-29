@@ -202,7 +202,9 @@ class DriverScatterChart(QWidget):
         self.y_color = QColor(y_color) if y_color else QColor(self.theme.TEXT_MUTED)
         self.message = message or self.message
         self.update()
-        self.logger.debug("Driver scatter shows %d dots.", len(self.points))
+        self.logger.debug("Driver scatter of %s against %s shows %d dots.", y_label, x_label, len(self.points))
+        if not self.points:
+            self.logger.warning("Driver scatter of %s against %s without dots: it shows %r.", y_label, x_label, self.message)
 
     def sizeHint(self) -> QSize:
         """Get the preferred size (Qt override).

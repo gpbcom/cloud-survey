@@ -500,6 +500,17 @@ class AxisRules:
             return None
         return OptionBlock.NEEDS_TIME_AXIS
 
+    def derivable(self, axes: ChartAxes) -> Optional[OptionBlock]:
+        """Tell whether a chart can draw the rate of change of its series.
+
+        Args:
+            axes (ChartAxes): The chart axes.
+
+        Returns:
+            Optional[OptionBlock]: Why there is no derivative (it needs a line chart), `None` when allowed.
+        """
+        return None if axes.chart is ChartKind.LINE else OptionBlock.NEEDS_LINE_CHART
+
     def repair(self, axes: ChartAxes, available: Optional[FrozenSet[DatasetKind]] = None) -> ChartAxes:
         """Turn axes into a valid combination, keeping every choice which can be kept.
 
@@ -526,6 +537,7 @@ class AxisRules:
                 "transform": ValueTransform.RAW,
                 "forecast": False,
                 "log_scale": False,
+                "derivative": False,
                 "size": None,
                 "facet_by": None,
             }
@@ -548,6 +560,7 @@ class AxisRules:
                     "transform": transform,
                     "forecast": fixed.forecast and self.forecastable(fixed) is None,
                     "log_scale": fixed.log_scale and fixed.chart is ChartKind.BUBBLE,
+                    "derivative": fixed.derivative and self.derivable(fixed) is None,
                 }
             )
             facets = dict(self.facet_options(repaired))

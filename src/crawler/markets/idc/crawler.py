@@ -62,7 +62,7 @@ class IdcCrawler(BasePressCrawler):
         """Initialize the crawler.
 
         Args:
-            catalog (Optional[MarketsCatalog]): What is read, `conf/history/markets.yaml` by default.
+            catalog (Optional[MarketsCatalog]): What is read, `data/curated/markets.json` by default.
             scope (Optional[CrawlScope]): The part read: the releases published since `scope.since` only.
             crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
             interval (float): Seconds between periodic checkpoint saves.

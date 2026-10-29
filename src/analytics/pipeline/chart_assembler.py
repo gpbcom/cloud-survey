@@ -27,6 +27,8 @@ class ChartAssembler:
         - The forecast extrapolates the raw values: a share of total or a rank of the projected values is then
           computed like any other.
         - The largest series are chosen by their latest raw value, before any transform.
+        - The derivative (rate of change) is taken last, from the transformed values: the rate of change of a share
+          of total, of an index or of the raw values.
     """
 
     def __init__(self, logger: Optional[Logger] = None) -> None:
@@ -90,6 +92,9 @@ class ChartAssembler:
                 series = self.forecaster.project(series, axes.y)
                 notes.append(ChartNote.FORECAST_METHOD)
             series = self.transformer.transform(series, axes.transform)
+        if axes.derivative and self.rules.derivable(axes) is None:
+            series = self.transformer.derivative(series, axes.x.kind is MetricKind.TIME)
+            notes.append(ChartNote.DERIVATIVE)
         kept = self.transformer.top(series, axes.top, weights, merge=axes.chart is ChartKind.AREA)
         total = sum(1 for one in series if one.key)
         self.logger.debug("Chart assembled: %d of %d series kept.", sum(1 for one in kept if one.key), total)

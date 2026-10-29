@@ -1,0 +1,137 @@
+{
+ "Result": {
+  "TableList": [
+   {
+    "TableCode": "Tablefixture",
+    "Rows": [
+     {
+      "Product": "ECS",
+      "ConfigurationCode": "ecs.c3il.12xlarge",
+      "ChargeItemCode": "ecs.c3il_12xlarge_cn-shanghai",
+      "PriceInfoList": [
+       {
+        "Period": "hourly",
+        "Times": 1,
+        "Price": "9.6246",
+        "AttrValue": "1",
+        "UsedAmount": 0,
+        "PriceInterval": "",
+        "MeasureInterval": "",
+        "PricingFunction": "fixed_price",
+        "DiscountInfo": "[]",
+        "Precision": 0,
+        "OriginalAmount": "9.6246",
+        "DiscountAmount": "9.6246"
+       }
+      ]
+     },
+     {
+      "Product": "ECS",
+      "ConfigurationCode": "ecs.c3al.12xlarge.month",
+      "ChargeItemCode": "ecs.c3al_12xlarge_ap-southeast-1",
+      "PriceInfoList": [
+       {
+        "Period": "monthly",
+        "Times": 1,
+        "Price": "4697.01",
+        "AttrValue": "1",
+        "UsedAmount": 0,
+        "PriceInterval": "",
+        "MeasureInterval": "",
+        "PricingFunction": "fixed_price",
+        "DiscountInfo": "[{\"AccountID\":0,\"Product\":\"ECS\",\"DiscountType\":2,\"DiscountNumber\":\"CXI9VJSV\",\"ObjectID\":\"TZQEDP8J\",\"BillingFunction\":\"time_discount\",\"Price\":\"0\",\"PriceInterval\":\"0.75,0.51,0.42,0.33,0.27,0.22\",\"MeasureInterval\":\"1,12,24,36,48,60\",\"ActualDiscountPrice\":\"0.75\",\"DiscountName\":\"【勿删】云服务器ECS包年折扣-海外柔佛地域2025.1.07更新\",\"DiscountDesc\":\"\",\"DiscountedAmount\":\"1565.67\",\"SerialNumber\":\"RS7702051529660371242\",\"MatchDown\":true,\"RefundRule\":\"\",\"Refundable\":true,\"CouponUsable\":true,\"DiscountCode\":\"\",\"BizBillingFunction\":\"time_discount\",\"BizUnitPrice\":\"0\",\"BizUnitPriceInterval\":\"0.75,0.51,0.42,0.33,0.27,0.22\",\"BizMeasureInterval\":\"1,12,24,36,48,60\",\"PromotionID\":\"\",\"DiscountSource\":\"Common\",\"ChargeItemCode\":\"ecs.c3al_12xlarge_ap-southeast-1\",\"Version\":1,\"DiscountPrice\":\"0.75\"}]",
+        "Precision": 0,
+        "OriginalAmount": "6262.68",
+        "DiscountAmount": "4697.01"
+       },
+       {
+        "Period": "monthly",
+        "Times": 12,
+        "Price": "38327.63",
+        "AttrValue": "1",
+        "UsedAmount": 0,
+        "PriceInterval": "",
+        "MeasureInterval": "",
+        "PricingFunction": "fixed_price",
+        "DiscountInfo": "[{\"AccountID\":0,\"Product\":\"ECS\",\"DiscountType\":2,\"DiscountNumber\":\"CXI9VJSV\",\"ObjectID\":\"TZQEDP8J\",\"BillingFunction\":\"time_discount\",\"Price\":\"0\",\"PriceInterval\":\"0.75,0.51,0.42,0.33,0.27,0.22\",\"MeasureInterval\":\"1,12,24,36,48,60\",\"ActualDiscountPrice\":\"0.51\",\"DiscountName\":\"【勿删】云服务器ECS包年折扣-海外柔佛地域2025.1.07更新\",\"DiscountDesc\":\"\",\"DiscountedAmount\":\"36824.59\",\"SerialNumber\":\"RS7702051529660387626\",\"MatchDown\":true,\"RefundRule\":\"\",\"Refundable\":true,\"CouponUsable\":true,\"DiscountCode\":\"\",\"BizBillingFunction\":\"time_discount\",\"BizUnitPrice\":\"0\",\"BizUnitPriceInterval\":\"0.75,0.51,0.42,0.33,0.27,0.22\",\"BizMeasureInterval\":\"1,12,24,36,48,60\",\"PromotionID\":\"\",\"DiscountSource\":\"Common\",\"ChargeItemCode\":\"ecs.c3al_12xlarge_ap-southeast-1\",\"Version\":1,\"DiscountPrice\":\"0.51\"}]",
+        "Precision": 0,
+        "OriginalAmount": "75152.22",
+        "DiscountAmount": "38327.63"
+       },
+       {
+        "Period": "monthly",
+        "Times": 24,
+        "Price": "63127.86",
+        "AttrValue": "1",
+        "UsedAmount": 0,
+        "PriceInterval": "",
+        "MeasureInterval": "",
+        "PricingFunction": "fixed_price",
+        "DiscountInfo": "[{\"AccountID\":0,\"Product\":\"ECS\",\"DiscountType\":2,\"DiscountNumber\":\"CXI9VJSV\",\"ObjectID\":\"TZQEDP8J\",\"BillingFunction\":\"time_discount\",\"Price\":\"0\",\"PriceInterval\":\"0.75,0.51,0.42,0.33,0.27,0.22\",\"MeasureInterval\":\"1,12,24,36,48,60\",\"ActualDiscountPrice\":\"0.42\",\"DiscountName\":\"【勿删】云服务器ECS包年折扣-海外柔佛地域2025.1.07更新\",\"DiscountDesc\":\"\",\"DiscountedAmount\":\"87176.58\",\"SerialNumber\":\"RS7702051543395406123\",\"MatchDown\":true,\"RefundRule\":\"\",\"Refundable\":true,\"CouponUsable\":true,\"DiscountCode\":\"\",\"BizBillingFunction\":\"time_discount\",\"BizUnitPrice\":\"0\",\"BizUnitPriceInterval\":\"0.75,0.51,0.42,0.33,0.27,0.22\",\"BizMeasureInterval\":\"1,12,24,36,48,60\",\"PromotionID\":\"\",\"DiscountSource\":\"Common\",\"ChargeItemCode\":\"ecs.c3al_12xlarge_ap-southeast-1\",\"Version\":1,\"DiscountPrice\":\"0.42\"}]",
+        "Precision": 0,
+        "OriginalAmount": "150304.44",
+        "DiscountAmount": "63127.86"
+       },
+       {
+        "Period": "monthly",
+        "Times": 36,
+        "Price": "74400.7",
+        "AttrValue": "1",
+        "UsedAmount": 0,
+        "PriceInterval": "",
+        "MeasureInterval": "",
+        "PricingFunction": "fixed_price",
+        "DiscountInfo": "[{\"AccountID\":0,\"Product\":\"ECS\",\"DiscountType\":2,\"DiscountNumber\":\"CXI9VJSV\",\"ObjectID\":\"TZQEDP8J\",\"BillingFunction\":\"time_discount\",\"Price\":\"0\",\"PriceInterval\":\"0.75,0.51,0.42,0.33,0.27,0.22\",\"MeasureInterval\":\"1,12,24,36,48,60\",\"ActualDiscountPrice\":\"0.33\",\"DiscountName\":\"【勿删】云服务器ECS包年折扣-海外柔佛地域2025.1.07更新\",\"DiscountDesc\":\"\",\"DiscountedAmount\":\"151055.96\",\"SerialNumber\":\"RS7702051555336065343\",\"MatchDown\":true,\"RefundRule\":\"\",\"Refundable\":true,\"CouponUsable\":true,\"DiscountCode\":\"\",\"BizBillingFunction\":\"time_discount\",\"BizUnitPrice\":\"0\",\"BizUnitPriceInterval\":\"0.75,0.51,0.42,0.33,0.27,0.22\",\"BizMeasureInterval\":\"1,12,24,36,48,60\",\"PromotionID\":\"\",\"DiscountSource\":\"Common\",\"ChargeItemCode\":\"ecs.c3al_12xlarge_ap-southeast-1\",\"Version\":1,\"DiscountPrice\":\"0.33\"}]",
+        "Precision": 0,
+        "OriginalAmount": "225456.66",
+        "DiscountAmount": "74400.7"
+       }
+      ]
+     },
+     {
+      "Product": "IMS",
+      "ConfigurationCode": "RedHat",
+      "ChargeItemCode": "image_RedHat_cn-hongkong",
+      "PriceInfoList": [
+       {
+        "Period": "hourly",
+        "Times": 1,
+        "Price": "0",
+        "AttrValue": "1",
+        "UsedAmount": 0,
+        "PriceInterval": "0.1041,0.0781,0.0694",
+        "MeasureInterval": "0,8,127",
+        "PricingFunction": "full_progressive",
+        "DiscountInfo": "[]",
+        "Precision": 5,
+        "OriginalAmount": "0",
+        "DiscountAmount": "0"
+       }
+      ]
+     },
+     {
+      "Product": "volume",
+      "ConfigurationCode": "system-EBS_ESSD_PL0",
+      "ChargeItemCode": "system-EBS_ESSD_PL0_ap-southeast-1",
+      "PriceInfoList": [
+       {
+        "Period": "hourly",
+        "Times": 1,
+        "Price": "0.0008415",
+        "AttrValue": "1",
+        "UsedAmount": 0,
+        "PriceInterval": "",
+        "MeasureInterval": "",
+        "PricingFunction": "fixed_price",
+        "DiscountInfo": "[{\"AccountID\":0,\"Product\":\"volume\",\"DiscountType\":2,\"DiscountNumber\":\"CXYW1EGV\",\"ObjectID\":\"TZFP9PCZ\",\"BillingFunction\":\"simple_discount\",\"Price\":\"0.51\",\"PriceInterval\":\"\",\"MeasureInterval\":\"\",\"ActualDiscountPrice\":\"0.51\",\"DiscountName\":\"【勿删】EBS弹性块存储--8.15后付费通用优惠\",\"DiscountDesc\":\"\",\"DiscountedAmount\":\"0.00\",\"SerialNumber\":\"\",\"MatchDown\":false,\"RefundRule\":\"\",\"Refundable\":false,\"CouponUsable\":false,\"DiscountCode\":\"\",\"BizBillingFunction\":\"simple_discount\",\"BizUnitPrice\":\"0.51\",\"BizUnitPriceInterval\":\"\",\"BizMeasureInterval\":\"\",\"PromotionID\":\"\",\"DiscountSource\":\"Common\",\"ChargeItemCode\":\"system-EBS_ESSD_PL0_ap-southeast-1\",\"Version\":1,\"DiscountPrice\":\"0.51\"}]",
+        "Precision": 10,
+        "OriginalAmount": "0.00165",
+        "DiscountAmount": "0.0008415"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

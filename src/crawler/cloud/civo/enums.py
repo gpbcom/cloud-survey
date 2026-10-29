@@ -59,3 +59,33 @@ class CivoJsonLdField(StrEnum):
     NAME = "name"
     DESCRIPTION = "description"
     URL = "url"
+
+
+@unique
+class CivoPriceOption(StrEnum):
+    """Enums representing the price options of a cell of the Civo pricing page (`data-option`).
+
+    Attributes:
+        HOURLY (str): The hourly price.
+        MONTHLY (str): The monthly price.
+    """
+
+    HOURLY = "hourly"
+    MONTHLY = "monthly"
+
+
+@unique
+class CivoPriceColumn(StrEnum):
+    """Enums representing the hardware columns of the Civo pricing tables.
+
+    Attributes:
+        RAM (str): The memory.
+        CPU (str): The cores.
+        VCPU (str): The vCPUs.
+        STORAGE (str): The storage.
+    """
+
+    RAM = "RAM"
+    CPU = "CPU"
+    VCPU = "vCPU"
+    STORAGE = "Storage"

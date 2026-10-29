@@ -185,6 +185,9 @@ class TrendStatements:
         Returns:
             Select[str, str, datetime, int]: The facet (empty without facets), key, bucket and count rows.
         """
+        self.logger.debug(
+            "Counting the %s %s by %s per %s.", "deleted" if deleted else "added", self.table.name, grouping, grain
+        )
         source, key, facet_key = self.keys(grouping, facet)
         moment = self.table.c.deleted_at if deleted else self._added_at()
         filters = [*conditions, self.table.c.deleted_at.is_not(None)] if deleted else conditions
@@ -224,6 +227,7 @@ class TrendStatements:
         Notes:
             The listed items are the running total of the additions minus the deletions.
         """
+        self.logger.debug("Counting the listed %s by %s per %s.", self.table.name, grouping, grain)
         source, key, facet_key = self.keys(grouping, facet)
         facet_column = self._facet_column(facet_key)
         deleted_at = self.table.c.deleted_at
@@ -279,6 +283,7 @@ class TrendStatements:
         Notes:
             A publisher counts from the first software it listed, case and spaces aside, and is never removed.
         """
+        self.logger.debug("Counting the publishers of the %s by %s per %s.", self.table.name, grouping, grain)
         source, key, facet_key = self.keys(grouping, facet)
         publisher = self.table.c.publisher
         listings = (

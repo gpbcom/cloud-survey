@@ -385,3 +385,30 @@ class TestGrangerTest:
         series = {PROVIDERS[0]: {TARGET: {"2025Q1": 1.0, "2025Q2": 2.0}, DRIVER: {"2025Q1": 1.0}}}
 
         assert GrangerTest().p_value(series, TARGET, DRIVER, 1) is None
+
+
+class TestCommonCriteria:
+    def test_a_market_context_is_flagged_and_correlated_only_over_time(self, catalog: MetricCatalog) -> None:
+        values = panel(seed=11, lag=0)
+        quarters = sorted({value.period for value in values})
+        context = {quarter: float(index % 5) + 0.1 * index for index, quarter in enumerate(quarters)}
+        values += [
+            measure(provider, quarter, ProviderMetric.CONTEXT_DRAM_HHI, context[quarter])
+            for provider in PROVIDERS[:12]
+            for quarter in quarters
+        ]
+        criteria = [DRIVER, ProviderMetric.CONTEXT_DRAM_HHI]
+
+        result = DriverAnalysis(catalog).run(
+            DriverQuery(target=TARGET, criteria=criteria, scope=DriverScope.PANEL, bootstrap=0), values
+        )
+        latest = DriverAnalysis(catalog).run(DriverQuery(target=TARGET, criteria=criteria, bootstrap=0), values)
+
+        common = [warning for warning in result.warnings if warning.kind is DriverWarningKind.COMMON_CRITERION]
+        assert common
+        assert common[0].subjects == [ProviderMetric.CONTEXT_DRAM_HHI]
+        assert ProviderMetric.CONTEXT_DRAM_HHI in [cell.criterion for cell in result.correlations]
+        assert ProviderMetric.CONTEXT_DRAM_HHI not in [cell.criterion for cell in latest.correlations]
+        assert "latest quarter" in next(
+            warning.message for warning in latest.warnings if warning.kind is DriverWarningKind.COMMON_CRITERION
+        )

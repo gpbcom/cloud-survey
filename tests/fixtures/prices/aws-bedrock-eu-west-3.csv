@@ -1,0 +1,7 @@
+"FormatVersion","v1.0"
+"Disclaimer","This pricing list is for informational purposes only. All prices are subject to the additional terms included in the pricing pages on http://aws.amazon.com. All Free Tier prices are also subject to the terms included at https://aws.amazon.com/free/"
+"Publication Date","2026-10-28T19:22:16Z"
+"Version","20261028192216"
+"OfferCode","AmazonBedrock"
+"SKU","OfferTermCode","RateCode","TermType","PriceDescription","EffectiveDate","StartingRange","EndingRange","Unit","PricePerUnit","Currency","Product Family","serviceCode","Location","Location Type","usageType","operation","Feature","Feature Type","Inference Type","Model","Policy Type","Provider","Region Code","service_tier","serviceName","Titan Model","Titan Model Unit","Token Type"
+"226EKWYF6VFZ9VFF","JRTCKXETXF","226EKWYF6VFZ9VFF.JRTCKXETXF.6YS6EN2CT7","OnDemand","$0.00322 per 1K token for Nova2.0Pro-input-video-token-count-priority-cross-region-global in EU (Paris)","2026-10-01","0","Inf","1K tokens","0.0032200000","USD","Amazon Bedrock","AmazonBedrock","EU (Paris)","AWS Region","EUW3-Nova2.0Pro-input-video-token-count-priority-cross-region-global","",,,"Input Video Token Count Priority","Nova 2.0 Pro",,,"eu-west-3",,"Amazon Bedrock",,,

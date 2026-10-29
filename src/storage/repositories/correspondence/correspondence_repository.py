@@ -61,7 +61,7 @@ from storage.tables.taxonomy.taxonomy_node_row import TaxonomyNodeRow
 
 
 class CorrespondenceRepository:
-    """Read and write the service concepts shared by the providers, and the checks of the language model matches.
+    """Create, read, update, delete and list the service concepts shared by the providers, and check the matches.
 
     Attributes:
         LOCK_SPACE (ClassVar[int]): The first key of the advisory locks of the categories being matched.
@@ -81,6 +81,8 @@ class CorrespondenceRepository:
           none): a listed product is pending in a category until a check holds its current content fingerprint.
         - The language model only adds members: a member a person removed stays excluded, and what a person set is
           never changed by a later answer.
+        - A concept is the aggregate root: `create` files its services with it, `update` renames it, `delete`
+          removes it with its memberships, `list` reads the rows of the provider columns.
     """
 
     LOCK_SPACE: ClassVar[int] = 6
@@ -209,6 +211,7 @@ class CorrespondenceRepository:
             concept_id = int(str(row["concept_id"]))
             heads.setdefault(concept_id, row)
             members.setdefault(concept_id, []).append(self._member(row))
+        self.logger.debug("%d member rows grouped into %d concepts.", len(rows), len(heads))
         return [
             ConceptRow.model_validate(
                 {
@@ -443,7 +446,17 @@ class CorrespondenceRepository:
         statement = select(self.products.c.id, self.products.c.fingerprint).where(
             self.products.c.id == any_(bindparam("ids", sorted(set(product_ids)), type_=ARRAY(BigInteger)))
         )
-        return {int(row_id): bytes(fingerprint) for row_id, fingerprint in (await connection.execute(statement)).all()}
+        fingerprints = {
+            int(row_id): bytes(fingerprint) for row_id, fingerprint in (await connection.execute(statement)).all()
+        }
+        if len(fingerprints) < len(set(product_ids)):
+            self.logger.warning(
+                "%d of the %d products to check are no longer stored.",
+                len(set(product_ids)) - len(fingerprints),
+                len(set(product_ids)),
+            )
+        self.logger.debug("Fingerprints of %d products read.", len(fingerprints))
+        return fingerprints
 
     async def _concept_id(self, connection: AsyncConnection, slug: str, answer: ConceptAnswer, known: Set[int]) -> int:
         """Get the concept of an answer: the existing one it names, the one of the same name, or a new one.
@@ -502,6 +515,7 @@ class CorrespondenceRepository:
             for product_id in sorted(set(product_ids))
         ]
         if not rows:
+            self.logger.debug("No check to record in %s.", slug)
             return
         checks = self.checks
         statement = upsert(checks).values(rows)
@@ -516,6 +530,9 @@ class CorrespondenceRepository:
                     "llm_attempts": excluded.llm_attempts if error is None else checks.c.llm_attempts + 1,
                 },
             )
+        )
+        self.logger.debug(
+            "Checks of %d products recorded in %s (%s).", len(rows), slug, "matched" if error is None else "failed"
         )
 
     async def _edit(self, label: str, statement: Executable) -> None:
@@ -725,8 +742,8 @@ class CorrespondenceRepository:
             raise StorageWriteError(f"checks of {slug}", str(e)) from e
         self.logger.warning("%s: %d services not matched: %s", slug, len(product_ids), error)
 
-    async def rows(self, query: CorrespondenceQuery) -> List[ConceptRow]:
-        """Read the rows of the provider columns: the concepts matched by the AI, or the taxonomy categories.
+    async def list(self, query: CorrespondenceQuery) -> List[ConceptRow]:
+        """List the rows of the provider columns: the concepts matched by the AI, or the taxonomy categories.
 
         Args:
             query (CorrespondenceQuery): The columns, the mode and the filters.
@@ -737,11 +754,12 @@ class CorrespondenceRepository:
         Raises:
             StorageReadError: If the rows cannot be read.
         """
+        self.logger.debug("Reading the correspondence rows of %d columns by %s.", len(query.columns), query.mode)
         if query.mode is ViewMode.CATEGORIES:
             return await self._categories(query)
         return await self._concepts(query)
 
-    async def concept(self, concept_id: int) -> Optional[ConceptRow]:
+    async def read(self, concept_id: int) -> Optional[ConceptRow]:
         """Read a concept with every service filed under it (deleted ones included).
 
         Args:
@@ -813,7 +831,7 @@ class CorrespondenceRepository:
         Raises:
             StorageReadError: If the figures cannot be read.
         """
-        concepts = await self.rows(query)
+        concepts = await self.list(query)
         products = self.products
         services = select(func.count()).select_from(products).where(*self.builder.filters(query.item_query()))
         pending = self._pending(3).subquery("pending")
@@ -925,7 +943,7 @@ class CorrespondenceRepository:
         self.logger.debug("Coverage of %d providers counted.", len(values))
         return cells
 
-    async def rename(self, concept_id: int, name: str, description: Optional[str] = None) -> None:
+    async def update(self, concept_id: int, name: str, description: Optional[str] = None) -> None:
         """Rename a concept by hand (the language model no longer renames it).
 
         Args:
@@ -936,6 +954,7 @@ class CorrespondenceRepository:
         Raises:
             StorageWriteError: If the concept cannot be renamed (e.g. another concept of its category has the name).
         """
+        self.logger.debug("Renaming the concept %d to %r.", concept_id, name)
         values: Dict[str, Union[str, bool, ColumnElement[datetime]]] = {
             "name": " ".join(name.split()),
             "edited": True,
@@ -959,6 +978,7 @@ class CorrespondenceRepository:
         Raises:
             StorageWriteError: If the service cannot be filed.
         """
+        self.logger.debug("Filing the service %d under the concept %d as %s.", product_id, concept_id, role)
         members = self.members
         statement = upsert(members).values(
             concept_id=concept_id,
@@ -983,6 +1003,7 @@ class CorrespondenceRepository:
         Raises:
             StorageWriteError: If the service cannot be removed.
         """
+        self.logger.debug("Removing the service %d from the concept %d.", product_id, concept_id)
         members = self.members
         statement = upsert(members).values(
             concept_id=concept_id, product_id=product_id, source=ConceptSource.USER.value, excluded=True
@@ -1114,11 +1135,12 @@ class CorrespondenceRepository:
         Returns:
             Dict[CardinalityClass, int]: The number of concepts of each class.
         """
-        concepts = await self.rows(query.model_copy(update={"cardinalities": [], "limit": 5000}))
+        concepts = await self.list(query.model_copy(update={"cardinalities": [], "limit": 5000}))
         counts: Dict[CardinalityClass, int] = {}
         for concept in concepts:
             kind = concept.row_class(query.columns, query.strength)
             counts[kind] = counts.get(kind, 0) + 1
+        self.logger.debug("%d concepts counted in %d classes.", len(concepts), len(counts))
         return counts
 
     async def sizes(self) -> Dict[CloudProvider, int]:

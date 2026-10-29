@@ -73,7 +73,7 @@ class TestSeed:
         assert not await storage.seeder.seed()
 
         nodes = await rows(storage, "SELECT count(*), count(*) FILTER (WHERE parent_slug IS NULL) FROM taxonomy_nodes")
-        taxonomy = await storage.taxonomy.read()
+        taxonomy = await storage.taxonomy.list()
         assert nodes[0][0] == len(taxonomy.nodes) >= 200
         assert nodes[0][1] == len(taxonomy.domains())
         assert taxonomy.is_category("kubernetes")
@@ -312,10 +312,44 @@ class TestQueries:
 
 
 class TestManagerEdits:
+    async def test_a_label_is_created_read_and_deleted(self, storage: Storage) -> None:
+        await crawl(storage, [software("Acme", ("Databases",))])
+
+        created = await storage.labels.create("  Knowledge   bases ")
+        read = await storage.labels.read(created.id)
+        deleted = await storage.labels.delete(created.id)
+
+        assert (created.text, created.name_en, created.items) == ("Knowledge bases", "Knowledge bases", 0)
+        assert read == created
+        assert deleted is True
+        assert await storage.labels.read(created.id) is None
+        assert await storage.labels.delete(created.id) is False
+        with pytest.raises(StorageWriteError, match="already exists"):
+            await storage.labels.create("Databases")
+        carried = (await rows(storage, "SELECT id FROM source_labels WHERE key = 'database'"))[0][0]
+        with pytest.raises(StorageWriteError, match="still carry it"):
+            await storage.labels.delete(int(carried))
+
+    async def test_a_node_is_read_and_deleted_only_when_unused(self, storage: Storage) -> None:
+        await crawl(storage, [software("Acme", ("Databases",))])
+
+        slug = await storage.taxonomy.create("Ledger databases", "databases")
+        node = await storage.taxonomy.read(slug)
+
+        assert node is not None
+        assert node.parent_slug == "databases"
+        assert await storage.taxonomy.delete(slug) is True
+        assert await storage.taxonomy.read(slug) is None
+        assert await storage.taxonomy.delete(slug) is False
+        with pytest.raises(StorageWriteError, match="categories are still under it"):
+            await storage.taxonomy.delete("databases")
+        with pytest.raises(StorageWriteError, match="still filed under it"):
+            await storage.taxonomy.delete("database")
+
     async def test_the_labels_are_detailed_with_their_links_sightings_and_items(self, storage: Storage) -> None:
         await crawl(storage, [software("Acme", ("Databases",)), software("Other", ("Databases", "Базы знаний"))])
 
-        details = {label.text: label for label in await storage.labels.details()}
+        details = {label.text: label for label in await storage.labels.list()}
 
         assert details["Databases"].links == ["database"]
         assert details["Databases"].providers == [f"marketplace:{PROVIDER.value}"]
@@ -327,7 +361,7 @@ class TestManagerEdits:
         await crawl(storage, [software("Acme", ("Базы знаний",))])
         label_id = (await rows(storage, "SELECT id FROM source_labels WHERE key = 'базызнаний'"))[0][0]
 
-        affected = await storage.labels.set_name(int(label_id), "Knowledge bases")
+        affected = await storage.labels.update(int(label_id), "Knowledge bases")
         assert int(label_id) in affected
         assert await storage.recategorize(label_ids=affected) == 1
 
@@ -363,17 +397,17 @@ class TestManagerEdits:
     async def test_the_taxonomy_is_edited_by_hand(self, storage: Storage) -> None:
         await crawl(storage, [software("Acme", ("Databases",))])
 
-        slug = await storage.taxonomy.add_node("Ledger databases", "databases", description_en="Immutable ledgers.")
+        slug = await storage.taxonomy.create("Ledger databases", "databases", description_en="Immutable ledgers.")
         assert slug == "ledger-databases"
-        assert await storage.taxonomy.add_node("Ledger databases!", "databases") == "ledger-databases-2"
+        assert await storage.taxonomy.create("Ledger databases!", "databases") == "ledger-databases-2"
         with pytest.raises(StorageWriteError, match="duplicate key"):
-            await storage.taxonomy.add_node("ledger DATABASES", "databases")
+            await storage.taxonomy.create("ledger DATABASES", "databases")
         with pytest.raises(StorageWriteError, match="under a domain"):
-            await storage.taxonomy.add_node("Nested", "database")
-        await storage.taxonomy.update_node(slug, "Ledger DBs", "Реестровые СУБД", "账本数据库", "Ledgers.")
+            await storage.taxonomy.create("Nested", "database")
+        await storage.taxonomy.update(slug, "Ledger DBs", "Реестровые СУБД", "账本数据库", "Ledgers.")
         await storage.taxonomy.set_hidden("ledger-databases-2", True)
         moved = await storage.taxonomy.move_node(slug, "data-analytics")
-        taxonomy = await storage.taxonomy.read()
+        taxonomy = await storage.taxonomy.list()
 
         assert taxonomy.domain_of(slug) == "data-analytics"
         ledger, copy = taxonomy.node(slug), taxonomy.node("ledger-databases-2")
@@ -386,7 +420,7 @@ class TestManagerEdits:
         await storage.recategorize(node_slugs=merged)
 
         assert (await by_name(storage))["Acme"].service_categories == ["relational-database"]
-        database = (await storage.taxonomy.read()).node("database")
+        database = (await storage.taxonomy.list()).node("database")
         assert database is not None
         assert database.hidden
 

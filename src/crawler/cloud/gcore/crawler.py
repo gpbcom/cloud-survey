@@ -2,6 +2,8 @@ from __future__ import annotations
 
 # Standard Library Imports.
 import re
+from decimal import Decimal
+from pathlib import Path
 from typing import AsyncGenerator, ClassVar, Dict, Iterator, List, Optional, Tuple, Union
 from urllib.parse import urljoin, urlparse
 
@@ -10,9 +12,13 @@ from pydantic import JsonValue
 from scrapling.spiders import Request, Response
 
 # First Party Imports.
-from crawler.cloud.base import BaseCloudCrawler
-from crawler.cloud.gcore.enums import GcoreMenuTab
+from crawler.cloud.base import BaseCloudCrawler, PriceFact
+from crawler.cloud.gcore.enums import GcoreMachineKind, GcoreMenuTab, GcorePriceField
 from crawler.enums import HtmlAttribute, PageMetaName
+from crawler.exception import CatalogueFormatError
+from models.cloud.enums import PriceModel, PriceSourceKind, PriceUnit
+from models.cloud.prices.facts.service_price import ServicePrice
+from models.cloud.prices.price_field_check import RawValue
 from models.cloud.products.product import CloudProduct
 
 
@@ -25,6 +31,19 @@ class GcoreCrawler(BaseCloudCrawler):
             (case-insensitive).
         PRODUCT_PATHS (ClassVar[Tuple[str, ...]]): The sitemap paths of the product pages missing from the menu.
         TITLE_SUFFIX (ClassVar[re.Pattern[str]]): The tagline or brand suffix of a page heading or title.
+        PRICES_URL (ClassVar[str]): The cloud pricing API of the website (no key), every location, in euros.
+        PRICE_KIND (ClassVar[str]): The request meta holding the kind of machine of a listing.
+        PRICE_CURRENCY (ClassVar[str]): The currency read.
+        NUMBER (ClassVar[re.Pattern[str]]): A price written as text, e.g. `2,052.28`.
+        COUNT (ClassVar[re.Pattern[str]]): The count a hardware text starts with, e.g. `16` of `16GB RAM`.
+        TABLE_SERVICES (ClassVar[Tuple[Tuple[re.Pattern[str], str], ...]]): The service of a price table type.
+        HOUR_UNIT (ClassVar[str]): The unit written for an hourly price.
+        MONTH_UNIT (ClassVar[str]): The unit written for a monthly price.
+        TRAFFIC_UNIT (ClassVar[str]): The unit written for a traffic price.
+        GLOBAL_REGION (ClassVar[str]): The region of a row without location.
+        PRODUCT_PAGE_PRICES (ClassVar[bool]): The catalogue product pages are read too, for their prices.
+        PAGE_TEXT_PRICES (ClassVar[bool]): A product page without price table is read for the prices in its text.
+        PRODUCT_PAGE_JS (ClassVar[bool]): The product pages are rendered first (their Angular price widgets).
 
     Notes:
         The main source is the products menu of the https://gcore.com/ home page: its tabbed menus (Edge Network,
@@ -33,7 +52,10 @@ class GcoreCrawler(BaseCloudCrawler):
         with an allowlist of product pages (compute, hosting, security and services pages missing from the menu),
         read for their heading and meta description (without categories).
         The `robots.txt` of the website declares `Content-Signal: ai-train=no, search=yes, ai-input=no` and is
-        obeyed.
+        obeyed by the catalogue crawl.
+        In price mode it reads the cloud pricing API the pricing page loads (`PRICES_URL`), once for the virtual
+        machines and once for the bare metal servers, each a source: an hourly and a monthly price per flavor and
+        location (load balancers included), and the traffic price of the bare metal locations.
     """
 
     SITEMAP_URL: ClassVar[str] = "https://gcore.com/sitemap-main.xml"
@@ -66,10 +88,38 @@ class GcoreCrawler(BaseCloudCrawler):
     )
     TITLE_SUFFIX: ClassVar[re.Pattern[str]] = re.compile(r"\s+[|\u2013-]\s+.*$|:\s.*$")
 
+    PRODUCT_PAGE_PRICES: ClassVar[bool] = True
+    PAGE_TEXT_PRICES: ClassVar[bool] = True
+    PRODUCT_PAGE_JS: ClassVar[bool] = True
     name = "gcore"
     catalogue_url: ClassVar[str] = "https://gcore.com/"
     complement_urls: ClassVar[Tuple[str, ...]] = (SITEMAP_URL,)
     name_prefixes: ClassVar[Tuple[str, ...]] = ("Gcore ",)
+    PRICES_URL: ClassVar[str] = "https://bff.gcore.pro/cloud/pricing-cloud?location=all&currency=EUR&vmType={kind}"
+    PRICE_KIND: ClassVar[str] = "price_kind"
+    PRICE_CURRENCY: ClassVar[str] = "EUR"
+    NUMBER: ClassVar[re.Pattern[str]] = re.compile(r"^\d[\d,]*(?:\.\d+)?$")
+    COUNT: ClassVar[re.Pattern[str]] = re.compile(r"^\s*(\d+)")
+    TABLE_SERVICES: ClassVar[Tuple[Tuple[re.Pattern[str], str], ...]] = (
+        (re.compile(r"^bm"), "Bare Metal"),
+        (re.compile(r"^lb"), "Load Balancers"),
+        (re.compile(r"^egress"), "Egress traffic"),
+        (re.compile(r"^gpu"), "GPU Virtual Machines"),
+        (re.compile(r"^(?:cpu|standard|memory|shared|highfreq|net)_"), "Virtual Machines"),
+    )
+    HOUR_UNIT: ClassVar[str] = "hour"
+    MONTH_UNIT: ClassVar[str] = "month"
+    TRAFFIC_UNIT: ClassVar[str] = "GB"
+    GLOBAL_REGION: ClassVar[str] = "global"
+
+    def __init__(self, crawldir: Optional[Union[str, Path]] = None, interval: float = 300.0) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+        """
+        super().__init__(crawldir=crawldir, interval=interval)
 
     ############################
     # Internal Helpers Methods #
@@ -186,6 +236,122 @@ class GcoreCrawler(BaseCloudCrawler):
                 requests.append(request)
         self.logger.info("%d %s product pages to check in the sitemap (%d pages).", len(requests), self.name, len(urls))
         return requests
+
+    def _price_number(self, text: JsonValue) -> Optional[Decimal]:
+        """Read a price written as text, e.g. `2,052.28`.
+
+        Args:
+            text (JsonValue): The written price.
+
+        Returns:
+            Optional[Decimal]: The price, `None` when unreadable.
+        """
+        match = self.NUMBER.match(text.strip()) if isinstance(text, str) else None
+        return Decimal(match[0].replace(",", "")) if match else None
+
+    def _table_service(self, table: str) -> str:
+        """Name the service of a price table, e.g. `Bare Metal` for `bm2w`.
+
+        Args:
+            table (str): The table type.
+
+        Returns:
+            str: The service of the first matching `TABLE_SERVICES` rule, the table type otherwise.
+        """
+        return next((service for pattern, service in self.TABLE_SERVICES if pattern.match(table)), table)
+
+    def _row_prices(self, row: Dict[str, JsonValue], kind: str, source: str) -> Iterator[ServicePrice]:
+        """Read the prices of a row of the pricing API: hourly and monthly, or per GB of traffic.
+
+        Args:
+            row (Dict[str, JsonValue]): The row.
+            kind (str): The kind of machine of its listing (`vm`, `bm`).
+            source (str): The listing it was read from (its source).
+
+        Yields:
+            ServicePrice: Its hourly then monthly prices, or its traffic price.
+        """
+        name = str(row.get(GcorePriceField.NAME) or "").strip()
+        table = str(row.get(GcorePriceField.TABLE_TYPE) or "")
+        location = str(row.get(GcorePriceField.LOCATION) or self.GLOBAL_REGION)
+        vcpus = self.COUNT.match(str(row.get(GcorePriceField.VCPUS) or ""))
+        ram = self.COUNT.match(str(row.get(GcorePriceField.RAM) or ""))
+        base: Dict[str, RawValue] = {
+            "service": self._table_service(table),
+            "family": table or None,
+            "region": location,
+            "instance_type": name or None,
+            "vcpu": int(vcpus[1]) if vcpus and int(vcpus[1]) > 0 else None,
+            "memory_gib": int(ram[1]) if ram and int(ram[1]) > 0 else None,
+            "attributes": {
+                field.value: str(value).strip()
+                for field in (GcorePriceField.GPU, GcorePriceField.CPU, GcorePriceField.DISKS, GcorePriceField.NETWORK)
+                if (value := row.get(field))
+            },
+            "currency": self.PRICE_CURRENCY,
+            "source_url": source,
+            "source_kind": PriceSourceKind.API,
+        }
+        priced = (
+            (GcorePriceField.PRICE_PER_HOUR, PriceUnit.HOUR, self.HOUR_UNIT),
+            (GcorePriceField.PRICE_PER_MONTH, PriceUnit.MONTH, self.MONTH_UNIT),
+            (GcorePriceField.PRICE_PER_TRAFFIC, PriceUnit.GIB, self.TRAFFIC_UNIT),
+        )
+        for field, unit, written in priced:
+            price = self._price_number(row.get(field))
+            if price is None:
+                continue
+            fact = self._price_fact(
+                {
+                    **base,
+                    "sku_key": f"{kind}/{location}/{table}/{name}/{written}",
+                    "unit": unit,
+                    "unit_raw": written,
+                    "price": price,
+                    "model": PriceModel.FREE if price == 0 else PriceModel.ON_DEMAND,
+                }
+            )
+            if fact is not None:
+                yield fact
+
+    async def _price_requests(self) -> AsyncGenerator[Request]:
+        """Request the pricing of the virtual machines and of the bare metal servers.
+
+        Yields:
+            Request: The request of each listing.
+        """
+        for kind in GcoreMachineKind:
+            source = self.PRICES_URL.format(kind=kind.value)
+            self.logger.info("Reading the Gcore %s prices from %s.", kind.value, source)
+            yield self._price_request(source, {self.PRICE_KIND: kind.value})
+
+    async def _extract_prices(self, response: Response) -> AsyncGenerator[PriceFact]:
+        """Read a listing of the pricing API.
+
+        Args:
+            response (Response): The listing.
+
+        Yields:
+            PriceFact: The prices of its rows.
+
+        Raises:
+            CatalogueFormatError: If it has no price tables.
+        """
+        data = self._json_body(response)
+        tables = data.get(GcorePriceField.BODY) if isinstance(data, dict) else None
+        if not isinstance(tables, list):
+            self.logger.error("The Gcore pricing %s has no price tables.", response.url)
+            raise CatalogueFormatError(self.name, response.url, "the pricing has no price tables")
+        kind = str(response.meta.get(self.PRICE_KIND) or GcoreMachineKind.VIRTUAL.value)
+        source = self.PRICES_URL.format(kind=kind)
+        found = 0
+        for table in tables:
+            for row in table if isinstance(table, list) else []:
+                for fact in self._row_prices(row, kind, source) if isinstance(row, dict) else iter(()):
+                    found += 1
+                    yield fact
+        self._record_price_source(source, found)
+        self.logger.info("The Gcore %s pricing is read: %d prices of %d tables.", kind, found, len(tables))
 
     ############################
     # Publicly Exposed Methods #

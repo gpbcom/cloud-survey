@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 # Standard Library Imports.
-from typing import ClassVar, Dict, FrozenSet, Iterator, List, Optional
+from pathlib import Path
+from typing import ClassVar, Dict, FrozenSet, Iterator, List, Optional, Union
 
 # Third Party Imports.
 from pydantic import JsonValue
 from scrapling.spiders import Response
 
 # First Party Imports.
+from classifier.software_classifier import SoftwareClassifier
 from crawler.cloud.scaleway.enums import (
     ScalewayAppCategory,
     ScalewayAppField,
@@ -53,6 +55,21 @@ class ScalewayMarketplaceCrawler(BaseMarketplaceCrawler):
 
     name = "scaleway-marketplace"
     catalogue_url: ClassVar[str] = "https://www.scaleway.com/en/marketplace/catalog/"
+
+    def __init__(
+        self,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+        classifier: Optional[SoftwareClassifier] = None,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+            classifier (Optional[SoftwareClassifier]): The software classifier, the project rules by default.
+        """
+        super().__init__(crawldir=crawldir, interval=interval, classifier=classifier)
 
     ############################
     # Internal Helpers Methods #

@@ -61,7 +61,7 @@ async def test_the_categories_are_stored_and_read_back(stored: Storage) -> None:
 
 
 async def test_the_stored_products_are_classified_again(stored: Storage) -> None:
-    stamp = {stamp.dataset: stamp for stamp in await stored.datasets.stamps()}[CloudProvider.AWS.value]
+    stamp = {stamp.dataset: stamp for stamp in await stored.datasets.list()}[CloudProvider.AWS.value]
 
     changed = await stored.catalogues.reclassify(CloudProvider.AWS)
     again = await stored.catalogues.reclassify(CloudProvider.AWS)
@@ -72,7 +72,7 @@ async def test_the_stored_products_are_classified_again(stored: Storage) -> None
     catalogue = await stored.catalogues.load(CloudProvider.AWS)
     assert catalogue is not None
     assert all(item.categories for item in catalogue.products)
-    assert {stamp.dataset: stamp for stamp in await stored.datasets.stamps()}[
+    assert {stamp.dataset: stamp for stamp in await stored.datasets.list()}[
         CloudProvider.AWS.value
     ].revision > stamp.revision
 

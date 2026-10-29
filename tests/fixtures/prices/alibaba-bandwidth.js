@@ -1,0 +1,1 @@
+var bandWidthPrice = {"cn-heyuan": {"cn-heyuan": "华南2（河源）", "bandWidthValue": [["cn-heyuan", "1", "Month", "3.4"], ["cn-heyuan", "1", "Hour", "0.0059"], ["cn-heyuan", "1", "GB", "0.123"]]}};

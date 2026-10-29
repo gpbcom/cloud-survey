@@ -8,6 +8,7 @@ from PyQt6.QtGui import QColor, QHelpEvent, QMouseEvent
 from pytestqt.qtbot import QtBot
 
 from gui.charts.base.metric_chart import ChartLine, MetricChart
+from gui.charts.common.chart_labels import ChartLabels
 from gui.charts.plots.matrix.heatmap_chart import HeatmapChart
 from gui.charts.plots.matrix.mix_bar_chart import MixBarChart
 from gui.charts.plots.series.metric_line_chart import MetricLineChart
@@ -123,6 +124,17 @@ class TestMetricLineChart:
         assert chart.is_rank()
         assert frame.map_y(1) < frame.map_y(2)
         assert ticks[0] == 1
+
+    def test_a_derivative_is_titled_as_a_rate_and_never_inverted(self, qtbot: QtBot) -> None:
+        chart = MetricLineChart(Theme())
+        axes = ChartAxes(scope=ChartScope.ANALYSIS, transform=ValueTransform.RANK, derivative=True)
+        chart.set_lines(axes, [line(AWS, "AWS", "#ff9900", [(24000, -4), (24012, 4)])])
+        chart.grab()
+
+        title = ChartLabels(Theme()).axis_title(ChartMetric.LISTED, ChartScope.CATALOGUE, rate="year")
+
+        assert not chart.is_rank(), "a change of rank is not a rank"
+        assert title.startswith("Change per year of: ")
 
     def test_the_states(self, chart: MetricLineChart) -> None:
         chart.set_loading(True)

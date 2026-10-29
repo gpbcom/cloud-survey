@@ -237,8 +237,10 @@ class KrystalMarketplaceCrawler(BaseMarketplaceCrawler):
             Union[Dict[str, JsonValue], Request]: The application, else the page requests of a category page.
         """
         if KrystalRequestMeta.LISTING in response.meta:
+            self.logger.debug("Reading the %s application page %s.", self.name, response.url)
             async for item in super().parse(response):
                 yield item
             return
+        self.logger.debug("Reading the %s category page %s.", self.name, response.url)
         for request in self._category_requests(response):
             yield request

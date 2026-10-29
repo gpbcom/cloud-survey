@@ -4,7 +4,8 @@ from __future__ import annotations
 import csv
 import io
 from datetime import UTC, datetime
-from typing import AsyncGenerator, ClassVar, Iterator, List, Optional
+from pathlib import Path
+from typing import AsyncGenerator, ClassVar, Iterator, List, Optional, Union
 from urllib.parse import urlencode
 
 # Third Party Imports.
@@ -15,8 +16,10 @@ from scrapling.spiders import Request, Response
 from crawler.markets.base import BaseMarketsCrawler, MarketFact
 from crawler.markets.statcounter.enums import StatCounterDevice, StatCounterMeta, StatCounterParameter
 from models.markets.catalog.share_segment import ShareSegment
+from models.markets.crawl_scope import CrawlScope
 from models.markets.enums import AreaKind, Device, MarketFeed
 from models.markets.facts.share_observation import ShareObservation
+from models.markets.markets_catalog import MarketsCatalog
 
 
 class StatCounterCrawler(BaseMarketsCrawler):
@@ -44,6 +47,26 @@ class StatCounterCrawler(BaseMarketsCrawler):
     feed: ClassVar[MarketFeed] = MarketFeed.STATCOUNTER
     catalogue_url: ClassVar[str] = "https://gs.statcounter.com/"
     download_delay: float = 2.0
+
+    def __init__(
+        self,
+        catalog: Optional[MarketsCatalog] = None,
+        scope: Optional[CrawlScope] = None,
+        crawldir: Optional[Union[str, Path]] = None,
+        interval: float = 300.0,
+    ) -> None:
+        """Initialize the crawler.
+
+        Args:
+            catalog (Optional[MarketsCatalog]): What is read, `data/curated/markets.json` by default.
+            scope (Optional[CrawlScope]): The part of the catalogue read, all of it by default.
+            crawldir (Optional[Union[str, Path]]): Directory for checkpoint files, enabling pause/resume.
+            interval (float): Seconds between periodic checkpoint saves.
+
+        Raises:
+            MarketsCatalogError: If the default catalogue cannot be loaded.
+        """
+        super().__init__(catalog=catalog, scope=scope, crawldir=crawldir, interval=interval)
 
     ############################
     # Internal Helpers Methods #

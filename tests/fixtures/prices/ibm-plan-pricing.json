@@ -1,0 +1,745 @@
+{
+ "origin": "pricing_catalog",
+ "type": "Paid",
+ "url": "https://globalcatalog.cloud.ibm.com/api/v1/b52c751f-ced8-4314-b80c-303876642a55/pricing",
+ "i18n": {},
+ "starting_price": {},
+ "effective_from": "2026-10-01T00:00:00Z",
+ "effective_until": "2026-10-31T23:59:59.999Z",
+ "metrics": [
+  {
+   "part_ref": "",
+   "metric_id": "part-is.redhatOS-SAPHANA",
+   "tier_model": "Simple Tier",
+   "resource_display_name": "REDHATSAPHANA_VCPU_HOURS",
+   "charge_unit_display_name": "Redhat-SAP-HANA-Hourly",
+   "charge_unit_name": "RHELSAPHANA_VCPU_HOURS",
+   "charge_unit": "Virtual Processor Core-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 8,
+       "price": 0.02323
+      },
+      {
+       "quantity_tier": 127,
+       "price": 0.01616
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.01515
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 8,
+       "price": 0.020271390032
+      },
+      {
+       "quantity_tier": 127,
+       "price": 0.014101836544
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.013220471760000001
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.suseOS",
+   "tier_model": "Block Tier",
+   "resource_display_name": "SUSE_INSTANCE_HOURS",
+   "charge_unit_display_name": "SUSE-Hourly",
+   "charge_unit_name": "SUSE_INSTANCE_HOURS",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 2,
+       "price": 0.10908
+      },
+      {
+       "quantity_tier": 4,
+       "price": 0.21715
+      },
+      {
+       "quantity_tier": 100000,
+       "price": 0.2727
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 2,
+       "price": 0.095187396672
+      },
+      {
+       "quantity_tier": 4,
+       "price": 0.18949342856
+      },
+      {
+       "quantity_tier": 100000,
+       "price": 0.23796849168
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.windowsOS-BYOL",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "WINDOWS_VCPU_HOURS_BYOL",
+   "charge_unit_display_name": "Windows-vCPU-Hours-BYOL",
+   "charge_unit_name": "WINDOWS_VCPU_HOURS_BYOL",
+   "charge_unit": "Virtual Processor Core-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.SW.MSSQL-GEN3",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "MSSQL vCPU hours",
+   "charge_unit_display_name": "MSSQL Server Add On",
+   "charge_unit_name": "MSSQL_CORE_HOURS",
+   "charge_unit": "Virtual Processor Core-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0.01717
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0.014983201328000002
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.instance-hours-bx3d-128x640",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "InstanceHours",
+   "charge_unit_display_name": "Virtual Server Instance Hours",
+   "charge_unit_name": "INSTANCE_HOURS_MULTI_TENANT",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.rhelOS-BYOL",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "RHEL_INSTANCE_HOURS_BYOL",
+   "charge_unit_display_name": "RHEL-Instance-Hour-BYOL",
+   "charge_unit_name": "RHEL_INSTANCE_HOURS_BYOL",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.instance-hours-dh-bx3d-128x640",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "InstanceHours",
+   "charge_unit_display_name": "Virtual Server on Dedicated Host Instance Hours",
+   "charge_unit_name": "INSTANCE_HOURS_DEDICATED_HOST",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.instance-hours-reservation",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "Instance Hours Reservation",
+   "charge_unit_display_name": "Reservation Hours",
+   "charge_unit_name": "INSTANCE_HOURS_RESERVATION",
+   "charge_unit": "Reservation-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.redhatOS",
+   "tier_model": "Simple Tier",
+   "resource_display_name": "REDHAT_VCPU_HOURS",
+   "charge_unit_display_name": "Redhat-vCPU-Hour",
+   "charge_unit_name": "REDHAT_VCPU_HOURS",
+   "charge_unit": "Virtual Processor Core-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 8,
+       "price": 0.01717
+      },
+      {
+       "quantity_tier": 127,
+       "price": 0.01111
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.00909
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 8,
+       "price": 0.014983201328000002
+      },
+      {
+       "quantity_tier": 127,
+       "price": 0.009695012624
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.007932283056000002
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.rhelOS",
+   "tier_model": "Block Tier",
+   "resource_display_name": "RHEL_INSTANCE_HOURS",
+   "charge_unit_display_name": "Instance-Hour",
+   "charge_unit_name": "RHEL_INSTANCE_HOURS",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 4,
+       "price": 0.0606
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.1212
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 4,
+       "price": 0.052881887040000006
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.10576377408000001
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.rhelOS-SAPHANA",
+   "tier_model": "Block Tier",
+   "resource_display_name": "INSTANCE_HOURS",
+   "charge_unit_display_name": "RHEL-for-SAP-HANA-Hourly",
+   "charge_unit_name": "RHELSAPHANA_INSTANCE_HOURS",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 4,
+       "price": 0.1414
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.3131
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 4,
+       "price": 0.12339106976
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.27322308304
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.redhatOS-SAP-Apps",
+   "tier_model": "Simple Tier",
+   "resource_display_name": "REDHATSAPAPPS_VCPU_HOURS",
+   "charge_unit_display_name": "Redhat-SAP-Applications-Hourly",
+   "charge_unit_name": "RHELSAPAPPS_VCPU_HOURS",
+   "charge_unit": "Virtual Processor Core-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 8,
+       "price": 0.01717
+      },
+      {
+       "quantity_tier": 127,
+       "price": 0.01111
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.00909
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 8,
+       "price": 0.014983201328000002
+      },
+      {
+       "quantity_tier": 127,
+       "price": 0.009695012624
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.007932283056000002
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.rhelOS-SAP-Apps",
+   "tier_model": "Block Tier",
+   "resource_display_name": "INSTANCE_HOURS",
+   "charge_unit_display_name": "RHEL-for-SAP-Applications-Hourly",
+   "charge_unit_name": "RHELSAPAPPS_INSTANCE_HOURS",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 4,
+       "price": 0.0606
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.1212
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 4,
+       "price": 0.052881887040000006
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.10576377408000001
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.suseOS-SAP",
+   "tier_model": "Block Tier",
+   "resource_display_name": "INSTANCE_HOURS",
+   "charge_unit_display_name": "SUSE-for-SAP-Applications-Hourly",
+   "charge_unit_name": "SUSESAP_INSTANCE_HOURS",
+   "charge_unit": "Instance-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 2,
+       "price": 0.2222
+      },
+      {
+       "quantity_tier": 4,
+       "price": 0.4343
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.52
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 2,
+       "price": 0.19390025248
+      },
+      {
+       "quantity_tier": 4,
+       "price": 0.37898685712
+      },
+      {
+       "quantity_tier": 10000,
+       "price": 0.453771968
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  },
+  {
+   "part_ref": "",
+   "metric_id": "part-is.windowsOS",
+   "tier_model": "Linear Tier",
+   "resource_display_name": "WINDOWS_VCPU_HOURS",
+   "charge_unit_display_name": "Windows-vCPU-Hours",
+   "charge_unit_name": "WINDOWS_VCPU_HOURS",
+   "charge_unit": "Virtual Processor Core-Hour",
+   "charge_unit_quantity": 1,
+   "amounts": [
+    {
+     "country": "USA",
+     "currency": "USD",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0.05151
+      }
+     ]
+    },
+    {
+     "country": "EURO",
+     "currency": "EUR",
+     "prices": [
+      {
+       "quantity_tier": 1,
+       "price": 0.044949603984000004
+      }
+     ]
+    }
+   ],
+   "usage_cap_qty": 0,
+   "display_cap": 0,
+   "effective_from": "2026-10-01T00:00:00Z",
+   "effective_until": "2026-10-31T23:59:59.999Z",
+   "additional_properties": {
+    "included_quantities": {
+     "account": 0,
+     "instance": 0
+    }
+   }
+  }
+ ]
+}

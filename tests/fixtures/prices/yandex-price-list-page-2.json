@@ -1,0 +1,87 @@
+{
+ "skus": [
+  {
+   "externalId": "dn2a4569jg7ba5oce19a",
+   "name": "api-gateway.requests.v1",
+   "translatedName": "API Gateway. Requests to API gateway",
+   "service": {
+    "externalId": "dn25mc2lq81eqg1ohe4i",
+    "name": "api-gateway",
+    "description": "API Gateway",
+    "group": "Serverless",
+    "metadata": {
+     "validationPolicies": {
+      "paid_support_must_be_false": "disabled",
+      "paid_support_must_be_true": "warning"
+     },
+     "hasFreeTier": false,
+     "documentationUrl": "",
+     "humanReadableDescription": ""
+    },
+    "serviceInstanceType": "cloud",
+    "reviewStatus": "REVIEW_STATUS_UNSPECIFIED"
+   },
+   "usageUnit": "request",
+   "pricingUnit": "1m*request",
+   "translatedUsageUnit": "Request",
+   "translatedPricingUnit": "1 million requests",
+   "pricingVersion": {
+    "id": "dn2bqhvyzqepyhbgnxnn",
+    "effectiveTime": 1777582800000,
+    "pricingExpression": {
+     "rates": [
+      {
+       "startPricingQuantity": "0",
+       "unitPrice": "0"
+      },
+      {
+       "startPricingQuantity": "0.1",
+       "unitPrice": "142.3"
+      }
+     ]
+    },
+    "deprecated": false
+   }
+  },
+  {
+   "externalId": "dn2waf73ew5izjrkgflw",
+   "name": "baremetal.server.bms-publicannounce-pi-prefix-any.1-month",
+   "translatedName": "BareMetal. PI prefix announcement (1 month)",
+   "service": {
+    "externalId": "dn2jfbheag6vvls7oplt",
+    "name": "baremetal",
+    "description": "BareMetal",
+    "group": "Infrastructure",
+    "metadata": {
+     "validationPolicies": {
+      "paid_support_must_be_true": "warning",
+      "paid_support_must_be_false": "disabled"
+     },
+     "hasFreeTier": false,
+     "documentationUrl": "",
+     "humanReadableDescription": ""
+    },
+    "serviceInstanceType": "cloud",
+    "reviewStatus": "REVIEW_STATUS_UNSPECIFIED"
+   },
+   "usageUnit": "server*second",
+   "pricingUnit": "server*month",
+   "translatedUsageUnit": "server*second",
+   "translatedPricingUnit": "Server × month",
+   "pricingVersion": {
+    "id": "dn2riamylldfb4ofky5s",
+    "effectiveTime": 1774472400000,
+    "pricingExpression": {
+     "rates": [
+      {
+       "startPricingQuantity": "0",
+       "unitPrice": "4000"
+      }
+     ]
+    },
+    "deprecated": false
+   }
+  }
+ ],
+ "nextPageToken": ""
+}

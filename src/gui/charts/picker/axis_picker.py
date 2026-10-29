@@ -87,11 +87,11 @@ class AxisPicker(QWidget):
         self.presets = ChartPresets(self.logger)
         self.current = self.presets.default(scope)
         self.available: Optional[FrozenSet[DatasetKind]] = None
-        self.kind_bar = ChartKindBar()
-        self.y_box, self.x_box = OptionCombo("Y axis"), OptionCombo("X axis")
-        self.size_box, self.by_box = OptionCombo("Bubble size"), OptionCombo("Series")
-        self.facet_box = OptionCombo("Per")
-        self.menu = OptionsMenu()
+        self.kind_bar = ChartKindBar(self.logger)
+        self.y_box, self.x_box = OptionCombo("Y axis", self.logger), OptionCombo("X axis", self.logger)
+        self.size_box, self.by_box = OptionCombo("Bubble size", self.logger), OptionCombo("Series", self.logger)
+        self.facet_box = OptionCombo("Per", self.logger)
+        self.menu = OptionsMenu(self.logger)
         self.options_button = QToolButton()
         self.options_button.setObjectName("chartTool")
         self.options_button.setMenu(self.menu)
@@ -227,9 +227,10 @@ class AxisPicker(QWidget):
             axes (ChartAxes): The chart axes.
 
         Returns:
-            bool: Whether the values are raw, without forecast nor logarithmic axes (the number of series aside).
+            bool: Whether the values are raw, without forecast, derivative nor logarithmic axes (the number of series
+                aside).
         """
-        return axes.transform is ValueTransform.RAW and not axes.forecast and not axes.log_scale
+        return axes.transform is ValueTransform.RAW and not axes.forecast and not axes.log_scale and not axes.derivative
 
     def _wrap(self, wrapped: bool) -> None:
         """Move the combo boxes to a second row, or back to the first one.
@@ -239,6 +240,7 @@ class AxisPicker(QWidget):
         """
         if wrapped == self.wrapped:
             return
+        self.logger.debug("Chart picker laid out on %s.", "two rows" if wrapped else "one row")
         self.wrapped = wrapped
         if wrapped:
             self.top_row.removeWidget(self.fields)
@@ -250,6 +252,11 @@ class AxisPicker(QWidget):
     def _fill(self) -> None:
         """Show the chosen axes and the options going with them, without emitting a change."""
         axes, available = self.current, self.available
+        self.logger.debug(
+            "Chart picker showing a %s chart of %s in the %s scope.", axes.chart.value, axes.y.value, self.scope.value
+        )
+        if available is None:
+            self.logger.debug("Stored datasets unknown: no option blocked for a missing dataset.")
         kinds = [
             (kind.value, self.labels.KIND_LABELS[kind], self.labels.KIND_TIPS[kind])
             for kind in self.rules.kinds(self.scope)
@@ -287,10 +294,13 @@ class AxisPicker(QWidget):
             axes.forecast,
             self._reason(self.rules.forecastable(axes)),
             axes.log_scale if axes.chart is ChartKind.BUBBLE else None,
+            axes.derivative if self.rules.derivable(axes) is None else None,
         )
         self.options_button.setText("⚙ Options" if self._is_default(axes) else "⚙ Options •")
         self.options_button.setToolTip(
-            "Values, number of series, forecast" if self._is_default(axes) else "Some options differ from the defaults"
+            "Values, number of series, forecast, rate of change"
+            if self._is_default(axes)
+            else "Some options differ from the defaults"
         )
 
     def _read(self) -> ChartAxes:
@@ -302,6 +312,7 @@ class AxisPicker(QWidget):
         axes = self.current
         kind = ChartKind(self.kind_bar.kind() or axes.chart.value)
         if kind is not axes.chart:
+            self.logger.debug("Chart kind changed from %s to %s.", axes.chart.value, kind.value)
             return axes.model_copy(update={"chart": kind, "preset": None})
         size, facet = self.size_box.value(), self.facet_box.value()
         matrix = kind.is_matrix
@@ -318,6 +329,7 @@ class AxisPicker(QWidget):
             transform=ValueTransform(self.menu.transform() or axes.transform.value),
             forecast=self.menu.forecast(),
             log_scale=self.menu.log_scale(),
+            derivative=self.menu.derivative(),
             top=self.menu.top(),
         )
 
@@ -325,7 +337,10 @@ class AxisPicker(QWidget):
         """Repair the options chosen by the user, show them and report the new axes."""
         chosen = self._read()
         repaired = self.rules.repair(chosen)
+        if repaired != chosen:
+            self.logger.debug("Chosen chart options repaired to a valid chart.")
         if repaired == self.current:
+            self.logger.debug("Chart options unchanged after the repair.")
             self._fill()
             return
         self.current = repaired
@@ -351,7 +366,13 @@ class AxisPicker(QWidget):
         Args:
             axes (ChartAxes): The axes.
         """
-        self.current = self.rules.repair(axes.model_copy(update={"scope": self.scope}))
+        scoped = axes.model_copy(update={"scope": self.scope})
+        self.current = self.rules.repair(scoped)
+        if self.current != scoped:
+            self.logger.warning(
+                "Chart axes repaired before being shown: they were not valid in the %s scope.", self.scope.value
+            )
+        self.logger.debug("Chart axes shown: a %s chart of %s.", self.current.chart.value, self.current.y.value)
         self._fill()
 
     def set_available(self, available: Optional[FrozenSet[DatasetKind]]) -> None:
@@ -360,6 +381,10 @@ class AxisPicker(QWidget):
         Args:
             available (Optional[FrozenSet[DatasetKind]]): The stored datasets, `None` when unknown.
         """
+        self.logger.debug(
+            "Stored datasets of the chart picker: %s.",
+            sorted(dataset.value for dataset in available) if available is not None else "unknown",
+        )
         self.available = available
         self._fill()
 

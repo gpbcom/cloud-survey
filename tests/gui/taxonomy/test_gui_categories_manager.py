@@ -109,7 +109,7 @@ async def test_a_category_is_added_and_renamed(storage: Storage, manager: Catego
     with qtbot.waitSignal(manager.edited, timeout=20_000):
         editor._on_add(True)
 
-    taxonomy = await storage.taxonomy.read()
+    taxonomy = await storage.taxonomy.list()
     node = taxonomy.node("quantum-networking")
     assert node is not None
     assert node.parent_slug == taxonomy.domains()[0].slug
